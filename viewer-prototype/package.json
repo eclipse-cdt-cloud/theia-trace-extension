@@ -1,0 +1,41 @@
+{
+  "name": "viewer-prototype",
+  "version": "0.0.0",
+  "description": "Theia - Trace Compass trace viewer",
+  "keywords": [
+    "theia-extension"
+  ],
+  "license": "EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/theia-ide/theia-trace-extension"
+  },
+  "files": [
+    "lib",
+    "src"
+  ],
+  "dependencies": {
+    "@theia/core": "next",
+    "chart.js": "^2.7.2",
+    "react-chartjs-2": "^2.7.2",
+    "ag-grid-community": "^19.0.0",
+    "ag-grid-react": "^19.0.0",
+    "tsp-typescript-client": "git+ssh://git@github.com:theia-ide/tsp-typescript-client.git"
+  },
+  "devDependencies": {
+    "@types/chart.js": "^2.7.40",
+    "rimraf": "latest",
+    "typescript": "latest"
+  },
+  "scripts": {
+    "prepare": "yarn run clean && yarn run build",
+    "clean": "rimraf lib",
+    "build": "tsc",
+    "watch": "tsc -w"
+  },
+  "theiaExtensions": [
+    {
+      "frontend": "lib/browser/trace-viewer-frontend-module"
+    }
+  ]
+}
