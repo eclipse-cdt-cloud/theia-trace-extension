@@ -2,3 +2,20 @@ textarea {
     background-color: black;
     color: white;
 }
+/* .xy-info {
+    border: 1px solid rgb(156, 156, 156);
+} */
+.xy-container {
+    display: flex;
+    border: 1px solid rgb(156, 156, 156);
+}
+.tree-container {
+    flex: 1;
+}
+.tree-container>p {
+    color: white;
+    white-space: pre-wrap;
+}
+.line-chart-container {
+    flex: 2;
+}
