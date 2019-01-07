@@ -57,6 +57,8 @@ export class TraceViewerWidget extends ReactWidget {
     private XYData: object = {};
     private XYTree: string = '';
 
+    private XYEntriesMap: Map<number, any> = new Map();
+
     constructor(
         @inject(TraceViewerWidgetOptions) protected readonly options: TraceViewerWidgetOptions
     ) {
@@ -135,11 +137,15 @@ export class TraceViewerWidget extends ReactWidget {
             </AgGridReact>
         </div>;
     }
-
     protected renderLineChart(): React.ReactNode {
-        return <div className='line-chart'>
-            <textarea cols={50} rows={20} value={this.XYTree}></textarea>
-            <Line data={this.XYData} options={{ responsive: true }}></Line>
+        // <textarea cols={50} rows={20} value={this.XYTree}></textarea>
+        return <div className='xy-container'>
+            <div className='tree-container'>
+                <p>{this.XYTree}</p>
+            </div>
+            <div className='line-chart-container'>
+                <Line data={this.XYData} options={{ responsive: true, elements: { point: { radius: 0 } } }}></Line>
+            </div>
         </div>;
     }
 
@@ -218,7 +224,7 @@ export class TraceViewerWidget extends ReactWidget {
             'org.eclipse.tracecompass.internal.analysis.os.linux.core.threadstatus.ResourcesStatusDataProvider', resourcesTreeParameters);
         const treeModel = treeResponse.model;
         const entries = treeModel.entries;
-        this.timeGraphTree = this.buildTree(entries);
+        this.timeGraphTree = this.buildTree(treeModel.entries).toString();
 
         const selectedItems = new Array<number>();
         entries.forEach(timeGraphEntry => {
@@ -255,7 +261,7 @@ export class TraceViewerWidget extends ReactWidget {
             this.XYTree = 'CPU Usage analysis is ' + cpuTreeResponse.status;
             this.update();
         }
-        this.XYTree = this.buildTree(treeModel.entries);
+        this.XYTree = this.buildTree(treeModel.entries).toString();
 
         const cpuXYParameters = QueryHelper.selectionTimeQuery(
             QueryHelper.splitRangeIntoEqualParts(1332170682440133097, 1332170682540133097, 1165), [treeModel.entries[0].id, treeModel.entries[1].id]);
@@ -288,7 +294,7 @@ export class TraceViewerWidget extends ReactWidget {
         const treeResponse = await this.tspClient.fetchXYTree<Entry, EntryHeader>(this.openedTrace.UUID,
             'org.eclipse.tracecompass.internal.tmf.core.histogram.HistogramDataProvider', histogramTreeParameters);
         const treeModel = treeResponse.model;
-        this.XYTree = this.buildTree(treeModel.entries);
+        this.XYTree = this.buildTree(treeModel.entries).toString();
 
         const nameMap: Map<number, string> = new Map();
         const selectedItems = new Array<number>();
@@ -357,215 +363,54 @@ export class TraceViewerWidget extends ReactWidget {
         this.XYData = lineData;
     }
 
-    private buildTree(entries: Entry[]): string {
-        let result: string = '';
+    private buildTree(entries: Entry[]): any {
+        let root: any;
         entries.forEach(entry => {
-            result += JSON.stringify(entry) + '\n'; // 'Name: ' + entry.name + ' ID: ' + entry.id + ' Parent ID: ' + entry.parentId + '\n';
+            // const treeEntry = this.XYEntriesMap.get(entry.id);
+            if(entry.parentId !== -1) {
+                const treeEntry = new this.XYTreeNode(entry.id, entry.name[0]);
+                const parent = this.XYEntriesMap.get(entry.parentId);
+                parent.addChild(treeEntry);
+                this.XYEntriesMap.set(entry.id, treeEntry);
+            } else {
+                root = new this.XYTreeNode(entry.id, entry.name[0]);
+                this.XYEntriesMap.set(entry.id, root);
+            }
         });
-
-        return result;
+        return root;
     }
+
+    // private buildTree(entries: Entry[]): string {
+    //     let result: string = '';
+    //     entries.forEach(entry => {
+    //         result += JSON.stringify(entry) + '\n'; // 'Name: ' + entry.name + ' ID: ' + entry.id + ' Parent ID: ' + entry.parentId + '\n';
+    //     });
+
+    //     return result;
+    // }
+
+    XYTreeNode = class {
+        public _id: number;
+        public _name: string;
+        public _children: any[] = [];
+        constructor(id: number, name: string) {
+            this._id = id;
+            this._name = name;
+        }
+
+        public addChild(child: any) {
+            this._children.push(child);
+        }
+
+        public toString(): string {
+            let result = this._name + ' (' + this._id + ')' + '\n';
+            if(this._children.length > 0) {
+                this._children.forEach(child => {
+                    result = result + '\t' + child.toString();
+                });
+            }
+            return result;
+            // return 'Id: ' + this._id + ' Name: ' + this._name;
+        }
+    };
 }
-
-// @injectable()
-// export class TraceViewerWidget extends ReactWidget {
-
-//     static ID = 'trace-viewer';
-//     static LABEL = 'Trace Viewer';
-
-//     protected readonly uri: Path;
-//     protected readonly resource: Resource;
-//     private traceManager: TraceManager;
-//     private openedTrace: Trace;
-//     private traceInfoText: string = '';
-//     private disksIOData: any = {};
-//     private tableColumns: Array<any> = new Array();
-//     private tableLines: Array<any> = new Array();
-//     private nbOfEntries: number = 1;
-//     private diskIOTree: string = '';
-
-//     constructor(
-//         @inject(TraceViewerWidgetOptions) protected readonly options: TraceViewerWidgetOptions
-//     ) {
-//         super();
-//         this.traceManager = TraceManager.getInstance();
-//         this.uri = new Path(this.options.traceURI);
-//         this.id = 'theia-traceOpen';
-//         this.title.label = 'Trace: ' + this.uri.base;
-//         this.title.closable = true;
-//         this.addClass('theia-trace-open');
-//         this.initialize();
-//     }
-
-//     sleep(time: number) {
-//         const start = new Date().getTime();
-//         for (let i = 0; i < 1e7; i++) {
-//             if ((new Date().getTime() - start) > time) {
-//                 break;
-//             }
-//         }
-//     }
-
-//     async initialize(): Promise<void> {
-//         this.traceManager.openTrace(this.uri, this.uri.name).then(trace => {
-//             if (trace) {
-//                 this.openedTrace = trace;
-//                 this.updateTraceInfo(trace);
-//                 this.updateEventsTable();
-//                 this.updateDisksIO();
-//             }
-//         });
-//         this.update();
-//     }
-
-//     private updateTraceInfo(currentTrace: Trace) {
-//         this.traceInfoText = 'Name: ' + currentTrace.name + '\n' +
-//             'UUID: ' + currentTrace.UUID + '\n' +
-//             'Path: ' + currentTrace.path + '\n' +
-//             'Start: ' + currentTrace.start + '\n' +
-//             'End: ' + currentTrace.end + '\n' +
-//             'Nb of Events: ' + currentTrace.nbEvents;
-//         this.update();
-//     }
-
-//     private async updateEventsTable() {
-//         const treeUrl = 'http://localhost:8080/tracecompass/traces/' + this.openedTrace.UUID +
-//             '/providers/org.eclipse.tracecompass.internal.provisional.tmf.core.model.events.TmfEventTableDataProvider/tree';
-//         const columnResponse = await RestRequest.get(treeUrl);
-//         const columns = columnResponse.response.model as Array<any>;
-//         const columnIds: Array<number> = new Array;
-//         const columnsArray = new Array<any>();
-//         columns.forEach(column => {
-//             columnIds.push(column.id);
-//             const headerName: string = column.name;
-//             columnsArray.push({
-//                 headerName: headerName,
-//                 field: column.id.toString(),
-//                 width: 200
-//             });
-//         });
-//         this.tableColumns = columnsArray;
-
-//         const linesParams = new URLSearchParams();
-//         linesParams.set('size', '100');
-//         columnIds.forEach(id => {
-//             linesParams.append('columnId', id.toString());
-//         });
-
-//         const lineUrl = 'http://localhost:8080/tracecompass/traces/' + this.openedTrace.UUID +
-//             '/providers/org.eclipse.tracecompass.internal.provisional.tmf.core.model.events.TmfEventTableDataProvider/lines';
-//         const linesResponse = await RestRequest.get(lineUrl, linesParams);
-//         const lineModel = linesResponse.response.model;
-//         const lineData = lineModel.data as Array<any>;
-//         const linesArray = new Array<any>();
-//         lineData.forEach(data => {
-//             const obj: any = {};
-//             const line = data.line as Array<any>;
-//             for (let i = 0; i < line.length; i++) {
-//                 const cell = line[i];
-//                 const columnId: string = columnIds[i].toString();
-//                 obj[columnId] = cell;
-//             }
-//             linesArray.push(obj);
-//         });
-//         this.tableLines = linesArray;
-//         this.update();
-//     }
-
-//     private async updateDisksIO() {
-//         // Fetch Disks IO tree
-//         const params: URLSearchParams = new URLSearchParams();
-//         params.set('start', '0');
-//         params.set('end', '1');
-//         params.set('nb', '10');
-//         const finalUrl = 'http://localhost:8080/tracecompass/traces/' + this.openedTrace.UUID +
-//             '/providers/org.eclipse.tracecompass.analysis.os.linux.core.inputoutput.DisksIODataProvider/tree';
-//         let treeResponse = await RestRequest.get(finalUrl, params);
-//         while (treeResponse.response.status === 'RUNNING') {
-//             treeResponse = await RestRequest.get(finalUrl, params);
-//         }
-//         this.buildTree(treeResponse.response.model);
-//         const kernel8WriteId = treeResponse.response.model[3].id;
-
-//         // Fetch Disks IO Data
-//         const xyParams: URLSearchParams = new URLSearchParams();
-//         xyParams.set('start', '1332170682440133097');
-//         xyParams.set('end', '1332170692664579801');
-//         xyParams.set('nb', '20');
-//         xyParams.set('ids', kernel8WriteId);
-//         const finalXyUrl = 'http://localhost:8080/tracecompass/traces/' + this.openedTrace.UUID +
-//             '/providers/org.eclipse.tracecompass.analysis.os.linux.core.inputoutput.DisksIODataProvider/xy';
-//         const xyResponse = await RestRequest.get(finalXyUrl, xyParams);
-//         const traceInfo = xyResponse.trace as Trace;
-//         this.updateTraceInfo(traceInfo);
-//         const xyModel = xyResponse.response.model;
-
-//         const lineData = {
-//             labels: xyModel.xaxis,
-//             datasets: [
-//                 {
-//                     label: 'Disk IO',
-//                     backgroundColor: 'rgba(75,192,192,0.4)',
-//                     data: xyModel.ydata['kernel\/8\,0\/write'].data
-//                 }
-//             ]
-//         };
-//         this.disksIOData = lineData;
-//         this.update();
-//     }
-
-//     private buildTree(entries: any[]) {
-//         this.nbOfEntries = entries.length;
-//         entries.forEach(entry => {
-//             this.diskIOTree = this.diskIOTree + 'Entry ID: ' + entry.id + ', ' + 'Parent ID: ' + entry.parentId + ', ' + 'Entry Name: ' + entry.name + '\n';
-//         });
-//     }
-
-//     onCloseRequest(msg: Message) {
-//         this.traceManager.closeTrace(this.openedTrace, this.uri);
-//         super.onCloseRequest(msg);
-//     }
-
-//     protected renderTraceInfo(): React.ReactNode {
-//         return <div className='trace-info-text'>
-//             <textarea
-//                 cols={150}
-//                 rows={6} value={this.traceInfoText}>
-//             </textarea>
-//         </div >;
-//     }
-
-//     protected renderEventsTable(): React.ReactNode {
-//         return <div className='ag-theme-balham' style={{ height: '500px' }}>
-//             <AgGridReact
-//                 columnDefs={this.tableColumns}
-//                 rowData={this.tableLines}>
-//             </AgGridReact>
-//         </div>;
-//     }
-
-//     protected renderDisksIO(): React.ReactNode {
-//         return <div className='trace-diskIO'>
-//             <div className='trace-diskIO-tree'>
-//                 <textarea cols={150} rows={this.nbOfEntries} value={this.diskIOTree}></textarea>
-//             </div>
-//             <div className='trace-diskIO-chart'>
-//                 <Line data={this.disksIOData} options={{ responsive: true }}></Line>
-//             </div>
-//         </div>;
-//     }
-
-//     protected render(): React.ReactNode {
-//         return <div className='trace-viewer-container'>
-//             <div className='trace-info-container'>
-//                 {this.renderTraceInfo()}
-//             </div>
-//             <div>
-//                 {this.renderDisksIO()}
-//             </div>
-//             <div className='ag-theme-balham'>
-//                 {this.renderEventsTable()}
-//             </div>
-//         </div>;
-//     }
-// }

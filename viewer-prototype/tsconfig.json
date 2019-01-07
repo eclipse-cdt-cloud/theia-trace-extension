@@ -7,7 +7,7 @@
         "downlevelIteration": true,
         "module": "commonjs",
         "moduleResolution": "node",
-        "target": "es5",
+        "target": "ESNEXT",
         "jsx": "react",
         "lib": [
             "es6",
