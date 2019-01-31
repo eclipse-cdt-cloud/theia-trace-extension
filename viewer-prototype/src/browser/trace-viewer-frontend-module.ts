@@ -21,7 +21,9 @@ import { TraceViewerContribution } from './trace-viewer-contribution';
 import { CommandContribution } from '@theia/core/lib/common';
 
 import 'ag-grid-community/dist/styles/ag-grid.css';
-import 'ag-grid-community/dist/styles/ag-theme-balham.css';
+import 'ag-grid-community/dist/styles/ag-theme-balham-dark.css';
+import 'react-grid-layout/css/styles.css';
+import 'react-resizable/css/styles.css';
 import '../../src/browser/style/trace-viewer.css';
 
 export default new ContainerModule(bind => {

@@ -30,6 +30,8 @@ import { TimeGraphModel, TimeGraphEntry } from 'tsp-typescript-client/lib/models
 import { XYSeries } from 'tsp-typescript-client/lib/models/xy';
 import { ResponseStatus } from 'tsp-typescript-client/lib/models/response/responses';
 import { QueryHelper } from 'tsp-typescript-client/lib/models/query/query-helper';
+import * as GridLayout from 'react-grid-layout';
+
 
 export const TraceViewerWidgetOptions = Symbol('TraceViewerWidgetOptions');
 export interface TraceViewerWidgetOptions {
@@ -47,17 +49,17 @@ export class TraceViewerWidget extends ReactWidget {
     private traceManager: TraceManager;
     private tspClient: TspClient;
     private openedTrace: Trace | undefined;
-    private traceInfoText: string = '';
+    private traceInfo: Array<any> = new Array();
     private tableColumns: Array<any> = new Array();
     private tableLines: Array<any> = new Array();
 
     private timeGraphTree: string = '';
+    private timeGraphTitle: string = '';
     private timeGraphState: string = '';
 
     private XYData: object = {};
     private XYTree: string = '';
-
-    private XYEntriesMap: Map<number, any> = new Map();
+    private XYTitle: string = '';
 
     constructor(
         @inject(TraceViewerWidgetOptions) protected readonly options: TraceViewerWidgetOptions
@@ -77,7 +79,7 @@ export class TraceViewerWidget extends ReactWidget {
         this.traceManager.openTrace(this.uri, this.uri.name).then(trace => {
             if (trace) {
                 this.openedTrace = trace;
-                this.traceInfoText = this.traceToString(trace);
+                this.traceInfo = this.traceToGridLines(trace);
                 this.updateTraceInfo(trace);
                 this.updateEventsTable();
             }
@@ -97,40 +99,65 @@ export class TraceViewerWidget extends ReactWidget {
         this.handleResourcesTimeGraph = this.handleResourcesTimeGraph.bind(this);
         this.handleCpuXY = this.handleCpuXY.bind(this);
         return <div className='trace-viewer-container'>
-            <div className='trace-info-container'>
-                {this.renderTraceInfo()}
-            </div>
-            <div className='fetch-buttons'>
-                <button onClick={this.handleResourcesTimeGraph}>Resources</button>
-                <button onClick={this.handleControlFlowTimeGraph}>Control Flow View</button>
-                <button onClick={this.handleCpuXY}>CPU Usage</button>
-                <button onClick={this.handleDiskXY}>Disk Usage</button>
-                <button onClick={this.handleHistogramXY}>Histogram</button>
-            </div>
-            <div className='timegraph-info'>
-                <textarea cols={50} rows={20} value={this.timeGraphTree}></textarea>
-                <textarea cols={100} rows={20} value={this.timeGraphState}></textarea>
-            </div>
-            <div className='xy-info'>
-                {this.renderLineChart()}
-            </div>
-            <div className='ag-theme-balham'>
-                {this.renderEventsTable()}
-            </div>
+            <GridLayout className='viewer-grid' cols={1} rowHeight={100} width={1600} draggableHandle={'.widget-handle'}>            
+                <div className='trace-info-container' key='trace-info' data-grid={{x: 0, y: 0, w: 1, h: 3}}>
+                    {this.renderTraceInfo()}
+                </div>
+                <div className='fetch-buttons' key='action-buttons' data-grid={{x: 0, y: 0, w: 1, h: 1}}>
+                    <button onClick={this.handleResourcesTimeGraph}>Resources</button>
+                    <button onClick={this.handleControlFlowTimeGraph}>Control Flow View</button>
+                    <button onClick={this.handleCpuXY}>CPU Usage</button>
+                    <button onClick={this.handleDiskXY}>Disk Usage</button>
+                    <button onClick={this.handleHistogramXY}>Histogram</button>
+                </div>
+                <div className='timegraph-info' key='time-graph-area' data-grid={{x: 0, y: 0, w: 1, h: 4}}>
+                    {this.renderTimeGraph()}
+                </div>            
+                <div className='xy-info' key='xy-area' data-grid={{x: 0, y: 0, w: 1, h: 6}}>
+                    {this.renderLineChart()}
+                </div>
+                <div key='events-table' data-grid={{x: 0, y: 0, w: 1, h: 5}}>
+                    {this.renderEventsTable()}
+                </div>
+            </GridLayout>
         </div>;
     }
 
+    protected renderTimeGraph() {
+        if (!this.openedTrace) {
+            return;
+        }
+        return <div className='timegraph-view'>
+            <div className='widget-handle'>
+                {this.timeGraphTitle}
+            </div>
+            <div className='timegraph-tree-container'>
+                <p>{this.timeGraphTree}</p>
+            </div>
+            <div className='timegraph-states'>
+                <p>{this.timeGraphState}</p>
+            </div>
+        </div>
+    }
+
     protected renderTraceInfo(): React.ReactNode {
-        return <div className='trace-info-text'>
-            <textarea
-                cols={150}
-                rows={7} value={this.traceInfoText}>
-            </textarea>
-        </div >;
+        return <div className='ag-theme-balham-dark' style={{ height: '250px' }}>
+                <div className='widget-handle'>
+                    {'Trace Properties'}
+                </div>
+                <AgGridReact
+                    enableColResize={true}
+                    columnDefs={[{headerName: 'Property', field: 'property', width: 130}, {headerName: 'Value', field: 'value', width: 500}]}
+                    rowData={this.traceInfo}>
+                </AgGridReact>
+            </div>;
     }
 
     protected renderEventsTable(): React.ReactNode {
-        return <div className='ag-theme-balham' style={{ height: '500px' }}>
+        return <div className='ag-theme-balham-dark' style={{ height: '500px' }}>
+            <div className='widget-handle'>
+                {'Events'}
+            </div>
             <AgGridReact
                 columnDefs={this.tableColumns}
                 rowData={this.tableLines}>
@@ -138,8 +165,10 @@ export class TraceViewerWidget extends ReactWidget {
         </div>;
     }
     protected renderLineChart(): React.ReactNode {
-        // <textarea cols={50} rows={20} value={this.XYTree}></textarea>
         return <div className='xy-container'>
+            <div className='widget-handle'>
+                {this.XYTitle}
+            </div>
             <div className='tree-container'>
                 <p>{this.XYTree}</p>
             </div>
@@ -152,7 +181,7 @@ export class TraceViewerWidget extends ReactWidget {
     private async updateTraceInfo(currentTrace: Trace) {
         const trace = await this.tspClient.fetchTrace(currentTrace.UUID);
         this.openedTrace = trace;
-        this.traceInfoText = this.traceToString(trace);
+        this.traceInfo = this.traceToGridLines(trace);
         this.update();
 
         // TODO: Not Good use observable
@@ -161,14 +190,14 @@ export class TraceViewerWidget extends ReactWidget {
         }
     }
 
-    private traceToString(trace: Trace): string {
-        return 'Name: ' + trace.name + '\n' +
-            'UUID: ' + trace.UUID + '\n' +
-            'Path: ' + trace.path + '\n' +
-            'Start: ' + trace.start + '\n' +
-            'End: ' + trace.end + '\n' +
-            'Nb of Events: ' + trace.nbEvents + '\n' +
-            'Indexing Status: ' + trace.indexingStatus;
+    private traceToGridLines(trace: Trace): Array<any> {
+        return [{ property: 'Name', value: trace.name },
+        { property: 'UUID', value: trace.UUID },
+        { property: 'Path', value: trace.path },
+        { property: 'Start time', value: trace.start },
+        { property: 'End time', value: trace.end },
+        { property: 'Nb of Events', value: trace.nbEvents },
+        { property: 'Indexing Status', value: trace.indexingStatus }];
     }
 
     private async updateEventsTable() {
@@ -218,13 +247,14 @@ export class TraceViewerWidget extends ReactWidget {
         if (!this.openedTrace) {
             return;
         }
+        this.timeGraphTitle = 'Resources';
 
         const resourcesTreeParameters = QueryHelper.timeQuery([0, 1]);
         const treeResponse = await this.tspClient.fetchTimeGraphTree<TimeGraphEntry, EntryHeader>(this.openedTrace.UUID,
             'org.eclipse.tracecompass.internal.analysis.os.linux.core.threadstatus.ResourcesStatusDataProvider', resourcesTreeParameters);
         const treeModel = treeResponse.model;
         const entries = treeModel.entries;
-        this.timeGraphTree = this.buildTree(treeModel.entries).toString();
+        this.timeGraphTree = this.buildTree(entries).toString();
 
         const selectedItems = new Array<number>();
         entries.forEach(timeGraphEntry => {
@@ -248,6 +278,8 @@ export class TraceViewerWidget extends ReactWidget {
         if (!this.openedTrace) {
             return;
         }
+
+        this.XYTitle = 'CPU Usage';
 
         const cpuTreeParameters = QueryHelper.selectionTimeQuery(
             QueryHelper.splitRangeIntoEqualParts(1332170682440133097, 1332170682540133097, 1165), [], [], { 'cpus': [] });
@@ -289,6 +321,8 @@ export class TraceViewerWidget extends ReactWidget {
         if (!this.openedTrace) {
             return;
         }
+
+        this.XYTitle = 'Histogram';
 
         const histogramTreeParameters = QueryHelper.timeQuery([0, 1]);
         const treeResponse = await this.tspClient.fetchXYTree<Entry, EntryHeader>(this.openedTrace.UUID,
@@ -364,32 +398,25 @@ export class TraceViewerWidget extends ReactWidget {
     }
 
     private buildTree(entries: Entry[]): any {
+        const entriesMap: Map<number, any> = new Map();
         let root: any;
         entries.forEach(entry => {
-            // const treeEntry = this.XYEntriesMap.get(entry.id);
+            // TODO: very ugly hack since the server serialization is wrong
+            const entryName = (entry as any).names[0];
             if(entry.parentId !== -1) {
-                const treeEntry = new this.XYTreeNode(entry.id, entry.name[0]);
-                const parent = this.XYEntriesMap.get(entry.parentId);
+                const treeEntry = new this.EntryTreeNode(entry.id, entryName);
+                const parent = entriesMap.get(entry.parentId);
                 parent.addChild(treeEntry);
-                this.XYEntriesMap.set(entry.id, treeEntry);
+                entriesMap.set(entry.id, treeEntry);
             } else {
-                root = new this.XYTreeNode(entry.id, entry.name[0]);
-                this.XYEntriesMap.set(entry.id, root);
+                root = new this.EntryTreeNode(entry.id, entryName);
+                entriesMap.set(entry.id, root);
             }
         });
         return root;
     }
 
-    // private buildTree(entries: Entry[]): string {
-    //     let result: string = '';
-    //     entries.forEach(entry => {
-    //         result += JSON.stringify(entry) + '\n'; // 'Name: ' + entry.name + ' ID: ' + entry.id + ' Parent ID: ' + entry.parentId + '\n';
-    //     });
-
-    //     return result;
-    // }
-
-    XYTreeNode = class {
+    EntryTreeNode = class {
         public _id: number;
         public _name: string;
         public _children: any[] = [];
@@ -403,14 +430,13 @@ export class TraceViewerWidget extends ReactWidget {
         }
 
         public toString(): string {
-            let result = this._name + ' (' + this._id + ')' + '\n';
+            let result = (this._name === '' ? '----------' : this._name) + ' (' + this._id + ')' + '\n';
             if(this._children.length > 0) {
                 this._children.forEach(child => {
                     result = result + '\t' + child.toString();
                 });
             }
             return result;
-            // return 'Id: ' + this._id + ' Name: ' + this._name;
         }
     };
 }
