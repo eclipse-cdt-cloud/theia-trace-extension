@@ -2,20 +2,67 @@ textarea {
     background-color: black;
     color: white;
 }
-/* .xy-info {
-    border: 1px solid rgb(156, 156, 156);
-} */
+
+/* XY styling */
 .xy-container {
-    display: flex;
-    border: 1px solid rgb(156, 156, 156);
+    display: grid;
+    grid-template-columns: 25% 75%;
+    grid-template-rows: 25px 1fr;
+    border: 1px solid rgba(97, 97, 97, 0.5);
 }
 .tree-container {
-    flex: 1;
+    grid-column-start: 1;
+    grid-row-start: 2;
+    overflow-y: scroll;
+    max-height: 500px;
+    min-width: 250px;
 }
 .tree-container>p {
     color: white;
     white-space: pre-wrap;
 }
 .line-chart-container {
-    flex: 2;
+    grid-column-start: 2;
+    grid-row-start: 2;
+}
+
+/* Time Graph styling */
+.timegraph-view {
+    display: grid;
+    grid-template-columns: 25% 75%;
+    grid-template-rows: 25px 1fr;
+    border: 1px solid rgba(97, 97, 97, 0.5);
+}
+.widget-handle {
+    grid-column-start: 1;
+    grid-column-end: span 3;
+    grid-row-start: 1;
+    background-color: rgba(97, 97, 97, 0.5);
+    color: white;
+    text-align: center;
+}
+.timegraph-tree-container {
+    grid-column-start: 1;
+    grid-row-start: 2;
+    overflow-y: scroll;
+    max-height: 340px;
+    min-width: 250px;
+}
+.timegraph-tree-container>p {
+    color: white;
+    white-space: pre-wrap;
+}
+.timegraph-states {
+    grid-column-start: 2;
+    grid-row-start: 2;
+    overflow-y: scroll;
+    max-height: 340px;
+}
+.timegraph-states>p {
+    color: white;
+    white-space: pre-wrap;
+}
+
+.react-grid-item.react-grid-placeholder {
+    background: rgba(97, 97, 97, 0.8);
 }
