@@ -1,0 +1,63 @@
+.trace-explorer-container {
+    display: grid;
+    grid-template-columns: 100%;
+    grid-template-rows: 1fr 1fr 1fr;
+    grid-row-gap: 10px;
+}
+
+.trace-explorer-opened {
+    grid-row-start: 1;
+    display: grid;
+    grid-template-columns: 100%;
+    grid-template-rows: 25px 1fr;
+}
+
+.trace-explorer-files {
+    grid-row-start: 2;
+    display: grid;
+    grid-template-columns: 100%;
+    grid-template-rows: 25px 1fr;
+}
+
+.trace-explorer-analysis {
+    grid-row-start: 3;
+    display: grid;
+    grid-template-columns: 100%;
+    grid-template-rows: 25px 1fr;
+}
+
+.trace-explorer-panel-title {
+    grid-row-start: 1;
+    background-color: rgba(97, 97, 97, 0.5);
+    color: white;
+    text-align: center;
+    line-height: 25px;
+}
+
+.trace-explorer-panel-content {
+    grid-row-start: 2;
+    border: 1px solid rgba(97, 97, 97, 0.5);
+    color: white;
+    padding-inline-start: 5px;
+    overflow-x: scroll;
+    white-space: nowrap;
+}
+
+.trace-explorer-panel-content>ul {
+    list-style-type: none;
+    padding-inline-start: 0px;
+}
+
+.trace-list-container, .outputs-list-container {
+    color: white;
+    overflow-x: scroll;
+    white-space: nowrap;
+}
+
+.trace-list-name, .outputs-list-name {
+    font-weight: bold;
+}
+
+.trace-list-path, .outputs-list-description {
+    color: rgb(160, 160, 160);
+}

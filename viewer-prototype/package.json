@@ -21,11 +21,13 @@
     "ag-grid-community": "^19.0.0",
     "ag-grid-react": "^19.0.0",
     "react-grid-layout": "^0.16.6",
+    "react-virtualized": "^9.21.0",
     "tsp-typescript-client": "https://github.com/theia-ide/tsp-typescript-client"
   },
   "devDependencies": {
     "@types/chart.js": "^2.7.40",
     "@types/react-grid-layout": "^0.16.5",
+    "@types/react-virtualized": "^9.18.12",
     "rimraf": "latest",
     "typescript": "latest"
   },

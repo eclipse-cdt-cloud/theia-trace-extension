@@ -15,34 +15,52 @@
  ********************************************************************************/
 
 import { Trace } from 'tsp-typescript-client/lib/models/trace';
-import { Path } from '@theia/core';
+import { Path, Emitter } from '@theia/core';
 import { TspClient } from 'tsp-typescript-client/lib/protocol/tsp-client';
 import { Query } from 'tsp-typescript-client/lib/models/query/query';
+import { injectable, inject } from 'inversify';
+import { OutputDescriptor } from 'tsp-typescript-client/lib/models/output-descriptor';
 
+@injectable()
 export class TraceManager {
-    private static instance: TraceManager;
-    private tspClient: TspClient;
+    // Open signal
+    private traceOpenedEmitter = new Emitter<Trace>();
+    public traceOpenedSignal = this.traceOpenedEmitter.event;
+
+    // Close signal
+    private traceClosedEmitter = new Emitter<Trace>();
+    public traceClosedSignal = this.traceClosedEmitter.event;
 
     private fOpenTraces: Map<string, Trace>;
 
-    private constructor() {
+    private constructor(
+        @inject(TspClient) private tspClient: TspClient
+    ) {
         this.fOpenTraces = new Map();
-        this.tspClient = new TspClient('http://localhost:8080/tsp/api');
-    }
-
-    static getInstance() {
-        if (!this.instance) {
-            this.instance = new TraceManager();
-        }
-        return this.instance;
     }
 
     getOpenTraces() {
-        return this.fOpenTraces.values;
+        const openedTraces: Array<Trace> = new Array();
+        for(let entry of this.fOpenTraces) {
+            openedTraces.push(entry[1]);
+        }
+        return openedTraces;
     }
 
     getTrace(traceName: string) {
         return this.fOpenTraces.get(traceName);
+    }
+
+    async getAvailableOutputs(traceName: string): Promise<OutputDescriptor[] | undefined> {
+        const trace = this.fOpenTraces.get(traceName);
+        if (trace) {
+            try {
+                return await this.tspClient.experimentOutputs(trace.UUID);
+            } catch (e) {
+                return undefined;
+            }
+        }
+        return undefined;
     }
 
     async openTrace(traceURI: Path, traceName?: string): Promise<Trace | undefined> {
@@ -63,6 +81,7 @@ export class TraceManager {
             }, []));
             // const trace: Trace = await RestRequest.post('http://localhost:8080/tsp/api/traces', params);
             this.addTrace(trace);
+            this.traceOpenedEmitter.fire(trace);
             return trace;
         } catch (e) {
             return undefined;
@@ -96,7 +115,10 @@ export class TraceManager {
             // const requestURL = 'http://localhost:8080/tsp/api/traces' + '/' + traceUUID;
             await this.tspClient.deleteTrace(traceUUID);
             // await RestRequest.delete(requestURL);
-            this.removeTrace(traceToClose.name);
+            const deletedTrace = this.removeTrace(traceToClose.name);
+            if (deletedTrace) {
+                this.traceClosedEmitter.fire(deletedTrace);
+            }
 
             // const res = await fetch(requestURL, {
             //     method: 'delete'
@@ -113,7 +135,9 @@ export class TraceManager {
         this.fOpenTraces.set(trace.name, trace);
     }
 
-    private removeTrace(traceName: string) {
+    private removeTrace(traceName: string): Trace | undefined {
+        const deletedTrace = this.fOpenTraces.get(traceName);
         this.fOpenTraces.delete(traceName);
+        return deletedTrace;
     }
 }
