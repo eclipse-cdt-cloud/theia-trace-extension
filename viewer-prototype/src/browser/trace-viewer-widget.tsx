@@ -31,6 +31,8 @@ import { XYSeries } from 'tsp-typescript-client/lib/models/xy';
 import { ResponseStatus } from 'tsp-typescript-client/lib/models/response/responses';
 import { QueryHelper } from 'tsp-typescript-client/lib/models/query/query-helper';
 import * as GridLayout from 'react-grid-layout';
+import { TimeGraphView } from './timegraph-view/timegraph-view';
+import { TimeGraphRowElement } from 'timeline-chart/lib/components/time-graph-row-element';
 
 
 export const TraceViewerWidgetOptions = Symbol('TraceViewerWidgetOptions');
@@ -50,9 +52,12 @@ export class TraceViewerWidget extends ReactWidget {
     private tableColumns: Array<any> = new Array();
     private tableLines: Array<any> = new Array();
 
+    private timeGraphView: TimeGraphView | undefined;
     private timeGraphTree: string = '';
     private timeGraphTitle: string = '';
     private timeGraphState: string = '';
+    private selectedState: TimeGraphRowElement | undefined;
+    private hoveredState: TimeGraphRowElement | undefined;
 
     private XYData: object = {};
     private XYTree: string = '';
@@ -91,6 +96,12 @@ export class TraceViewerWidget extends ReactWidget {
         super.onCloseRequest(msg);
     }
 
+    protected onResize() {
+        if (this.timeGraphView) {
+            this.timeGraphView.onWidgetResize();
+        }
+    }
+
     protected render(): React.ReactNode {
         this.handleHistogramXY = this.handleHistogramXY.bind(this);
         this.handleResourcesTimeGraph = this.handleResourcesTimeGraph.bind(this);
@@ -121,9 +132,24 @@ export class TraceViewerWidget extends ReactWidget {
     }
 
     protected renderTimeGraph() {
-        if (!this.openedTrace) {
+        if(!this.openedTrace || this.openedTrace.indexingStatus === 'RUNNING') {
             return;
         }
+
+        if (!this.timeGraphView) {
+            this.timeGraphView = new TimeGraphView(this.tspClient, {
+                selectionHandler: (el?: TimeGraphRowElement) => { this.selectedState = el; console.log(this.selectedState); this.update(); },
+                mouseOverHandler: (el?: TimeGraphRowElement) => { this.hoveredState = el; console.log(this.hoveredState); this.update(); },
+                mouseOutHandler: (el?: TimeGraphRowElement) => { this.hoveredState = undefined; this.update(); },
+                updateHandler: () => { this.update(); }
+            });
+        };
+        // const uuid = this.openedTrace ? this.openedTrace.UUID : '';
+
+        // if (!this.openedTrace) {
+        //     return;
+        // }
+        console.log(this.timeGraphState);
         return <div className='timegraph-view'>
             <div className='widget-handle'>
                 {this.timeGraphTitle}
@@ -131,10 +157,13 @@ export class TraceViewerWidget extends ReactWidget {
             <div className='timegraph-tree-container'>
                 <p>{this.timeGraphTree}</p>
             </div>
-            <div className='timegraph-states'>
-                <p>{this.timeGraphState}</p>
+            <div id='timegraph-main' className='ps__child--consume' onWheel={ev => { ev.preventDefault(); ev.stopPropagation(); }}>
+                {this.timeGraphView.renderTimeGraphChart()}
             </div>
-        </div>
+            {/* <div className='timegraph-states'>
+                <p>{this.timeGraphState}</p>
+            </div> */}
+        </div>;
     }
 
     protected renderTraceInfo(): React.ReactNode {
@@ -399,7 +428,7 @@ export class TraceViewerWidget extends ReactWidget {
         let root: any;
         entries.forEach(entry => {
             // TODO: very ugly hack since the server serialization is wrong
-            const entryName = (entry as any).names[0];
+            const entryName = (entry as any).labels[0];
             if(entry.parentId !== -1) {
                 const treeEntry = new this.EntryTreeNode(entry.id, entryName);
                 const parent = entriesMap.get(entry.parentId);

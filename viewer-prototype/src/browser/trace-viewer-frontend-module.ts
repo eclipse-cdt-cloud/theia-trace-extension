@@ -26,6 +26,7 @@ import 'react-grid-layout/css/styles.css';
 import 'react-resizable/css/styles.css';
 import '../../src/browser/style/trace-viewer.css';
 import '../../src/browser/style/trace-explorer.css';
+import '../../src/browser/style/timegraph.css';
 import { TraceExplorerContribution } from './trace-explorer/trace-explorer-contribution';
 import { TRACE_EXPLORER_ID, TraceExplorerWidget } from './trace-explorer/trace-explorer-widget';
 import { TspClient } from 'tsp-typescript-client/lib/protocol/tsp-client';
