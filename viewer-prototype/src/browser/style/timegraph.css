@@ -1,0 +1,22 @@
+#timegraph-main {
+    width: 100%;
+    display: flex;
+}
+
+#main {
+    border: 1px solid;
+    margin: 10px 0;
+    overflow: hidden;
+}
+
+canvas {
+    display: block;
+}
+
+.innerContainer {
+    width: 100%;
+}
+
+#main-vscroll {
+    margin-top: 30px;
+}
