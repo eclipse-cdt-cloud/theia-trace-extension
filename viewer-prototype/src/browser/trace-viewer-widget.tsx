@@ -26,14 +26,14 @@ import { TraceManager } from '../common/trace-manager';
 import { Trace } from 'tsp-typescript-client/lib/models/trace';
 import { Entry, EntryHeader } from 'tsp-typescript-client/lib/models/entry';
 import { Line } from 'react-chartjs-2';
-import { TimeGraphModel, TimeGraphEntry } from 'tsp-typescript-client/lib/models/timegraph';
+import { TimeGraphEntry } from 'tsp-typescript-client/lib/models/timegraph';
 import { XYSeries } from 'tsp-typescript-client/lib/models/xy';
 import { ResponseStatus } from 'tsp-typescript-client/lib/models/response/responses';
 import { QueryHelper } from 'tsp-typescript-client/lib/models/query/query-helper';
 import * as GridLayout from 'react-grid-layout';
 import { TimeGraphView } from './timegraph-view/timegraph-view';
 import { TimeGraphRowElement } from 'timeline-chart/lib/components/time-graph-row-element';
-
+import { OutputDescriptor } from 'tsp-typescript-client/lib/models/output-descriptor';
 
 export const TraceViewerWidgetOptions = Symbol('TraceViewerWidgetOptions');
 export interface TraceViewerWidgetOptions {
@@ -46,16 +46,22 @@ export class TraceViewerWidget extends ReactWidget {
     static ID = 'trace-viewer';
     static LABEL = 'Trace Viewer';
 
+    private readonly RESOURCES_OUTPUT_ID: string = 'org.eclipse.tracecompass.internal.analysis.os.linux.core.threadstatus.ResourcesStatusDataProvider';
+    private readonly THREAD_STATUS_OUTPUT_ID: string = 'org.eclipse.tracecompass.internal.analysis.os.linux.core.threadstatus.ThreadStatusDataProvider';
+
     protected readonly uri: Path;
     private openedTrace: Trace | undefined;
-    private traceInfo: Array<any> = new Array();
+    // private traceInfo: Array<any> = new Array();
     private tableColumns: Array<any> = new Array();
     private tableLines: Array<any> = new Array();
+    private outputDescriptors: OutputDescriptor[] | undefined;
 
-    private timeGraphView: TimeGraphView | undefined;
-    private timeGraphTree: string = '';
-    private timeGraphTitle: string = '';
-    private timeGraphState: string = '';
+    // private timeGraphView: TimeGraphView | undefined;
+    private timeGraphViews: Map<string, TimeGraphView> = new Map();
+    private timeGraphTrees: Map<string, string> = new Map();
+    // private timeGraphTree: string = '';
+    // private timeGraphTitle: string = '';
+    // private timeGraphState: string = '';
     private selectedState: TimeGraphRowElement | undefined;
     private hoveredState: TimeGraphRowElement | undefined;
 
@@ -78,14 +84,22 @@ export class TraceViewerWidget extends ReactWidget {
     }
 
     async initialize(): Promise<void> {
-        this.traceManager.openTrace(this.uri, this.uri.name).then(trace => {
-            if (trace) {
-                this.openedTrace = trace;
-                this.traceInfo = this.traceToGridLines(trace);
-                this.updateTraceInfo(trace);
-                this.updateEventsTable();
-            }
-        });
+        const trace = await this.traceManager.openTrace(this.uri, this.uri.name);
+        if (trace) {
+            this.openedTrace = trace;
+            // this.traceInfo = this.traceToGridLines(trace);
+            this.outputDescriptors = await this.traceManager.getAvailableOutputs(trace.name);
+            this.updateTraceInfo(trace);
+            this.updateEventsTable();
+        }
+        // this.traceManager.openTrace(this.uri, this.uri.name).then(trace => {
+        //     if (trace) {
+        //         this.openedTrace = trace;
+        //         this.traceInfo = this.traceToGridLines(trace);
+        //         this.updateTraceInfo(trace);
+        //         this.updateEventsTable();
+        //     }
+        // });
         this.update();
     }
 
@@ -97,30 +111,37 @@ export class TraceViewerWidget extends ReactWidget {
     }
 
     protected onResize() {
-        if (this.timeGraphView) {
-            this.timeGraphView.onWidgetResize();
-        }
+        this.timeGraphViews.forEach((value) => {
+            value.onWidgetResize();
+        });
+        // if (this.timeGraphView) {
+        //     this.timeGraphView.onWidgetResize();
+        // }
     }
 
     protected render(): React.ReactNode {
         this.handleHistogramXY = this.handleHistogramXY.bind(this);
         this.handleResourcesTimeGraph = this.handleResourcesTimeGraph.bind(this);
+        this.handleControlFlowTimeGraph = this.handleControlFlowTimeGraph.bind(this);
         this.handleCpuXY = this.handleCpuXY.bind(this);
         return <div className='trace-viewer-container'>
             <GridLayout className='viewer-grid' cols={1} rowHeight={100} width={1600} draggableHandle={'.widget-handle'}>            
-                <div className='trace-info-container' key='trace-info' data-grid={{x: 0, y: 0, w: 1, h: 3}}>
+                {/* <div className='trace-info-container' key='trace-info' data-grid={{x: 0, y: 0, w: 1, h: 3}}>
                     {this.renderTraceInfo()}
+                </div> */}
+                <div className='timegraph-info' key='time-graph-resources' data-grid={{x: 0, y: 0, w: 1, h: 4}}>
+                    {this.renderTimeGraph(this.RESOURCES_OUTPUT_ID)}
+                </div>
+                <div className='timegraph-info' key='time-graph-thread' data-grid={{x: 0, y: 0, w: 1, h: 4}}>
+                    {this.renderTimeGraph(this.THREAD_STATUS_OUTPUT_ID)}
                 </div>
                 <div className='fetch-buttons' key='action-buttons' data-grid={{x: 0, y: 0, w: 1, h: 1}}>
-                    <button onClick={this.handleResourcesTimeGraph}>Resources</button>
-                    <button onClick={this.handleControlFlowTimeGraph}>Control Flow View</button>
+                    {/* <button onClick={this.handleResourcesTimeGraph}>Resources</button>
+                    <button onClick={this.handleControlFlowTimeGraph}>Control Flow View</button> */}
                     <button onClick={this.handleCpuXY}>CPU Usage</button>
-                    <button onClick={this.handleDiskXY}>Disk Usage</button>
+                    {/* <button onClick={this.handleDiskXY}>Disk Usage</button> */}
                     <button onClick={this.handleHistogramXY}>Histogram</button>
                 </div>
-                <div className='timegraph-info' key='time-graph-area' data-grid={{x: 0, y: 0, w: 1, h: 4}}>
-                    {this.renderTimeGraph()}
-                </div>            
                 <div className='xy-info' key='xy-area' data-grid={{x: 0, y: 0, w: 1, h: 6}}>
                     {this.renderLineChart()}
                 </div>
@@ -131,34 +152,64 @@ export class TraceViewerWidget extends ReactWidget {
         </div>;
     }
 
-    protected renderTimeGraph() {
+    protected renderTimeGraph(outputId: string) {
         if(!this.openedTrace || this.openedTrace.indexingStatus === 'RUNNING') {
             return;
         }
 
-        if (!this.timeGraphView) {
-            this.timeGraphView = new TimeGraphView(this.tspClient, {
-                selectionHandler: (el?: TimeGraphRowElement) => { this.selectedState = el; console.log(this.selectedState); this.update(); },
-                mouseOverHandler: (el?: TimeGraphRowElement) => { this.hoveredState = el; console.log(this.hoveredState); this.update(); },
+        let timeGraphView = this.timeGraphViews.get(outputId);
+        if (!timeGraphView) {
+            timeGraphView = new TimeGraphView(this.tspClient, outputId, {
+                selectionHandler: (el?: TimeGraphRowElement) => { this.selectedState = el; console.log('Selected state: ', this.selectedState); this.update(); },
+                mouseOverHandler: (el?: TimeGraphRowElement) => { this.hoveredState = el; console.log('Hovered state: ', this.hoveredState); this.update(); },
                 mouseOutHandler: (el?: TimeGraphRowElement) => { this.hoveredState = undefined; this.update(); },
                 updateHandler: () => { this.update(); }
             });
-        };
+            this.timeGraphViews.set(outputId, timeGraphView);
+        }
+
+        // const outputDescriptors = await this.traceManager.getAvailableOutputs(this.openedTrace.name);
+        let timeGraphTitle: string = '';
+        if (this.outputDescriptors) {
+            // const descriptor = this.outputDescriptors.find(descriptor => descriptor.ID === outputId);
+            let descriptor: OutputDescriptor | undefined;
+            this.outputDescriptors.forEach(outputDescriptor => {
+                const id = (outputDescriptor as any).id;
+                if(id === outputId) {
+                    descriptor = outputDescriptor;
+                }
+            });
+
+            if (descriptor) {
+                timeGraphTitle = descriptor.name;
+            }
+        }
+
+        const timeGraphTree = this.timeGraphTrees.get(outputId);
+        this.updateTimeGraphTree(outputId);
+
+        // if (!this.timeGraphView) {
+        //     this.timeGraphView = new TimeGraphView(this.tspClient, outputId, {
+        //         selectionHandler: (el?: TimeGraphRowElement) => { this.selectedState = el; console.log('Selected state: ', this.selectedState); this.update(); },
+        //         mouseOverHandler: (el?: TimeGraphRowElement) => { this.hoveredState = el; console.log('Hovered state: ', this.hoveredState); this.update(); },
+        //         mouseOutHandler: (el?: TimeGraphRowElement) => { this.hoveredState = undefined; this.update(); },
+        //         updateHandler: () => { this.update(); }
+        //     });
+        // }
         // const uuid = this.openedTrace ? this.openedTrace.UUID : '';
 
         // if (!this.openedTrace) {
         //     return;
         // }
-        console.log(this.timeGraphState);
         return <div className='timegraph-view'>
             <div className='widget-handle'>
-                {this.timeGraphTitle}
+                <div>{timeGraphTitle}</div>
             </div>
             <div className='timegraph-tree-container'>
-                <p>{this.timeGraphTree}</p>
+                <p>{timeGraphTree ? timeGraphTree : ''}</p>
             </div>
             <div id='timegraph-main' className='ps__child--consume' onWheel={ev => { ev.preventDefault(); ev.stopPropagation(); }}>
-                {this.timeGraphView.renderTimeGraphChart()}
+                {timeGraphView.renderTimeGraphChart()}
             </div>
             {/* <div className='timegraph-states'>
                 <p>{this.timeGraphState}</p>
@@ -166,23 +217,36 @@ export class TraceViewerWidget extends ReactWidget {
         </div>;
     }
 
-    protected renderTraceInfo(): React.ReactNode {
-        return <div className='ag-theme-balham-dark' style={{ height: '250px' }}>
-                <div className='widget-handle'>
-                    {'Trace Properties'}
-                </div>
-                <AgGridReact
-                    enableColResize={true}
-                    columnDefs={[{headerName: 'Property', field: 'property', width: 130}, {headerName: 'Value', field: 'value', width: 500}]}
-                    rowData={this.traceInfo}>
-                </AgGridReact>
-            </div>;
+    private async updateTimeGraphTree(outputId: string) {
+        if (!this.timeGraphTrees.get(outputId) && this.openedTrace) {
+            const treeParameters = QueryHelper.timeQuery([0, 1]);
+            const treeResponse = await this.tspClient.fetchTimeGraphTree<TimeGraphEntry, EntryHeader>(this.openedTrace.UUID,
+                outputId, treeParameters);
+            const treeModel = treeResponse.model;
+            const entries = treeModel.entries;
+            const timeGraphTree = this.buildTree(entries).toString();
+            this.timeGraphTrees.set(outputId, timeGraphTree);
+            this.update();
+        }
     }
 
+    // protected renderTraceInfo(): React.ReactNode {
+    //     return <div className='ag-theme-balham-dark' style={{ height: '250px' }}>
+    //             <div className='widget-handle'>
+    //                 {'Trace Properties'}
+    //             </div>
+    //             <AgGridReact
+    //                 enableColResize={true}
+    //                 columnDefs={[{headerName: 'Property', field: 'property', width: 130}, {headerName: 'Value', field: 'value', width: 500}]}
+    //                 rowData={this.traceInfo}>
+    //             </AgGridReact>
+    //         </div>;
+    // }
+
     protected renderEventsTable(): React.ReactNode {
-        return <div className='ag-theme-balham-dark' style={{ height: '500px' }}>
+        return <div id='events-table' className='ag-theme-balham-dark' style={{ height: '500px' }}>
             <div className='widget-handle'>
-                {'Events'}
+                <div>{'Events'}</div>
             </div>
             <AgGridReact
                 columnDefs={this.tableColumns}
@@ -193,7 +257,7 @@ export class TraceViewerWidget extends ReactWidget {
     protected renderLineChart(): React.ReactNode {
         return <div className='xy-container'>
             <div className='widget-handle'>
-                {this.XYTitle}
+                <div>{this.XYTitle}</div>
             </div>
             <div className='tree-container'>
                 <p>{this.XYTree}</p>
@@ -207,7 +271,7 @@ export class TraceViewerWidget extends ReactWidget {
     private async updateTraceInfo(currentTrace: Trace) {
         const trace = await this.tspClient.fetchTrace(currentTrace.UUID);
         this.openedTrace = trace;
-        this.traceInfo = this.traceToGridLines(trace);
+        // this.traceInfo = this.traceToGridLines(trace);
         this.update();
 
         // TODO: Not Good use observable
@@ -216,15 +280,15 @@ export class TraceViewerWidget extends ReactWidget {
         }
     }
 
-    private traceToGridLines(trace: Trace): Array<any> {
-        return [{ property: 'Name', value: trace.name },
-        { property: 'UUID', value: trace.UUID },
-        { property: 'Path', value: trace.path },
-        { property: 'Start time', value: trace.start },
-        { property: 'End time', value: trace.end },
-        { property: 'Nb of Events', value: trace.nbEvents },
-        { property: 'Indexing Status', value: trace.indexingStatus }];
-    }
+    // private traceToGridLines(trace: Trace): Array<any> {
+    //     return [{ property: 'Name', value: trace.name },
+    //     { property: 'UUID', value: trace.UUID },
+    //     { property: 'Path', value: trace.path },
+    //     { property: 'Start time', value: trace.start },
+    //     { property: 'End time', value: trace.end },
+    //     { property: 'Nb of Events', value: trace.nbEvents },
+    //     { property: 'Indexing Status', value: trace.indexingStatus }];
+    // }
 
     private async updateEventsTable() {
         if (!this.openedTrace) {
@@ -270,34 +334,57 @@ export class TraceViewerWidget extends ReactWidget {
     }
 
     private async handleResourcesTimeGraph() {
-        if (!this.openedTrace) {
-            return;
-        }
-        this.timeGraphTitle = 'Resources';
+        // Only there for debugging purposes
+        this.updateTimeGraphTree(this.RESOURCES_OUTPUT_ID);
 
-        const resourcesTreeParameters = QueryHelper.timeQuery([0, 1]);
-        const treeResponse = await this.tspClient.fetchTimeGraphTree<TimeGraphEntry, EntryHeader>(this.openedTrace.UUID,
-            'org.eclipse.tracecompass.internal.analysis.os.linux.core.threadstatus.ResourcesStatusDataProvider', resourcesTreeParameters);
-        const treeModel = treeResponse.model;
-        const entries = treeModel.entries;
-        this.timeGraphTree = this.buildTree(entries).toString();
+        // if (!this.openedTrace) {
+        //     return;
+        // }
+        // this.timeGraphTitle = 'Resources';
 
-        const selectedItems = new Array<number>();
-        entries.forEach(timeGraphEntry => {
-            selectedItems.push(timeGraphEntry.id);
-        });
+        // const resourcesTreeParameters = QueryHelper.timeQuery([0, 1]);
+        // const treeResponse = await this.tspClient.fetchTimeGraphTree<TimeGraphEntry, EntryHeader>(this.openedTrace.UUID,
+        //     this.RESOURCES_OUTPUT_ID, resourcesTreeParameters);
+        // const treeModel = treeResponse.model;
+        // const entries = treeModel.entries;
+        // this.timeGraphTree = this.buildTree(entries).toString();
 
-        const statesParameters = QueryHelper.selectionTimeQuery(QueryHelper.splitRangeIntoEqualParts(1332170682440133097, 1332170682540133097, 1165), selectedItems);
-        const stateResponse = await this.tspClient.fetchTimeGraphStates<TimeGraphModel>(this.openedTrace.UUID,
-            'org.eclipse.tracecompass.internal.analysis.os.linux.core.threadstatus.ResourcesStatusDataProvider', statesParameters);
+        // const selectedItems = new Array<number>();
+        // entries.forEach(timeGraphEntry => {
+        //     selectedItems.push(timeGraphEntry.id);
+        // });
 
-        const stateModel = stateResponse.model;
-        this.timeGraphState = JSON.stringify(stateModel);
-        this.update();
+        // const statesParameters = QueryHelper.selectionTimeQuery(QueryHelper.splitRangeIntoEqualParts(1332170682440133097, 1332170682540133097, 1165), selectedItems);
+        // const stateResponse = await this.tspClient.fetchTimeGraphStates<TimeGraphModel>(this.openedTrace.UUID,
+        //     RESOURCES_OUTPUT_ID, statesParameters);
+
+        // const stateModel = stateResponse.model;
+        // this.timeGraphState = JSON.stringify(stateModel);
+        // this.update();
     }
 
     private async handleControlFlowTimeGraph() {
-        console.log('Control flow clicked');
+        // Only there for debugging purposes
+        this.updateTimeGraphTree(this.RESOURCES_OUTPUT_ID);
+
+        // if (!this.openedTrace) {
+        //     return;
+        // }
+        // this.timeGraphTitle = 'Thread Status';
+
+        // const ThreadStatusTreeParameters = QueryHelper.timeQuery([0, 1]);
+        // const treeResponse = await this.tspClient.fetchTimeGraphTree<TimeGraphEntry, EntryHeader>(this.openedTrace.UUID,
+        //     this.THREAD_STATUS_OUTPUT_ID, ThreadStatusTreeParameters);
+        // const treeModel = treeResponse.model;
+        // const entries = treeModel.entries;
+        // this.timeGraphTree = this.buildTree(entries).toString();
+
+        // const selectedItems = new Array<number>();
+        // entries.forEach(timeGraphEntry => {
+        //     selectedItems.push(timeGraphEntry.id);
+        // });
+
+        // this.update();
     }
 
     private async handleCpuXY() {
@@ -339,9 +426,9 @@ export class TraceViewerWidget extends ReactWidget {
         this.update();
     }
 
-    private async handleDiskXY() {
-        console.log('Disk clicked');
-    }
+    // private async handleDiskXY() {
+    //     console.log('Disk clicked');
+    // }
 
     private async handleHistogramXY() {
         if (!this.openedTrace) {

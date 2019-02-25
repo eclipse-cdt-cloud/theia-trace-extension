@@ -6,13 +6,13 @@ textarea {
 /* XY styling */
 .xy-container {
     display: grid;
-    grid-template-columns: 25% 75%;
-    grid-template-rows: 25px 1fr;
+    grid-template-columns: 2% 15% 83%; /*25px 25% 75%;*/
+    grid-template-rows: 1fr;
     border: 1px solid rgba(97, 97, 97, 0.5);
 }
 .tree-container {
-    grid-column-start: 1;
-    grid-row-start: 2;
+    grid-column-start: 2;
+    grid-row-start: 1;
     overflow-y: scroll;
     max-height: 500px;
     min-width: 250px;
@@ -22,28 +22,33 @@ textarea {
     white-space: pre-wrap;
 }
 .line-chart-container {
-    grid-column-start: 2;
-    grid-row-start: 2;
+    grid-column-start: 3;
+    grid-row-start: 1;
 }
 
 /* Time Graph styling */
 .timegraph-view {
     display: grid;
-    grid-template-columns: 25% 75%;
-    grid-template-rows: 25px 1fr;
+    grid-template-columns: 2% 15% 83%; /*25px 25% 75%;*/
+    grid-template-rows: 1fr;
     border: 1px solid rgba(97, 97, 97, 0.5);
 }
 .widget-handle {
     grid-column-start: 1;
-    grid-column-end: span 3;
     grid-row-start: 1;
     background-color: rgba(97, 97, 97, 0.5);
+}
+.widget-handle>div {
     color: white;
     text-align: center;
+    writing-mode: vertical-rl;
+    transform: rotate(180deg) translate(-50%, -50%);
+    height: 50%;
+    min-height: 150px;
 }
 .timegraph-tree-container {
-    grid-column-start: 1;
-    grid-row-start: 2;
+    grid-column-start: 2;
+    grid-row-start: 1;
     overflow-y: scroll;
     max-height: 340px;
     min-width: 250px;
@@ -53,14 +58,21 @@ textarea {
     white-space: pre-wrap;
 }
 .timegraph-states {
-    grid-column-start: 2;
-    grid-row-start: 2;
+    grid-column-start: 3;
+    grid-row-start: 1;
     overflow-y: scroll;
     max-height: 340px;
 }
 .timegraph-states>p {
     color: white;
     white-space: pre-wrap;
+}
+
+/* Table styling */
+#events-table {
+    display: grid;
+    grid-template-columns: 2% 1fr;
+    grid-template-rows: 1fr;
 }
 
 .react-grid-item.react-grid-placeholder {

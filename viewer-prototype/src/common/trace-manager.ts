@@ -104,6 +104,22 @@ export class TraceManager {
         // }
     }
 
+    /**
+     * Update the trace with the latest info from the server.
+     * @param traceName Trace name to update
+     * @returns The updated trace or undefined if the trace was not open previously
+     */
+    async updateTrace(traceName: string): Promise<Trace | undefined> {
+        const currentTrace = this.fOpenTraces.get(traceName);
+        if (currentTrace) {
+            const trace = await this.tspClient.fetchTrace(currentTrace.UUID);
+            this.fOpenTraces.set(traceName, trace);
+            return trace;
+        }
+
+        return undefined;
+    }
+
     async closeTrace(trace: Trace, traceURI: Path) {
         let traceToClose: Trace | undefined = trace;
         if (!traceToClose) {
