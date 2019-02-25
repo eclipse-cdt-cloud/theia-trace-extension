@@ -16,13 +16,10 @@ import { TimelineChart } from 'timeline-chart/lib/time-graph-model';
 import { TspDataProvider } from './tsp-data-provider';
 import { TspClient } from 'tsp-typescript-client/lib/protocol/tsp-client';
 import { Trace } from 'tsp-typescript-client/lib/models/trace';
-import { QueryHelper } from 'tsp-typescript-client/lib/models/query/query-helper';
-import { TimeGraphEntry } from 'tsp-typescript-client/lib/models/timegraph';
-import { EntryHeader } from 'tsp-typescript-client/lib/models/entry';
 
 export class TimeGraphView {
     protected styleConfig = {
-        mainWidth: 1000,
+        mainWidth: 1120,
         mainHeight: 300,
         naviBackgroundColor: 0x3f3f3f,
         chartBackgroundColor: 0x3f3f3f,
@@ -53,18 +50,18 @@ export class TimeGraphView {
 
     private tspClient: TspClient;
 
-    constructor(client: TspClient, protected handler: {
+    constructor(client: TspClient, outputId: string, protected handler: {
         updateHandler: () => void,
         selectionHandler: (el?: TimeGraphRowElement) => void,
         mouseOverHandler: (el?: TimeGraphRowElement) => void
         mouseOutHandler: (el?: TimeGraphRowElement) => void
     }) {
         this.tspClient = client;
-        this.dataProvider = new TspDataProvider(client);
+        this.dataProvider = new TspDataProvider(client, outputId);
         this.unitController = new TimeGraphUnitController(0);
         this.rowController = new TimeGraphRowController(this.rowHeight, this.totalHeight);
 
-        this.unitController.scaleSteps = [1, 2];
+        // this.unitController.scaleSteps = [1, 2];
 
         const providers: TimeGraphChartProviders = {
             dataProvider: async (range: TimelineChart.TimeGraphRange, resolution: number) => {
@@ -98,20 +95,71 @@ export class TimeGraphView {
                 };
             },
             rowElementStyleProvider: (model: TimelineChart.TimeGraphRowElementModel) => {
+                // const styles: TimeGraphRowElementStyle[] = [
+                //     {
+                //         color: 0xf19d0b,
+                //         height: this.rowHeight * 0.8
+                //     }, {
+                //         color: 0xf0670a,
+                //         height: this.rowHeight * 0.7
+                //     }, {
+                //         color: 0xef2809,
+                //         height: this.rowHeight * 0.6
+                //     }, {
+                //         color: 0xf0670a,
+                //         height: this.rowHeight * 0.5
+                //     }, {
+                //         color: 0xf0670a,
+                //         height: this.rowHeight * 0.4
+                //     }, {
+                //         color: 0xf0670a,
+                //         height: this.rowHeight * 0.9
+                //     }, {
+                //         color: 0xf0670a,
+                //         height: this.rowHeight * 0.3
+                //     },
+                // ];
                 const styles: TimeGraphRowElementStyle[] = [
                     {
-                        color: 0xf19d0b,
+                        color: 0x3891A6,
                         height: this.rowHeight * 0.8
                     }, {
-                        color: 0xf0670a,
+                        color: 0x4C5B5C,
                         height: this.rowHeight * 0.7
                     }, {
-                        color: 0xef2809,
+                        color: 0xFDE74C,
                         height: this.rowHeight * 0.6
-                    }
+                    }, {
+                        color: 0xDB5461,
+                        height: this.rowHeight * 0.5
+                    }, {
+                        color: 0xE3655B,
+                        height: this.rowHeight * 0.4
+                    }, {
+                        color: 0xEA8F87,
+                        height: this.rowHeight * 0.9
+                    }, {
+                        color: 0xDE636F,
+                        height: this.rowHeight * 0.3
+                    },
                 ];
                 let style: TimeGraphRowElementStyle | undefined = styles[0];
                 const val = model.label;
+                const modelData = model.data;
+                if(modelData) {
+                    const value = modelData.stateValue;
+                    style = this.styleMap.get(value);
+                    if (!style) {
+                        style = styles[(value % styles.length)];
+                        this.styleMap.set(value, style);
+                    }
+                    return {
+                        color: style.color,
+                        height: style.height,
+                        borderWidth: model.selected ? 2 : 0,
+                        borderColor: 0xeef20c
+                    };
+                }
 
                 style = this.styleMap.get(val);
                 if (!style) {
@@ -173,24 +221,32 @@ export class TimeGraphView {
     protected async initialize() {
         const traces: Trace[] = await this.tspClient.fetchTraces();
         if (traces && traces.length) {
-            const resourcesTreeParameters = QueryHelper.timeQuery([0, 1]);
-            const treeResponse = await this.tspClient.fetchTimeGraphTree<TimeGraphEntry, EntryHeader>(
-                traces[0].UUID,
-                'org.eclipse.tracecompass.internal.analysis.os.linux.core.threadstatus.ResourcesStatusDataProvider',
-                resourcesTreeParameters);
-            const nbEntries = treeResponse.model ? treeResponse.model.entries.length : 1;
-            const traceStart = traces[0].start;
-            const traceEnd = traces[0].end;
-            const traceRange = traceEnd - traceStart;
-            this.unitController.absoluteRange = traceRange;
+            // const resourcesTreeParameters = QueryHelper.timeQuery([0, 1]);
+            // const treeResponse = await this.tspClient.fetchTimeGraphTree<TimeGraphEntry, EntryHeader>(
+            //     traces[0].UUID,
+            //     'org.eclipse.tracecompass.internal.analysis.os.linux.core.threadstatus.ResourcesStatusDataProvider',
+            //     resourcesTreeParameters);
+            // const nbEntries = treeResponse.model ? treeResponse.model.entries.length : 1;
+            // const traceStart = traces[0].start;
+            // const traceEnd = traces[0].end;
+            // const traceRange = traceEnd - traceStart;
+            // this.unitController.absoluteRange = traceRange;
+            const traceData = await this.dataProvider.getData();
+            this.unitController.absoluteRange = traceData.totalLength;
             this.unitController.numberTranslator = (theNumber: number) => {
-                return (theNumber - Math.trunc(theNumber)) !== 0 ? '' : theNumber.toString();
+                const originalStart = traceData.data && traceData.data.originalStart ? traceData.data.originalStart : 0;
+                theNumber += originalStart;
+                const milli = Math.floor(theNumber / 1000000);
+                const micro = Math.floor((theNumber % 1000000) / 1000);
+                const nano = Math.floor((theNumber % 1000000) % 1000);
+                return milli + ':' + micro + ':' + nano; // THAT IS TOO LONG, need to find better format
             };
             this.unitController.viewRange = {
-                start: traceStart,
-                end: traceEnd// this.unitController.absoluteRange
+                start: 0,
+                end: this.unitController.absoluteRange
             };
-            this.totalHeight = nbEntries * this.rowHeight;
+            // this.totalHeight = nbEntries * this.rowHeight;
+            this.totalHeight = traceData.rows.length * this.rowHeight;
             this.rowController.totalHeight = this.totalHeight;
         }
         window.onresize = () => this.onWidgetResize();
