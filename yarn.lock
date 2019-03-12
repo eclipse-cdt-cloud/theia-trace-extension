@@ -9,6 +9,33 @@
   dependencies:
     regenerator-runtime "^0.12.0"
 
+"@fortawesome/fontawesome-common-types@^0.2.15":
+  version "0.2.15"
+  resolved "https://registry.yarnpkg.com/@fortawesome/fontawesome-common-types/-/fontawesome-common-types-0.2.15.tgz#16af950653083d1e3064061de9f8e5e3b579f688"
+  integrity sha512-ATBRyKJw1d2ko+0DWN9+BXau0EK3I/Q6pPzPv3LhJD7r052YFAkAdfb1Bd7ZqhBsJrdse/S7jKxWUOZ61qBD4g==
+
+"@fortawesome/fontawesome-svg-core@^1.2.15":
+  version "1.2.15"
+  resolved "https://registry.yarnpkg.com/@fortawesome/fontawesome-svg-core/-/fontawesome-svg-core-1.2.15.tgz#368f9fc7e8e8d8636495dc7483f97510f920ba97"
+  integrity sha512-M/sHyl4g2VBtKYkay1Z+XImMyTVcaBPmehYtPw4HKD9zg2E7eovB7Yx98aUfZjPbroGqa+IL4/+KhWBMOGlHIQ==
+  dependencies:
+    "@fortawesome/fontawesome-common-types" "^0.2.15"
+
+"@fortawesome/free-solid-svg-icons@^5.7.2":
+  version "5.7.2"
+  resolved "https://registry.yarnpkg.com/@fortawesome/free-solid-svg-icons/-/free-solid-svg-icons-5.7.2.tgz#9ec2ed353d630092a8e19cc8aae2f716572963e5"
+  integrity sha512-iujcXMyAvIbWM8W3jkOLpvJbR+rPpdN1QyqhZeJaLRdHPH4JmuovIAYP4vx5Sa1csZVXfRD1eDWqVZ/jGM620A==
+  dependencies:
+    "@fortawesome/fontawesome-common-types" "^0.2.15"
+
+"@fortawesome/react-fontawesome@^0.1.4":
+  version "0.1.4"
+  resolved "https://registry.yarnpkg.com/@fortawesome/react-fontawesome/-/react-fontawesome-0.1.4.tgz#18d61d9b583ca289a61aa7dccc05bd164d6bc9ad"
+  integrity sha512-GwmxQ+TK7PEdfSwvxtGnMCqrfEm0/HbRHArbUudsYiy9KzVCwndxa2KMcfyTQ8El0vROrq8gOOff09RF1oQe8g==
+  dependencies:
+    humps "^2.0.1"
+    prop-types "^15.5.10"
+
 "@mrmlnc/readdir-enhanced@^2.2.1":
   version "2.2.1"
   resolved "https://registry.yarnpkg.com/@mrmlnc/readdir-enhanced/-/readdir-enhanced-2.2.1.tgz#524af240d1a360527b730475ecfa1344aa540dde"
@@ -618,6 +645,13 @@
   version "0.16.7"
   resolved "https://registry.yarnpkg.com/@types/react-grid-layout/-/react-grid-layout-0.16.7.tgz#53d5f5034deb0c60e25a0fa578141e9a0982011f"
   integrity sha512-A3tW9xySd03KGONkp8gP4+QRLuT1Mcx++m0hO0nZIM4H/Qwz8GsiDv+9okbmHk5HcsHwY5Jdsn6Cv50hwoNG+A==
+  dependencies:
+    "@types/react" "*"
+
+"@types/react-modal@^3.8.1":
+  version "3.8.1"
+  resolved "https://registry.yarnpkg.com/@types/react-modal/-/react-modal-3.8.1.tgz#232a8fb99103e13f35bb1604a67ab32e9d938d98"
+  integrity sha512-uX6R/34N7R/9BIAlP9MdSDnEGmzfsfcaZfvilNgw/r7lXcp7Hs2J5+AYpVrxk+hDMqCGQMZjMRVeRTmN8/4Bxg==
   dependencies:
     "@types/react" "*"
 
@@ -3778,6 +3812,11 @@ execa@^1.0.0:
     signal-exit "^3.0.0"
     strip-eof "^1.0.0"
 
+exenv@^1.2.0:
+  version "1.2.2"
+  resolved "https://registry.yarnpkg.com/exenv/-/exenv-1.2.2.tgz#2ae78e85d9894158670b03d47bec1f03bd91bb9d"
+  integrity sha1-KueOhdmJQVhnCwPUe+wfA72Ru50=
+
 exit-hook@^1.0.0:
   version "1.1.1"
   resolved "https://registry.yarnpkg.com/exit-hook/-/exit-hook-1.1.1.tgz#f05ca233b48c05d54fff07765df8507e95c02ff8"
@@ -4836,6 +4875,11 @@ https-proxy-agent@^2.2.1:
   dependencies:
     agent-base "^4.1.0"
     debug "^3.1.0"
+
+humps@^2.0.1:
+  version "2.0.1"
+  resolved "https://registry.yarnpkg.com/humps/-/humps-2.0.1.tgz#dd02ea6081bd0568dc5d073184463957ba9ef9aa"
+  integrity sha1-3QLqYIG9BWjcXQcxhEY5V7qe+ao=
 
 iconv-lite@0.4.23:
   version "0.4.23"
@@ -7519,7 +7563,7 @@ promise@^7.1.1:
   dependencies:
     asap "~2.0.3"
 
-prop-types@15.x, prop-types@^15.5.8, prop-types@^15.6.0, prop-types@^15.6.2:
+prop-types@15.x, prop-types@^15.5.10, prop-types@^15.5.8, prop-types@^15.6.0, prop-types@^15.6.2:
   version "15.7.2"
   resolved "https://registry.yarnpkg.com/prop-types/-/prop-types-15.7.2.tgz#52c41e75b8c87e72b9d9360e0206b99dcbffa6c5"
   integrity sha512-8QQikdH7//R2vurIJSutZ1smHYTcLpRWEOlHnzcWHmBYrOGUysKwSsrC89BCiFj3CbrfJ/nXFdJepOVrY1GCHQ==
@@ -7749,10 +7793,20 @@ react-is@^16.8.1:
   resolved "https://registry.yarnpkg.com/react-is/-/react-is-16.8.2.tgz#09891d324cad1cb0c1f2d91f70a71a4bee34df0f"
   integrity sha512-D+NxhSR2HUCjYky1q1DwpNUD44cDpUXzSmmFyC3ug1bClcU/iDNy0YNn1iwme28fn+NFhpA13IndOd42CrFb+Q==
 
-react-lifecycles-compat@^3.0.4:
+react-lifecycles-compat@^3.0.0, react-lifecycles-compat@^3.0.4:
   version "3.0.4"
   resolved "https://registry.yarnpkg.com/react-lifecycles-compat/-/react-lifecycles-compat-3.0.4.tgz#4f1a273afdfc8f3488a8c516bfda78f872352362"
   integrity sha512-fBASbA6LnOU9dOU2eW7aQ8xmYBSXUIWr+UmF9b1efZBazGNO+rcXT/icdKnYm2pTwcRylVUYwW7H1PHfLekVzA==
+
+react-modal@^3.8.1:
+  version "3.8.1"
+  resolved "https://registry.yarnpkg.com/react-modal/-/react-modal-3.8.1.tgz#7300f94a6f92a2e17994de0be6ccb61734464c9e"
+  integrity sha512-aLKeZM9pgXpIKVwopRHMuvqKWiBajkqisDA8UzocdCF6S4fyKVfLWmZR5G1Q0ODBxxxxf2XIwiCP8G/11GJAuw==
+  dependencies:
+    exenv "^1.2.0"
+    prop-types "^15.5.10"
+    react-lifecycles-compat "^3.0.0"
+    warning "^3.0.0"
 
 react-resizable@1.x:
   version "1.7.5"
@@ -9690,6 +9744,13 @@ vscode-ws-jsonrpc@^0.0.2-1:
   integrity sha512-hViHObJHtxD0KX8tvP6QL8fJGfH9mmDrEkdfLKj6Mf1uaxypoMBnjcZDCU3N4l7VriQiNRbohe/FlMrC3/0r7Q==
   dependencies:
     vscode-jsonrpc "^3.6.0"
+
+warning@^3.0.0:
+  version "3.0.0"
+  resolved "https://registry.yarnpkg.com/warning/-/warning-3.0.0.tgz#32e5377cb572de4ab04753bdf8821c01ed605b7c"
+  integrity sha1-MuU3fLVy3kqwR1O9+IIcAe1gW3w=
+  dependencies:
+    loose-envify "^1.0.0"
 
 watchpack@^1.5.0:
   version "1.6.0"

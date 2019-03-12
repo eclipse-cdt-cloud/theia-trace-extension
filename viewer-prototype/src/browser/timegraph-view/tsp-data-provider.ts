@@ -75,6 +75,8 @@ export class TspDataProvider {
             this.outputId, statesParameters);
 
         this.timeGraphRows = stateResponse.model.rows;
+        this.timeGraphRowsOrdering();
+
 
         // the start time which is normalized to logical 0 in timeline chart.
         const chartStart = this.timeGraphEntries[0].startTime;
@@ -109,6 +111,18 @@ export class TspDataProvider {
                 originalStart: chartStart
             }
         }
+    }
+
+    private timeGraphRowsOrdering() {
+        const newTimeGraphRows: TimeGraphRow[] = new Array();
+        this.timeGraphEntries.forEach(entry => {
+            const timeGraphRow = this.timeGraphRows.find(row => (row as any).entryID === entry.id);
+            if(timeGraphRow) {
+                newTimeGraphRows.push(timeGraphRow);
+            }
+        });
+
+        this.timeGraphRows = newTimeGraphRows;
     }
 
     protected getStateModelByRow(row:TimeGraphRow, chartStart: number){

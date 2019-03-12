@@ -5,6 +5,9 @@ import { TraceManager } from '../../common/trace-manager';
 import { Trace } from 'tsp-typescript-client/lib/models/trace';
 import { List, ListRowProps } from 'react-virtualized';
 import { OutputDescriptor } from 'tsp-typescript-client/lib/models/output-descriptor';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faShareSquare, faCopy } from '@fortawesome/free-solid-svg-icons'
+import * as ReactModal from 'react-modal';
 
 export const TRACE_EXPLORER_ID = 'trace-explorer';
 export const TRACE_EXPLORER_LABEL = 'Trace Explorer';
@@ -17,6 +20,9 @@ export class TraceExplorerWidget extends ReactWidget {
 
     private openedTraces: Array<Trace> = new Array();
     private availableOutputDescriptors: Array<OutputDescriptor> = new Array();
+
+    private showShareDialog: boolean = false;
+    private sharingLink: string = '';
 
     constructor(
         @inject(TraceManager) private traceManager: TraceManager,
@@ -49,7 +55,12 @@ export class TraceExplorerWidget extends ReactWidget {
         this.updateAvailableAnalysis = this.updateAvailableAnalysis.bind(this);
         this.traceRowRenderer = this.traceRowRenderer.bind(this);
         this.outputsRowRenderer = this.outputsRowRenderer.bind(this);
+        this.handleShareModalClose = this.handleShareModalClose.bind(this);
+
         return <div className='trace-explorer-container'>
+            <ReactModal isOpen={this.showShareDialog} onRequestClose={this.handleShareModalClose} ariaHideApp={false} className='sharing-modal' overlayClassName='sharing-overlay'>
+                {this.renderSharingModal()}
+            </ReactModal>
             <div className='trace-explorer-opened'>
                 <div className='trace-explorer-panel-title' onClick={this.updateOpenedTraces}>
                     {this.OPENED_TRACE_TITLE}
@@ -60,7 +71,7 @@ export class TraceExplorerWidget extends ReactWidget {
                         width={300}
                         rowCount={this.openedTraces.length}
                         rowHeight={50}
-                        rowRenderer={this.traceRowRenderer}/>
+                        rowRenderer={this.traceRowRenderer} />
                 </div>
             </div>
             <div className='trace-explorer-files'>
@@ -68,7 +79,7 @@ export class TraceExplorerWidget extends ReactWidget {
                     {this.FILE_NAVIGATOR_TITLE}
                 </div>
                 <div className='trace-explorer-panel-content'>
-                    {'List of files'}
+                    {/* {'List of files'} */}
                 </div>
             </div>
             <div className='trace-explorer-analysis'>
@@ -87,6 +98,29 @@ export class TraceExplorerWidget extends ReactWidget {
         </div>;
     }
 
+    private renderSharingModal() {
+        if (this.sharingLink.length) {
+            return <div className='sharing-container'>
+                <div className='sharing-description'>
+                    {'Copy URL to share your trace context'}
+                </div>
+                <div className='sharing-link-info'>
+                    <div className='sharing-link'>
+                        <textarea rows={1} cols={this.sharingLink.length} readOnly={true} value={this.sharingLink} />
+                    </div>
+                    <div className='sharing-link-copy'>
+                        <button className='copy-link-button'>
+                            <FontAwesomeIcon icon={faCopy} />
+                        </button>
+                    </div>
+                </div>
+            </div>
+        }
+        return <div style={{ color: 'white' }}>
+            {'Cannot share this trace'}
+        </div>
+    }
+
     private traceRowRenderer(props: ListRowProps): React.ReactNode {
         let traceName = '';
         let tracePath = '';
@@ -94,14 +128,38 @@ export class TraceExplorerWidget extends ReactWidget {
             traceName = this.openedTraces[props.index].name;
             tracePath = this.openedTraces[props.index].path;
         }
+        this.handleShareButtonClick = this.handleShareButtonClick.bind(this);
+
         return <div className='trace-list-container' key={props.key} style={props.style}>
-            <div className='trace-list-name'>
-                {traceName}
-            </div>
-            <div className='trace-list-path'>
-                {tracePath}
+            <div className='trace-element-container'>
+                <div className='trace-element-info'>
+                    <div className='trace-element-name'>
+                        {traceName}
+                    </div>
+                    <div className='trace-element-path'>
+                        {tracePath}
+                    </div>
+                </div>
+                <div className='trace-element-options'>
+                    <button className='share-context-button' onClick={this.handleShareButtonClick.bind(this, props.index)}>
+                        <FontAwesomeIcon icon={faShareSquare} />
+                    </button>
+                </div>
             </div>
         </div>;
+    }
+
+    private handleShareButtonClick(index: number) {
+        const traceToShare = this.openedTraces[index];
+        this.sharingLink = 'https://localhost:3000/share/trace?' + traceToShare.UUID;
+        this.showShareDialog = true;
+        this.update();
+    }
+
+    private handleShareModalClose() {
+        this.showShareDialog = false;
+        this.sharingLink = '';
+        this.update();
     }
 
     private outputsRowRenderer(props: ListRowProps): React.ReactNode {
@@ -112,10 +170,10 @@ export class TraceExplorerWidget extends ReactWidget {
             outputDescription = this.availableOutputDescriptors[props.index].description;
         }
         return <div className='outputs-list-container' key={props.key} style={props.style}>
-            <div className='outputs-list-name'>
+            <div className='outputs-element-name'>
                 {outputName}
             </div>
-            <div className='outputs-list-description'>
+            <div className='outputs-element-description'>
                 {outputDescription}
             </div>
         </div>;
