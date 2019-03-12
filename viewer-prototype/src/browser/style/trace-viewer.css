@@ -1,6 +1,12 @@
 textarea {
     background-color: black;
     color: white;
+    font-family: var(--theia-ui-font-family);
+}
+
+div {
+    color: white;
+    font-family: var(--theia-ui-font-family);
 }
 
 /* XY styling */
@@ -27,6 +33,11 @@ textarea {
 }
 
 /* Time Graph styling */
+.time-axis-container {
+    /* Ugly hack */
+    margin-left: 279px;
+}
+
 .timegraph-view {
     display: grid;
     grid-template-columns: 2% 15% 83%; /*25px 25% 75%;*/
@@ -42,20 +53,24 @@ textarea {
     color: white;
     text-align: center;
     writing-mode: vertical-rl;
-    transform: rotate(180deg) translate(-50%, -50%);
     height: 50%;
     min-height: 150px;
+    transform: rotate(180deg) translate(-50%, -50%);
 }
 .timegraph-tree-container {
     grid-column-start: 2;
     grid-row-start: 1;
-    overflow-y: scroll;
-    max-height: 340px;
+    overflow-y: hidden;
+    overflow-x: hidden;
+    max-height: 430px;
     min-width: 250px;
 }
 .timegraph-tree-container>p {
     color: white;
     white-space: pre-wrap;
+}
+.tree-node {
+    overflow-x: hidden
 }
 .timegraph-states {
     grid-column-start: 3;
@@ -77,4 +92,8 @@ textarea {
 
 .react-grid-item.react-grid-placeholder {
     background: rgba(97, 97, 97, 0.8);
+}
+
+.viewer-grid {
+    margin-top: -10px;
 }

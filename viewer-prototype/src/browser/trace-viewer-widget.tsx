@@ -15,7 +15,7 @@
  ********************************************************************************/
 
 import { injectable, inject } from 'inversify';
-import { Message } from '@theia/core/lib/browser';
+import { Message, StatusBar, StatusBarAlignment } from '@theia/core/lib/browser';
 import { ReactWidget } from '@theia/core/lib/browser/widgets/react-widget';
 import * as React from 'react';
 import { Path } from '@theia/core';
@@ -34,6 +34,10 @@ import * as GridLayout from 'react-grid-layout';
 import { TimeGraphView } from './timegraph-view/timegraph-view';
 import { TimeGraphRowElement } from 'timeline-chart/lib/components/time-graph-row-element';
 import { OutputDescriptor } from 'tsp-typescript-client/lib/models/output-descriptor';
+import { TimeGraphUnitController } from 'timeline-chart/lib/time-graph-unit-controller';
+import { TimelineChart } from 'timeline-chart/lib/time-graph-model';
+import { List, ListRowProps } from 'react-virtualized';
+import { EntryTreeNode } from './entry-tree-node';
 
 export const TraceViewerWidgetOptions = Symbol('TraceViewerWidgetOptions');
 export interface TraceViewerWidgetOptions {
@@ -42,7 +46,6 @@ export interface TraceViewerWidgetOptions {
 
 @injectable()
 export class TraceViewerWidget extends ReactWidget {
-
     static ID = 'trace-viewer';
     static LABEL = 'Trace Viewer';
 
@@ -58,7 +61,7 @@ export class TraceViewerWidget extends ReactWidget {
 
     // private timeGraphView: TimeGraphView | undefined;
     private timeGraphViews: Map<string, TimeGraphView> = new Map();
-    private timeGraphTrees: Map<string, string> = new Map();
+    private timeGraphTrees: Map<string, EntryTreeNode> = new Map();
     // private timeGraphTree: string = '';
     // private timeGraphTitle: string = '';
     // private timeGraphState: string = '';
@@ -69,10 +72,13 @@ export class TraceViewerWidget extends ReactWidget {
     private XYTree: string = '';
     private XYTitle: string = '';
 
+    private unitController: TimeGraphUnitController = new TimeGraphUnitController(0);
+
     constructor(
         @inject(TraceViewerWidgetOptions) protected readonly options: TraceViewerWidgetOptions,
         @inject(TraceManager) private traceManager: TraceManager,
-        @inject(TspClient) private tspClient: TspClient
+        @inject(TspClient) private tspClient: TspClient,
+        @inject(StatusBar) private statusBar: StatusBar
     ) {
         super();
         this.uri = new Path(this.options.traceURI);
@@ -80,6 +86,8 @@ export class TraceViewerWidget extends ReactWidget {
         this.title.label = 'Trace: ' + this.uri.base;
         this.title.closable = true;
         this.addClass('theia-trace-open');
+        this.unitController.onSelectionRangeChange(range => {this.handleTimeSelectionChange(range)});
+        this.unitController.onViewRangeChanged(viewRange => {this.handleViewRangeChange(viewRange)});
         this.initialize();
     }
 
@@ -107,6 +115,7 @@ export class TraceViewerWidget extends ReactWidget {
         if (this.openedTrace) {
             this.traceManager.closeTrace(this.openedTrace, this.uri);
         }
+        this.statusBar.removeElement('time-selection-range');
         super.onCloseRequest(msg);
     }
 
@@ -125,6 +134,9 @@ export class TraceViewerWidget extends ReactWidget {
         this.handleControlFlowTimeGraph = this.handleControlFlowTimeGraph.bind(this);
         this.handleCpuXY = this.handleCpuXY.bind(this);
         return <div className='trace-viewer-container'>
+            <div className='time-axis-container'>
+                {this.renderTimeAxis()}
+            </div>
             <GridLayout className='viewer-grid' cols={1} rowHeight={100} width={1600} draggableHandle={'.widget-handle'}>            
                 {/* <div className='trace-info-container' key='trace-info' data-grid={{x: 0, y: 0, w: 1, h: 3}}>
                     {this.renderTraceInfo()}
@@ -135,13 +147,13 @@ export class TraceViewerWidget extends ReactWidget {
                 <div className='timegraph-info' key='time-graph-thread' data-grid={{x: 0, y: 0, w: 1, h: 4}}>
                     {this.renderTimeGraph(this.THREAD_STATUS_OUTPUT_ID)}
                 </div>
-                <div className='fetch-buttons' key='action-buttons' data-grid={{x: 0, y: 0, w: 1, h: 1}}>
-                    {/* <button onClick={this.handleResourcesTimeGraph}>Resources</button>
-                    <button onClick={this.handleControlFlowTimeGraph}>Control Flow View</button> */}
+                {/* <div className='fetch-buttons' key='action-buttons' data-grid={{x: 0, y: 0, w: 1, h: 1}}>
+                    <button onClick={this.handleResourcesTimeGraph}>Resources</button>
+                    <button onClick={this.handleControlFlowTimeGraph}>Control Flow View</button>
                     <button onClick={this.handleCpuXY}>CPU Usage</button>
-                    {/* <button onClick={this.handleDiskXY}>Disk Usage</button> */}
+                    <button onClick={this.handleDiskXY}>Disk Usage</button>
                     <button onClick={this.handleHistogramXY}>Histogram</button>
-                </div>
+                </div> */}
                 <div className='xy-info' key='xy-area' data-grid={{x: 0, y: 0, w: 1, h: 6}}>
                     {this.renderLineChart()}
                 </div>
@@ -152,6 +164,31 @@ export class TraceViewerWidget extends ReactWidget {
         </div>;
     }
 
+    private renderTimeAxis() {
+        if (!this.openedTrace || this.openedTrace.indexingStatus === 'RUNNING') {
+            return;
+        }
+
+        const timeGraphView = this.timeGraphViews.get(this.RESOURCES_OUTPUT_ID);
+        if (timeGraphView) {
+            return timeGraphView.getAxisContainer();
+        } else {
+            setTimeout(() => this.update(), 1000);
+        }
+        return;
+    }
+
+    private handleTimeSelectionChange(range: TimelineChart.TimeGraphRange) {
+        this.statusBar.setElement('time-selection-range', {
+            text: `T1: ${Math.round(range.start)} T2: ${Math.round(range.end)} Delta: ${Math.round(range.end - range.start)}`,
+            alignment: StatusBarAlignment.LEFT,
+        });
+    }
+
+    private handleViewRangeChange(viewRange: TimelineChart.TimeGraphRange) {
+        this.handleCpuXY();
+    }
+
     protected renderTimeGraph(outputId: string) {
         if(!this.openedTrace || this.openedTrace.indexingStatus === 'RUNNING') {
             return;
@@ -159,7 +196,7 @@ export class TraceViewerWidget extends ReactWidget {
 
         let timeGraphView = this.timeGraphViews.get(outputId);
         if (!timeGraphView) {
-            timeGraphView = new TimeGraphView(this.tspClient, outputId, {
+            timeGraphView = new TimeGraphView(this.tspClient, outputId, this.unitController, {
                 selectionHandler: (el?: TimeGraphRowElement) => { this.selectedState = el; console.log('Selected state: ', this.selectedState); this.update(); },
                 mouseOverHandler: (el?: TimeGraphRowElement) => { this.hoveredState = el; console.log('Hovered state: ', this.hoveredState); this.update(); },
                 mouseOutHandler: (el?: TimeGraphRowElement) => { this.hoveredState = undefined; this.update(); },
@@ -185,7 +222,7 @@ export class TraceViewerWidget extends ReactWidget {
             }
         }
 
-        const timeGraphTree = this.timeGraphTrees.get(outputId);
+        // const timeGraphTree = this.timeGraphTrees.get(outputId);
         this.updateTimeGraphTree(outputId);
 
         // if (!this.timeGraphView) {
@@ -201,12 +238,22 @@ export class TraceViewerWidget extends ReactWidget {
         // if (!this.openedTrace) {
         //     return;
         // }
+        this.resourcesTreeNodeRenderer = this.resourcesTreeNodeRenderer.bind(this);
+        this.threadsTreeNodeRenderer = this.threadsTreeNodeRenderer.bind(this);
+
         return <div className='timegraph-view'>
             <div className='widget-handle'>
                 <div>{timeGraphTitle}</div>
             </div>
             <div className='timegraph-tree-container'>
-                <p>{timeGraphTree ? timeGraphTree : ''}</p>
+            <List
+                        id={outputId}
+                        height={430}
+                        width={235}
+                        rowCount={this.entryCount(outputId)}
+                        rowHeight={15}
+                        rowRenderer={outputId === this.RESOURCES_OUTPUT_ID ? this.resourcesTreeNodeRenderer : this.threadsTreeNodeRenderer} />
+                {/* <p>{timeGraphTree ? timeGraphTree : ''}</p> */}
             </div>
             <div id='timegraph-main' className='ps__child--consume' onWheel={ev => { ev.preventDefault(); ev.stopPropagation(); }}>
                 {timeGraphView.renderTimeGraphChart()}
@@ -217,6 +264,42 @@ export class TraceViewerWidget extends ReactWidget {
         </div>;
     }
 
+    private entryCount(outputId: string): number {
+        if (!this.timeGraphTrees) {
+            return 0;
+        }
+
+        const root = this.timeGraphTrees.get(outputId);
+        return root ? root.getNbChildren() : 0;
+    }
+
+    private resourcesTreeNodeRenderer(props: ListRowProps): React.ReactNode {
+        return this.timeGraphTreeNodeRenderer(props, this.RESOURCES_OUTPUT_ID);
+    }
+
+    private threadsTreeNodeRenderer(props: ListRowProps): React.ReactNode {
+        return this.timeGraphTreeNodeRenderer(props, this.THREAD_STATUS_OUTPUT_ID);
+    }
+
+    private timeGraphTreeNodeRenderer(props: ListRowProps, outputId: string): React.ReactNode {
+        let entryName = '';
+        let entryLevel = 0;
+        if (this.timeGraphTrees) {
+            const entryRoot = this.timeGraphTrees.get(outputId);
+            let entryList: EntryTreeNode[] = new Array();
+            if (entryRoot) {
+                entryList = entryRoot.toFlatList();
+            }
+
+            entryName = entryList[props.index]._name;
+            entryLevel = entryList[props.index]._indentLevel;
+        }
+
+        return <div className='tree-node' key={props.key} style={{ ...props.style, paddingLeft: entryLevel * 15 }}>
+            {entryName}
+        </div>
+    }
+
     private async updateTimeGraphTree(outputId: string) {
         if (!this.timeGraphTrees.get(outputId) && this.openedTrace) {
             const treeParameters = QueryHelper.timeQuery([0, 1]);
@@ -224,7 +307,7 @@ export class TraceViewerWidget extends ReactWidget {
                 outputId, treeParameters);
             const treeModel = treeResponse.model;
             const entries = treeModel.entries;
-            const timeGraphTree = this.buildTree(entries).toString();
+            const timeGraphTree = this.buildTree(entries);
             this.timeGraphTrees.set(outputId, timeGraphTree);
             this.update();
         }
@@ -255,6 +338,22 @@ export class TraceViewerWidget extends ReactWidget {
         </div>;
     }
     protected renderLineChart(): React.ReactNode {
+        const lineOptions: Chart.ChartOptions = {
+            responsive: true,
+            elements: { point: { radius: 0 } },
+            maintainAspectRatio: false,
+            legend: { display: false },
+            layout: {
+                padding: {
+                    left: 0,
+                    right: 0,
+                    top: 15,
+                    bottom: 15
+                }
+            },
+            scales: { xAxes: [{ display: false }] }
+        };
+
         return <div className='xy-container'>
             <div className='widget-handle'>
                 <div>{this.XYTitle}</div>
@@ -263,7 +362,7 @@ export class TraceViewerWidget extends ReactWidget {
                 <p>{this.XYTree}</p>
             </div>
             <div className='line-chart-container'>
-                <Line data={this.XYData} options={{ responsive: true, elements: { point: { radius: 0 } } }}></Line>
+                <Line data={this.XYData} width={1240} height={500} options={lineOptions}></Line>
             </div>
         </div>;
     }
@@ -395,7 +494,7 @@ export class TraceViewerWidget extends ReactWidget {
         this.XYTitle = 'CPU Usage';
 
         const cpuTreeParameters = QueryHelper.selectionTimeQuery(
-            QueryHelper.splitRangeIntoEqualParts(1332170682440133097, 1332170682540133097, 1165), [], [], { 'cpus': [] });
+            QueryHelper.splitRangeIntoEqualParts(1332170682440133097, 1332170682540133097, 1120), [], [], { 'cpus': [] });
         let cpuTreeResponse = await this.tspClient.fetchXYTree<Entry, EntryHeader>(this.openedTrace.UUID,
             'org.eclipse.tracecompass.analysis.os.linux.core.cpuusage.CpuUsageDataProvider', cpuTreeParameters);
         let treeModel = cpuTreeResponse.model;
@@ -408,8 +507,20 @@ export class TraceViewerWidget extends ReactWidget {
         }
         this.XYTree = this.buildTree(treeModel.entries).toString();
 
+        // const start = viewRange.start + this.timeGraphEntries[0].startTime;
+        // const end = viewRange.end + this.timeGraphEntries[0].startTime;
+        // statesParameters = QueryHelper.selectionTimeQuery(QueryHelper.splitRangeIntoEqualParts(Math.trunc(start), Math.trunc(end), 1120), selectedItems);
+
+        let start = 1332170682440133097;
+        let end = 1332170682540133097;
+        const viewRange = this.unitController.viewRange;
+        if (viewRange) {
+            start = viewRange.start + this.openedTrace.start;
+            end = viewRange.end + this.openedTrace.end;
+        }
+
         const cpuXYParameters = QueryHelper.selectionTimeQuery(
-            QueryHelper.splitRangeIntoEqualParts(1332170682440133097, 1332170682540133097, 1165), [treeModel.entries[0].id, treeModel.entries[1].id]);
+            QueryHelper.splitRangeIntoEqualParts(Math.trunc(start), Math.trunc(end), 1120), [treeModel.entries[0].id, treeModel.entries[1].id]);
 
         const cpuXYResponse = await this.tspClient.fetchXY(this.openedTrace.UUID,
             'org.eclipse.tracecompass.analysis.os.linux.core.cpuusage.CpuUsageDataProvider', cpuXYParameters);
@@ -499,7 +610,9 @@ export class TraceViewerWidget extends ReactWidget {
             const color = 'rgba(75,' + gValue.toString() + ',' + bValue.toString() + ',0.4)';
             dataSetArray.push({
                 label: seriesName,
-                backgroundColor: color,
+                fill: false,
+                borderColor: color,
+                borderWidth: 2,
                 data: series.yValues
             });
         });
@@ -510,46 +623,48 @@ export class TraceViewerWidget extends ReactWidget {
         this.XYData = lineData;
     }
 
-    private buildTree(entries: Entry[]): any {
-        const entriesMap: Map<number, any> = new Map();
+    private buildTree(entries: Entry[]): EntryTreeNode {
+        const entriesMap: Map<number, EntryTreeNode> = new Map();
         let root: any;
         entries.forEach(entry => {
             // TODO: very ugly hack since the server serialization is wrong
             const entryName = (entry as any).labels[0];
             if(entry.parentId !== -1) {
-                const treeEntry = new this.EntryTreeNode(entry.id, entryName);
                 const parent = entriesMap.get(entry.parentId);
-                parent.addChild(treeEntry);
-                entriesMap.set(entry.id, treeEntry);
+                if (parent) {
+                    const treeEntry = new EntryTreeNode(entry.id, entryName, parent._indentLevel + 1);
+                    parent.addChild(treeEntry);
+                    entriesMap.set(entry.id, treeEntry);
+                }
             } else {
-                root = new this.EntryTreeNode(entry.id, entryName);
+                root = new EntryTreeNode(entry.id, entryName, 0);
                 entriesMap.set(entry.id, root);
             }
         });
         return root;
     }
 
-    EntryTreeNode = class {
-        public _id: number;
-        public _name: string;
-        public _children: any[] = [];
-        constructor(id: number, name: string) {
-            this._id = id;
-            this._name = name;
-        }
+    // EntryTreeNode = class {
+    //     public _id: number;
+    //     public _name: string;
+    //     public _children: any[] = [];
+    //     constructor(id: number, name: string) {
+    //         this._id = id;
+    //         this._name = name;
+    //     }
 
-        public addChild(child: any) {
-            this._children.push(child);
-        }
+    //     public addChild(child: any) {
+    //         this._children.push(child);
+    //     }
 
-        public toString(): string {
-            let result = (this._name === '' ? '----------' : this._name) + ' (' + this._id + ')' + '\n';
-            if(this._children.length > 0) {
-                this._children.forEach(child => {
-                    result = result + '\t' + child.toString();
-                });
-            }
-            return result;
-        }
-    };
+    //     public toString(): string {
+    //         let result = (this._name === '' ? '----------' : this._name) + ' (' + this._id + ')' + '\n';
+    //         if(this._children.length > 0) {
+    //             this._children.forEach(child => {
+    //                 result = result + '\t' + child.toString();
+    //             });
+    //         }
+    //         return result;
+    //     }
+    // };
 }

@@ -19,11 +19,11 @@ import { Trace } from 'tsp-typescript-client/lib/models/trace';
 
 export class TimeGraphView {
     protected styleConfig = {
-        mainWidth: 1120,
-        mainHeight: 300,
+        mainWidth: 1240, // 1120,
+        mainHeight: 420, // 300
         naviBackgroundColor: 0x3f3f3f,
         chartBackgroundColor: 0x3f3f3f,
-        cursorColor: 0x8888ff,
+        cursorColor: 0x259fd8,
         lineColor: 0xbbbbbb
     }
     protected rowHeight = 15;
@@ -50,7 +50,7 @@ export class TimeGraphView {
 
     private tspClient: TspClient;
 
-    constructor(client: TspClient, outputId: string, protected handler: {
+    constructor(client: TspClient, outputId: string, unitController: TimeGraphUnitController, protected handler: {
         updateHandler: () => void,
         selectionHandler: (el?: TimeGraphRowElement) => void,
         mouseOverHandler: (el?: TimeGraphRowElement) => void
@@ -58,7 +58,7 @@ export class TimeGraphView {
     }) {
         this.tspClient = client;
         this.dataProvider = new TspDataProvider(client, outputId);
-        this.unitController = new TimeGraphUnitController(0);
+        this.unitController = unitController; // new TimeGraphUnitController(0);
         this.rowController = new TimeGraphRowController(this.rowHeight, this.totalHeight);
 
         // this.unitController.scaleSteps = [1, 2];
@@ -269,13 +269,13 @@ export class TimeGraphView {
     }
     protected renderMainGraphContent() {
         return <div id='main-timegraph-content' ref={this.horizontalContainer}>
-            {this.getAxisContainer()}
+            {/* {this.getAxisContainer()} */}
             {this.getChartContainer()}
             {this.getNaviContainer()}
         </div>
     }
 
-    protected getAxisContainer() {
+    public getAxisContainer() {
         const axisLayer = this.getAxisLayer();
         const axisCursorLayer = this.getAxisCursors();
         return <ReactTimeGraphContainer
