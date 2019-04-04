@@ -28,13 +28,16 @@
     "@fortawesome/fontawesome-svg-core": "^1.2.15",
     "@fortawesome/free-solid-svg-icons": "^5.7.2",
     "@fortawesome/react-fontawesome": "^0.1.4",
-    "react-modal": "^3.8.1"
+    "react-modal": "^3.8.1",
+    "redux": "^4.0.1",
+    "react-redux": "^6.0.1"
   },
   "devDependencies": {
     "@types/chart.js": "^2.7.40",
     "@types/react-grid-layout": "^0.16.5",
     "@types/react-virtualized": "^9.18.12",
     "@types/react-modal": "^3.8.1",
+    "@types/react-redux": "^7.0.6",
     "rimraf": "latest",
     "typescript": "latest"
   },

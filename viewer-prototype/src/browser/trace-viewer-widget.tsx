@@ -38,11 +38,16 @@ import { TimeGraphUnitController } from 'timeline-chart/lib/time-graph-unit-cont
 import { TimelineChart } from 'timeline-chart/lib/time-graph-model';
 import { List, ListRowProps } from 'react-virtualized';
 import { EntryTreeNode } from './entry-tree-node';
+import { createStore } from 'redux';
+import { Provider } from 'react-redux';
+import { TestReactComponent } from './test-react-component';
 
 export const TraceViewerWidgetOptions = Symbol('TraceViewerWidgetOptions');
 export interface TraceViewerWidgetOptions {
     traceURI: string;
 }
+
+// export default connect()(TestReactComponent);
 
 @injectable()
 export class TraceViewerWidget extends ReactWidget {
@@ -73,6 +78,15 @@ export class TraceViewerWidget extends ReactWidget {
     private XYTitle: string = '';
 
     private unitController: TimeGraphUnitController = new TimeGraphUnitController(0);
+
+    private store = createStore((state, action) => {
+        switch (action.type) {
+            case 'SET_VISIBILITY_FILTER':
+                return action.type;
+            default:
+                return state;
+        }
+    });
 
     constructor(
         @inject(TraceViewerWidgetOptions) protected readonly options: TraceViewerWidgetOptions,
@@ -133,35 +147,38 @@ export class TraceViewerWidget extends ReactWidget {
         this.handleResourcesTimeGraph = this.handleResourcesTimeGraph.bind(this);
         this.handleControlFlowTimeGraph = this.handleControlFlowTimeGraph.bind(this);
         this.handleCpuXY = this.handleCpuXY.bind(this);
-        return <div className='trace-viewer-container'>
-            <div className='time-axis-container'>
-                {this.renderTimeAxis()}
-            </div>
-            <GridLayout className='viewer-grid' cols={1} rowHeight={100} width={1600} draggableHandle={'.widget-handle'}>            
-                {/* <div className='trace-info-container' key='trace-info' data-grid={{x: 0, y: 0, w: 1, h: 3}}>
+        return <Provider store={this.store}>
+            <div className='trace-viewer-container'>
+                <TestReactComponent name={'Simon'}/>
+                <div className='time-axis-container'>
+                    {this.renderTimeAxis()}
+                </div>
+                <GridLayout className='viewer-grid' cols={1} rowHeight={100} width={1600} draggableHandle={'.widget-handle'}>
+                    {/* <div className='trace-info-container' key='trace-info' data-grid={{x: 0, y: 0, w: 1, h: 3}}>
                     {this.renderTraceInfo()}
                 </div> */}
-                <div className='timegraph-info' key='time-graph-resources' data-grid={{x: 0, y: 0, w: 1, h: 4}}>
-                    {this.renderTimeGraph(this.RESOURCES_OUTPUT_ID)}
-                </div>
-                <div className='timegraph-info' key='time-graph-thread' data-grid={{x: 0, y: 0, w: 1, h: 4}}>
-                    {this.renderTimeGraph(this.THREAD_STATUS_OUTPUT_ID)}
-                </div>
-                {/* <div className='fetch-buttons' key='action-buttons' data-grid={{x: 0, y: 0, w: 1, h: 1}}>
+                    <div className='timegraph-info' key='time-graph-resources' data-grid={{ x: 0, y: 0, w: 1, h: 4 }}>
+                        {this.renderTimeGraph(this.RESOURCES_OUTPUT_ID)}
+                    </div>
+                    <div className='timegraph-info' key='time-graph-thread' data-grid={{ x: 0, y: 0, w: 1, h: 4 }}>
+                        {this.renderTimeGraph(this.THREAD_STATUS_OUTPUT_ID)}
+                    </div>
+                    {/* <div className='fetch-buttons' key='action-buttons' data-grid={{x: 0, y: 0, w: 1, h: 1}}>
                     <button onClick={this.handleResourcesTimeGraph}>Resources</button>
                     <button onClick={this.handleControlFlowTimeGraph}>Control Flow View</button>
                     <button onClick={this.handleCpuXY}>CPU Usage</button>
                     <button onClick={this.handleDiskXY}>Disk Usage</button>
                     <button onClick={this.handleHistogramXY}>Histogram</button>
                 </div> */}
-                <div className='xy-info' key='xy-area' data-grid={{x: 0, y: 0, w: 1, h: 6}}>
-                    {this.renderLineChart()}
-                </div>
-                <div key='events-table' data-grid={{x: 0, y: 0, w: 1, h: 5}}>
-                    {this.renderEventsTable()}
-                </div>
-            </GridLayout>
-        </div>;
+                    <div className='xy-info' key='xy-area' data-grid={{ x: 0, y: 0, w: 1, h: 6 }}>
+                        {this.renderLineChart()}
+                    </div>
+                    <div key='events-table' data-grid={{ x: 0, y: 0, w: 1, h: 5 }}>
+                        {this.renderEventsTable()}
+                    </div>
+                </GridLayout>
+            </div>
+        </Provider>;
     }
 
     private renderTimeAxis() {
