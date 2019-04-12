@@ -8,6 +8,7 @@ import { OutputDescriptor } from 'tsp-typescript-client/lib/models/output-descri
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faShareSquare, faCopy } from '@fortawesome/free-solid-svg-icons'
 import * as ReactModal from 'react-modal';
+import { Emitter } from '@theia/core';
 
 export const TRACE_EXPLORER_ID = 'trace-explorer';
 export const TRACE_EXPLORER_LABEL = 'Trace Explorer';
@@ -15,7 +16,7 @@ export const TRACE_EXPLORER_LABEL = 'Trace Explorer';
 @injectable()
 export class TraceExplorerWidget extends ReactWidget {
     private OPENED_TRACE_TITLE: string = 'Opened traces';
-    private FILE_NAVIGATOR_TITLE: string = 'File navigator';
+    // private FILE_NAVIGATOR_TITLE: string = 'File navigator';
     private ANALYSIS_TITLE: string = 'Available analysis';
 
     private openedTraces: Array<Trace> = new Array();
@@ -24,12 +25,18 @@ export class TraceExplorerWidget extends ReactWidget {
     private showShareDialog: boolean = false;
     private sharingLink: string = '';
 
+    // Open output
+    private static outputAddedEmitter = new Emitter<OutputDescriptor>();
+    public static outputAddedSignal = TraceExplorerWidget.outputAddedEmitter.event;
+
     constructor(
         @inject(TraceManager) private traceManager: TraceManager,
     ) {
         super();
         this.id = TRACE_EXPLORER_ID;
         this.title.label = TRACE_EXPLORER_LABEL;
+        this.title.caption= TRACE_EXPLORER_LABEL;
+        this.title.iconClass = 'trace-explorer-tab-icon';
         this.toDispose.push(traceManager.traceOpenedSignal(trace => this.onTraceOpened(trace)));
         this.toDispose.push(traceManager.traceClosedSignal(trace => this.onTraceClosed(trace)));
         this.initialize();
@@ -74,14 +81,14 @@ export class TraceExplorerWidget extends ReactWidget {
                         rowRenderer={this.traceRowRenderer} />
                 </div>
             </div>
-            <div className='trace-explorer-files'>
+            {/* <div className='trace-explorer-files'>
                 <div className='trace-explorer-panel-title'>
                     {this.FILE_NAVIGATOR_TITLE}
                 </div>
                 <div className='trace-explorer-panel-content'>
-                    {/* {'List of files'} */}
+                    {'List of files'}
                 </div>
-            </div>
+            </div> */}
             <div className='trace-explorer-analysis'>
                 <div className='trace-explorer-panel-title'>
                     {this.ANALYSIS_TITLE}
@@ -169,7 +176,7 @@ export class TraceExplorerWidget extends ReactWidget {
             outputName = this.availableOutputDescriptors[props.index].name;
             outputDescription = this.availableOutputDescriptors[props.index].description;
         }
-        return <div className='outputs-list-container' key={props.key} style={props.style}>
+        return <div className='outputs-list-container' key={props.key} style={props.style} onClick={this.outputClicked.bind(this, props.index)}>
             <div className='outputs-element-name'>
                 {outputName}
             </div>
@@ -179,8 +186,12 @@ export class TraceExplorerWidget extends ReactWidget {
         </div>;
     }
 
+    private outputClicked(index: number) {
+        TraceExplorerWidget.outputAddedEmitter.fire(this.availableOutputDescriptors[index]);
+    }
+
     private async updateOpenedTraces() {
-        this.openedTraces = this.traceManager.getOpenTraces();
+        this.openedTraces = this.traceManager.getOpenedTraces();
         this.update();
     }
 
@@ -199,7 +210,7 @@ export class TraceExplorerWidget extends ReactWidget {
 
     private async getOutputDescriptors(trace: Trace): Promise<OutputDescriptor[]> {
         const outputDescriptors: OutputDescriptor[] = new Array();
-        const descriptors = await this.traceManager.getAvailableOutputs(trace.name);
+        const descriptors = await this.traceManager.getAvailableOutputs(trace.UUID);
         if (descriptors && descriptors.length) {
             outputDescriptors.push(...descriptors);
         }

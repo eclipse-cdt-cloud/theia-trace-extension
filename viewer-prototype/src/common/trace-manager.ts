@@ -1,19 +1,3 @@
-/********************************************************************************
- * Copyright (C) 2018 Ericsson and others.
- *
- * This program and the accompanying materials are made available under the
- * terms of the Eclipse Public License v. 2.0 which is available at
- * http://www.eclipse.org/legal/epl-2.0.
- *
- * This Source Code may also be made available under the following Secondary
- * Licenses when the conditions for such availability set forth in the Eclipse
- * Public License v. 2.0 are satisfied: GNU General Public License, version 2
- * with the GNU Classpath Exception which is available at
- * https://www.gnu.org/software/classpath/license.html.
- *
- * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
- ********************************************************************************/
-
 import { Trace } from 'tsp-typescript-client/lib/models/trace';
 import { Path, Emitter } from '@theia/core';
 import { TspClient } from 'tsp-typescript-client/lib/protocol/tsp-client';
@@ -31,28 +15,39 @@ export class TraceManager {
     private traceClosedEmitter = new Emitter<Trace>();
     public traceClosedSignal = this.traceClosedEmitter.event;
 
-    private fOpenTraces: Map<string, Trace>;
+    private fOpenTraces: Map<string, Trace> = new Map();;
 
     private constructor(
         @inject(TspClient) private tspClient: TspClient
-    ) {
-        this.fOpenTraces = new Map();
-    }
+    ) { }
 
-    getOpenTraces() {
+    /**
+     * Get an array of opened traces
+     * @returns Array of Trace
+     */
+    getOpenedTraces(): Trace[] {
         const openedTraces: Array<Trace> = new Array();
-        for(let entry of this.fOpenTraces) {
+        for (let entry of this.fOpenTraces) {
             openedTraces.push(entry[1]);
         }
         return openedTraces;
     }
 
-    getTrace(traceName: string) {
-        return this.fOpenTraces.get(traceName);
+    /**
+     * Get a specific trace information
+     * @param traceUUID Trace UUID
+     */
+    getTrace(traceUUID: string): Trace | undefined {
+        return this.fOpenTraces.get(traceUUID);
     }
 
-    async getAvailableOutputs(traceName: string): Promise<OutputDescriptor[] | undefined> {
-        const trace = this.fOpenTraces.get(traceName);
+    /**
+     * Get an array of OutputDescriptor for a given trace
+     * @param traceUUID Trace UUID
+     */
+    async getAvailableOutputs(traceUUID: string): Promise<OutputDescriptor[] | undefined> {
+        // Check if the trace is opened
+        const trace = this.fOpenTraces.get(traceUUID);
         if (trace) {
             try {
                 return await this.tspClient.experimentOutputs(trace.UUID);
@@ -63,45 +58,30 @@ export class TraceManager {
         return undefined;
     }
 
+    /**
+     * Open a given trace on the server
+     * @param traceURI Trace URI to open
+     * @param traceName Optional name for the trace. If not specified the URI name is used
+     * @returns The opened trace
+     */
     async openTrace(traceURI: Path, traceName?: string): Promise<Trace | undefined> {
         let name = traceURI.name;
         if (traceName) {
             name = traceName;
         }
-        const tracePath = traceURI.toString();
-        const params: URLSearchParams = new URLSearchParams();
-        params.set('name', name);
-        params.set('path', tracePath);
-        // const requestBody = 'path=' + tracePath + '&' + 'name=' + name; // /home/esideli/git/tracecompass-test-traces/ctf/src/main/resources/kernel&name=kernel'
 
+        const tracePath = traceURI.toString();
         try {
             const trace: Trace = await this.tspClient.openTrace(new Query({
                 'name': name,
                 'uri': tracePath
             }, []));
-            // const trace: Trace = await RestRequest.post('http://localhost:8080/tsp/api/traces', params);
             this.addTrace(trace);
             this.traceOpenedEmitter.fire(trace);
             return trace;
         } catch (e) {
             return undefined;
         }
-        // const res = await fetch('http://localhost:8080/tsp/api/traces', {
-        //     method: 'post',
-        //     headers: {
-        //         "Content-type": "application/x-www-form-urlencoded"
-        //     },
-        //     body: requestBody
-        // });
-
-        // if (res.ok) {
-        //     const traceJson = await res.json();
-        //     const trace = <Trace>traceJson;
-        //     this.addTrace(trace);
-        //     return trace;
-        // } else {
-        //     return undefined;
-        // }
     }
 
     /**
@@ -109,51 +89,39 @@ export class TraceManager {
      * @param traceName Trace name to update
      * @returns The updated trace or undefined if the trace was not open previously
      */
-    async updateTrace(traceName: string): Promise<Trace | undefined> {
-        const currentTrace = this.fOpenTraces.get(traceName);
+    async updateTrace(traceUUID: string): Promise<Trace | undefined> {
+        const currentTrace = this.fOpenTraces.get(traceUUID);
         if (currentTrace) {
             const trace = await this.tspClient.fetchTrace(currentTrace.UUID);
-            this.fOpenTraces.set(traceName, trace);
+            this.fOpenTraces.set(traceUUID, trace);
             return trace;
         }
 
         return undefined;
     }
 
-    async closeTrace(trace: Trace, traceURI: Path) {
-        let traceToClose: Trace | undefined = trace;
-        if (!traceToClose) {
-            traceToClose = this.fOpenTraces.get(traceURI.name);
-        }
-
+    /**
+     * Close the given on the server
+     * @param traceUUID Trace UUID
+     */
+    async closeTrace(traceUUID: string) {
+        const traceToClose = this.fOpenTraces.get(traceUUID);
         if (traceToClose) {
-            const traceUUID = traceToClose.UUID;
-            // const requestURL = 'http://localhost:8080/tsp/api/traces' + '/' + traceUUID;
             await this.tspClient.deleteTrace(traceUUID);
-            // await RestRequest.delete(requestURL);
-            const deletedTrace = this.removeTrace(traceToClose.name);
+            const deletedTrace = this.removeTrace(traceUUID);
             if (deletedTrace) {
                 this.traceClosedEmitter.fire(deletedTrace);
             }
-
-            // const res = await fetch(requestURL, {
-            //     method: 'delete'
-            // });
-
-            // if (res.ok) {
-            //     this.removeTrace(traceToClose.name);
-            // }
         }
-
     }
 
     private addTrace(trace: Trace) {
-        this.fOpenTraces.set(trace.name, trace);
+        this.fOpenTraces.set(trace.UUID, trace);
     }
 
-    private removeTrace(traceName: string): Trace | undefined {
-        const deletedTrace = this.fOpenTraces.get(traceName);
-        this.fOpenTraces.delete(traceName);
+    private removeTrace(traceUUID: string): Trace | undefined {
+        const deletedTrace = this.fOpenTraces.get(traceUUID);
+        this.fOpenTraces.delete(traceUUID);
         return deletedTrace;
     }
 }

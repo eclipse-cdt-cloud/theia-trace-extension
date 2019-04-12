@@ -1,8 +1,15 @@
+.trace-explorer-tab-icon {
+    -webkit-mask: url('chart-line-solid.svg');
+    mask: url('chart-line-solid.svg');
+}
+
+/* Main container */
 .trace-explorer-container {
     display: grid;
     grid-template-columns: 100%;
-    grid-template-rows: 1fr 1fr 1fr;
+    grid-template-rows: 1fr 1fr; /*1fr*/
     grid-row-gap: 10px;
+    color: var(--theia-ui-font-color0);
 }
 
 .trace-explorer-opened {
@@ -12,15 +19,15 @@
     grid-template-rows: 25px 1fr;
 }
 
-.trace-explorer-files {
+/* .trace-explorer-files {
     grid-row-start: 2;
     display: grid;
     grid-template-columns: 100%;
     grid-template-rows: 25px 1fr;
-}
+} */
 
 .trace-explorer-analysis {
-    grid-row-start: 3;
+    grid-row-start: 2;
     display: grid;
     grid-template-columns: 100%;
     grid-template-rows: 25px 1fr;
@@ -28,16 +35,17 @@
 
 .trace-explorer-panel-title {
     grid-row-start: 1;
-    background-color: rgba(97, 97, 97, 0.5);
-    color: white;
+    background-color: var(--theia-layout-color4);
+    /* background-color: rgba(97, 97, 97, 0.5); */
+    /* color: white; */
     text-align: center;
     line-height: 25px;
 }
 
 .trace-explorer-panel-content {
     grid-row-start: 2;
-    border: 1px solid rgba(97, 97, 97, 0.5);
-    color: white;
+    border: 1px solid var(--theia-layout-color4);
+    /* color: white; */
     padding-inline-start: 5px;
     white-space: nowrap;
 }
@@ -48,7 +56,7 @@
 }
 
 .trace-list-container, .outputs-list-container {
-    color: white;
+    /* color: white; */
     overflow-x: hidden;
     white-space: nowrap;
 }
@@ -69,7 +77,8 @@
 }
 
 .trace-element-path, .outputs-element-description {
-    color: rgb(160, 160, 160);
+    color: var(--theia-ui-font-color2);
+    /* color: rgb(160, 160, 160); */
 }
 
 .trace-element-options {
@@ -140,8 +149,4 @@
     height: 100%;
     min-width: 10px;
     margin-left: 0px;
-}
-
-div {
-    font-family: var(--theia-ui-font-family);
 }
