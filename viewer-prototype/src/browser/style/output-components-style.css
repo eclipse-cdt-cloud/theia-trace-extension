@@ -1,0 +1,73 @@
+/* Output component styling */
+/* Main container*/
+.output-container {
+    display: grid;
+    grid-template-columns: 30px 1fr;
+    border: 1px solid var(--theia-layout-color4);
+    min-height: 300px;
+    color: var(--theia-ui-font-color0)
+}
+.widget-handle {
+    grid-column-start: 1;
+    background-color: var(--theia-layout-color4);
+    display: grid;
+    grid-template-rows: 25px 1fr;
+}
+.title-bar-label {
+    text-align: center;
+    writing-mode: vertical-rl;
+    height: 50%;
+    min-height: 150px;
+    transform: rotate(180deg);
+    user-select: none;
+    align-self: center;
+    justify-self: center;
+}
+.remove-component-button {
+    background: none;
+    border: none;
+    padding: 2px 8px;
+    align-self: center;
+    justify-self: center;
+    color: var(--theia-ui-font-color0)
+}
+.xy-output-container, .timegraph-output-container {
+    display: grid;
+    grid-template-columns: 200px 1fr;
+}
+.xy-tree, .timegraph-tree {
+    grid-column-start: 1;
+    overflow: scroll;
+    max-height: 300px;
+}
+.xy-chart, #timegraph-main{
+    grid-column-start: 2;
+}
+
+.main-output-container {
+    grid-column-start: 2;
+}
+
+#timegraph-axis {
+    margin-left: 231px;
+    margin-bottom: -10px;
+}
+
+#timegraph-main {
+    width: 100%;
+    display: flex;
+}
+
+#main {
+    border: 1px solid;
+    margin: 10px 0;
+    overflow: hidden;
+}
+
+canvas {
+    display: block;
+}
+
+.innerContainer {
+    width: 100%;
+}

@@ -1,0 +1,9 @@
+.no-output-placeholder {
+    color: var(--theia-ui-font-color3);
+    font-size: 24px;
+    transform: translate(30%, 500%);
+}
+
+.react-grid-item.react-grid-placeholder {
+    background: var(--theia-accent-color3);
+}

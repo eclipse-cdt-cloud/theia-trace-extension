@@ -1,99 +1,15 @@
-textarea {
+/* textarea {
     background-color: black;
-    color: white;
+    color: var(--theia-ui-font-color0);
     font-family: var(--theia-ui-font-family);
 }
 
 div {
-    color: white;
+    color: var(--theia-ui-font-color0);
     font-family: var(--theia-ui-font-family);
-}
+} */
 
-/* XY styling */
-.xy-container {
-    display: grid;
-    grid-template-columns: 2% 15% 83%; /*25px 25% 75%;*/
-    grid-template-rows: 1fr;
-    border: 1px solid rgba(97, 97, 97, 0.5);
-}
-.tree-container {
-    grid-column-start: 2;
-    grid-row-start: 1;
-    overflow-y: scroll;
-    max-height: 500px;
-    min-width: 250px;
-}
-.tree-container>p {
-    color: white;
-    white-space: pre-wrap;
-}
-.line-chart-container {
-    grid-column-start: 3;
-    grid-row-start: 1;
-}
-
-/* Time Graph styling */
-.time-axis-container {
-    /* Ugly hack */
-    margin-left: 279px;
-}
-
-.timegraph-view {
-    display: grid;
-    grid-template-columns: 2% 15% 83%; /*25px 25% 75%;*/
-    grid-template-rows: 1fr;
-    border: 1px solid rgba(97, 97, 97, 0.5);
-}
-.widget-handle {
-    grid-column-start: 1;
-    grid-row-start: 1;
-    background-color: rgba(97, 97, 97, 0.5);
-}
-.widget-handle>div {
-    color: white;
-    text-align: center;
-    writing-mode: vertical-rl;
-    height: 50%;
-    min-height: 150px;
-    transform: rotate(180deg) translate(-50%, -50%);
-}
-.timegraph-tree-container {
-    grid-column-start: 2;
-    grid-row-start: 1;
-    overflow-y: hidden;
-    overflow-x: hidden;
-    max-height: 430px;
-    min-width: 250px;
-}
-.timegraph-tree-container>p {
-    color: white;
-    white-space: pre-wrap;
-}
-.tree-node {
-    overflow-x: hidden
-}
-.timegraph-states {
-    grid-column-start: 3;
-    grid-row-start: 1;
-    overflow-y: scroll;
-    max-height: 340px;
-}
-.timegraph-states>p {
-    color: white;
-    white-space: pre-wrap;
-}
-
-/* Table styling */
-#events-table {
-    display: grid;
-    grid-template-columns: 2% 1fr;
-    grid-template-rows: 1fr;
-}
-
-.react-grid-item.react-grid-placeholder {
-    background: rgba(97, 97, 97, 0.8);
-}
-
-.viewer-grid {
-    margin-top: -10px;
+/* Main container */
+.trace-viewer-container {
+    margin: 0px 5px 0px 5px;
 }

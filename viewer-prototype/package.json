@@ -30,7 +30,10 @@
     "@fortawesome/react-fontawesome": "^0.1.4",
     "react-modal": "^3.8.1",
     "redux": "^4.0.1",
-    "react-redux": "^6.0.1"
+    "react-redux": "^6.0.1",
+    "typesafe-actions": "^4.0.0",
+    "@material-ui/core": "^3.9.3",
+    "@material-ui/icons": "^3.0.2"
   },
   "devDependencies": {
     "@types/chart.js": "^2.7.40",
@@ -49,7 +52,7 @@
   },
   "theiaExtensions": [
     {
-      "frontend": "lib/browser/trace-viewer-frontend-module"
+      "frontend": "lib/browser/trace-viewer/trace-viewer-frontend-module"
     }
   ]
 }
