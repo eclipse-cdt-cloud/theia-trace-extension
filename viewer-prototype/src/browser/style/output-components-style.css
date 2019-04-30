@@ -1,14 +1,11 @@
 /* Output component styling */
 /* Main container*/
 .output-container {
-    display: grid;
-    grid-template-columns: 30px 1fr;
-    border: 1px solid var(--theia-layout-color4);
-    min-height: 300px;
+    display: flex;
     color: var(--theia-ui-font-color0)
 }
+
 .widget-handle {
-    grid-column-start: 1;
     background-color: var(--theia-layout-color4);
     display: grid;
     grid-template-rows: 25px 1fr;
@@ -31,26 +28,19 @@
     justify-self: center;
     color: var(--theia-ui-font-color0)
 }
-.xy-output-container, .timegraph-output-container {
-    display: grid;
-    grid-template-columns: 200px 1fr;
-}
-.xy-tree, .timegraph-tree {
-    grid-column-start: 1;
-    overflow: scroll;
-    max-height: 300px;
-}
-.xy-chart, #timegraph-main{
-    grid-column-start: 2;
-}
 
 .main-output-container {
-    grid-column-start: 2;
+    display: flex;
 }
 
-#timegraph-axis {
-    margin-left: 231px;
-    margin-bottom: -10px;
+.output-component-tree {
+    overflow-y: scroll;
+    white-space: pre-wrap;
+}
+
+.output-component-chart {
+    align-self: center;
+    text-align: center;
 }
 
 #timegraph-main {

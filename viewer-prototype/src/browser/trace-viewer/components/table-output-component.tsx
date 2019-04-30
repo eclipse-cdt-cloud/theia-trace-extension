@@ -23,7 +23,7 @@ export class TableOutputComponent extends AbstractOutputComponent<AbstractOutput
     }
 
     renderMainArea(): React.ReactNode {
-        return <div id='events-table' className='ag-theme-balham-dark' style={{ height: '300px' }}>
+        return <div id='events-table' className='ag-theme-balham-dark' style={{ height: '300px', width: '100%' }}>
             <AgGridReact
                 columnDefs={this.state.tableColumns}
                 rowData={this.state.tableLines}>
@@ -37,13 +37,16 @@ export class TableOutputComponent extends AbstractOutputComponent<AbstractOutput
         const outPutId = this.props.outputDescriptor.id;
 
         // Fetch columns
-        const columnsResponse = await tspClient.fetchTableColumns<Entry, EntryHeader>(traceUUID, outPutId, QueryHelper.timeQuery([0, 1]));
+        const columnsResponse = (await tspClient.fetchTableColumns<Entry, EntryHeader>(traceUUID, outPutId, QueryHelper.timeQuery([0, 1]))).getModel();
         const columnEntries = columnsResponse.model.entries;
         const columnIds: Array<number> = new Array;
         const columnsArray = new Array<any>();
         columnEntries.forEach(entry => {
             columnIds.push(entry.id);
-            const columnName = entry.name;
+            let columnName = '';
+            if (entry.labels.length) {
+                columnName = entry.labels[0];
+            }
             columnsArray.push({
                 headerName: columnName,
                 field: entry.id.toString(),
@@ -52,7 +55,7 @@ export class TableOutputComponent extends AbstractOutputComponent<AbstractOutput
         });
 
         // Fetch lines
-        const lineResponse = await tspClient.fetchTableLines(traceUUID, outPutId, QueryHelper.tableQuery(columnIds, 0, 500));
+        const lineResponse = (await tspClient.fetchTableLines(traceUUID, outPutId, QueryHelper.tableQuery(columnIds, 0, 500))).getModel();
         const model = lineResponse.model;
         const lines = model.lines;
         const linesArray = new Array<any>();

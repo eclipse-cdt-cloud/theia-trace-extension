@@ -12,6 +12,7 @@ import '../../../src/browser/style/trace-viewer.css';
 import '../../../src/browser/style/trace-context-style.css';
 import '../../../src/browser/style/output-components-style.css';
 import '../../../src/browser/style/trace-explorer.css';
+// import 'semantic-ui-css/semantic.min.css';
 import { TraceExplorerContribution } from '../trace-explorer/trace-explorer-contribution';
 import { TRACE_EXPLORER_ID, TraceExplorerWidget } from '../trace-explorer/trace-explorer-widget';
 import { TspClient } from 'tsp-typescript-client/lib/protocol/tsp-client';

@@ -25,10 +25,12 @@ export class TraceManager {
      * Get an array of opened traces
      * @returns Array of Trace
      */
-    getOpenedTraces(): Trace[] {
+    async getOpenedTraces(): Promise<Trace[]> {
         const openedTraces: Array<Trace> = new Array();
-        for (let entry of this.fOpenTraces) {
-            openedTraces.push(entry[1]);
+        // Look on the server for opened trace
+        const tracesResponse = await this.tspClient.fetchTraces();
+        if (tracesResponse.isOk()) {
+            openedTraces.push(...tracesResponse.getModel());
         }
         return openedTraces;
     }
@@ -37,8 +39,18 @@ export class TraceManager {
      * Get a specific trace information
      * @param traceUUID Trace UUID
      */
-    getTrace(traceUUID: string): Trace | undefined {
-        return this.fOpenTraces.get(traceUUID);
+    async getTrace(traceUUID: string): Promise<Trace | undefined> {
+        // Check if the trace is in "cache"
+        let trace = this.fOpenTraces.get(traceUUID);
+
+        // If the trace is undefined, check on the server
+        if (!trace) {
+            const traceResponse = await this.tspClient.fetchTrace(traceUUID);
+            if (traceResponse.isOk()) {
+                trace = traceResponse.getModel();
+            }
+        }
+        return trace;
     }
 
     /**
@@ -49,11 +61,8 @@ export class TraceManager {
         // Check if the trace is opened
         const trace = this.fOpenTraces.get(traceUUID);
         if (trace) {
-            try {
-                return await this.tspClient.experimentOutputs(trace.UUID);
-            } catch (e) {
-                return undefined;
-            }
+            const outputsResponse = await this.tspClient.experimentOutputs(trace.UUID);
+            return outputsResponse.getModel();
         }
         return undefined;
     }
@@ -71,17 +80,17 @@ export class TraceManager {
         }
 
         const tracePath = traceURI.toString();
-        try {
-            const trace: Trace = await this.tspClient.openTrace(new Query({
-                'name': name,
-                'uri': tracePath
-            }, []));
+        const traceResponse = await this.tspClient.openTrace(new Query({
+            'name': name,
+            'uri': tracePath
+        }, []));
+        const trace = traceResponse.getModel()
+        if (trace && (traceResponse.isOk() || traceResponse.getStatusCode() === 409)) {
             this.addTrace(trace);
             this.traceOpenedEmitter.fire(trace);
             return trace;
-        } catch (e) {
-            return undefined;
         }
+        return undefined;
     }
 
     /**
@@ -92,9 +101,12 @@ export class TraceManager {
     async updateTrace(traceUUID: string): Promise<Trace | undefined> {
         const currentTrace = this.fOpenTraces.get(traceUUID);
         if (currentTrace) {
-            const trace = await this.tspClient.fetchTrace(currentTrace.UUID);
-            this.fOpenTraces.set(traceUUID, trace);
-            return trace;
+            const traceResponse = await this.tspClient.fetchTrace(currentTrace.UUID);
+            const trace = traceResponse.getModel();
+            if (trace && traceResponse.isOk) {
+                this.fOpenTraces.set(traceUUID, trace);
+                return trace;
+            }
         }
 
         return undefined;
