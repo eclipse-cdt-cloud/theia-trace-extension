@@ -9,9 +9,28 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faShareSquare, faCopy } from '@fortawesome/free-solid-svg-icons'
 import * as ReactModal from 'react-modal';
 import { Emitter } from '@theia/core';
+import { SignalManager } from '../../common/signal-manager';
 
 export const TRACE_EXPLORER_ID = 'trace-explorer';
 export const TRACE_EXPLORER_LABEL = 'Trace Explorer';
+
+export class OutputAddedSignalPayload {
+    private outputDescriptor: OutputDescriptor;
+    private trace: Trace;
+
+    constructor(outputDescriptor: OutputDescriptor, trace: Trace) {
+        this.outputDescriptor = outputDescriptor;
+        this.trace = trace;
+    }
+
+    public getOutputDescriptor(): OutputDescriptor {
+        return this.outputDescriptor;
+    }
+
+    public getTrace(): Trace {
+        return this.trace;
+    }
+}
 
 @injectable()
 export class TraceExplorerWidget extends ReactWidget {
@@ -20,13 +39,16 @@ export class TraceExplorerWidget extends ReactWidget {
     private ANALYSIS_TITLE: string = 'Available analysis';
 
     private openedTraces: Array<Trace> = new Array();
-    private availableOutputDescriptors: Array<OutputDescriptor> = new Array();
+    private selectedTraceIndex: number = 0;
+    private availableOutputDescriptors: Map<string, OutputDescriptor[]> = new Map();
 
     private showShareDialog: boolean = false;
     private sharingLink: string = '';
 
+    private tooltip: { [key: string]: string } = {};
+
     // Open output
-    private static outputAddedEmitter = new Emitter<OutputDescriptor>();
+    private static outputAddedEmitter = new Emitter<OutputAddedSignalPayload>();
     public static outputAddedSignal = TraceExplorerWidget.outputAddedEmitter.event;
 
     constructor(
@@ -35,10 +57,11 @@ export class TraceExplorerWidget extends ReactWidget {
         super();
         this.id = TRACE_EXPLORER_ID;
         this.title.label = TRACE_EXPLORER_LABEL;
-        this.title.caption= TRACE_EXPLORER_LABEL;
+        this.title.caption = TRACE_EXPLORER_LABEL;
         this.title.iconClass = 'trace-explorer-tab-icon';
         this.toDispose.push(traceManager.traceOpenedSignal(trace => this.onTraceOpened(trace)));
         this.toDispose.push(traceManager.traceClosedSignal(trace => this.onTraceClosed(trace)));
+        this.toDispose.push(SignalManager.getInstance().tooltipSignal(tooltip => this.onTooltip(tooltip)));
         this.initialize();
     }
 
@@ -48,8 +71,14 @@ export class TraceExplorerWidget extends ReactWidget {
     }
 
     private onTraceClosed(closedTrace: Trace) {
+        this.tooltip = {};
         this.updateOpenedTraces();
         this.updateAvailableAnalysis(undefined);
+    }
+
+    private onTooltip(tooltip: { [key: string]: string }) {
+        this.tooltip = tooltip;
+        this.update();
     }
 
     async initialize(): Promise<void> {
@@ -63,6 +92,22 @@ export class TraceExplorerWidget extends ReactWidget {
         this.traceRowRenderer = this.traceRowRenderer.bind(this);
         this.outputsRowRenderer = this.outputsRowRenderer.bind(this);
         this.handleShareModalClose = this.handleShareModalClose.bind(this);
+
+        let outputsRowCount = 0;
+        if (this.openedTraces.length) {
+            const outputs = this.availableOutputDescriptors.get(this.openedTraces[this.selectedTraceIndex].UUID);
+            if (outputs) {
+                outputsRowCount = outputs.length;
+            }
+        }
+
+        const tooltipArray: string[] = [];
+        if (this.tooltip) {
+            const keys = Object.keys(this.tooltip);
+            keys.forEach(key => {
+                tooltipArray.push(key + ': ' + this.tooltip[key]);
+            });
+        }
 
         return <div className='trace-explorer-container'>
             <ReactModal isOpen={this.showShareDialog} onRequestClose={this.handleShareModalClose} ariaHideApp={false} className='sharing-modal' overlayClassName='sharing-overlay'>
@@ -97,9 +142,19 @@ export class TraceExplorerWidget extends ReactWidget {
                     <List
                         height={300}
                         width={300}
-                        rowCount={this.availableOutputDescriptors.length}
+                        rowCount={outputsRowCount}
                         rowHeight={50}
                         rowRenderer={this.outputsRowRenderer} />
+                </div>
+            </div>
+            <div className='trace-explorer-tooltip'>
+                <div className='trace-explorer-panel-title'>
+                    {'Time Graph Tooltip'}
+                </div>
+                <div className='trace-explorer-panel-content'>
+                    {tooltipArray.map((element) => {
+                        return <p key={element}>{element}</p>;
+                    })}
                 </div>
             </div>
         </div>;
@@ -136,10 +191,9 @@ export class TraceExplorerWidget extends ReactWidget {
             tracePath = this.openedTraces[props.index].path;
         }
         this.handleShareButtonClick = this.handleShareButtonClick.bind(this);
-
         return <div className='trace-list-container' key={props.key} style={props.style}>
             <div className='trace-element-container'>
-                <div className='trace-element-info'>
+                <div className='trace-element-info' onClick={this.onTraceSelected.bind(this, props.index)}>
                     <div className='trace-element-name'>
                         {traceName}
                     </div>
@@ -154,6 +208,11 @@ export class TraceExplorerWidget extends ReactWidget {
                 </div>
             </div>
         </div>;
+    }
+
+    private onTraceSelected(index: number) {
+        this.selectedTraceIndex = index;
+        this.updateAvailableAnalysis(this.openedTraces[index]);
     }
 
     private handleShareButtonClick(index: number) {
@@ -172,9 +231,13 @@ export class TraceExplorerWidget extends ReactWidget {
     private outputsRowRenderer(props: ListRowProps): React.ReactNode {
         let outputName = '';
         let outputDescription = '';
-        if (this.availableOutputDescriptors && this.availableOutputDescriptors.length && props.index < this.availableOutputDescriptors.length) {
-            outputName = this.availableOutputDescriptors[props.index].name;
-            outputDescription = this.availableOutputDescriptors[props.index].description;
+        const selectedTrace = this.openedTraces[this.selectedTraceIndex];
+        if (selectedTrace) {
+            const outputDescriptors = this.availableOutputDescriptors.get(selectedTrace.UUID);
+            if (outputDescriptors && outputDescriptors.length && props.index < outputDescriptors.length) {
+                outputName = outputDescriptors[props.index].name;
+                outputDescription = outputDescriptors[props.index].description;
+            }
         }
         return <div className='outputs-list-container' key={props.key} style={props.style} onClick={this.outputClicked.bind(this, props.index)}>
             <div className='outputs-element-name'>
@@ -187,21 +250,27 @@ export class TraceExplorerWidget extends ReactWidget {
     }
 
     private outputClicked(index: number) {
-        TraceExplorerWidget.outputAddedEmitter.fire(this.availableOutputDescriptors[index]);
+        const trace = this.openedTraces[this.selectedTraceIndex]
+        const outputs = this.availableOutputDescriptors.get(trace.UUID);
+        if (outputs) {
+            TraceExplorerWidget.outputAddedEmitter.fire(new OutputAddedSignalPayload(outputs[index], trace));
+        }
     }
 
     private async updateOpenedTraces() {
-        this.openedTraces = this.traceManager.getOpenedTraces();
+        this.openedTraces = await this.traceManager.getOpenedTraces();
+        this.selectedTraceIndex = 0;
         this.update();
     }
 
     private async updateAvailableAnalysis(trace: Trace | undefined) {
-        this.availableOutputDescriptors = new Array();
         if (trace) {
-            this.availableOutputDescriptors = await this.getOutputDescriptors(trace);
+            const outputs = await this.getOutputDescriptors(trace);
+            this.availableOutputDescriptors.set(trace.UUID, outputs);
         } else {
             if (this.openedTraces.length) {
-                this.availableOutputDescriptors = await this.getOutputDescriptors(this.openedTraces[0]);
+                const outputs = await this.getOutputDescriptors(this.openedTraces[0])
+                this.availableOutputDescriptors.set(this.openedTraces[0].UUID, outputs);
             }
         }
 

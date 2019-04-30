@@ -1,34 +1,32 @@
-import { AbstractOutputComponent, AbstractOutputProps, AbstractOutputState } from "./abstract-output-component";
 import * as React from 'react';
-import { ReactTimeGraphContainer } from "./utils/timegraph-container-component";
-import { TimeGraphChartGrid } from 'timeline-chart/lib/layer/time-graph-chart-grid';
-import { TimeGraphChartCursors } from 'timeline-chart/lib/layer/time-graph-chart-cursors';
-import { TimeGraphChartSelectionRange } from 'timeline-chart/lib/layer/time-graph-chart-selection-range';
-import { TimeGraphNavigator } from 'timeline-chart/lib/layer/time-graph-navigator';
-import { TimeGraphRowController } from "timeline-chart/lib/time-graph-row-controller";
+import { TimeGraphRowElement, TimeGraphRowElementStyle } from "timeline-chart/lib/components/time-graph-row-element";
 import { TimeGraphChart, TimeGraphChartProviders } from "timeline-chart/lib/layer/time-graph-chart";
+import { TimeGraphChartCursors } from 'timeline-chart/lib/layer/time-graph-chart-cursors';
+import { TimeGraphChartGrid } from 'timeline-chart/lib/layer/time-graph-chart-grid';
+import { TimeGraphChartSelectionRange } from 'timeline-chart/lib/layer/time-graph-chart-selection-range';
 import { TimeGraphVerticalScrollbar } from 'timeline-chart/lib/layer/time-graph-vertical-scrollbar';
 import { TimelineChart } from "timeline-chart/lib/time-graph-model";
-import { TimeGraphRowElementStyle } from "timeline-chart/lib/components/time-graph-row-element";
-import { QueryHelper } from "tsp-typescript-client/lib/models/query/query-helper";
-import { TimeGraphEntry } from "tsp-typescript-client/lib/models/timegraph";
+import { TimeGraphRowController } from "timeline-chart/lib/time-graph-row-controller";
 import { EntryHeader } from "tsp-typescript-client/lib/models/entry";
+import { QueryHelper } from "tsp-typescript-client/lib/models/query/query-helper";
+import { ResponseStatus } from "tsp-typescript-client/lib/models/response/responses";
+import { TimeGraphEntry } from "tsp-typescript-client/lib/models/timegraph";
+import { SignalManager } from '../../../common/signal-manager';
+import { AbstractOutputProps, AbstractOutputState } from "./abstract-output-component";
+import { AbstractTreeOutputComponent } from "./abstract-tree-output-component";
+import { StyleProvider } from './data-providers/style-provider';
 import { TspDataProvider } from './data-providers/tsp-data-provider';
+import { ReactTimeGraphContainer } from "./utils/timegraph-container-component";
 
 type TimegraphOutputProps = AbstractOutputProps & {
-    style: {
-        mainWidth: number,
-        mainHeight: number,
-        naviBackgroundColor: number,
-        chartBackgroundColor: number,
-        cursorColor: number,
-        lineColor: number,
-        rowHeight: number
-    };
     addWidgetResizeHandler: (handler: () => void) => void;
 }
 
-export class TimegraphOutputComponent extends AbstractOutputComponent<TimegraphOutputProps, AbstractOutputState> {
+type TimegraohOutputState = AbstractOutputState & {
+    timegraphTree: TimeGraphEntry[];
+}
+
+export class TimegraphOutputComponent extends AbstractTreeOutputComponent<TimegraphOutputProps, TimegraohOutputState> {
     private totalHeight: number = 0;
     private rowController: TimeGraphRowController;
     private chartLayer: TimeGraphChart;
@@ -38,8 +36,14 @@ export class TimegraphOutputComponent extends AbstractOutputComponent<TimegraphO
     private tspDataProvider: TspDataProvider;
     private styleMap = new Map<string, TimeGraphRowElementStyle>();
 
+    private selectedElement: TimeGraphRowElement | undefined;
+
     constructor(props: TimegraphOutputProps) {
         super(props);
+        this.state = {
+            outputStatus: ResponseStatus.RUNNING,
+            timegraphTree: []
+        };
         this.tspDataProvider = new TspDataProvider(this.props.tspClient, this.props.traceId, this.props.outputDescriptor.id);
         this.rowController = new TimeGraphRowController(this.props.style.rowHeight, this.totalHeight);
         this.horizontalContainer = React.createRef();
@@ -62,35 +66,63 @@ export class TimegraphOutputComponent extends AbstractOutputComponent<TimegraphO
         this.chartLayer = new TimeGraphChart('timeGraphChart', providers, this.rowController);
         this.vscrollLayer = new TimeGraphVerticalScrollbar('timeGraphVerticalScrollbar', this.rowController);
 
-        this.initialize();
+        this.chartLayer.onSelectedRowElementChanged((model) => {
+            if (model) {
+                const el = this.chartLayer.getElementById(model.id);
+                if (el) {
+                    this.selectedElement = el;
+                }
+            } else {
+                this.selectedElement = undefined;
+            }
+            this.onElementSelected(this.selectedElement);
+        });
+
+        // this.initialize();
     }
 
-    private async initialize() {
+    async componentDidMount() {
         const treeParameters = QueryHelper.timeQuery([0, 1]);
-        const treeResponse = await this.props.tspClient.fetchTimeGraphTree<TimeGraphEntry, EntryHeader>(this.props.traceId,
-            this.props.outputDescriptor.id, treeParameters);
+        const treeResponse = (await this.props.tspClient.fetchTimeGraphTree<TimeGraphEntry, EntryHeader>(this.props.traceId,
+            this.props.outputDescriptor.id, treeParameters)).getModel();
         const nbEntries = treeResponse.model.entries.length;
         this.totalHeight = nbEntries * this.props.style.rowHeight;
         this.rowController.totalHeight = this.totalHeight;
+        this.setState({
+            outputStatus: ResponseStatus.COMPLETED,
+            timegraphTree: treeResponse.model.entries
+        });
     }
 
-    renderMainArea(): React.ReactNode {
-        return <div className='timegraph-output-container'>
-            <div className='timegraph-tree'>
-            </div>
-            <div id='timegraph-main' className='ps__child--consume' onWheel={ev => { ev.preventDefault(); ev.stopPropagation(); }} >
-                {this.renderTimeGraphContent()}
-                <div id='main-vscroll'>
-                    {this.getVerticalScrollbar()}
-                </div>
-            </div>
+
+    // private async initialize() {
+    //     const treeParameters = QueryHelper.timeQuery([0, 1]);
+    //     const treeResponse = (await this.props.tspClient.fetchTimeGraphTree<TimeGraphEntry, EntryHeader>(this.props.traceId,
+    //         this.props.outputDescriptor.id, treeParameters)).getModel();
+    //     const nbEntries = treeResponse.model.entries.length;
+    //     this.totalHeight = nbEntries * this.props.style.rowHeight;
+    //     this.rowController.totalHeight = this.totalHeight;
+    // }
+
+    renderTree(): React.ReactNode {
+        return <React.Fragment>
+            {this.state.timegraphTree.map(entry => {
+                if (entry.parentId !== -1) {
+                    return entry.labels[0] + '\n';
+                }
+            })}
+        </React.Fragment>;
+    }
+
+    renderChart(): React.ReactNode {
+        return <div id='timegraph-main' className='ps__child--consume' onWheel={ev => { ev.preventDefault(); ev.stopPropagation(); }} >
+            {this.renderTimeGraphContent()}
         </div>;
     }
 
     private renderTimeGraphContent() {
         return <div id='main-timegraph-content' ref={this.horizontalContainer}>
             {this.getChartContainer()}
-            {this.getNaviContainer()}
         </div>
     }
 
@@ -99,13 +131,12 @@ export class TimegraphOutputComponent extends AbstractOutputComponent<TimegraphO
 
         const cursors = new TimeGraphChartCursors('chart-cursors', this.chartLayer, this.rowController, { color: this.props.style.cursorColor });
         const selectionRange = new TimeGraphChartSelectionRange('chart-selection-range', { color: this.props.style.cursorColor });
-
         return <ReactTimeGraphContainer
             options={
                 {
                     id: 'timegraph-chart',
-                    height: this.props.style.mainHeight,
-                    width: this.props.style.mainWidth,
+                    height: this.props.style.height,
+                    width: this.props.style.chartWidth, // this.props.style.mainWidth,
                     backgroundColor: this.props.style.chartBackgroundColor,
                     classNames: 'horizontal-canvas'
                 }
@@ -120,36 +151,39 @@ export class TimegraphOutputComponent extends AbstractOutputComponent<TimegraphO
         </ReactTimeGraphContainer>;
     }
 
-    private getNaviContainer() {
-        const navi = new TimeGraphNavigator('timeGraphNavigator');
-        return <ReactTimeGraphContainer
-            id='navi'
-            options={{
-                width: this.props.style.mainWidth,
-                height: 10,
-                id: 'navi',
-                backgroundColor: this.props.style.naviBackgroundColor,
-                classNames: 'horizontal-canvas'
-            }}
-            onWidgetResize={this.props.addWidgetResizeHandler}
-            unitController={this.props.unitController}
-            layer={[navi]}
-        ></ReactTimeGraphContainer>
-    }
-
     protected getVerticalScrollbar() {
         return <ReactTimeGraphContainer
             id='vscroll'
             options={{
                 id: 'vscroll',
                 width: 10,
-                height: this.props.style.mainHeight,
+                height: this.props.style.height,
                 backgroundColor: this.props.style.naviBackgroundColor
             }}
             onWidgetResize={this.props.addWidgetResizeHandler}
             unitController={this.props.unitController}
             layer={[this.vscrollLayer]}
         ></ReactTimeGraphContainer>;
+    }
+
+    private async onElementSelected(element: TimeGraphRowElement | undefined) {
+        if (element && this.props.viewRange) {
+            const elementRange = element.model.range;
+            const offset = this.props.viewRange.getOffset()
+            const time = (elementRange.start + ((elementRange.end - elementRange.start) / 2)) + (offset ? offset : 0);
+            const tooltipResponse = await this.props.tspClient.fetchTimeGraphToolTip(this.props.traceId, this.props.outputDescriptor.id, time, element.row.model.id.toString());
+            const responseModel = tooltipResponse.getModel();
+            if (responseModel) {
+                const tooltipObject = {
+                    'Label': element.model.label,
+                    'Start time': (elementRange.start + (offset ? offset : 0)).toString(),
+                    'End time': (elementRange.end + (offset ? offset : 0)).toString(),
+                    ...responseModel.model,
+                    'Row': element.row.model.name
+                };
+                SignalManager.getInstance().fireTooltipSignal(tooltipObject);
+            }
+        }
     }
 
     private async fetchTimegraphData(range: TimelineChart.TimeGraphRange, resolution: number) {
@@ -159,16 +193,16 @@ export class TimegraphOutputComponent extends AbstractOutputComponent<TimegraphO
         const end = range.end + overlap < this.props.unitController.absoluteRange ? range.end + overlap : this.props.unitController.absoluteRange;
         const newRange: TimelineChart.TimeGraphRange = { start, end };
         const newResolution: number = resolution * 0.8;
-        const timeGraphData: TimelineChart.TimeGraphModel = await this.tspDataProvider.getData(newRange, newResolution);
-        // if (timeGraphData && selectedElement) {
-        //     for (const row of timeGraphData.rows) {
-        //         const selEl = row.states.find(el => !!selectedElement && el.id === selectedElement.id);
-        //         if (selEl) {
-        //             selEl.selected = true;
-        //             break;
-        //         }
-        //     }
-        // }
+        const timeGraphData: TimelineChart.TimeGraphModel = await this.tspDataProvider.getData(newRange, this.props.style.chartWidth);
+        if (timeGraphData && this.selectedElement) {
+            for (const row of timeGraphData.rows) {
+                const selEl = row.states.find(el => !!this.selectedElement && el.id === this.selectedElement.id);
+                if (selEl) {
+                    selEl.selected = true;
+                    break;
+                }
+            }
+        }
         return {
             rows: timeGraphData ? timeGraphData.rows : [],
             range: newRange,
@@ -177,7 +211,9 @@ export class TimegraphOutputComponent extends AbstractOutputComponent<TimegraphO
     }
 
     private getElementStyle(element: TimelineChart.TimeGraphRowElementModel) {
-        const styles: TimeGraphRowElementStyle[] = [
+        const styleProvider = new StyleProvider(this.props.outputDescriptor.id, this.props.traceId, this.props.tspClient);
+        const styles = styleProvider.getStyles();
+        const backupStyles: TimeGraphRowElementStyle[] = [
             {
                 color: 0x3891A6,
                 height: this.props.style.rowHeight * 0.8
@@ -201,12 +237,23 @@ export class TimegraphOutputComponent extends AbstractOutputComponent<TimegraphO
                 height: this.props.style.rowHeight * 0.3
             },
         ];
-        let style: TimeGraphRowElementStyle | undefined = styles[0];
+
+        let style: TimeGraphRowElementStyle | undefined = backupStyles[0];
         const val = element.label;
         const modelData = element.data;
         if (modelData) {
             const value = modelData.stateValue;
-            if(value === -1) {
+            const elementStyle = styles[value.toString()];
+            if (elementStyle) {
+                return {
+                    color: parseInt(elementStyle.color, 16),
+                    height: this.props.style.rowHeight * elementStyle.height,
+                    borderWidth: element.selected ? 2 : 0,
+                    borderColor: 0xeef20c
+                };
+            }
+
+            if (value === -1) {
                 return {
                     color: 0xCACACA,
                     height: this.props.style.rowHeight * 0.5,
@@ -216,7 +263,7 @@ export class TimegraphOutputComponent extends AbstractOutputComponent<TimegraphO
             }
             style = this.styleMap.get(value);
             if (!style) {
-                style = styles[(value % styles.length)];
+                style = backupStyles[(value % backupStyles.length)];
                 this.styleMap.set(value, style);
             }
             return {
@@ -229,7 +276,7 @@ export class TimegraphOutputComponent extends AbstractOutputComponent<TimegraphO
 
         style = this.styleMap.get(val);
         if (!style) {
-            style = styles[(this.styleMap.size % styles.length)];
+            style = backupStyles[(this.styleMap.size % backupStyles.length)];
             this.styleMap.set(val, style);
         }
         return {

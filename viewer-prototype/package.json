@@ -5,7 +5,7 @@
   "keywords": [
     "theia-extension"
   ],
-  "license": "EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0",
+  "license": "MIT",
   "repository": {
     "type": "git",
     "url": "https://github.com/theia-ide/theia-trace-extension"
@@ -24,16 +24,13 @@
     "timeline-chart": "next",
     "react-grid-layout": "^0.16.6",
     "react-virtualized": "^9.21.0",
-    "tsp-typescript-client": "https://github.com/theia-ide/tsp-typescript-client",
+    "tsp-typescript-client": "next",
     "@fortawesome/fontawesome-svg-core": "^1.2.15",
     "@fortawesome/free-solid-svg-icons": "^5.7.2",
     "@fortawesome/react-fontawesome": "^0.1.4",
     "react-modal": "^3.8.1",
-    "redux": "^4.0.1",
-    "react-redux": "^6.0.1",
-    "typesafe-actions": "^4.0.0",
-    "@material-ui/core": "^3.9.3",
-    "@material-ui/icons": "^3.0.2"
+    "semantic-ui-react": "^0.86.0",
+    "semantic-ui-css": "^2.4.1"
   },
   "devDependencies": {
     "@types/chart.js": "^2.7.40",

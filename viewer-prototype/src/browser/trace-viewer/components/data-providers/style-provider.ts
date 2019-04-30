@@ -1,0 +1,94 @@
+import { TspClient } from 'tsp-typescript-client/lib/protocol/tsp-client';
+
+export class StyleProvider {
+    // private tspClient: TspClient;
+    // private traceId: string;
+    private outputId: string;
+
+    private tmpStyleObject: { [key: string]: { [key: string]: { [key: string]: any } } };
+
+    private styles: { [key: string]: { [key: string]: any } } | undefined;
+
+    constructor(outputId: string, traceId: string, tspClient: TspClient) {
+        this.outputId = outputId;
+        // this.tspClient = tspClient;
+        // this.traceId = traceId;
+        const threadStyleObject = {
+            '0': {
+                color: '646464',
+                height: 0.33
+            },
+            '2': {
+                color: '00C800',
+                height: 1
+            },
+            '3': {
+                color: '0000C8',
+                height: 1
+            },
+            '4': {
+                color: 'C80064',
+                height: 0.75
+            },
+            '1': {
+                color: 'C8C800',
+                height: 0.5
+            },
+            '5': {
+                color: 'C86400',
+                height: 0.5
+            },
+            '6': {
+                color: 'C8C8C8',
+                height: 0.5
+            }
+        };
+
+        const resourceStyleObject = {
+            '0': {
+                color: 'C8C8C8',
+                height: 0.66
+            },
+            '2': {
+                color: '00C800',
+                height: 1
+            },
+            '4': {
+                color: '0000C8',
+                height: 1
+            },
+            '16': {
+                color: 'C80064',
+                height: 0.75
+            },
+            '8': {
+                color: 'C89664',
+                height: 1
+            },
+            '1': {
+                color: 'C8C800',
+                height: 1
+            }
+        };
+        this.tmpStyleObject = {
+            'org.eclipse.tracecompass.internal.analysis.os.linux.core.threadstatus.ThreadStatusDataProvider': threadStyleObject,
+            'org.eclipse.tracecompass.internal.analysis.os.linux.core.threadstatus.ResourcesStatusDataProvider': resourceStyleObject
+        };
+    }
+
+    /**
+     * Get the style for a specific output
+     * @param forceUpdate Force the update of the current cached styles from the server
+     */
+    public getStyles(forceUpdate?: boolean): { [key: string]: { [key: string]: any } } {
+        if (!this.styles || forceUpdate) {
+            // Fetch from the server
+            // TODO No style yet in the server
+            // const styleResponse = await this.tspClient.fetchTimeGraphToolTip(this.traceId, this.outputId, 0);
+            // this.styles = styleResponse.getModel().model
+            const styles = this.tmpStyleObject[this.outputId];
+            this.styles = styles ? styles : {};
+        }
+        return this.styles;
+    }
+}

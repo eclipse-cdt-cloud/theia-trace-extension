@@ -7,7 +7,7 @@ import { TimeGraphUnitController } from 'timeline-chart/lib/time-graph-unit-cont
 type TimeAxisProps = {
     unitController: TimeGraphUnitController;
     style: {
-        mainWidth: number,
+        chartWidth: number,
         naviBackgroundColor: number,
         cursorColor: number,
         lineColor: number
@@ -22,7 +22,7 @@ export class TimeAxisComponent extends React.Component<TimeAxisProps> {
             options={{
                 id: 'timegraph-axis',
                 height: 30,
-                width: this.props.style.mainWidth,
+                width: this.props.style.chartWidth,
                 backgroundColor: 0xFFFFFF,
                 classNames: 'horizontal-canvas'
             }}

@@ -1,5 +1,5 @@
 import { TspClient } from "tsp-typescript-client/lib/protocol/tsp-client";
-import { TimeGraphEntry, TimeGraphRow, TimeGraphModel } from "tsp-typescript-client/lib/models/timegraph";
+import { TimeGraphEntry, TimeGraphRow, TimeGraphModel, TimeGraphState } from "tsp-typescript-client/lib/models/timegraph";
 import { TimelineChart } from "timeline-chart/lib/time-graph-model";
 import { QueryHelper } from "tsp-typescript-client/lib/models/query/query-helper";
 import { EntryHeader } from "tsp-typescript-client/lib/models/entry";
@@ -28,10 +28,10 @@ export class TspDataProvider {
 
     async getData(viewRange?: TimelineChart.TimeGraphRange, resolution?: number): Promise<TimelineChart.TimeGraphModel> {
         const resourcesTreeParameters = QueryHelper.timeQuery([0, 1]); // QueryHelper.timeQuery(QueryHelper.splitRangeIntoEqualParts(1332170682440133097, 1332170682540133097, 1120));
-        const treeResponse = await this.client.fetchTimeGraphTree<TimeGraphEntry, EntryHeader>(
+        const treeResponse = (await this.client.fetchTimeGraphTree<TimeGraphEntry, EntryHeader>(
             this.traceUUID,
             this.outputId,
-            resourcesTreeParameters);
+            resourcesTreeParameters)).getModel();
         this.timeGraphEntries = treeResponse.model.entries;
         this.totalRange = this.timeGraphEntries[0].endTime - this.timeGraphEntries[0].startTime; // 1332170682540133097 - starttime
         const selectedItems = new Array<number>();
@@ -41,13 +41,12 @@ export class TspDataProvider {
 
         let statesParameters = QueryHelper.selectionTimeQuery(QueryHelper.splitRangeIntoEqualParts(1332170682440133097, 1332170682540133097, 1120), selectedItems);
         if (viewRange && resolution) {
-            // TODO Use the resolution
             const start = viewRange.start + this.timeGraphEntries[0].startTime;
             const end = viewRange.end + this.timeGraphEntries[0].startTime;
-            statesParameters = QueryHelper.selectionTimeQuery(QueryHelper.splitRangeIntoEqualParts(Math.trunc(start), Math.trunc(end), 1120), selectedItems);
+            statesParameters = QueryHelper.selectionTimeQuery(QueryHelper.splitRangeIntoEqualParts(Math.trunc(start), Math.trunc(end), resolution), selectedItems);
         }
-        const stateResponse = await this.client.fetchTimeGraphStates<TimeGraphModel>(this.traceUUID,
-            this.outputId, statesParameters);
+        const stateResponse = (await this.client.fetchTimeGraphStates<TimeGraphModel>(this.traceUUID,
+            this.outputId, statesParameters)).getModel();
 
         this.timeGraphRows = stateResponse.model.rows;
         this.timeGraphRowsOrdering();
@@ -64,7 +63,7 @@ export class TspDataProvider {
                 const states = this.getStateModelByRow(row, chartStart);
                 rows.push({
                     id: rowId,
-                    name: 'row' + rowId,
+                    name: entry.labels[0], // 'row' + rowId,
                     range: {
                         start: entry.startTime - chartStart,
                         end: entry.endTime - chartStart
@@ -99,9 +98,7 @@ export class TspDataProvider {
 
     protected getStateModelByRow(row: TimeGraphRow, chartStart: number) {
         const states: TimelineChart.TimeGraphRowElementModel[] = [];
-        row.states.forEach((state: any, idx: number) => {
-            // FIXME had to use type 'any' for state because there is a difference between TimegraphState from server and in model of tsp-typescript-client
-            // state has no endTime but duration
+        row.states.forEach((state: TimeGraphState, idx: number) => {
             const end = state.startTime + state.duration - chartStart
             if (state.value >= 0) {
                 states.push({

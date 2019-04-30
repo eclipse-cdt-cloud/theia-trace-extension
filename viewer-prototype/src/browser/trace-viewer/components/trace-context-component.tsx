@@ -1,18 +1,19 @@
-import * as React from 'react';
-import { TimegraphOutputComponent } from './timegraph-output-component';
-import { XYOutputComponent } from './xy-output-component';
-import { TableOutputComponent } from './table-output-component';
-import { Trace } from 'tsp-typescript-client/lib/models/trace';
-import { connect } from 'react-redux';
-import { addTrace } from '../redux/actions';
-import { OutputDescriptor } from 'tsp-typescript-client/lib/models/output-descriptor';
-import { WidthProvider, Responsive, Layout } from 'react-grid-layout';
-import { TspClient } from 'tsp-typescript-client/lib/protocol/tsp-client';
-import { AbstractOutputProps } from './abstract-output-component';
-import { TimeAxisComponent } from './utils/time-axis-component';
-import { TimeGraphUnitController } from 'timeline-chart/lib/time-graph-unit-controller';
-import { TimelineChart } from 'timeline-chart/lib/time-graph-model';
 import { StatusBar, StatusBarAlignment } from '@theia/core/lib/browser';
+import * as React from 'react';
+import { Layout, Responsive, WidthProvider } from 'react-grid-layout';
+import { TimelineChart } from 'timeline-chart/lib/time-graph-model';
+import { TimeGraphUnitController } from 'timeline-chart/lib/time-graph-unit-controller';
+import { OutputDescriptor } from 'tsp-typescript-client/lib/models/output-descriptor';
+import { Trace } from 'tsp-typescript-client/lib/models/trace';
+import { TspClient } from 'tsp-typescript-client/lib/protocol/tsp-client';
+import { TimeRange } from '../../../common/utils/time-range';
+import { AbstractOutputProps } from './abstract-output-component';
+import { TableOutputComponent } from './table-output-component';
+import { TimegraphOutputComponent } from './timegraph-output-component';
+import { OutputComponentStyle } from './utils/output-component-style';
+import { TimeAxisComponent } from './utils/time-axis-component';
+import { TimeNavigatorComponent } from './utils/time-navigator-component';
+import { XYOutputComponent } from './xy-output-component';
 
 const ResponsiveGridLayout = WidthProvider(Responsive);
 
@@ -23,31 +24,32 @@ type TraceContextProps = {
     onOutputRemove: (outputId: string) => void;
     // Introduce dependency on Theia maybe it should be just a callback
     statusBar: StatusBar;
+    addResizeHandler: (handler: () => void) => void;
 }
 
 type TraceContextState = {
-    currentRange: number[];
-    currentViewRange: number[];
-    currentTimeSelection: number[];
+    timeOffset: number;
+    currentRange: TimeRange;
+    currentViewRange: TimeRange;
+    currentTimeSelection: TimeRange | undefined;
     trace: Trace
     traceIndexing: boolean;
+    style: OutputComponentStyle;
 }
 
 export class TraceContextComponent extends React.Component<TraceContextProps, TraceContextState> {
     private readonly INDEXING_RUNNING_STATUS: string = 'RUNNING';
     private readonly INDEXING_STATUS_BAR_KEY = 'indexing-status';
     private readonly TIME_SELECTION_STATUS_BAR_KEY = 'time-selection-range';
+    private readonly COMPONENT_WIDTH_PROPORTION: number = 0.85;
+    private readonly DEFAULT_COMPONENT_WIDTH: number = 1500;
+    private readonly DEFAULT_CHART_WIDTH: number = Math.floor(this.DEFAULT_COMPONENT_WIDTH * this.COMPONENT_WIDTH_PROPORTION);
+    private readonly DEFAULT_COMPONENT_HEIGHT: number = 300;
+    private readonly SCROLLBAR_PADDING: number = 12;
 
     private unitController: TimeGraphUnitController;
-    private style: {
-        mainWidth: number,
-        mainHeight: number
-        naviBackgroundColor: number,
-        chartBackgroundColor: number,
-        cursorColor: number,
-        lineColor: number,
-        rowHeight: number
-    };
+
+    private traceContextContainer: React.RefObject<HTMLDivElement>;
 
     protected widgetResizeHandlers: (() => void)[] = [];
     protected readonly addWidgetResizeHandler = (h: () => void) => {
@@ -56,24 +58,35 @@ export class TraceContextComponent extends React.Component<TraceContextProps, Tr
 
     constructor(props: TraceContextProps) {
         super(props);
-        let traceRange = [0, 0];
-        let viewRange = [0, 0];
+        let traceRange = new TimeRange(0, 0);
+        let viewRange = new TimeRange(0, 0);
         if (this.props.trace) {
             const trace = this.props.trace;
-            traceRange = [trace.start, trace.end];
-            viewRange = [trace.start, trace.end];
+            traceRange = new TimeRange(trace.start - this.props.trace.start, trace.end - this.props.trace.start, this.props.trace.start);
+            viewRange = new TimeRange(trace.start - this.props.trace.start, trace.end - this.props.trace.start, this.props.trace.start);
         }
         this.state = {
+            timeOffset: this.props.trace.start,
             currentRange: traceRange,
             currentViewRange: viewRange,
-            currentTimeSelection: [],
+            currentTimeSelection: undefined,
             trace: this.props.trace,
-            traceIndexing: this.props.trace.indexingStatus === this.INDEXING_RUNNING_STATUS
+            traceIndexing: this.props.trace.indexingStatus === this.INDEXING_RUNNING_STATUS,
+            style: {
+                width: this.DEFAULT_COMPONENT_WIDTH, // 1245,
+                chartWidth: this.DEFAULT_CHART_WIDTH,
+                height: this.DEFAULT_COMPONENT_HEIGHT,
+                naviBackgroundColor: 0x3f3f3f,
+                chartBackgroundColor: 0x3f3f3f,
+                cursorColor: 0x259fd8,
+                lineColor: 0xbbbbbb,
+                rowHeight: 20
+            }
         };
-        const absoluteRange = traceRange[1] - traceRange[0];
+        const absoluteRange = traceRange.getDuration();
         this.unitController = new TimeGraphUnitController(absoluteRange, { start: 0, end: absoluteRange });
         this.unitController.numberTranslator = (theNumber: number) => {
-            const originalStart = traceRange[0];
+            const originalStart = traceRange.getstart();
             theNumber += originalStart;
             const milli = Math.floor(theNumber / 1000000);
             const micro = Math.floor((theNumber % 1000000) / 1000);
@@ -82,34 +95,28 @@ export class TraceContextComponent extends React.Component<TraceContextProps, Tr
         };
         this.unitController.onSelectionRangeChange(range => { this.handleTimeSelectionChange(range) });
         this.unitController.onViewRangeChanged(viewRange => { this.handleViewRangeChange(viewRange) });
-        this.style = {
-            mainWidth: 1245,
-            mainHeight: 290,
-            naviBackgroundColor: 0x3f3f3f,
-            chartBackgroundColor: 0x3f3f3f,
-            cursorColor: 0x259fd8,
-            lineColor: 0xbbbbbb,
-            rowHeight: 20
-        };
+        this.traceContextContainer = React.createRef();
         this.initialize();
     }
 
     private async initialize() {
         await this.updateTrace();
-        this.unitController.absoluteRange = this.state.trace.end - this.state.trace.start;
-        this.unitController.viewRange = { start: 0, end: this.state.trace.end - this.state.trace.start };
+        this.unitController.absoluteRange = this.state.trace.end - this.state.timeOffset;
+        this.unitController.viewRange = { start: 0, end: this.state.trace.end - this.state.timeOffset };
     }
 
     private async updateTrace() {
         if (this.state.traceIndexing) {
-            let updatedTrace = await this.props.tspClient.fetchTrace(this.props.trace.UUID);
+            let updatedTrace = (await this.props.tspClient.fetchTrace(this.props.trace.UUID)).getModel();
             let isIndexing = updatedTrace.indexingStatus === this.INDEXING_RUNNING_STATUS;
             while (isIndexing) {
-                updatedTrace = await this.props.tspClient.fetchTrace(this.props.trace.UUID);
+                updatedTrace = (await this.props.tspClient.fetchTrace(this.props.trace.UUID)).getModel();
                 isIndexing = updatedTrace.indexingStatus === this.INDEXING_RUNNING_STATUS;
                 this.setState({
+                    timeOffset: updatedTrace.start,
                     trace: updatedTrace,
-                    traceIndexing: isIndexing
+                    traceIndexing: isIndexing,
+                    currentRange: new TimeRange(updatedTrace.start - updatedTrace.start, updatedTrace.end - updatedTrace.start, updatedTrace.start)
                 });
 
                 // Update status bar
@@ -128,9 +135,9 @@ export class TraceContextComponent extends React.Component<TraceContextProps, Tr
     }
 
     componentDidMount() {
-        if (this.props.trace) {
-            addTrace(this.props.trace)
-        }
+        this.onResize = this.onResize.bind(this)
+        this.props.addResizeHandler(this.onResize);
+        this.onResize();
     }
 
     componentWillUnmount() {
@@ -138,25 +145,43 @@ export class TraceContextComponent extends React.Component<TraceContextProps, Tr
         this.props.statusBar.removeElement(this.TIME_SELECTION_STATUS_BAR_KEY);
     }
 
+    private onResize() {
+        const newWidth = this.traceContextContainer.current ? this.traceContextContainer.current.clientWidth - this.SCROLLBAR_PADDING : this.DEFAULT_COMPONENT_WIDTH;
+        this.setState(prevState => {
+            return { style: { ...prevState.style, width: newWidth, chartWidth: this.getChartWidth(newWidth) } };
+        });
+        this.widgetResizeHandlers.forEach(h => h());
+    }
+
+    private getChartWidth(totalWidth: number): number {
+        return Math.floor(totalWidth * this.COMPONENT_WIDTH_PROPORTION);
+    }
+
     private handleTimeSelectionChange(range: TimelineChart.TimeGraphRange) {
+        const t1 = Math.trunc(range.start + this.state.timeOffset);
+        const t2 = Math.trunc(range.end + this.state.timeOffset);
+
         this.props.statusBar.setElement(this.TIME_SELECTION_STATUS_BAR_KEY, {
-            text: `T1: ${Math.round(range.start)} T2: ${Math.round(range.end)} Delta: ${Math.round(range.end - range.start)}`,
+            text: `T1: ${t1} T2: ${t2} Delta: ${t2 - t1}`,
             alignment: StatusBarAlignment.LEFT,
         });
-        this.setState({
-            currentTimeSelection: [range.start, range.end]
+        this.setState(prevState => {
+            return {
+                currentTimeSelection: new TimeRange(range.start, range.end, prevState.timeOffset)
+            };
         });
     }
 
     private handleViewRangeChange(viewRange: TimelineChart.TimeGraphRange) {
-        this.setState({
-            currentViewRange: [viewRange.start, viewRange.end]
+        this.setState(prevState => {
+            return {
+                currentViewRange: new TimeRange(viewRange.start, viewRange.end, prevState.timeOffset)
+            };
         });
     }
 
     render() {
-        return <div className='trace-context-container'>
-            {/* {this.state.traceIndexing && <div>{'Indexing trace: ' + this.state.trace.nbEvents}</div>} */}
+        return <div className='trace-context-container' ref={this.traceContextContainer}>
             {this.props.outputs.length ? this.renderOutputs() : this.renderPlaceHolder()}
         </div>
     }
@@ -165,39 +190,47 @@ export class TraceContextComponent extends React.Component<TraceContextProps, Tr
         const layouts = this.generateGridLayout();
         const outputs = this.props.outputs;
         return <React.Fragment>
-            <TimeAxisComponent unitController={this.unitController} style={this.style} addWidgetResizeHandler={this.addWidgetResizeHandler} />
-            <ResponsiveGridLayout className='outputs-grid-layout' margin={[0, 10]} isResizable={false}
-                layouts={{ lg: layouts }} cols={{ lg: 1 }} breakpoints={{ lg: 1200 }} rowHeight={300} draggableHandle={'.widget-handle'}>
+            <div style={{ marginLeft: this.state.style.width - this.state.style.chartWidth }}>
+                <TimeAxisComponent unitController={this.unitController} style={this.state.style} addWidgetResizeHandler={this.addWidgetResizeHandler} />
+            </div>
+            <ResponsiveGridLayout className='outputs-grid-layout' margin={[0, 5]} isResizable={false}
+                layouts={{ lg: layouts }} cols={{ lg: 1 }} breakpoints={{ lg: 1200 }} rowHeight={300} draggableHandle={'.widget-handle'}
+                style={{ paddingRight: this.SCROLLBAR_PADDING }}>
                 {outputs.map(output => {
-                    const responseType = (output as any).type;
+                    const responseType = output.type;
                     const outputProps: AbstractOutputProps = {
                         tspClient: this.props.tspClient,
                         traceId: this.state.trace.UUID,
                         outputDescriptor: output,
                         range: this.state.currentRange,
                         viewRange: this.state.currentViewRange,
+                        selectionRange: this.state.currentTimeSelection,
+                        style: this.state.style,
                         onOutputRemove: this.props.onOutputRemove,
                         unitController: this.unitController
                     };
                     switch (responseType) {
                         case 'TIME_GRAPH':
-                            return <div key={(output as any).id}>
-                                <TimegraphOutputComponent key={(output as any).id} {...outputProps}
-                                    addWidgetResizeHandler={this.addWidgetResizeHandler} style={this.style} />
+                            return <div key={output.id}>
+                                <TimegraphOutputComponent key={output.id} {...outputProps}
+                                    addWidgetResizeHandler={this.addWidgetResizeHandler} />
                             </div>;
                         case 'TREE_TIME_XY':
-                            return <div key={(output as any).id}>
-                                <XYOutputComponent key={(output as any).id} {...outputProps} />
+                            return <div key={output.id}>
+                                <XYOutputComponent key={output.id} {...outputProps} />
                             </div>;
                         case 'TABLE':
-                            return <div key={(output as any).id}>
-                                <TableOutputComponent key={(output as any).id} {...outputProps} />
+                            return <div key={output.id}>
+                                <TableOutputComponent key={output.id} {...outputProps} />
                             </div>;
                         default:
                             break;
                     }
                 })}
             </ResponsiveGridLayout>
+            <div style={{ marginLeft: this.state.style.width - this.state.style.chartWidth }}>
+                <TimeNavigatorComponent unitController={this.unitController} style={this.state.style} addWidgetResizeHandler={this.addWidgetResizeHandler} />
+            </div>
         </React.Fragment>
     }
 
@@ -213,7 +246,7 @@ export class TraceContextComponent extends React.Component<TraceContextProps, Tr
         if (outputs.length) {
             outputs.forEach((output, index) => {
                 const itemLayout = {
-                    i: (output as any).id,
+                    i: output.id,
                     x: 0,
                     y: index,
                     w: 1,
@@ -225,8 +258,3 @@ export class TraceContextComponent extends React.Component<TraceContextProps, Tr
         return layouts;
     }
 }
-
-export default connect(
-    null,
-    { addTrace }
-)(TraceContextComponent);

@@ -7,3 +7,16 @@
 .react-grid-item.react-grid-placeholder {
     background: var(--theia-accent-color3);
 }
+
+.trace-context-container {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.outputs-grid-layout {
+    flex-grow: 1;
+    overflow-y: scroll;
+    overflow-x: hidden;
+}
