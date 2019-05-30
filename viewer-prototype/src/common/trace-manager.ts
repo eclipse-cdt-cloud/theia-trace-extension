@@ -83,7 +83,7 @@ export class TraceManager {
         const traceResponse = await this.tspClient.openTrace(new Query({
             'name': name,
             'uri': tracePath
-        }, []));
+        }));
         const trace = traceResponse.getModel()
         if (trace && (traceResponse.isOk() || traceResponse.getStatusCode() === 409)) {
             this.addTrace(trace);
