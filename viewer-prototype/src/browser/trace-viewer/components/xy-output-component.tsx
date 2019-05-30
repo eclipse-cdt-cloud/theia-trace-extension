@@ -177,7 +177,7 @@ export class XYOutputComponent extends AbstractTreeOutputComponent<AbstractOutpu
 
         // TODO Use the output descriptor to find out if the analysis is completed
         const xyTreeParameters = QueryHelper.selectionTimeQuery(
-            QueryHelper.splitRangeIntoEqualParts(this.props.range.getstart(), this.props.range.getEnd(), 1120), [], [], { 'cpus': [] });
+            QueryHelper.splitRangeIntoEqualParts(this.props.range.getstart(), this.props.range.getEnd(), 1120), []); // , [], { 'cpus': [] }
         let xyTreeResponse = (await tspClient.fetchXYTree<Entry, EntryHeader>(traceUUID, outPutId, xyTreeParameters)).getModel();
         while (xyTreeResponse.status === ResponseStatus.RUNNING) {
             xyTreeResponse = (await tspClient.fetchXYTree<Entry, EntryHeader>(traceUUID, outPutId, xyTreeParameters)).getModel();
@@ -190,7 +190,7 @@ export class XYOutputComponent extends AbstractTreeOutputComponent<AbstractOutpu
     private async updateTree() {
         // TODO Remove cpus parameters at some point. This is very specific to Trace Compass server
         const xyTreeParameters = QueryHelper.selectionTimeQuery(
-            QueryHelper.splitRangeIntoEqualParts(this.props.range.getstart(), this.props.range.getEnd(), 1120), [], [], { 'cpus': [] });
+            QueryHelper.splitRangeIntoEqualParts(this.props.range.getstart(), this.props.range.getEnd(), 1120), []); // , [], { 'cpus': [] }
         const xyTreeResponse = (await this.props.tspClient.fetchXYTree<Entry, EntryHeader>(this.props.traceId, this.props.outputDescriptor.id, xyTreeParameters)).getModel();
         let treeModel = xyTreeResponse.model;
         this.buildTreeNodes(treeModel.entries);
@@ -207,7 +207,7 @@ export class XYOutputComponent extends AbstractTreeOutputComponent<AbstractOutpu
 
         // TODO Remove isCumulative parameters at some point. This is very specific to Trace Compass server
         const xyDataParameters = QueryHelper.selectionTimeQuery(
-            QueryHelper.splitRangeIntoEqualParts(Math.trunc(start), Math.trunc(end), this.props.style.chartWidth), this.state.checkedSeries, [], { 'isCumulative': false });
+            QueryHelper.splitRangeIntoEqualParts(Math.trunc(start), Math.trunc(end), this.props.style.chartWidth), this.state.checkedSeries); // , [], { 'isCumulative': false }
 
         const xyDataResponse = (await this.props.tspClient.fetchXY(this.props.traceId, this.props.outputDescriptor.id, xyDataParameters)).getModel();
         // TODO Fix that, model is wrong, map are not working

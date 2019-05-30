@@ -16,6 +16,7 @@
     "@theia/monaco": "next",
     "@theia/typescript": "next",
     "@theia/messages": "next",
+    "@theia/electron": "next",
     "viewer-prototype": "0.0.0"
   },
   "devDependencies": {
