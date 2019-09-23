@@ -100,7 +100,7 @@ export class TspDataProvider {
         const states: TimelineChart.TimeGraphRowElementModel[] = [];
         row.states.forEach((state: TimeGraphState, idx: number) => {
             const end = state.startTime + state.duration - chartStart
-            if (state.value >= 0) {
+            if (state.style || state.value >= 0) {
                 states.push({
                     id: (row as any).entryID + "-" + idx,
                     label: state.label,
@@ -109,7 +109,8 @@ export class TspDataProvider {
                         end
                     },
                     data: {
-                        stateValue: state.value
+                        stateValue: state.value,
+                        style: state.style
                     }
                 })
                 this.totalRange = this.totalRange < end ? end : this.totalRange;

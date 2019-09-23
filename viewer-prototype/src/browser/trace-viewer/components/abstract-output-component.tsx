@@ -6,6 +6,7 @@ import { faTimes } from '@fortawesome/free-solid-svg-icons';
 import { TimeGraphUnitController } from 'timeline-chart/lib/time-graph-unit-controller';
 import { TimeRange } from '../../../common/utils/time-range';
 import { OutputComponentStyle } from './utils/output-component-style';
+import { OutputStyleModel } from 'tsp-typescript-client/lib/models/styles';
 
 export type AbstractOutputProps = {
     tspClient: TspClient;
@@ -25,6 +26,7 @@ export type AbstractOutputProps = {
 
 export type AbstractOutputState = {
     outputStatus: string;
+    styleModel?: OutputStyleModel
 }
 
 export abstract class AbstractOutputComponent<P extends AbstractOutputProps, S extends AbstractOutputState> extends React.Component<P, S> {
