@@ -170,22 +170,22 @@ export class XYOutputComponent extends AbstractTreeOutputComponent<AbstractOutpu
         }
     }
 
-    private async waitAnalysisCompletion() {
-        const traceUUID = this.props.traceId;
-        const tspClient = this.props.tspClient;
-        const outPutId = this.props.outputDescriptor.id;
+    // private async waitAnalysisCompletion() {
+    //     const traceUUID = this.props.traceId;
+    //     const tspClient = this.props.tspClient;
+    //     const outPutId = this.props.outputDescriptor.id;
 
-        // TODO Use the output descriptor to find out if the analysis is completed
-        const xyTreeParameters = QueryHelper.selectionTimeQuery(
-            QueryHelper.splitRangeIntoEqualParts(this.props.range.getstart(), this.props.range.getEnd(), 1120), []); // , [], { 'cpus': [] }
-        let xyTreeResponse = (await tspClient.fetchXYTree<Entry, EntryHeader>(traceUUID, outPutId, xyTreeParameters)).getModel();
-        while (xyTreeResponse.status === ResponseStatus.RUNNING) {
-            xyTreeResponse = (await tspClient.fetchXYTree<Entry, EntryHeader>(traceUUID, outPutId, xyTreeParameters)).getModel();
-        }
-        this.setState({
-            outputStatus: xyTreeResponse.status
-        });
-    }
+    //     // TODO Use the output descriptor to find out if the analysis is completed
+    //     const xyTreeParameters = QueryHelper.selectionTimeQuery(
+    //         QueryHelper.splitRangeIntoEqualParts(this.props.range.getstart(), this.props.range.getEnd(), 1120), []); // , [], { 'cpus': [] }
+    //     let xyTreeResponse = (await tspClient.fetchXYTree<Entry, EntryHeader>(traceUUID, outPutId, xyTreeParameters)).getModel();
+    //     while (xyTreeResponse.status === ResponseStatus.RUNNING) {
+    //         xyTreeResponse = (await tspClient.fetchXYTree<Entry, EntryHeader>(traceUUID, outPutId, xyTreeParameters)).getModel();
+    //     }
+    //     this.setState({
+    //         outputStatus: xyTreeResponse.status
+    //     });
+    // }
 
     private async updateTree() {
         // TODO Remove cpus parameters at some point. This is very specific to Trace Compass server
@@ -242,9 +242,13 @@ export class XYOutputComponent extends AbstractTreeOutputComponent<AbstractOutpu
     }
 
     private buildTreeNodes(flatTree: Entry[]) {
-        const tree = flatTree.filter(entry => {
-            return entry.parentId !== -1;
-        });
+        let tree: any[] = flatTree;
+        // Not the right way
+        if (flatTree.length > 1) {
+            tree = flatTree.filter(entry => {
+                return entry.parentId !== -1;
+            });
+        }
         this.setState({
             XYTree: tree
         });

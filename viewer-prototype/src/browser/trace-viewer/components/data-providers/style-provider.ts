@@ -1,18 +1,20 @@
 import { TspClient } from 'tsp-typescript-client/lib/protocol/tsp-client';
+import { QueryHelper } from 'tsp-typescript-client/lib/models/query/query-helper';
+import { OutputElementStyle } from 'tsp-typescript-client/lib/models/styles';
 
 export class StyleProvider {
-    // private tspClient: TspClient;
-    // private traceId: string;
+    private tspClient: TspClient;
+    private traceId: string;
     private outputId: string;
 
     private tmpStyleObject: { [key: string]: { [key: string]: { [key: string]: any } } };
 
-    private styles: { [key: string]: { [key: string]: any } } | undefined;
+    private styles: { [key: string]: OutputElementStyle } | undefined;
 
     constructor(outputId: string, traceId: string, tspClient: TspClient) {
         this.outputId = outputId;
-        // this.tspClient = tspClient;
-        // this.traceId = traceId;
+        this.tspClient = tspClient;
+        this.traceId = traceId;
         const threadStyleObject = {
             '0': {
                 color: '646464',
@@ -80,15 +82,18 @@ export class StyleProvider {
      * Get the style for a specific output
      * @param forceUpdate Force the update of the current cached styles from the server
      */
-    public getStyles(forceUpdate?: boolean): { [key: string]: { [key: string]: any } } {
+    public async getStyles(forceUpdate?: boolean): Promise<{ [key: string]: OutputElementStyle }> {
         if (!this.styles || forceUpdate) {
-            // Fetch from the server
-            // TODO No style yet in the server
-            // const styleResponse = await this.tspClient.fetchTimeGraphToolTip(this.traceId, this.outputId, 0);
-            // this.styles = styleResponse.getModel().model
-            const styles = this.tmpStyleObject[this.outputId];
-            this.styles = styles ? styles : {};
+            const styleResponse = await this.tspClient.fetchStyles(this.traceId, this.outputId, QueryHelper.query());
+            const styleModel = styleResponse.getModel().model;
+            const styles = styleModel.styles;
+            this.styles = styles;
         }
         return this.styles;
+    }
+
+    public getStylesTmp(forceUpdate?: boolean): { [key: string]: { [key: string]: any } } {
+        const styles = this.tmpStyleObject[this.outputId];
+        return styles ? styles : {};
     }
 }

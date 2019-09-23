@@ -17,6 +17,7 @@ import { AbstractTreeOutputComponent } from "./abstract-tree-output-component";
 import { StyleProvider } from './data-providers/style-provider';
 import { TspDataProvider } from './data-providers/tsp-data-provider';
 import { ReactTimeGraphContainer } from "./utils/timegraph-container-component";
+import { OutputElementStyle } from 'tsp-typescript-client/lib/models/styles';
 
 type TimegraphOutputProps = AbstractOutputProps & {
     addWidgetResizeHandler: (handler: () => void) => void;
@@ -77,32 +78,29 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
             }
             this.onElementSelected(this.selectedElement);
         });
-
-        // this.initialize();
     }
 
     async componentDidMount() {
-        const treeParameters = QueryHelper.timeQuery([0, 1]);
-        const treeResponse = (await this.props.tspClient.fetchTimeGraphTree<TimeGraphEntry, EntryHeader>(this.props.traceId,
-            this.props.outputDescriptor.id, treeParameters)).getModel();
-        const nbEntries = treeResponse.model.entries.length;
-        this.totalHeight = nbEntries * this.props.style.rowHeight;
-        this.rowController.totalHeight = this.totalHeight;
-        this.setState({
-            outputStatus: ResponseStatus.COMPLETED,
-            timegraphTree: treeResponse.model.entries
-        });
+        this.waitAnalysisCompletion();
     }
 
-
-    // private async initialize() {
-    //     const treeParameters = QueryHelper.timeQuery([0, 1]);
-    //     const treeResponse = (await this.props.tspClient.fetchTimeGraphTree<TimeGraphEntry, EntryHeader>(this.props.traceId,
-    //         this.props.outputDescriptor.id, treeParameters)).getModel();
-    //     const nbEntries = treeResponse.model.entries.length;
-    //     this.totalHeight = nbEntries * this.props.style.rowHeight;
-    //     this.rowController.totalHeight = this.totalHeight;
-    // }
+    async componentDidUpdate(prevProps: TimegraphOutputProps, prevState: TimegraohOutputState) {
+        if (this.state.outputStatus === ResponseStatus.COMPLETED) {
+            const treeParameters = QueryHelper.timeQuery([0, 1]);
+            const treeResponse = (await this.props.tspClient.fetchTimeGraphTree<TimeGraphEntry, EntryHeader>(this.props.traceId,
+                this.props.outputDescriptor.id, treeParameters)).getModel();
+            const nbEntries = treeResponse.model.entries.length;
+            this.totalHeight = nbEntries * this.props.style.rowHeight;
+            this.rowController.totalHeight = this.totalHeight;
+            // TODO Style should not be retreive in the "initialization" part or at least async
+            const styleResponse = (await this.props.tspClient.fetchStyles(this.props.traceId, this.props.outputDescriptor.id, QueryHelper.query())).getModel();
+            this.setState({
+                // outputStatus: ResponseStatus.COMPLETED,
+                timegraphTree: treeResponse.model.entries,
+                styleModel: styleResponse.model
+            });
+        }
+    }
 
     renderTree(): React.ReactNode {
         return <React.Fragment>
@@ -115,9 +113,13 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
     }
 
     renderChart(): React.ReactNode {
-        return <div id='timegraph-main' className='ps__child--consume' onWheel={ev => { ev.preventDefault(); ev.stopPropagation(); }} >
-            {this.renderTimeGraphContent()}
-        </div>;
+        return <React.Fragment>
+            {this.state.outputStatus === ResponseStatus.COMPLETED ?
+                <div id='timegraph-main' className='ps__child--consume' onWheel={ev => { ev.preventDefault(); ev.stopPropagation(); }} >
+                    {this.renderTimeGraphContent()}
+                </div> :
+                'Analysis running...'}
+        </React.Fragment>
     }
 
     private renderTimeGraphContent() {
@@ -211,8 +213,37 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
     }
 
     private getElementStyle(element: TimelineChart.TimeGraphRowElementModel) {
+        const styleModel = this.state.styleModel;
+        if (styleModel) {
+            const metadata = element.data;
+            if (metadata && metadata.style) {
+                const elementStyle: OutputElementStyle = metadata.style;
+                const modelStyle = styleModel.styles[elementStyle.parentKey]
+                if (modelStyle) {
+                    const color = this.hexStringToNumber(modelStyle.styleValues["background-color"]);
+                    let height = this.props.style.rowHeight * 0.8
+                    if (modelStyle.styleValues["height"]) {
+                        height = modelStyle.styleValues["height"] * this.props.style.rowHeight;
+                    }
+                    return {
+                        color: color,
+                        height: height,
+                        borderWidth: element.selected ? 2 : 0,
+                        borderColor: 0xeef20c
+                    }
+                }
+            }
+        }
+        return this.getDefaultElementStyle(element);
+    }
+
+    private hexStringToNumber(hexString: string): number {
+        return parseInt(hexString.replace(/^#/, ''), 16);
+    }
+
+    private getDefaultElementStyle(element: TimelineChart.TimeGraphRowElementModel) {
         const styleProvider = new StyleProvider(this.props.outputDescriptor.id, this.props.traceId, this.props.tspClient);
-        const styles = styleProvider.getStyles();
+        const styles = styleProvider.getStylesTmp();
         const backupStyles: TimeGraphRowElementStyle[] = [
             {
                 color: 0x3891A6,
