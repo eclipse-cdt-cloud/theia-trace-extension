@@ -85,7 +85,7 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
     }
 
     async componentDidUpdate(prevProps: TimegraphOutputProps, prevState: TimegraohOutputState) {
-        if (this.state.outputStatus === ResponseStatus.COMPLETED) {
+        if (this.state.outputStatus !== ResponseStatus.COMPLETED || !this.state.timegraphTree.length) {
             const treeParameters = QueryHelper.timeQuery([0, 1]);
             const treeResponse = (await this.props.tspClient.fetchTimeGraphTree<TimeGraphEntry, EntryHeader>(this.props.traceId,
                 this.props.outputDescriptor.id, treeParameters)).getModel();
@@ -172,7 +172,7 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
         if (element && this.props.viewRange) {
             const elementRange = element.model.range;
             const offset = this.props.viewRange.getOffset()
-            const time = (elementRange.start + ((elementRange.end - elementRange.start) / 2)) + (offset ? offset : 0);
+            const time = Math.round((elementRange.start + ((elementRange.end - elementRange.start) / 2)) + (offset ? offset : 0));
             const tooltipResponse = await this.props.tspClient.fetchTimeGraphToolTip(this.props.traceId, this.props.outputDescriptor.id, time, element.row.model.id.toString());
             const responseModel = tooltipResponse.getModel();
             if (responseModel) {
