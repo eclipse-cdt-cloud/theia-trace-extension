@@ -150,3 +150,7 @@
     min-width: 10px;
     margin-left: 0px;
 }
+
+.source-code-tooltip {
+    text-decoration: underline;
+}

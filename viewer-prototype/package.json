@@ -16,6 +16,7 @@
   ],
   "dependencies": {
     "@theia/core": "next",
+    "@theia/editor": "next",
     "chart.js": "^2.8.0",
     "react-chartjs-2": "^2.7.6",
     "ag-grid-community": "^20.2.0",
@@ -24,6 +25,7 @@
     "react-grid-layout": "^0.16.6",
     "react-virtualized": "^9.21.0",
     "tsp-typescript-client": "next",
+    "lodash": "^4.17.15",
     "@fortawesome/fontawesome-svg-core": "^1.2.17",
     "@fortawesome/free-solid-svg-icons": "^5.8.1",
     "@fortawesome/react-fontawesome": "^0.1.4",
@@ -36,6 +38,7 @@
     "@types/react-grid-layout": "^0.16.7",
     "@types/react-virtualized": "^9.21.1",
     "@types/react-modal": "^3.8.2",
+    "@types/lodash": "^4.14.142",
     "rimraf": "latest",
     "typescript": "latest"
   },
