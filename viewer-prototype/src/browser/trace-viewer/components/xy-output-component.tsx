@@ -56,7 +56,9 @@ export class XYOutputComponent extends AbstractTreeOutputComponent<AbstractOutpu
         if (prevProps.style.chartWidth !== this.props.style.chartWidth) {
             this.updateXY();
         }
-        this.lineChartRef.current.chartInstance.render();
+        if (this.lineChartRef.current) {
+            this.lineChartRef.current.chartInstance.render();
+        }
     }
 
     renderTree(): React.ReactNode {
