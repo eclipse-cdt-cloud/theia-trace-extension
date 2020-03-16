@@ -14,7 +14,6 @@
     "@theia/languages": "next",
     "@theia/markers": "next",
     "@theia/monaco": "next",
-    "@theia/typescript": "next",
     "@theia/messages": "next",
     "viewer-prototype": "0.0.0"
   },
@@ -22,7 +21,7 @@
     "@theia/cli": "next"
   },
   "scripts": {
-    "prepare": "theia build --mode development",    
+    "prepare": "theia build --mode development",
     "start": "theia start",
     "watch": "theia build --watch --mode development"
   },
