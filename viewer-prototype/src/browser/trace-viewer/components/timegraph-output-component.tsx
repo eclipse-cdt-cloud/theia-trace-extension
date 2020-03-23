@@ -20,6 +20,7 @@ import { ReactTimeGraphContainer } from './utils/timegraph-container-component';
 import { OutputElementStyle } from 'tsp-typescript-client/lib/models/styles';
 import { EntryTree } from './utils/filtrer-tree/entry-tree';
 import { listToTree, getAllExpandedNodeIds } from './utils/filtrer-tree/utils';
+import { TooltipComponent } from './utils/tooltip-component';
 
 type TimegraphOutputProps = AbstractOutputProps & {
     addWidgetResizeHandler: (handler: () => void) => void;
@@ -28,6 +29,8 @@ type TimegraphOutputProps = AbstractOutputProps & {
 type TimegraphOutputState = AbstractOutputState & {
     timegraphTree: TimeGraphEntry[];
     collapsedNodes: number[];
+    isElementSelected: boolean;
+    isTooltipOpened: boolean;
 };
 
 export class TimegraphOutputComponent extends AbstractTreeOutputComponent<TimegraphOutputProps, TimegraphOutputState> {
@@ -36,10 +39,9 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
     private chartLayer: TimeGraphChart;
     private vscrollLayer: TimeGraphVerticalScrollbar;
     private horizontalContainer: React.RefObject<HTMLDivElement>;
-
+    private toolTipObject: { [key: string]: string } = {};
     private tspDataProvider: TspDataProvider;
     private styleMap = new Map<string, TimeGraphRowElementStyle>();
-
     private selectedElement: TimeGraphRowElement | undefined;
 
     constructor(props: TimegraphOutputProps) {
@@ -47,9 +49,13 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
         this.state = {
             outputStatus: ResponseStatus.RUNNING,
             timegraphTree: [],
-            collapsedNodes: []
+            collapsedNodes: [],
+            isElementSelected: false,
+            isTooltipOpened: false,
         };
         this.onToggleCollapse = this.onToggleCollapse.bind(this);
+        this.closeTooltip = this.closeTooltip.bind(this);
+        this.openTooltip = this.openTooltip.bind(this);
         this.tspDataProvider = new TspDataProvider(this.props.tspClient, this.props.traceId, this.props.outputDescriptor.id);
         this.rowController = new TimeGraphRowController(this.props.style.rowHeight, this.totalHeight);
         this.horizontalContainer = React.createRef();
@@ -66,6 +72,12 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
         this.chartLayer = new TimeGraphChart('timeGraphChart', providers, this.rowController);
         this.vscrollLayer = new TimeGraphVerticalScrollbar('timeGraphVerticalScrollbar', this.rowController);
 
+        this.chartLayer.registerRowElementMouseInteractions({
+            mouseover: el => {
+                this.openTooltip();
+                this.onElementSelected(this.chartLayer.getElementById(el.id));
+        }});
+
         this.rowController.onVerticalOffsetChangedHandler(() => {
             if (this.treeRef.current) {
                 this.treeRef.current.scrollTop = this.rowController.verticalOffset;
@@ -81,6 +93,7 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
             } else {
                 this.selectedElement = undefined;
             }
+            this.openTooltip();
             this.onElementSelected(this.selectedElement);
         });
     }
@@ -89,6 +102,19 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
         if (this.treeRef.current) {
             this.rowController.verticalOffset = this.treeRef.current.scrollTop;
         }
+    }
+
+    closeTooltip = (): void => {
+        this.setState({
+            isTooltipOpened: false
+        });
+    };
+
+    openTooltip(): void {
+        this.setState({
+            isElementSelected: true,
+            isTooltipOpened: true
+        });
     }
 
     async componentDidMount(): Promise<void> {
@@ -142,22 +168,24 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
     renderChart(): React.ReactNode {
         return <React.Fragment>
             {this.state.outputStatus === ResponseStatus.COMPLETED ?
-                <div id='timegraph-main' className='ps__child--consume' onWheel={ev => { ev.preventDefault(); ev.stopPropagation(); }} >
+                <div id='timegraph-main' className='ps__child--consume' onMouseLeave={_ev=>this.closeTooltip()} onWheel={ev => { ev.preventDefault(); ev.stopPropagation(); }}>
                     {this.renderTimeGraphContent()}
+                    {this.state.isElementSelected && this.state.isTooltipOpened &&
+                    <TooltipComponent tooltip={this.toolTipObject}></TooltipComponent>
+                    }
                 </div> :
                 'Analysis running...'}
         </React.Fragment>;
     }
 
     private renderTimeGraphContent() {
-        return <div id='main-timegraph-content' ref={this.horizontalContainer}>
+        return <div id='main-timegraph-content' ref={this.horizontalContainer} >
             {this.getChartContainer()}
         </div>;
     }
 
     private getChartContainer() {
         const grid = new TimeGraphChartGrid('timeGraphGrid', this.props.style.rowHeight, this.props.style.lineColor);
-
         const cursors = new TimeGraphChartCursors('chart-cursors', this.chartLayer, this.rowController, { color: this.props.style.cursorColor });
         const selectionRange = new TimeGraphChartSelectionRange('chart-selection-range', { color: this.props.style.cursorColor });
         return <ReactTimeGraphContainer
@@ -195,7 +223,7 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
         ></ReactTimeGraphContainer>;
     }
 
-    private async onElementSelected(element: TimeGraphRowElement | undefined) {
+    async getToolTipObject(element: TimeGraphRowElement | undefined): Promise<{[key: string]: string}> {
         if (element && this.props.viewRange) {
             const elementRange = element.model.range;
             const offset = this.props.viewRange.getOffset();
@@ -210,9 +238,16 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
                     ...responseModel.model,
                     'Row': element.row.model.name
                 };
-                SignalManager.getInstance().fireTooltipSignal(tooltipObject);
+                this.toolTipObject = tooltipObject;
+                this.forceUpdate();
+                return this.toolTipObject;
             }
         }
+        return {};
+    }
+
+    async onElementSelected(element: TimeGraphRowElement | undefined): Promise<void> {
+        SignalManager.getInstance().fireTooltipSignal(await this.getToolTipObject(element));
     }
 
     private async fetchTimegraphData(range: TimelineChart.TimeGraphRange, resolution: number) {
@@ -346,5 +381,5 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
             borderColor: 0xeef20c
         };
     }
-
 }
+
