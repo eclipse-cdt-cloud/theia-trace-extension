@@ -4,7 +4,7 @@ import { Layout, Responsive, WidthProvider } from 'react-grid-layout';
 import { TimelineChart } from 'timeline-chart/lib/time-graph-model';
 import { TimeGraphUnitController } from 'timeline-chart/lib/time-graph-unit-controller';
 import { OutputDescriptor } from 'tsp-typescript-client/lib/models/output-descriptor';
-import { Trace } from 'tsp-typescript-client/lib/models/trace';
+import { Experiment } from 'tsp-typescript-client/lib/models/experiment';
 import { TspClient } from 'tsp-typescript-client/lib/protocol/tsp-client';
 import { TimeRange } from '../../../common/utils/time-range';
 import { AbstractOutputProps } from './abstract-output-component';
@@ -19,7 +19,7 @@ const ResponsiveGridLayout = WidthProvider(Responsive);
 
 type TraceContextProps = {
     tspClient: TspClient;
-    trace: Trace;
+    experiment: Experiment;
     outputs: OutputDescriptor[];
     onOutputRemove: (outputId: string) => void;
     // Introduce dependency on Theia maybe it should be just a callback
@@ -32,7 +32,7 @@ type TraceContextState = {
     currentRange: TimeRange;
     currentViewRange: TimeRange;
     currentTimeSelection: TimeRange | undefined;
-    trace: Trace
+    experiment: Experiment
     traceIndexing: boolean;
     style: OutputComponentStyle;
 }
@@ -60,18 +60,18 @@ export class TraceContextComponent extends React.Component<TraceContextProps, Tr
         super(props);
         let traceRange = new TimeRange(0, 0);
         let viewRange = new TimeRange(0, 0);
-        if (this.props.trace) {
-            const trace = this.props.trace;
-            traceRange = new TimeRange(trace.start - this.props.trace.start, trace.end - this.props.trace.start, this.props.trace.start);
-            viewRange = new TimeRange(trace.start - this.props.trace.start, trace.end - this.props.trace.start, this.props.trace.start);
+        if (this.props.experiment) {
+            const experiment = this.props.experiment;
+            traceRange = new TimeRange(experiment.start - this.props.experiment.start, experiment.end - this.props.experiment.start, this.props.experiment.start);
+            viewRange = new TimeRange(experiment.start - this.props.experiment.start, experiment.end - this.props.experiment.start, this.props.experiment.start);
         }
         this.state = {
-            timeOffset: this.props.trace.start,
+            timeOffset: this.props.experiment.start,
             currentRange: traceRange,
             currentViewRange: viewRange,
             currentTimeSelection: undefined,
-            trace: this.props.trace,
-            traceIndexing: this.props.trace.indexingStatus === this.INDEXING_RUNNING_STATUS,
+            experiment: this.props.experiment,
+            traceIndexing: this.props.experiment.indexingStatus === this.INDEXING_RUNNING_STATUS,
             style: {
                 width: this.DEFAULT_COMPONENT_WIDTH, // 1245,
                 chartWidth: this.DEFAULT_CHART_WIDTH,
@@ -101,27 +101,27 @@ export class TraceContextComponent extends React.Component<TraceContextProps, Tr
 
     private async initialize() {
         await this.updateTrace();
-        this.unitController.absoluteRange = this.state.trace.end - this.state.timeOffset;
-        this.unitController.viewRange = { start: 0, end: this.state.trace.end - this.state.timeOffset };
+        this.unitController.absoluteRange = this.state.experiment.end - this.state.timeOffset;
+        this.unitController.viewRange = { start: 0, end: this.state.experiment.end - this.state.timeOffset };
     }
 
     private async updateTrace() {
         if (this.state.traceIndexing) {
-            let updatedTrace = (await this.props.tspClient.fetchTrace(this.props.trace.UUID)).getModel();
-            let isIndexing = updatedTrace.indexingStatus === this.INDEXING_RUNNING_STATUS;
+            let updatedExperiment = (await this.props.tspClient.fetchExperiment(this.props.experiment.UUID)).getModel();
+            let isIndexing = updatedExperiment.indexingStatus === this.INDEXING_RUNNING_STATUS;
             while (isIndexing) {
-                updatedTrace = (await this.props.tspClient.fetchTrace(this.props.trace.UUID)).getModel();
-                isIndexing = updatedTrace.indexingStatus === this.INDEXING_RUNNING_STATUS;
+                updatedExperiment = (await this.props.tspClient.fetchExperiment(this.props.experiment.UUID)).getModel();
+                isIndexing = updatedExperiment.indexingStatus === this.INDEXING_RUNNING_STATUS;
                 this.setState({
-                    timeOffset: updatedTrace.start,
-                    trace: updatedTrace,
+                    timeOffset: updatedExperiment.start,
+                    experiment: updatedExperiment,
                     traceIndexing: isIndexing,
-                    currentRange: new TimeRange(updatedTrace.start - updatedTrace.start, updatedTrace.end - updatedTrace.start, updatedTrace.start)
+                    currentRange: new TimeRange(updatedExperiment.start - updatedExperiment.start, updatedExperiment.end - updatedExperiment.start, updatedExperiment.start)
                 });
 
                 // Update status bar
                 this.props.statusBar.setElement(this.INDEXING_STATUS_BAR_KEY, {
-                    text: `Indexing ${this.props.trace.name}: ${this.state.trace.nbEvents}`,
+                    text: `Indexing ${this.props.experiment.name}: ${this.state.experiment.nbEvents}`,
                     alignment: StatusBarAlignment.RIGHT
                 });
                 await this.sleep(500);
@@ -200,7 +200,7 @@ export class TraceContextComponent extends React.Component<TraceContextProps, Tr
                     const responseType = output.type;
                     const outputProps: AbstractOutputProps = {
                         tspClient: this.props.tspClient,
-                        traceId: this.state.trace.UUID,
+                        traceId: this.state.experiment.UUID,
                         outputDescriptor: output,
                         range: this.state.currentRange,
                         viewRange: this.state.currentViewRange,
