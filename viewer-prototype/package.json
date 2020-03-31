@@ -17,6 +17,7 @@
   "dependencies": {
     "@theia/core": "next",
     "@theia/editor": "next",
+    "@theia/filesystem": "next",
     "chart.js": "^2.8.0",
     "react-chartjs-2": "^2.7.6",
     "ag-grid-community": "^20.2.0",

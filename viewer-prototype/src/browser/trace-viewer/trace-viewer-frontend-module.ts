@@ -17,12 +17,14 @@ import { TraceExplorerContribution } from '../trace-explorer/trace-explorer-cont
 import { TRACE_EXPLORER_ID, TraceExplorerWidget } from '../trace-explorer/trace-explorer-widget';
 import { TspClient } from 'tsp-typescript-client/lib/protocol/tsp-client';
 import { TraceManager } from '../../common/trace-manager';
+import { ExperimentManager } from '../../common/experiment-manager';
 // import { TracePropertiesContribution } from '../trace-properties-view/trace-properties-view-contribution';
 // import { TracePropertiesWidget, TRACE_PROPERTIES_ID } from '../trace-properties-view/trace-properties-view-widget';
 
 export default new ContainerModule(bind => {
     bind(TspClient).toDynamicValue(() => new TspClient('http://localhost:8080/tsp/api')).inSingletonScope();
     bind(TraceManager).toSelf().inSingletonScope();
+    bind(ExperimentManager).toSelf().inSingletonScope();
 
     bind(TraceViewerWidget).toSelf();
     bind<WidgetFactory>(WidgetFactory).toDynamicValue(context => ({

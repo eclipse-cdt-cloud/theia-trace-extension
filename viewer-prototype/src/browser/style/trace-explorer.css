@@ -79,6 +79,7 @@
 .trace-element-path, .outputs-element-description {
     color: var(--theia-ui-font-color2);
     /* color: rgb(160, 160, 160); */
+    white-space: pre;
 }
 
 .trace-element-options {
