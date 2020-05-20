@@ -6,8 +6,8 @@ import { QueryHelper } from "tsp-typescript-client/lib/models/query/query-helper
 import { Entry, EntryHeader } from "tsp-typescript-client/lib/models/entry";
 import { ResponseStatus } from "tsp-typescript-client/lib/models/response/responses";
 import { XYSeries } from "tsp-typescript-client/lib/models/xy";
-import { CheckboxComponent } from '../components/utils/checkbox-component';
 import Chart = require("chart.js");
+import { XYTree } from './utils/filtrer-tree/xy-tree';
 
 type XYOuputState = AbstractOutputState & {
     selectedSeriesId: number[];
@@ -63,15 +63,11 @@ export class XYOutputComponent extends AbstractTreeOutputComponent<AbstractOutpu
 
     renderTree(): React.ReactNode {
         this.onSeriesChecked = this.onSeriesChecked.bind(this);
-        return <React.Fragment>
-            {this.state.XYTree.map(entry => {
-                return <CheckboxComponent key={entry.id}
-                    id={entry.id}
-                    name={entry.labels[0]}
-                    checked={this.state.checkedSeries.find(id => entry.id === id) ? true : false}
-                    onChecked={this.onSeriesChecked} />
-            })}
-        </React.Fragment>;
+        return <XYTree
+            entries = {this.state.XYTree }
+            checkedSeries={this.state.checkedSeries}
+            onChecked={this.onSeriesChecked}
+        />
     }
 
     renderChart(): React.ReactNode {
@@ -149,27 +145,22 @@ export class XYOutputComponent extends AbstractTreeOutputComponent<AbstractOutpu
         return nearestIndex ? nearestIndex : 0;
     }
 
-    private onSeriesChecked(id: number) {
-        const exist = this.state.checkedSeries.find(seriesId => {
-            return seriesId === id;
-        })
-
-        if (exist) {
-            this.setState(prevState => {
-                const newList = prevState.checkedSeries.filter(series => {
+    private onSeriesChecked(ids: number[]) {
+        let newList = [...this.state.checkedSeries];
+        ids.forEach(id => {
+            const exist = this.state.checkedSeries.find(seriesId => {
+                return seriesId === id;
+            })
+    
+            if (exist !== undefined) {
+                newList = newList.filter(series => {
                     return id !== series;
                 });
-                return {
-                    checkedSeries: newList
-                };
-            });
-        } else {
-            this.setState(prevState => {
-                return {
-                    checkedSeries: prevState.checkedSeries.concat(id)
-                }
-            });
-        }
+            } else {
+                newList = newList.concat(id);
+            }            
+        })
+        this.setState({checkedSeries: newList});
     }
 
     // private async waitAnalysisCompletion() {
@@ -245,12 +236,6 @@ export class XYOutputComponent extends AbstractTreeOutputComponent<AbstractOutpu
 
     private buildTreeNodes(flatTree: Entry[]) {
         let tree: any[] = flatTree;
-        // Not the right way
-        if (flatTree.length > 1) {
-            tree = flatTree.filter(entry => {
-                return entry.parentId !== -1;
-            });
-        }
         this.setState({
             XYTree: tree
         });
