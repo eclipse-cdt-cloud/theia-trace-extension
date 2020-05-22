@@ -262,9 +262,13 @@ export class TraceExplorerWidget extends ReactWidget {
                 prefix = '\n> ';
             }
         }
+        let traceContainerClassName = 'trace-element-container';
+        if (props.index == this.selectedExperimentIndex) {
+            traceContainerClassName = traceContainerClassName + ' theia-mod-selected';
+        }
         this.handleShareButtonClick = this.handleShareButtonClick.bind(this);
         return <div className='trace-list-container' key={props.key} style={props.style}>
-            <div className='trace-element-container'>
+            <div className={traceContainerClassName}>
                 <div className='trace-element-info' onClick={this.onExperimentSelected.bind(this, props.index)}>
                     <div className='trace-element-name'>
                         {traceName}
