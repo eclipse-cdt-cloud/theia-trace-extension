@@ -5,6 +5,7 @@ import { Query } from 'tsp-typescript-client/lib/models/query/query';
 import { injectable, inject } from 'inversify';
 import { OutputDescriptor } from 'tsp-typescript-client/lib/models/output-descriptor';
 import { Experiment } from 'tsp-typescript-client/lib/models/experiment';
+import { TspClientResponse } from 'tsp-typescript-client/lib/protocol/tsp-client-response';
 
 @injectable()
 export class ExperimentManager {
@@ -87,11 +88,33 @@ export class ExperimentManager {
             'traces': traceURIs
         }));
         const experiment = experimentResponse.getModel()
-        if (experiment && (experimentResponse.isOk() || experimentResponse.getStatusCode() === 409)) {
+        if (experiment && experimentResponse.isOk()) {
             this.addExperiment(experiment);
             this.experimentOpenedEmitter.fire(experiment);
             return experiment;
+        } else if (experiment && experimentResponse.getStatusCode() === 409) {
+            // Repost with a suffix as long as there are conflicts
+            let handleConflict = async function(tspClient: TspClient, tryNb: number): Promise<TspClientResponse<Experiment>> {
+                let suffix = '(' + tryNb + ')';
+                return await tspClient.createExperiment(new Query({
+                    'name': name + suffix,
+                    'traces': traceURIs
+                }))
+            }
+            let conflictResolutionResponse = experimentResponse;
+            let i = 1;
+            while (conflictResolutionResponse.getStatusCode() === 409) {
+                conflictResolutionResponse = await handleConflict(this.tspClient, i);
+                i++;
+            }
+            const experiment = conflictResolutionResponse.getModel()
+            if (experiment && conflictResolutionResponse.isOk()) {
+                this.addExperiment(experiment);
+                this.experimentOpenedEmitter.fire(experiment);
+                return experiment;
+            }
         }
+        // TODO Handle any other experiment open errors
         return undefined;
     }
 

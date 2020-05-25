@@ -85,11 +85,12 @@ export class TraceManager {
             'uri': tracePath
         }));
         const trace = traceResponse.getModel()
-        if (trace && (traceResponse.isOk() || traceResponse.getStatusCode() === 409)) {
+        if (trace && traceResponse.isOk()) {
             this.addTrace(trace);
             this.traceOpenedEmitter.fire(trace);
             return trace;
         }
+        // TODO Handle trace open errors
         return undefined;
     }
 
