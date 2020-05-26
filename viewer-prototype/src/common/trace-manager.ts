@@ -4,6 +4,7 @@ import { TspClient } from 'tsp-typescript-client/lib/protocol/tsp-client';
 import { Query } from 'tsp-typescript-client/lib/models/query/query';
 import { injectable, inject } from 'inversify';
 import { OutputDescriptor } from 'tsp-typescript-client/lib/models/output-descriptor';
+import { TspClientResponse } from 'tsp-typescript-client/lib/protocol/tsp-client-response';
 
 @injectable()
 export class TraceManager {
@@ -89,6 +90,27 @@ export class TraceManager {
             this.addTrace(trace);
             this.traceOpenedEmitter.fire(trace);
             return trace;
+        } else if (trace && traceResponse.getStatusCode() === 409) {
+            // Repost with a suffix as long as there are conflicts
+            let handleConflict = async function(tspClient: TspClient, tryNb: number): Promise<TspClientResponse<Trace>> {
+                let suffix = '(' + tryNb + ')';
+                return await tspClient.openTrace(new Query({
+                    'name': name + suffix,
+                    'uri': tracePath
+                }))
+            }
+            let conflictResolutionResponse = traceResponse;
+            let i = 1;
+            while (conflictResolutionResponse.getStatusCode() === 409) {
+                conflictResolutionResponse = await handleConflict(this.tspClient, i);
+                i++;
+            }
+            const trace = conflictResolutionResponse.getModel()
+            if (trace && conflictResolutionResponse.isOk()) {
+                this.addTrace(trace);
+                this.traceOpenedEmitter.fire(trace);
+                return trace;
+            }
         }
         // TODO Handle trace open errors
         return undefined;
