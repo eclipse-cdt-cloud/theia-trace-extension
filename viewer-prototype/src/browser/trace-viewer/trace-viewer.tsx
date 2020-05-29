@@ -80,6 +80,7 @@ export class TraceViewerWidget extends ReactWidget {
         const experiment = await this.experimentManager.openExperiment(this.uri.name, traces);
         if (experiment) {
             this.openedExperiment = experiment;
+            this.title.label = 'Trace: ' + experiment.name;
         }
 
         this.update();
