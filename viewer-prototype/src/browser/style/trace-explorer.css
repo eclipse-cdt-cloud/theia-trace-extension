@@ -67,6 +67,10 @@
     grid-template-rows: auto;
 }
 
+.trace-element-container.theia-mod-selected {
+    background-color: var(--theia-selection-background);
+}
+
 .trace-element-info {
     overflow-x: hidden;
     grid-column-start: 1;
