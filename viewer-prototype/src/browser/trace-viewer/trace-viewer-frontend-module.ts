@@ -12,12 +12,14 @@ import '../../../src/browser/style/trace-viewer.css';
 import '../../../src/browser/style/trace-context-style.css';
 import '../../../src/browser/style/output-components-style.css';
 import '../../../src/browser/style/trace-explorer.css';
+import '../../../src/browser/style/status-bar.css';
 // import 'semantic-ui-css/semantic.min.css';
 import { TraceExplorerContribution } from '../trace-explorer/trace-explorer-contribution';
 import { TRACE_EXPLORER_ID, TraceExplorerWidget } from '../trace-explorer/trace-explorer-widget';
 import { TspClient } from 'tsp-typescript-client/lib/protocol/tsp-client';
 import { TraceManager } from '../../common/trace-manager';
 import { ExperimentManager } from '../../common/experiment-manager';
+import { TraceServerConnectionStatusService, TraceServerConnectionStatusContribution } from '../../browser/trace-server-status';
 // import { TracePropertiesContribution } from '../trace-properties-view/trace-properties-view-contribution';
 // import { TracePropertiesWidget, TRACE_PROPERTIES_ID } from '../trace-properties-view/trace-properties-view-widget';
 
@@ -50,6 +52,11 @@ export default new ContainerModule(bind => {
         createWidget: () => context.container.get<TraceExplorerWidget>(TraceExplorerWidget)
     }));
 
+    bind(TraceServerConnectionStatusService).toSelf().inSingletonScope();
+    bind(FrontendApplicationContribution).toService(TraceServerConnectionStatusService);
+    bind(TraceServerConnectionStatusContribution).toSelf().inSingletonScope();
+    bind(FrontendApplicationContribution).toService(TraceServerConnectionStatusContribution);
+    
     // bindViewContribution(bind, TracePropertiesContribution);
     // bind(TracePropertiesWidget).toSelf();
     // bind(WidgetFactory).toDynamicValue(context => ({
