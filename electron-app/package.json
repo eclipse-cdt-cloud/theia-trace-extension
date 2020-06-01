@@ -15,6 +15,8 @@
     "@theia/markers": "next",
     "@theia/monaco": "next",
     "@theia/messages": "next",
+    "@theia/cpp": "next",
+    "@theia/cpp-debug": "next",
     "@theia/electron": "next",
     "viewer-prototype": "0.0.0"
   },
