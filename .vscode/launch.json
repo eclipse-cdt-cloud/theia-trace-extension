@@ -15,7 +15,7 @@
                 "viewer-prototype:///js/*": "${workspaceRoot}/viewer-prototype/lib/**/*.js"
             },
             "webRoot": "${workspaceRoot}",
-            "url":"http://localhost:3000"
+            "url": "http://localhost:3000"
         },
         {
             "type": "chrome",
@@ -28,6 +28,20 @@
                 "viewer-prototype:///js/*": "${workspaceRoot}/viewer-prototype/lib/**/*.js"
             },
             "webRoot": "${workspaceRoot}"
+        },
+        {
+            "type": "firefox",
+            "request": "launch",
+            "name": "Start in Firefox",
+            "reAttach": true,
+            "webRoot": "${workspaceRoot}",
+            "url": "http://localhost:3000",
+            "pathMappings": [
+                {
+                    "url": "webpack:///viewer-prototype",
+                    "path": "${workspaceFolder}/viewer-prototype"
+                }
+            ]
         },
         {
             "type": "node",
@@ -75,7 +89,7 @@
                 "${workspaceRoot}/electron-app/src-gen/frontend/electron-main.js",
                 "${workspaceRoot}/electron-app/src-gen/backend/main.js",
                 "${workspaceRoot}/electron-app/lib/**/*.js",
-                "${workspaceRoot}/node_modules/@theia/*/lib/**/*.js",
+                "${workspaceRoot}/node_modules/@theia/*/lib/**/*.js"
             ],
             "smartStep": true,
             "internalConsoleOptions": "openOnSessionStart",
