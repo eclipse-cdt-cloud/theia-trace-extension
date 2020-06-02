@@ -42,6 +42,7 @@ export class TraceExplorerWidget extends ReactWidget {
 
     private openedExperiments: Array<Experiment> = new Array();
     private selectedExperimentIndex: number = 0;
+    private lastSelectedOutputIndex: number = -1;
     private availableOutputDescriptors: Map<string, OutputDescriptor[]> = new Map();
 
     private showShareDialog: boolean = false;
@@ -288,6 +289,7 @@ export class TraceExplorerWidget extends ReactWidget {
 
     private onExperimentSelected(index: number) {
         this.selectedExperimentIndex = index;
+        this.lastSelectedOutputIndex = -1;
         this.updateAvailableAnalysis(this.openedExperiments[index]);
     }
 
@@ -315,7 +317,11 @@ export class TraceExplorerWidget extends ReactWidget {
                 outputDescription = outputDescriptors[props.index].description;
             }
         }
-        return <div className='outputs-list-container' key={props.key} style={props.style} onClick={this.outputClicked.bind(this, props.index)}>
+        let traceContainerClassName = 'outputs-list-container';
+        if (props.index == this.lastSelectedOutputIndex) {
+            traceContainerClassName = traceContainerClassName + ' theia-mod-selected';
+        }
+        return <div className={traceContainerClassName} key={props.key} style={props.style} onClick={this.outputClicked.bind(this, props.index)}>
             <div className='outputs-element-name'>
                 {outputName}
             </div>
@@ -326,11 +332,13 @@ export class TraceExplorerWidget extends ReactWidget {
     }
 
     private outputClicked(index: number) {
+        this.lastSelectedOutputIndex = index;
         const trace = this.openedExperiments[this.selectedExperimentIndex]
         const outputs = this.availableOutputDescriptors.get(trace.UUID);
         if (outputs) {
             TraceExplorerWidget.outputAddedEmitter.fire(new OutputAddedSignalPayload(outputs[index], trace));
         }
+        this.update();
     }
 
     private async updateOpenedExperiments() {
