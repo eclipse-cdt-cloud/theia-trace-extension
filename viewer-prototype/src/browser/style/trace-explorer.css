@@ -61,6 +61,10 @@
     white-space: nowrap;
 }
 
+.outputs-list-container.theia-mod-selected {
+    background-color: var(--theia-selection-background);
+}
+
 .trace-element-container {
     display: grid;
     grid-template-columns: minmax(0, 1fr) 50px;
