@@ -11,9 +11,13 @@ Here is the step in order to build the trace viewer
 
 **Note for some debian-based machines**: On some distros, there are 2 yarn commands. If you get an error message saying **ERROR: There are no scenarios; must have at least one.**, you are using the wrong yarn. See [https://github.com/yarnpkg/yarn/issues/2821](https://github.com/yarnpkg/yarn/issues/2821).
 
-## Running the trace extension
+## Trying the trace extension
+This repo contains an example theia-trace application that includes the trace extension. It has two versions:
+- _browser_: a "cloud" application, accessed with a web browser
+- _electron_: a native desktop application
+
 In order to open traces you need a trace server running on the same machine as the trace extension. You can download the [Eclipse Trace Compass server](https://download.eclipse.org/tracecompass.incubator/trace-server/rcp/?d) or build it yourself using Trace Compass and the Incubator, take a look at the [instruction here](https://www.eclipse.org/tracecompass/download.html).
 1. Start the trace server: `./tracecompass-server`
-2. From the theia-trace-extension folder: `cd browser-app/`
-3. `yarn start`
-4. Go to http://localhost:3000
+2. From the repo root:  `yarn start:browser` or `yarn start:electron`
+3. Go to http://localhost:3000 or use the Electron application
+
