@@ -1,6 +1,6 @@
 {
   "private": true,
-  "name": "browser-app",
+  "name": "Browser-Theia-Trace-Example-Application",
   "version": "0.0.0",
   "dependencies": {
     "@theia/core": "next",
