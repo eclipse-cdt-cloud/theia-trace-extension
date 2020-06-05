@@ -1,0 +1,26 @@
+electronDist: node_modules/electron/dist
+productName: Theia Trace Example Aopplication
+appId: theia-trace-example
+
+asar: false
+directories:
+  buildResources: resources
+files:
+  - node_modules
+  - src-gen
+  - lib
+  - scripts
+  - package.json
+extraResources:
+  - from: plugins
+    to: app/plugins
+
+linux:
+  target:
+    - deb
+    - AppImage
+  category: Development
+  icon: resources/icons
+
+appImage:
+  artifactName: ${productName}-${version}.${ext}

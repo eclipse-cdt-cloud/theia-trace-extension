@@ -4,3 +4,6 @@ lib
 *.log
 *-app/*
 !*-app/package.json
+!*-app/electron-builder.yml
+!*-app/resources/
+!*-app/scripts
