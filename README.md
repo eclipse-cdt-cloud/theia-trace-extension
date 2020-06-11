@@ -1,8 +1,16 @@
-# Trace Viewer extension for Theia
+[![Gitpod ready-to-code](https://img.shields.io/badge/Gitpod-ready--to--code-blue?logo=gitpod)](https://gitpod.io/#https://github.com/theia-ide/theia-trace-extension)
+
+# Trace Viewer extension for Theia applications
 
 Theia trace viewer extension using the tsp-typescript-client (https://github.com/theia-ide/tsp-typescript-client) and Trace Server Protocol (https://github.com/theia-ide/trace-server-protocol).
 
 Prerequisites for running this extension are the same as those for [running the theia IDE](https://github.com/eclipse-theia/theia/blob/master/doc/Developing.md#prerequisites).
+
+## Consume the trace viewer extension from npm
+
+We plan to distribute this extension on npm. 
+
+Availability: TBD
 
 ## Build the extension
 

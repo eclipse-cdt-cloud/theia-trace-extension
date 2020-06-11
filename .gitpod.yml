@@ -1,0 +1,19 @@
+image:
+  file: .gitpod.dockerfile
+ports:
+- port: 3000 # Trace viewer example application
+- port: 9229 # Node.js debug port
+  onOpen: ignore
+- port: 9339 # Node.js debug port
+  onOpen: ignore
+- port: 6080
+  onOpen: ignore
+- port: 5900
+  onOpen: ignore
+tasks:
+- init: yarn
+  command: >
+    yarn start:browser ../ --hostname=0.0.0.0
+github:
+  prebuilds:
+    pullRequestsFromForks: true
