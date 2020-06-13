@@ -1,5 +1,5 @@
 electronDist: node_modules/electron/dist
-productName: Theia Trace Example Aopplication
+productName: Theia Trace Example Application
 appId: theia-trace-example
 
 asar: false

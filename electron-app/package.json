@@ -36,6 +36,8 @@
     "@theia/monaco": "next",
     "@theia/messages": "next",
     "@theia/vsx-registry": "next",
+    "@theia/keymaps": "next",
+    "@theia/getting-started": "next",
     "@theia/electron": "next",
     "trace-viewer": "0.0.0"
   },

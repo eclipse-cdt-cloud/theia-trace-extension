@@ -11,11 +11,6 @@
           "editor.autoSave": "on"
         }
       }
-    },
-    "generator": {
-      "config": {
-        "preloadTemplate": "./preload.html"
-      }
     }
   },
   "dependencies": {
@@ -33,6 +28,8 @@
     "@theia/messages": "next",
     "@theia/cpp-debug": "next",
     "@theia/vsx-registry": "next",
+    "@theia/keymaps": "next",
+    "@theia/getting-started": "next",
     "trace-viewer": "0.0.0"
   },
   "devDependencies": {

@@ -6,14 +6,22 @@ ports:
   onOpen: ignore
 - port: 9339 # Node.js debug port
   onOpen: ignore
-- port: 6080
+- port: 6080 # VNC server
   onOpen: ignore
 - port: 5900
   onOpen: ignore
+- port: 8080 # Trace Compass server
+  onOpen: ignore
 tasks:
-- init: yarn
+- init: >
+    yarn download:server
   command: >
-    yarn start:browser ../ --hostname=0.0.0.0
+    yarn start:server
+- init: >
+    yarn download:sample-traces &&
+    yarn
+  command: >
+    yarn start:electron ../sample-traces/ --hostname=0.0.0.0
 github:
   prebuilds:
     pullRequestsFromForks: true

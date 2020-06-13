@@ -2,6 +2,10 @@ node_modules
 .browser_modules
 lib
 *.log
+sample-traces
+trace-compass-server
+trace-compass-server.tar.gz
+tracecompass-test-traces
 *-app/*
 !*-app/package.json
 !*-app/electron-builder.yml
