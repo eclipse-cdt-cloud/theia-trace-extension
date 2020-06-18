@@ -44,10 +44,15 @@
 }
 
 #timegraph-main {
+<<<<<<< HEAD
     width:100%; 
     overflow-y:scroll; 
     position:relative;
     height: 300px;
+=======
+    width: 100%;
+    display: flex;
+>>>>>>> 231d2968f62c5a0c3a66812d23aa2b14fdec2852
 }
 
 #main {
@@ -60,7 +65,10 @@ canvas {
     display: block;
 }
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> 231d2968f62c5a0c3a66812d23aa2b14fdec2852
 .innerContainer {
     width: 100%;
 }

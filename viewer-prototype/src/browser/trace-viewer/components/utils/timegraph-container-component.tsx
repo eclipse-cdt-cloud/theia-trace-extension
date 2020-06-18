@@ -29,7 +29,6 @@ export class ReactTimeGraphContainer extends React.Component<ReactTimeGraphConta
     }
 
     render() {
-        /*return <canvas id="canvas" ref={ref => this.ref = ref || undefined} onScroll={ev => this.props.scrollHandler(this.ref, ev.persist()) } ></canvas>*/
-        return <canvas id="canvas" ref={ref => this.ref = ref || undefined} ></canvas>
+        return <canvas ref={ref => this.ref = ref || undefined} onWheel={e => e.preventDefault()}></canvas>
     }
 }

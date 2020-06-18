@@ -104,11 +104,9 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
 
     renderTree(): React.ReactNode {
         return <React.Fragment>
-            {this.state.timegraphTree.map((entry, i) => {
+            {this.state.timegraphTree.map(entry => {
                 if (entry.parentId !== -1) {
-                    return <p style={{height: this.props.style.rowHeight, margin:0}} key={i}>
-                             {entry.labels[0] + '\n'}   
-                        </p>                
+                    return entry.labels[0] + '\n';
                 }
             })}
         </React.Fragment>;
@@ -117,34 +115,29 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
     renderChart(): React.ReactNode {
         return <React.Fragment>
             {this.state.outputStatus === ResponseStatus.COMPLETED ?
-                <div ref={this.chartRef} id='timegraph-main' className='ps__child--consume'  onScroll={ev => this.ScrollSync(this.chartRef, ev.persist()) }  >
+                <div id='timegraph-main' className='ps__child--consume' onWheel={ev => { ev.preventDefault(); ev.stopPropagation(); }} >
                     {this.renderTimeGraphContent()}
                 </div> :
                 'Analysis running...'}
         </React.Fragment>
     }
 
-    //<canvas id="canvas" height="12000" ref={ref => this.horizontalContainer}></canvas>
-    //<canvas id="canvas" height="12000" ref={ref => this.horizontalContainer} onScroll={ev => this.ScrollSync(this.horizontalContainer, ev.persist()) }></canvas>
     private renderTimeGraphContent() {
-        return <div id='main-timegraph-content' ref={this.horizontalContainer} style={{ height: this.totalHeight }} >
-                {this.getChartContainer()}
-            </div>
+        return <div id='main-timegraph-content' ref={this.horizontalContainer}>
+            {this.getChartContainer()}
+        </div>
     }
 
     private getChartContainer() {
         const grid = new TimeGraphChartGrid('timeGraphGrid', this.props.style.rowHeight, this.props.style.lineColor);
+
         const cursors = new TimeGraphChartCursors('chart-cursors', this.chartLayer, this.rowController, { color: this.props.style.cursorColor });
         const selectionRange = new TimeGraphChartSelectionRange('chart-selection-range', { color: this.props.style.cursorColor });
-        console.log('totalheight', this.totalHeight);
-        if (this.totalHeight === 0) {
-            setTimeout(this.getChartContainer, 2000);
-        } else {
-            return <ReactTimeGraphContainer
+        return <ReactTimeGraphContainer
             options={
                 {
                     id: 'timegraph-chart',
-                    height: this.totalHeight,
+                    height: this.props.style.height,
                     width: this.props.style.chartWidth, // this.props.style.mainWidth,
                     backgroundColor: this.props.style.chartBackgroundColor,
                     classNames: 'horizontal-canvas'
@@ -158,8 +151,6 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
             ]}
         >
         </ReactTimeGraphContainer>;
-        }
-        
     }
 
     protected getVerticalScrollbar() {
