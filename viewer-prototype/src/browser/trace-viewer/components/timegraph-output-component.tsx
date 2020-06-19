@@ -34,6 +34,7 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
     private vscrollLayer: TimeGraphVerticalScrollbar;
     private horizontalContainer: React.RefObject<HTMLDivElement>;
 
+
     private tspDataProvider: TspDataProvider;
     private styleMap = new Map<string, TimeGraphRowElementStyle>();
 
@@ -67,6 +68,10 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
         this.chartLayer = new TimeGraphChart('timeGraphChart', providers, this.rowController);
         this.vscrollLayer = new TimeGraphVerticalScrollbar('timeGraphVerticalScrollbar', this.rowController);
 
+        this.rowController.onVerticalOffsetChangedHandler(()=>{ 
+            this.treeRef.current.scrollTop=this.rowController.verticalOffset;
+        });
+
         this.chartLayer.onSelectedRowElementChanged((model) => {
             if (model) {
                 const el = this.chartLayer.getElementById(model.id);
@@ -78,6 +83,10 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
             }
             this.onElementSelected(this.selectedElement);
         });
+    }
+
+    synchronizeTreeScroll(): void {
+        this.rowController.verticalOffset=this.treeRef.current.scrollTop;
     }
 
     async componentDidMount() {
@@ -104,9 +113,11 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
 
     renderTree(): React.ReactNode {
         return <React.Fragment>
-            {this.state.timegraphTree.map(entry => {
+            {this.state.timegraphTree.map((entry, i) => {
                 if (entry.parentId !== -1) {
-                    return entry.labels[0] + '\n';
+                    return <p style={{ height: this.props.style.rowHeight, margin: 0 }} key={i}>
+                        {entry.labels[0] + '\n'}
+                    </p>
                 }
             })}
         </React.Fragment>;

@@ -61,6 +61,8 @@ export class XYOutputComponent extends AbstractTreeOutputComponent<AbstractOutpu
         }
     }
 
+    synchronizeTreeScroll() : void {}
+
     renderTree(): React.ReactNode {
         this.onSeriesChecked = this.onSeriesChecked.bind(this);
         return <XYTree
