@@ -39,7 +39,9 @@ In order to open traces you need a trace server running on the same machine as t
 
 It's possible to package the repo's example application with `electron-builder`. After running `yarn` in the repo root, do:
 
+```bash
   $> cd electron-app
   $> yarn package
+```
 
   The configured Linux packaging(s) will be generated folder `electron-app/dist`
