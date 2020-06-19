@@ -7,7 +7,7 @@ import { TraceViewerWidget, TraceViewerWidgetOptions } from './trace-viewer';
 export namespace TraceViewerCommands {
     export const OPEN: Command = {
         id: 'trace:open',
-        label: 'Open Trace'
+        label: 'Open Trace(s)'
     };
 }
 
@@ -20,7 +20,7 @@ export class TraceViewerContribution extends WidgetOpenHandler<TraceViewerWidget
     }
 
     readonly id = TraceViewerWidget.ID;
-    readonly label = 'Open trace';
+    readonly label = TraceViewerCommands.OPEN.label;
 
     registerCommands(registry: CommandRegistry): void {
         registry.registerCommand(TraceViewerCommands.OPEN);
