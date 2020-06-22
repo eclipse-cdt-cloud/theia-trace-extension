@@ -29,19 +29,42 @@ This repository contains an example trace-viewer application that includes the t
 - _browser_: a "browser" application, accessed with a web browser
 - _electron_: a native desktop application
 
-In order to open traces you need a trace server running on the same machine as the trace extension. You can download the [Eclipse Trace Compass server](https://download.eclipse.org/tracecompass.incubator/trace-server/rcp/?d) or build it yourself using Trace Compass and the Incubator, take a look at the [instruction here](https://www.eclipse.org/tracecompass/download.html).
+### Run the Trace Server
 
-1. Start the trace server: `./tracecompass-server`
-2. From the repo root:  `yarn start:browser` or `yarn start:electron`
-3. Go to http://localhost:3000 or use the Electron application
+In order to open traces you need a trace server running on the same machine as the trace extension. You can download the [Eclipse Trace Compass server](https://download.eclipse.org/tracecompass.incubator/trace-server/rcp/?d) or let `yarn` download and run it:
+
+```bash
+  $ yarn download:server
+  $ yarn start:server
+```
+
+You can also build the trace-server yourself using Trace Compass and the Incubator, take a look at the [instructions here](https://www.eclipse.org/tracecompass/download.html#trace-server).
+
+### Run the example app
+
+From the repo root, run either
+
+```bash
+  $ yarn start:browser
+```
+
+And go to `http://localhost:3000`.
+
+or
+
+```bash
+  $ yarn start:electron
+```
+
+And use the Electron application.
 
 ## Package the Example Theia Trace Viewer Application
 
 It's possible to package the repo's example application with `electron-builder`. After running `yarn` in the repo root, do:
 
 ```bash
-  $> cd electron-app
-  $> yarn package
+  $ cd electron-app
+  $ yarn package
 ```
 
   The configured Linux packaging(s) will be generated folder `electron-app/dist`
@@ -62,7 +85,7 @@ If the selection is a directory, then the tool will look for traces in **Common 
 
 Note that an experiment is a collection of traces that are analyzed together where each event of each trace in the experiment is analyzed in chronological order.
 
-The example Trace Compass trace server above supports LTTng Kernel and UST traces. Example LTTng traces can be retrieved from the [Trace Compass Tutorials](https://github.com/tuxology/tracevizlab). Just download the archive [TraceCompassTutorialTraces](https://github.com/tuxology/tracevizlab/blob/master/labs/TraceCompassTutorialTraces.tgz), extract them into a local directory on your computer.
+The example Trace Compass trace server above supports LTTng Kernel and UST traces. Example LTTng traces can be retrieved from the [Trace Compass Tutorials](https://github.com/tuxology/tracevizlab). Just download the archive [TraceCompassTutorialTraces](https://github.com/tuxology/tracevizlab/blob/master/labs/TraceCompassTutorialTraces.tgz), extract them into a local directory on your computer. They can also be automatically downloaded by running `yarn download:sample-traces` from the repository's root.
 
 ### Open the Trace Explorer
 To open the **Trace Explorer**, select menu **View** from the top-level menu and then select **Trace Explorer** in the list of views. Then the **Trace Explorer** icon will be added on the right side below the **File Explorer** Icon. 
