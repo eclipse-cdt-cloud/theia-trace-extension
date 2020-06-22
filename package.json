@@ -6,8 +6,8 @@
     "rebuild:electron": "theia rebuild:electron",
     "start:browser": "yarn rebuild:browser ; yarn --cwd browser-app start",
     "start:electron": "yarn rebuild:electron ; yarn --cwd electron-app start",
-    "download:sample-traces": "git clone https://github.com/tracecompass/tracecompass-test-traces.git; ln -s tracecompass-test-traces/ctf/src/main/resources sample-traces",
-    "download:server": "curl -o trace-compass-server.tar.gz https://download.eclipse.org/tracecompass.incubator/trace-server/rcp/trace-compass-server-latest-linux.gtk.x86_64.tar.gz",
+    "download:sample-traces": "curl -o TraceCompassTutorialTraces.tgz https://raw.githubusercontent.com/tuxology/tracevizlab/master/labs/TraceCompassTutorialTraces.tgz; tar -xf TraceCompassTutorialTraces.tgz",
+    "download:server": "curl -o trace-compass-server.tar.gz https://download.eclipse.org/tracecompass.incubator/trace-server/rcp/trace-compass-server-latest-linux.gtk.x86_64.tar.gz; tar -xf trace-compass-server.tar.gz",
     "start:server": "./trace-compass-server/tracecompass-server",
     "start-all:browser": "yarn start:server & yarn start:browser",
     "start-all:electron": "yarn start:server & yarn start:electron"
