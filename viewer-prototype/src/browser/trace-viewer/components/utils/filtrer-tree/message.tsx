@@ -1,6 +1,6 @@
 import * as React from 'react';
 
-type MessageProps = {
+interface MessageProps {
     error: string;
 }
 
@@ -11,11 +11,11 @@ export class Message extends React.Component<MessageProps> {
 
     static defaultProps = {
         error: ''
-    }
+    };
 
     render() {
         return <React.Fragment>
             <span>{this.props.error}</span>
-        </React.Fragment>
+        </React.Fragment>;
     }
 }

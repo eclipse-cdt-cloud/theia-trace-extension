@@ -1,39 +1,38 @@
 import * as React from 'react';
-import { TimeGraphRowElement, TimeGraphRowElementStyle } from "timeline-chart/lib/components/time-graph-row-element";
-import { TimeGraphChart, TimeGraphChartProviders } from "timeline-chart/lib/layer/time-graph-chart";
+import { TimeGraphRowElement, TimeGraphRowElementStyle } from 'timeline-chart/lib/components/time-graph-row-element';
+import { TimeGraphChart, TimeGraphChartProviders } from 'timeline-chart/lib/layer/time-graph-chart';
 import { TimeGraphChartCursors } from 'timeline-chart/lib/layer/time-graph-chart-cursors';
 import { TimeGraphChartGrid } from 'timeline-chart/lib/layer/time-graph-chart-grid';
 import { TimeGraphChartSelectionRange } from 'timeline-chart/lib/layer/time-graph-chart-selection-range';
 import { TimeGraphVerticalScrollbar } from 'timeline-chart/lib/layer/time-graph-vertical-scrollbar';
-import { TimelineChart } from "timeline-chart/lib/time-graph-model";
-import { TimeGraphRowController } from "timeline-chart/lib/time-graph-row-controller";
-import { EntryHeader } from "tsp-typescript-client/lib/models/entry";
-import { QueryHelper } from "tsp-typescript-client/lib/models/query/query-helper";
-import { ResponseStatus } from "tsp-typescript-client/lib/models/response/responses";
-import { TimeGraphEntry } from "tsp-typescript-client/lib/models/timegraph";
+import { TimelineChart } from 'timeline-chart/lib/time-graph-model';
+import { TimeGraphRowController } from 'timeline-chart/lib/time-graph-row-controller';
+import { EntryHeader } from 'tsp-typescript-client/lib/models/entry';
+import { QueryHelper } from 'tsp-typescript-client/lib/models/query/query-helper';
+import { ResponseStatus } from 'tsp-typescript-client/lib/models/response/responses';
+import { TimeGraphEntry } from 'tsp-typescript-client/lib/models/timegraph';
 import { SignalManager } from '../../../common/signal-manager';
-import { AbstractOutputProps, AbstractOutputState } from "./abstract-output-component";
-import { AbstractTreeOutputComponent } from "./abstract-tree-output-component";
+import { AbstractOutputProps, AbstractOutputState } from './abstract-output-component';
+import { AbstractTreeOutputComponent } from './abstract-tree-output-component';
 import { StyleProvider } from './data-providers/style-provider';
 import { TspDataProvider } from './data-providers/tsp-data-provider';
-import { ReactTimeGraphContainer } from "./utils/timegraph-container-component";
+import { ReactTimeGraphContainer } from './utils/timegraph-container-component';
 import { OutputElementStyle } from 'tsp-typescript-client/lib/models/styles';
 
 type TimegraphOutputProps = AbstractOutputProps & {
     addWidgetResizeHandler: (handler: () => void) => void;
-}
+};
 
 type TimegraohOutputState = AbstractOutputState & {
     timegraphTree: TimeGraphEntry[];
-}
+};
 
 export class TimegraphOutputComponent extends AbstractTreeOutputComponent<TimegraphOutputProps, TimegraohOutputState> {
-    private totalHeight: number = 0;
+    private totalHeight = 0;
     private rowController: TimeGraphRowController;
     private chartLayer: TimeGraphChart;
     private vscrollLayer: TimeGraphVerticalScrollbar;
     private horizontalContainer: React.RefObject<HTMLDivElement>;
-
 
     private tspDataProvider: TspDataProvider;
     private styleMap = new Map<string, TimeGraphRowElementStyle>();
@@ -50,29 +49,23 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
         this.rowController = new TimeGraphRowController(this.props.style.rowHeight, this.totalHeight);
         this.horizontalContainer = React.createRef();
         const providers: TimeGraphChartProviders = {
-            dataProvider: async (range: TimelineChart.TimeGraphRange, resolution: number) => {
-                return this.fetchTimegraphData(range, resolution);
-            },
-            rowElementStyleProvider: (model: TimelineChart.TimeGraphRowElementModel) => {
-                return this.getElementStyle(model);
-            },
-            rowStyleProvider: (row: TimelineChart.TimeGraphRowModel) => {
-                return {
+            dataProvider: async (range: TimelineChart.TimeGraphRange, resolution: number) => this.fetchTimegraphData(range, resolution),
+            rowElementStyleProvider: (model: TimelineChart.TimeGraphRowElementModel) => this.getElementStyle(model),
+            rowStyleProvider: (row: TimelineChart.TimeGraphRowModel) => ({
                     backgroundColor: 0x979797,// 0xaaaaff,
                     backgroundOpacity: row.selected ? 0.1 : 0,
                     lineColor: 0xdddddd, // hasStates ? 0xdddddd : 0xaa4444, // row.data && row.data.hasStates
                     lineThickness: 1, // hasStates ? 1 : 3 // row.data && row.data.hasStates
-                }
-            }
+                })
         };
         this.chartLayer = new TimeGraphChart('timeGraphChart', providers, this.rowController);
         this.vscrollLayer = new TimeGraphVerticalScrollbar('timeGraphVerticalScrollbar', this.rowController);
 
-        this.rowController.onVerticalOffsetChangedHandler(()=>{ 
+        this.rowController.onVerticalOffsetChangedHandler(()=>{
             this.treeRef.current.scrollTop=this.rowController.verticalOffset;
         });
 
-        this.chartLayer.onSelectedRowElementChanged((model) => {
+        this.chartLayer.onSelectedRowElementChanged(model => {
             if (model) {
                 const el = this.chartLayer.getElementById(model.id);
                 if (el) {
@@ -117,7 +110,7 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
                 if (entry.parentId !== -1) {
                     return <p style={{ height: this.props.style.rowHeight, margin: 0 }} key={i}>
                         {entry.labels[0] + '\n'}
-                    </p>
+                    </p>;
                 }
             })}
         </React.Fragment>;
@@ -130,13 +123,13 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
                     {this.renderTimeGraphContent()}
                 </div> :
                 'Analysis running...'}
-        </React.Fragment>
+        </React.Fragment>;
     }
 
     private renderTimeGraphContent() {
         return <div id='main-timegraph-content' ref={this.horizontalContainer}>
             {this.getChartContainer()}
-        </div>
+        </div>;
     }
 
     private getChartContainer() {
@@ -182,7 +175,7 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
     private async onElementSelected(element: TimeGraphRowElement | undefined) {
         if (element && this.props.viewRange) {
             const elementRange = element.model.range;
-            const offset = this.props.viewRange.getOffset()
+            const offset = this.props.viewRange.getOffset();
             const time = Math.round((elementRange.start + ((elementRange.end - elementRange.start) / 2)) + (offset ? offset : 0));
             const tooltipResponse = await this.props.tspClient.fetchTimeGraphToolTip(this.props.traceId, this.props.outputDescriptor.id, time, element.row.model.id.toString());
             const responseModel = tooltipResponse.getModel();
@@ -229,19 +222,19 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
             const metadata = element.data;
             if (metadata && metadata.style) {
                 const elementStyle: OutputElementStyle = metadata.style;
-                const modelStyle = styleModel.styles[elementStyle.parentKey]
+                const modelStyle = styleModel.styles[elementStyle.parentKey];
                 if (modelStyle) {
-                    const color = this.hexStringToNumber(modelStyle.styleValues["background-color"]);
-                    let height = this.props.style.rowHeight * 0.8
-                    if (modelStyle.styleValues["height"]) {
-                        height = modelStyle.styleValues["height"] * this.props.style.rowHeight;
+                    const color = this.hexStringToNumber(modelStyle.styleValues['background-color']);
+                    let height = this.props.style.rowHeight * 0.8;
+                    if (modelStyle.styleValues['height']) {
+                        height = modelStyle.styleValues['height'] * this.props.style.rowHeight;
                     }
                     return {
                         color: color,
                         height: height,
                         borderWidth: element.selected ? 2 : 0,
                         borderColor: 0xeef20c
-                    }
+                    };
                 }
             }
         }

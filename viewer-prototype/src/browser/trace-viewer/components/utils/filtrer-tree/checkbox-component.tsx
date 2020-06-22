@@ -1,7 +1,7 @@
 import * as React from 'react';
 import icons from './icons';
 
-type CheckboxProps = {
+interface CheckboxProps {
     id: number;
     name: string;
     checkedStatus: number;
@@ -24,7 +24,7 @@ export class CheckboxComponent extends React.Component<CheckboxProps> {
             default:
                 return icons.unchecked;
         }
-    }
+    };
 
     render() {
         return <div onClick={() => this.props.onChecked(this.props.id)} >

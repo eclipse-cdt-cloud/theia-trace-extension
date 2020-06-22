@@ -1,12 +1,12 @@
-import { AbstractOutputProps, AbstractOutputState } from "./abstract-output-component";
-import { AbstractTreeOutputComponent } from './abstract-tree-output-component'
+import { AbstractOutputProps, AbstractOutputState } from './abstract-output-component';
+import { AbstractTreeOutputComponent } from './abstract-tree-output-component';
 import * as React from 'react';
 import { Line } from 'react-chartjs-2';
-import { QueryHelper } from "tsp-typescript-client/lib/models/query/query-helper";
-import { Entry, EntryHeader } from "tsp-typescript-client/lib/models/entry";
-import { ResponseStatus } from "tsp-typescript-client/lib/models/response/responses";
-import { XYSeries } from "tsp-typescript-client/lib/models/xy";
-import Chart = require("chart.js");
+import { QueryHelper } from 'tsp-typescript-client/lib/models/query/query-helper';
+import { Entry, EntryHeader } from 'tsp-typescript-client/lib/models/entry';
+import { ResponseStatus } from 'tsp-typescript-client/lib/models/response/responses';
+import { XYSeries } from 'tsp-typescript-client/lib/models/xy';
+import Chart = require('chart.js');
 import { XYTree } from './utils/filtrer-tree/xy-tree';
 
 type XYOuputState = AbstractOutputState & {
@@ -15,10 +15,10 @@ type XYOuputState = AbstractOutputState & {
     checkedSeries: number[];
     collapsedNodes: number[];
     XYData: any;
-}
+};
 
 export class XYOutputComponent extends AbstractTreeOutputComponent<AbstractOutputProps, XYOuputState> {
-    private currentColorIndex: number = 0;
+    private currentColorIndex = 0;
     private colorMap: Map<string, number> = new Map();
 
     private lineChartRef: any;
@@ -32,7 +32,7 @@ export class XYOutputComponent extends AbstractTreeOutputComponent<AbstractOutpu
             checkedSeries: [],
             collapsedNodes: [],
             XYData: {}
-        }
+        };
 
         this.afterChartDraw = this.afterChartDraw.bind(this);
         Chart.pluginService.register({
@@ -64,7 +64,7 @@ export class XYOutputComponent extends AbstractTreeOutputComponent<AbstractOutpu
         }
     }
 
-    synchronizeTreeScroll() : void {}
+    synchronizeTreeScroll(): void {}
 
     renderTree(): React.ReactNode {
         this.onSeriesChecked = this.onSeriesChecked.bind(this);
@@ -75,7 +75,7 @@ export class XYOutputComponent extends AbstractTreeOutputComponent<AbstractOutpu
             checkedSeries={this.state.checkedSeries}
             onChecked={this.onSeriesChecked}
             onCollapse={this.onCollapse}
-        />
+        />;
     }
 
     renderChart(): React.ReactNode {
@@ -156,32 +156,24 @@ export class XYOutputComponent extends AbstractTreeOutputComponent<AbstractOutpu
     private onSeriesChecked(ids: number[]) {
         let newList = [...this.state.checkedSeries];
         ids.forEach(id => {
-            const exist = this.state.checkedSeries.find(seriesId => {
-                return seriesId === id;
-            })
-    
+            const exist = this.state.checkedSeries.find(seriesId => seriesId === id);
+
             if (exist !== undefined) {
-                newList = newList.filter(series => {
-                    return id !== series;
-                });
+                newList = newList.filter(series => id !== series);
             } else {
                 newList = newList.concat(id);
-            }            
-        })
+            }
+        });
         this.setState({checkedSeries: newList});
     }
 
     private onCollapse(id: number) {
         let newList = [...this.state.collapsedNodes];
-        
-        const exist = this.state.collapsedNodes.find(expandId => {
-            return expandId === id;
-        })
+
+        const exist = this.state.collapsedNodes.find(expandId => expandId === id);
 
         if (exist !== undefined) {
-            newList = newList.filter(collapsed => {
-                return id !== collapsed;
-            });
+            newList = newList.filter(collapsed => id !== collapsed);
         } else {
             newList = newList.concat(id);
         }
@@ -210,7 +202,7 @@ export class XYOutputComponent extends AbstractTreeOutputComponent<AbstractOutpu
         const xyTreeParameters = QueryHelper.selectionTimeQuery(
             QueryHelper.splitRangeIntoEqualParts(this.props.range.getstart(), this.props.range.getEnd(), 1120), []); // , [], { 'cpus': [] }
         const xyTreeResponse = (await this.props.tspClient.fetchXYTree<Entry, EntryHeader>(this.props.traceId, this.props.outputDescriptor.id, xyTreeParameters)).getModel();
-        let treeModel = xyTreeResponse.model;
+        const treeModel = xyTreeResponse.model;
         this.buildTreeNodes(treeModel.entries);
     }
 
@@ -240,7 +232,7 @@ export class XYOutputComponent extends AbstractTreeOutputComponent<AbstractOutpu
         Object.keys(seriesObj).forEach(key => {
             const series = seriesObj[key];
             const color = this.getSeriesColor(key);
-            xValues = seriesObj[key].xValues
+            xValues = seriesObj[key].xValues;
             dataSetArray.push({
                 label: key,
                 fill: false,
@@ -260,7 +252,7 @@ export class XYOutputComponent extends AbstractTreeOutputComponent<AbstractOutpu
     }
 
     private buildTreeNodes(flatTree: Entry[]) {
-        let tree: any[] = flatTree;
+        const tree: any[] = flatTree;
         this.setState({
             XYTree: tree
         });

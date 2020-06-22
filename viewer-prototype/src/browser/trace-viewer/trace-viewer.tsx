@@ -31,7 +31,7 @@ export class TraceViewerWidget extends ReactWidget {
     private resizeHandlers: (() => void)[] = [];
     private readonly addResizeHandler = (h: () => void) => {
         this.resizeHandlers.push(h);
-    }
+    };
 
     constructor(
         @inject(TraceViewerWidgetOptions) protected readonly options: TraceViewerWidgetOptions,
@@ -56,19 +56,19 @@ export class TraceViewerWidget extends ReactWidget {
         /*
          * TODO: use backend service to find traces
          */
-        let tracesArray = new Array<Path>();
+        const tracesArray = new Array<Path>();
         const fileStat = await this.fileSystem.getFileStat(this.uri.toString());
         if (fileStat) {
             if (fileStat.isDirectory) {
                 // Find recursivly CTF traces
                 await this.findTraces(fileStat, tracesArray);
             } else {
-                // Open single trace file 
+                // Open single trace file
                 tracesArray.push(this.uri);
             }
         }
 
-        let traces = new Array<Trace>();
+        const traces = new Array<Trace>();
 
         for (let i = 0; i < tracesArray.length; i++) {
             const trace = await this.traceManager.openTrace(tracesArray[i], tracesArray[i].name);
@@ -89,12 +89,12 @@ export class TraceViewerWidget extends ReactWidget {
     onCloseRequest(msg: Message) {
         if (this.openedExperiment) {
 
-            let traces = this.openedExperiment.traces;
+            const traces = this.openedExperiment.traces;
             // Close experiment
             this.experimentManager.closeExperiment(this.openedExperiment.UUID);
 
             /*
-             TODO: 
+             TODO:
              Decide wheather to delete traces from server as well.
              Other experiments might wan to be create with these traces.
             */
@@ -125,7 +125,7 @@ export class TraceViewerWidget extends ReactWidget {
 
     private onOutputAdded(payload: OutputAddedSignalPayload) {
         if (this.openedExperiment && payload.getExperiment().UUID === this.openedExperiment.UUID) {
-            const exist = this.outputDescriptors.find(output => { return output.id === payload.getOutputDescriptor().id });
+            const exist = this.outputDescriptors.find(output => output.id === payload.getOutputDescriptor().id);
             if (!exist) {
                 this.outputDescriptors.push(payload.getOutputDescriptor());
                 this.update();
@@ -134,9 +134,7 @@ export class TraceViewerWidget extends ReactWidget {
     }
 
     private onOutputRemoved(outputId: string) {
-        const outputToKeep = this.outputDescriptors.filter(output => {
-            return output.id !== outputId;
-        });
+        const outputToKeep = this.outputDescriptors.filter(output => output.id !== outputId);
         this.outputDescriptors = outputToKeep;
         this.update();
     }
@@ -151,9 +149,9 @@ export class TraceViewerWidget extends ReactWidget {
          */
         if (rootStat) {
             if (rootStat.isDirectory) {
-                    let isCtf = this.isCtf(rootStat);
+                    const isCtf = this.isCtf(rootStat);
                 if (isCtf) {
-                    let uri = new URI(rootStat.uri);
+                    const uri = new URI(rootStat.uri);
                     traces.push(uri.path);
                 } else {
                     if (rootStat.children) {
@@ -166,11 +164,11 @@ export class TraceViewerWidget extends ReactWidget {
             }
         }
     }
-    private isCtf(stat: FileStat): Boolean {
+    private isCtf(stat: FileStat): boolean {
         if (stat.children) {
             for (let i = 0; i < stat.children.length; i++) {
-                let path = new Path(stat.children[i].uri);
-                if (path.name === "metadata") {
+                const path = new Path(stat.children[i].uri);
+                if (path.name === 'metadata') {
                     return true;
                 }
             }

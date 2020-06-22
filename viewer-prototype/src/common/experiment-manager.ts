@@ -17,7 +17,7 @@ export class ExperimentManager {
     private experimentClosedEmitter = new Emitter<Experiment>();
     public experimentClosedSignal = this.experimentClosedEmitter.event;
 
-    private fOpenExperiments: Map<string, Experiment> = new Map();;
+    private fOpenExperiments: Map<string, Experiment> = new Map();
 
     private constructor(
         @inject(TspClient) private tspClient: TspClient
@@ -28,7 +28,7 @@ export class ExperimentManager {
      * @returns Array of experiment
      */
     async getOpenedExperiments(): Promise<Experiment[]> {
-        const openedExperiments: Array<Experiment> = new Array();
+        const openedExperiments: Array<Experiment> = [];
         // Look on the server for opened experiments
         const experimentResponse = await this.tspClient.fetchExperiments();
         if (experimentResponse.isOk()) {
@@ -76,9 +76,9 @@ export class ExperimentManager {
      * @returns The opened experiment
      */
     async openExperiment(experimentName: string, traces: Array<Trace>): Promise<Experiment | undefined> {
-        let name = experimentName;
+        const name = experimentName;
 
-        let traceURIs = new Array<String>();
+        const traceURIs = new Array<string>();
         for (let i = 0; i < traces.length; i++) {
             traceURIs.push(traces[i].UUID);
         }
@@ -87,27 +87,27 @@ export class ExperimentManager {
             'name': name,
             'traces': traceURIs
         }));
-        const experiment = experimentResponse.getModel()
+        const experiment = experimentResponse.getModel();
         if (experiment && experimentResponse.isOk()) {
             this.addExperiment(experiment);
             this.experimentOpenedEmitter.fire(experiment);
             return experiment;
         } else if (experiment && experimentResponse.getStatusCode() === 409) {
             // Repost with a suffix as long as there are conflicts
-            let handleConflict = async function(tspClient: TspClient, tryNb: number): Promise<TspClientResponse<Experiment>> {
-                let suffix = '(' + tryNb + ')';
+            const handleConflict = async function (tspClient: TspClient, tryNb: number): Promise<TspClientResponse<Experiment>> {
+                const suffix = '(' + tryNb + ')';
                 return await tspClient.createExperiment(new Query({
                     'name': name + suffix,
                     'traces': traceURIs
-                }))
-            }
+                }));
+            };
             let conflictResolutionResponse = experimentResponse;
             let i = 1;
             while (conflictResolutionResponse.getStatusCode() === 409) {
                 conflictResolutionResponse = await handleConflict(this.tspClient, i);
                 i++;
             }
-            const experiment = conflictResolutionResponse.getModel()
+            const experiment = conflictResolutionResponse.getModel();
             if (experiment && conflictResolutionResponse.isOk()) {
                 this.addExperiment(experiment);
                 this.experimentOpenedEmitter.fire(experiment);
