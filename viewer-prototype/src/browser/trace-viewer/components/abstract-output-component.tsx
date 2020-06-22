@@ -8,7 +8,7 @@ import { TimeRange } from '../../../common/utils/time-range';
 import { OutputComponentStyle } from './utils/output-component-style';
 import { OutputStyleModel } from 'tsp-typescript-client/lib/models/styles';
 
-export type AbstractOutputProps = {
+export interface AbstractOutputProps {
     tspClient: TspClient;
     traceId: string;
     range: TimeRange;
@@ -24,7 +24,7 @@ export type AbstractOutputProps = {
     onViewRangeChange?: () => void;
 }
 
-export type AbstractOutputState = {
+export interface AbstractOutputState {
     outputStatus: string;
     styleModel?: OutputStyleModel
 }
@@ -32,7 +32,7 @@ export type AbstractOutputState = {
 export abstract class AbstractOutputComponent<P extends AbstractOutputProps, S extends AbstractOutputState> extends React.Component<P, S> {
 
     private mainAreaContainer: React.RefObject<HTMLDivElement>;
-    private handleWidth: number = 30;
+    private handleWidth = 30;
 
     constructor(props: P) {
         super(props);
@@ -52,7 +52,7 @@ export abstract class AbstractOutputComponent<P extends AbstractOutputProps, S e
     }
 
     renderTitleBar(): React.ReactNode {
-        let outputName = this.props.outputDescriptor.name;
+        const outputName = this.props.outputDescriptor.name;
         return <React.Fragment>
             <button className='remove-component-button' onClick={this.closeComponent}>
                 <FontAwesomeIcon icon={faTimes} />

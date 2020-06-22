@@ -1,6 +1,6 @@
-import { AbstractViewContribution } from "@theia/core/lib/browser/shell/view-contribution";
-import { TraceExplorerWidget, TRACE_EXPLORER_ID, TRACE_EXPLORER_LABEL } from "./trace-explorer-widget";
-import { FrontendApplicationContribution, FrontendApplication } from "@theia/core/lib/browser";
+import { AbstractViewContribution } from '@theia/core/lib/browser/shell/view-contribution';
+import { TraceExplorerWidget, TRACE_EXPLORER_ID, TRACE_EXPLORER_LABEL } from './trace-explorer-widget';
+import { FrontendApplicationContribution, FrontendApplication } from '@theia/core/lib/browser';
 
 export class TraceExplorerContribution extends AbstractViewContribution<TraceExplorerWidget> implements FrontendApplicationContribution {
 

@@ -1,7 +1,7 @@
 import * as React from 'react';
-import { TimeGraphContainer, TimeGraphContainerOptions } from "timeline-chart/lib/time-graph-container";
-import { TimeGraphUnitController } from "timeline-chart/lib/time-graph-unit-controller";
-import { TimeGraphLayer } from "timeline-chart/lib/layer/time-graph-layer";
+import { TimeGraphContainer, TimeGraphContainerOptions } from 'timeline-chart/lib/time-graph-container';
+import { TimeGraphUnitController } from 'timeline-chart/lib/time-graph-unit-controller';
+import { TimeGraphLayer } from 'timeline-chart/lib/layer/time-graph-layer';
 
 export namespace ReactTimeGraphContainer {
     export interface Props {
@@ -25,10 +25,10 @@ export class ReactTimeGraphContainer extends React.Component<ReactTimeGraphConta
 
         this.props.onWidgetResize(() => {
             this.container && this.container.reInitCanvasSize(this.props.options.width);
-        })
+        });
     }
 
     render() {
-        return <canvas ref={ref => this.ref = ref || undefined} onWheel={e => e.preventDefault()}></canvas>
+        return <canvas ref={ref => this.ref = ref || undefined} onWheel={e => e.preventDefault()}></canvas>;
     }
 }

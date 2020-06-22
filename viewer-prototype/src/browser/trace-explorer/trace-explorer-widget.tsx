@@ -4,7 +4,7 @@ import * as React from 'react';
 import { List, ListRowProps } from 'react-virtualized';
 import { OutputDescriptor } from 'tsp-typescript-client/lib/models/output-descriptor';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faShareSquare, faCopy } from '@fortawesome/free-solid-svg-icons'
+import { faShareSquare, faCopy } from '@fortawesome/free-solid-svg-icons';
 import * as ReactModal from 'react-modal';
 import { Emitter } from '@theia/core';
 import { SignalManager } from '../../common/signal-manager';
@@ -36,17 +36,17 @@ export class OutputAddedSignalPayload {
 
 @injectable()
 export class TraceExplorerWidget extends ReactWidget {
-    private OPENED_TRACE_TITLE: string = 'Opened experiments';
+    private OPENED_TRACE_TITLE = 'Opened experiments';
     // private FILE_NAVIGATOR_TITLE: string = 'File navigator';
-    private ANALYSIS_TITLE: string = 'Available analysis';
+    private ANALYSIS_TITLE = 'Available analysis';
 
-    private openedExperiments: Array<Experiment> = new Array();
-    private selectedExperimentIndex: number = 0;
-    private lastSelectedOutputIndex: number = -1;
+    private openedExperiments: Array<Experiment> = [];
+    private selectedExperimentIndex = 0;
+    private lastSelectedOutputIndex = -1;
     private availableOutputDescriptors: Map<string, OutputDescriptor[]> = new Map();
 
-    private showShareDialog: boolean = false;
-    private sharingLink: string = '';
+    private showShareDialog = false;
+    private sharingLink = '';
 
     private tooltip: { [key: string]: string } = {};
 
@@ -162,13 +162,13 @@ export class TraceExplorerWidget extends ReactWidget {
             keys.forEach(key => {
                 if (key === 'Source') {
                     const sourceCodeInfo = this.tooltip[key];
-                    const matches = sourceCodeInfo.match('(.*):(\\d+)')
+                    const matches = sourceCodeInfo.match('(.*):(\\d+)');
                     let fileLocation;
                     let line;
                     if(matches && matches.length === 3) {
                         fileLocation = matches[1];
                         line = matches[2];
-                    } 
+                    }
                     tooltipArray.push(<p className='source-code-tooltip' key={key} onClick={this.handleSourcecodeLockup.bind(this, fileLocation, line)}>{key + ': ' + sourceCodeInfo}</p>);
                 } else {
                     tooltipArray.push(<p key={key}>{key + ': ' + this.tooltip[key]}</p>);
@@ -177,9 +177,7 @@ export class TraceExplorerWidget extends ReactWidget {
         }
 
         return <React.Fragment>
-            {tooltipArray.map(element => {
-                return element;
-            })}
+            {tooltipArray.map(element => element)}
         </React.Fragment>;
     }
 
@@ -218,7 +216,7 @@ export class TraceExplorerWidget extends ReactWidget {
             const opts = {
                 ...modeOpt,
                 ...slectionOpt
-            }
+            };
             this.editorManager.open(new URI(fileLocation), opts);
         }
     }
@@ -239,11 +237,11 @@ export class TraceExplorerWidget extends ReactWidget {
                         </button>
                     </div>
                 </div>
-            </div>
+            </div>;
         }
         return <div style={{ color: 'white' }}>
             {'Cannot share this trace'}
-        </div>
+        </div>;
     }
 
     private experimentRowRenderer(props: ListRowProps): React.ReactNode {
@@ -253,7 +251,7 @@ export class TraceExplorerWidget extends ReactWidget {
             traceName = this.openedExperiments[props.index].name;
             // tracePath = this.openedTraces[props.index].path;
             /*
-                TODO: Implement better visualization of experiment, e.g. a tree 
+                TODO: Implement better visualization of experiment, e.g. a tree
                 with experiment name as root and traces (name and path) as children
              */
             let prefix = '> ';
@@ -333,7 +331,7 @@ export class TraceExplorerWidget extends ReactWidget {
 
     private outputClicked(index: number) {
         this.lastSelectedOutputIndex = index;
-        const trace = this.openedExperiments[this.selectedExperimentIndex]
+        const trace = this.openedExperiments[this.selectedExperimentIndex];
         const outputs = this.availableOutputDescriptors.get(trace.UUID);
         if (outputs) {
             TraceExplorerWidget.outputAddedEmitter.fire(new OutputAddedSignalPayload(outputs[index], trace));
@@ -353,7 +351,7 @@ export class TraceExplorerWidget extends ReactWidget {
             this.availableOutputDescriptors.set(experiment.UUID, outputs);
         } else {
             if (this.openedExperiments.length) {
-                const outputs = await this.getOutputDescriptors(this.openedExperiments[0])
+                const outputs = await this.getOutputDescriptors(this.openedExperiments[0]);
                 this.availableOutputDescriptors.set(this.openedExperiments[0].UUID, outputs);
             }
         }
@@ -362,7 +360,7 @@ export class TraceExplorerWidget extends ReactWidget {
     }
 
     private async getOutputDescriptors(experiment: Experiment): Promise<OutputDescriptor[]> {
-        const outputDescriptors: OutputDescriptor[] = new Array();
+        const outputDescriptors: OutputDescriptor[] = [];
         const descriptors = await this.experimentManager.getAvailableOutputs(experiment.UUID);
         if (descriptors && descriptors.length) {
             outputDescriptors.push(...descriptors);

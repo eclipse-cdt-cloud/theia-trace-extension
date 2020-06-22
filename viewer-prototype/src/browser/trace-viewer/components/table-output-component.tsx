@@ -1,14 +1,14 @@
-import { AbstractOutputComponent, AbstractOutputProps, AbstractOutputState } from "./abstract-output-component";
+import { AbstractOutputComponent, AbstractOutputProps, AbstractOutputState } from './abstract-output-component';
 import * as React from 'react';
 import { AgGridReact } from 'ag-grid-react';
-import { ColDef } from "ag-grid-community";
-import { Entry, EntryHeader } from "tsp-typescript-client/lib/models/entry";
+import { ColDef } from 'ag-grid-community';
+import { Entry, EntryHeader } from 'tsp-typescript-client/lib/models/entry';
 import { QueryHelper } from 'tsp-typescript-client/lib/models/query/query-helper';
 
 type TableOuputState = AbstractOutputState & {
     tableColumns: ColDef[];
     tableLines: any[];
-}
+};
 
 export class TableOutputComponent extends AbstractOutputComponent<AbstractOutputProps, TableOuputState> {
 
@@ -39,7 +39,7 @@ export class TableOutputComponent extends AbstractOutputComponent<AbstractOutput
         // Fetch columns
         const columnsResponse = (await tspClient.fetchTableColumns<Entry, EntryHeader>(traceUUID, outPutId, QueryHelper.timeQuery([0, 1]))).getModel();
         const columnEntries = columnsResponse.model.entries;
-        const columnIds: Array<number> = new Array;
+        const columnIds: Array<number> = [];
         const columnsArray = new Array<any>();
         columnEntries.forEach(entry => {
             columnIds.push(entry.id);
@@ -73,6 +73,6 @@ export class TableOutputComponent extends AbstractOutputComponent<AbstractOutput
             outputStatus: lineResponse.status,
             tableColumns: columnsArray,
             tableLines: linesArray
-        })
+        });
     }
 }

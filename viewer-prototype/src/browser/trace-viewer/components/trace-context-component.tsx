@@ -17,7 +17,7 @@ import { XYOutputComponent } from './xy-output-component';
 
 const ResponsiveGridLayout = WidthProvider(Responsive);
 
-type TraceContextProps = {
+interface TraceContextProps {
     tspClient: TspClient;
     experiment: Experiment;
     outputs: OutputDescriptor[];
@@ -27,7 +27,7 @@ type TraceContextProps = {
     addResizeHandler: (handler: () => void) => void;
 }
 
-type TraceContextState = {
+interface TraceContextState {
     timeOffset: number;
     currentRange: TimeRange;
     currentViewRange: TimeRange;
@@ -54,7 +54,7 @@ export class TraceContextComponent extends React.Component<TraceContextProps, Tr
     protected widgetResizeHandlers: (() => void)[] = [];
     protected readonly addWidgetResizeHandler = (h: () => void) => {
         this.widgetResizeHandlers.push(h);
-    }
+    };
 
     constructor(props: TraceContextProps) {
         super(props);
@@ -93,8 +93,8 @@ export class TraceContextComponent extends React.Component<TraceContextProps, Tr
             const nano = Math.floor((theNumber % 1000000) % 1000);
             return milli + ':' + micro + ':' + nano; // THAT IS TOO LONG, need to find better format
         };
-        this.unitController.onSelectionRangeChange(range => { this.handleTimeSelectionChange(range) });
-        this.unitController.onViewRangeChanged(viewRange => { this.handleViewRangeChange(viewRange) });
+        this.unitController.onSelectionRangeChange(range => { this.handleTimeSelectionChange(range); });
+        this.unitController.onViewRangeChanged(viewRange => { this.handleViewRangeChange(viewRange); });
         this.traceContextContainer = React.createRef();
         this.initialize();
     }
@@ -131,11 +131,11 @@ export class TraceContextComponent extends React.Component<TraceContextProps, Tr
     }
 
     private sleep(ms: number) {
-        new Promise(resolve => setTimeout(resolve, ms))
+        new Promise(resolve => setTimeout(resolve, ms));
     }
 
     componentDidMount() {
-        this.onResize = this.onResize.bind(this)
+        this.onResize = this.onResize.bind(this);
         this.props.addResizeHandler(this.onResize);
         this.onResize();
     }
@@ -147,9 +147,7 @@ export class TraceContextComponent extends React.Component<TraceContextProps, Tr
 
     private onResize() {
         const newWidth = this.traceContextContainer.current ? this.traceContextContainer.current.clientWidth - this.SCROLLBAR_PADDING : this.DEFAULT_COMPONENT_WIDTH;
-        this.setState(prevState => {
-            return { style: { ...prevState.style, width: newWidth, chartWidth: this.getChartWidth(newWidth) } };
-        });
+        this.setState(prevState => ({ style: { ...prevState.style, width: newWidth, chartWidth: this.getChartWidth(newWidth) } }));
         this.widgetResizeHandlers.forEach(h => h());
     }
 
@@ -165,25 +163,21 @@ export class TraceContextComponent extends React.Component<TraceContextProps, Tr
             text: `T1: ${t1} T2: ${t2} Delta: ${t2 - t1}`,
             alignment: StatusBarAlignment.LEFT,
         });
-        this.setState(prevState => {
-            return {
+        this.setState(prevState => ({
                 currentTimeSelection: new TimeRange(range.start, range.end, prevState.timeOffset)
-            };
-        });
+            }));
     }
 
     private handleViewRangeChange(viewRange: TimelineChart.TimeGraphRange) {
-        this.setState(prevState => {
-            return {
+        this.setState(prevState => ({
                 currentViewRange: new TimeRange(viewRange.start, viewRange.end, prevState.timeOffset)
-            };
-        });
+            }));
     }
 
     render() {
         return <div className='trace-context-container' ref={this.traceContextContainer}>
             {this.props.outputs.length ? this.renderOutputs() : this.renderPlaceHolder()}
-        </div>
+        </div>;
     }
 
     private renderOutputs() {
@@ -231,7 +225,7 @@ export class TraceContextComponent extends React.Component<TraceContextProps, Tr
             <div style={{ marginLeft: this.state.style.width - this.state.style.chartWidth }}>
                 <TimeNavigatorComponent unitController={this.unitController} style={this.state.style} addWidgetResizeHandler={this.addWidgetResizeHandler} />
             </div>
-        </React.Fragment>
+        </React.Fragment>;
     }
 
     private renderPlaceHolder() {
@@ -242,7 +236,7 @@ export class TraceContextComponent extends React.Component<TraceContextProps, Tr
 
     private generateGridLayout(): Layout[] {
         const outputs = this.props.outputs;
-        let layouts: Layout[] = [];
+        const layouts: Layout[] = [];
         if (outputs.length) {
             outputs.forEach((output, index) => {
                 const itemLayout = {

@@ -56,7 +56,7 @@ export default new ContainerModule(bind => {
     bind(FrontendApplicationContribution).toService(TraceServerConnectionStatusService);
     bind(TraceServerConnectionStatusContribution).toSelf().inSingletonScope();
     bind(FrontendApplicationContribution).toService(TraceServerConnectionStatusContribution);
-    
+
     // bindViewContribution(bind, TracePropertiesContribution);
     // bind(TracePropertiesWidget).toSelf();
     // bind(WidgetFactory).toDynamicValue(context => ({

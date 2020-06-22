@@ -4,7 +4,7 @@ import { TimeGraphAxisCursors } from 'timeline-chart/lib/layer/time-graph-axis-c
 import { ReactTimeGraphContainer } from './timegraph-container-component';
 import { TimeGraphUnitController } from 'timeline-chart/lib/time-graph-unit-controller';
 
-type TimeAxisProps = {
+interface TimeAxisProps {
     unitController: TimeGraphUnitController;
     style: {
         chartWidth: number,

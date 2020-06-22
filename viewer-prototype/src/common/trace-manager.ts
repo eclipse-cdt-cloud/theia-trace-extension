@@ -16,7 +16,7 @@ export class TraceManager {
     private traceClosedEmitter = new Emitter<Trace>();
     public traceClosedSignal = this.traceClosedEmitter.event;
 
-    private fOpenTraces: Map<string, Trace> = new Map();;
+    private fOpenTraces: Map<string, Trace> = new Map();
 
     private constructor(
         @inject(TspClient) private tspClient: TspClient
@@ -27,7 +27,7 @@ export class TraceManager {
      * @returns Array of Trace
      */
     async getOpenedTraces(): Promise<Trace[]> {
-        const openedTraces: Array<Trace> = new Array();
+        const openedTraces: Array<Trace> = [];
         // Look on the server for opened trace
         const tracesResponse = await this.tspClient.fetchTraces();
         if (tracesResponse.isOk()) {
@@ -85,27 +85,27 @@ export class TraceManager {
             'name': name,
             'uri': tracePath
         }));
-        const trace = traceResponse.getModel()
+        const trace = traceResponse.getModel();
         if (trace && traceResponse.isOk()) {
             this.addTrace(trace);
             this.traceOpenedEmitter.fire(trace);
             return trace;
         } else if (trace && traceResponse.getStatusCode() === 409) {
             // Repost with a suffix as long as there are conflicts
-            let handleConflict = async function(tspClient: TspClient, tryNb: number): Promise<TspClientResponse<Trace>> {
-                let suffix = '(' + tryNb + ')';
+            const handleConflict = async function (tspClient: TspClient, tryNb: number): Promise<TspClientResponse<Trace>> {
+                const suffix = '(' + tryNb + ')';
                 return await tspClient.openTrace(new Query({
                     'name': name + suffix,
                     'uri': tracePath
-                }))
-            }
+                }));
+            };
             let conflictResolutionResponse = traceResponse;
             let i = 1;
             while (conflictResolutionResponse.getStatusCode() === 409) {
                 conflictResolutionResponse = await handleConflict(this.tspClient, i);
                 i++;
             }
-            const trace = conflictResolutionResponse.getModel()
+            const trace = conflictResolutionResponse.getModel();
             if (trace && conflictResolutionResponse.isOk()) {
                 this.addTrace(trace);
                 this.traceOpenedEmitter.fire(trace);

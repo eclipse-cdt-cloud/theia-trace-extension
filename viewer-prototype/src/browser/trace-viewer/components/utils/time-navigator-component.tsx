@@ -3,7 +3,7 @@ import { ReactTimeGraphContainer } from './timegraph-container-component';
 import { TimeGraphUnitController } from 'timeline-chart/lib/time-graph-unit-controller';
 import { TimeGraphNavigator } from 'timeline-chart/lib/layer/time-graph-navigator';
 
-type TimeNavigatorProps = {
+interface TimeNavigatorProps {
     unitController: TimeGraphUnitController;
     style: {
         chartWidth: number,

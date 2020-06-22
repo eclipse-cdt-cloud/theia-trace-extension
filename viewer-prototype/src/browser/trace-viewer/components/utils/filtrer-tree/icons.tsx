@@ -1,9 +1,8 @@
 import * as React from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faChevronDown, faChevronRight, faCheckSquare, faSquare, faMinusSquare } from '@fortawesome/free-solid-svg-icons'
+import { faChevronDown, faChevronRight, faCheckSquare, faSquare, faMinusSquare } from '@fortawesome/free-solid-svg-icons';
 
-
-type iconsShape = {
+interface iconsShape {
     expand: React.ReactNode,
     collapse: React.ReactNode,
     unchecked: React.ReactNode,
@@ -17,6 +16,6 @@ const icons: iconsShape = {
     unchecked: <FontAwesomeIcon icon={faSquare}/>,
     checked: <FontAwesomeIcon icon={faCheckSquare}/>,
     halfChecked: <FontAwesomeIcon icon={faMinusSquare}/>
-}
+};
 
 export default icons;
