@@ -20,11 +20,11 @@ export class ReactTimeGraphContainer extends React.Component<ReactTimeGraphConta
     componentDidMount() {
         this.container = new TimeGraphContainer(this.props.options, this.props.unitController, this.ref);
         this.props.layer.forEach(l => {
-            this.container && this.container.addLayer(l);
+            if (this.container) { this.container.addLayer(l); }
         });
 
         this.props.onWidgetResize(() => {
-            this.container && this.container.reInitCanvasSize(this.props.options.width);
+            if (this.container) { this.container.reInitCanvasSize(this.props.options.width); }
         });
     }
 

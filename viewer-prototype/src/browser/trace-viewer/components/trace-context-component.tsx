@@ -94,7 +94,7 @@ export class TraceContextComponent extends React.Component<TraceContextProps, Tr
             return milli + ':' + micro + ':' + nano; // THAT IS TOO LONG, need to find better format
         };
         this.unitController.onSelectionRangeChange(range => { this.handleTimeSelectionChange(range); });
-        this.unitController.onViewRangeChanged(viewRange => { this.handleViewRangeChange(viewRange); });
+        this.unitController.onViewRangeChanged(viewRangeParam => { this.handleViewRangeChange(viewRangeParam); });
         this.traceContextContainer = React.createRef();
         this.initialize();
     }

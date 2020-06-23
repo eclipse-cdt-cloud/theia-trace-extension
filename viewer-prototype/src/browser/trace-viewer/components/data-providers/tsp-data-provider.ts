@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { TspClient } from 'tsp-typescript-client/lib/protocol/tsp-client';
 import { TimeGraphEntry, TimeGraphRow, TimeGraphModel, TimeGraphState } from 'tsp-typescript-client/lib/models/timegraph';
 import { TimelineChart } from 'timeline-chart/lib/time-graph-model';
@@ -27,7 +28,8 @@ export class TspDataProvider {
     }
 
     async getData(viewRange?: TimelineChart.TimeGraphRange, resolution?: number): Promise<TimelineChart.TimeGraphModel> {
-        const resourcesTreeParameters = QueryHelper.timeQuery([0, 1]); // QueryHelper.timeQuery(QueryHelper.splitRangeIntoEqualParts(1332170682440133097, 1332170682540133097, 1120));
+        // QueryHelper.timeQuery(QueryHelper.splitRangeIntoEqualParts(1332170682440133097, 1332170682540133097, 1120));
+        const resourcesTreeParameters = QueryHelper.timeQuery([0, 1]);
         const treeResponse = (await this.client.fetchTimeGraphTree<TimeGraphEntry, EntryHeader>(
             this.traceUUID,
             this.outputId,
@@ -57,7 +59,7 @@ export class TspDataProvider {
         const rows: TimelineChart.TimeGraphRowModel[] = [];
         this.timeGraphRows.forEach((row: TimeGraphRow) => {
             const rowId: number = (row as any).entryID;
-            const entry = this.timeGraphEntries.find(entry => entry.id === rowId);
+            const entry = this.timeGraphEntries.find(tgEntry => tgEntry.id === rowId);
             if (entry) {
                 const states = this.getStateModelByRow(row, chartStart);
                 rows.push({

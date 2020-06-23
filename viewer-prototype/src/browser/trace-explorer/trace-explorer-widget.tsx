@@ -156,7 +156,7 @@ export class TraceExplorerWidget extends ReactWidget {
 
     private renderTooltip() {
         this.handleSourcecodeLockup = this.handleSourcecodeLockup.bind(this);
-        const tooltipArray: any[] = [];
+        const tooltipArray: JSX.Element[] = [];
         if (this.tooltip) {
             const keys = Object.keys(this.tooltip);
             keys.forEach(key => {
@@ -169,7 +169,9 @@ export class TraceExplorerWidget extends ReactWidget {
                         fileLocation = matches[1];
                         line = matches[2];
                     }
-                    tooltipArray.push(<p className='source-code-tooltip' key={key} onClick={this.handleSourcecodeLockup.bind(this, fileLocation, line)}>{key + ': ' + sourceCodeInfo}</p>);
+                    tooltipArray.push(<p className='source-code-tooltip'
+                        key={key}
+                        onClick={this.handleSourcecodeLockup.bind(this, fileLocation, line)}>{key + ': ' + sourceCodeInfo}</p>);
                 } else {
                     tooltipArray.push(<p key={key}>{key + ': ' + this.tooltip[key]}</p>);
                 }
@@ -262,7 +264,7 @@ export class TraceExplorerWidget extends ReactWidget {
             }
         }
         let traceContainerClassName = 'trace-element-container';
-        if (props.index == this.selectedExperimentIndex) {
+        if (props.index === this.selectedExperimentIndex) {
             traceContainerClassName = traceContainerClassName + ' theia-mod-selected';
         }
         this.handleShareButtonClick = this.handleShareButtonClick.bind(this);
@@ -316,7 +318,7 @@ export class TraceExplorerWidget extends ReactWidget {
             }
         }
         let traceContainerClassName = 'outputs-list-container';
-        if (props.index == this.lastSelectedOutputIndex) {
+        if (props.index === this.lastSelectedOutputIndex) {
             traceContainerClassName = traceContainerClassName + ' theia-mod-selected';
         }
         return <div className={traceContainerClassName} key={props.key} style={props.style} onClick={this.outputClicked.bind(this, props.index)}>

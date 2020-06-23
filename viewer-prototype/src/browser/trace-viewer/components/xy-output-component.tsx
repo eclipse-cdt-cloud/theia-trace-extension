@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { AbstractOutputProps, AbstractOutputState } from './abstract-output-component';
 import { AbstractTreeOutputComponent } from './abstract-tree-output-component';
 import * as React from 'react';
@@ -64,7 +65,7 @@ export class XYOutputComponent extends AbstractTreeOutputComponent<AbstractOutpu
         }
     }
 
-    synchronizeTreeScroll(): void {}
+    synchronizeTreeScroll(): void { /* Nothing to do by default */ }
 
     renderTree(): React.ReactNode {
         this.onSeriesChecked = this.onSeriesChecked.bind(this);

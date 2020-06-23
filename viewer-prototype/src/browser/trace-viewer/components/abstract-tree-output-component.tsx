@@ -8,7 +8,10 @@ export abstract class AbstractTreeOutputComponent<P extends AbstractOutputProps,
     renderMainArea(): React.ReactNode {
         const treeWidth = this.props.style.width - this.props.style.chartWidth - this.getHandleWidth();
         return <React.Fragment>
-            <div ref={this.treeRef} className='output-component-tree' onScroll={ev => { this.synchronizeTreeScroll(); }} style={{ width: treeWidth, height: this.props.style.height }}>
+            <div ref={this.treeRef} className='output-component-tree'
+                onScroll={ev => { this.synchronizeTreeScroll(); }}
+                style={{ width: treeWidth, height: this.props.style.height }}
+            >
                 {this.renderTree()}
             </div>
             <div className='output-component-chart' style={{ width: this.props.style.chartWidth, backgroundColor: '#3f3f3f' }}>
@@ -17,8 +20,7 @@ export abstract class AbstractTreeOutputComponent<P extends AbstractOutputProps,
         </React.Fragment>;
     }
 
-    treeRef = React.createRef<any>();
-    chartRef = React.createRef<any>();
+    treeRef: React.RefObject<HTMLDivElement> = React.createRef();
 
     abstract renderTree(): React.ReactNode;
 
@@ -45,8 +47,7 @@ export abstract class AbstractTreeOutputComponent<P extends AbstractOutputProps,
 
     componentWillUnmount() {
         // fix Warning: Can't perform a React state update on an unmounted component
-        this.setState = (state,callback)=>{
-            return;
-        };
+        this.setState = (state,callback) => undefined;
+
     }
 }

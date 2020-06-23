@@ -85,12 +85,12 @@ export class TraceManager {
             'name': name,
             'uri': tracePath
         }));
-        const trace = traceResponse.getModel();
-        if (trace && traceResponse.isOk()) {
-            this.addTrace(trace);
-            this.traceOpenedEmitter.fire(trace);
-            return trace;
-        } else if (trace && traceResponse.getStatusCode() === 409) {
+        const openedTrace = traceResponse.getModel();
+        if (openedTrace && traceResponse.isOk()) {
+            this.addTrace(openedTrace);
+            this.traceOpenedEmitter.fire(openedTrace);
+            return openedTrace;
+        } else if (openedTrace && traceResponse.getStatusCode() === 409) {
             // Repost with a suffix as long as there are conflicts
             const handleConflict = async function (tspClient: TspClient, tryNb: number): Promise<TspClientResponse<Trace>> {
                 const suffix = '(' + tryNb + ')';

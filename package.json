@@ -10,7 +10,8 @@
     "download:server": "curl -o trace-compass-server.tar.gz https://download.eclipse.org/tracecompass.incubator/trace-server/rcp/trace-compass-server-latest-linux.gtk.x86_64.tar.gz; tar -xf trace-compass-server.tar.gz",
     "start:server": "./trace-compass-server/tracecompass-server",
     "start-all:browser": "yarn start:server & yarn start:browser",
-    "start-all:electron": "yarn start:server & yarn start:electron"
+    "start-all:electron": "yarn start:server & yarn start:electron",
+    "lint": "yarn workspace trace-viewer run lint"
   },
   "devDependencies": {
     "lerna": "2.4.0"

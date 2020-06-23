@@ -54,7 +54,8 @@
     "prepare": "yarn run clean && yarn run build",
     "clean": "rimraf lib",
     "build": "tsc",
-    "watch": "tsc -w"
+    "watch": "tsc -w",
+    "lint": "eslint ."
   },
   "theiaExtensions": [
     {
