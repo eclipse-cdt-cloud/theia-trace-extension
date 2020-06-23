@@ -14,7 +14,7 @@ interface FilterTreeProps {
 export class FilterTree extends React.Component<FilterTreeProps> {
     static defaultProps: Partial<FilterTreeProps> = {
         checkedSeries: [],
-        onChecked: () => {},
+        onChecked: () => { /* Nothing to do */ },
     };
 
     constructor(props: FilterTreeProps) {
@@ -26,7 +26,7 @@ export class FilterTree extends React.Component<FilterTreeProps> {
         return nodes.filter((node: TreeNode) => node.isRoot === true);
     };
 
-    getNode = (id: number): TreeNode | null => {
+    getNode = (id: number): TreeNode | undefined => {
         const nodes: TreeNode[] = [...this.props.nodes];
         let currentNode: TreeNode;
         while(nodes.length) {
@@ -41,7 +41,7 @@ export class FilterTree extends React.Component<FilterTreeProps> {
                 }
             }
         }
-        return null;
+        return undefined;
     };
 
     handleCollapse = (id: number): void => {
@@ -77,7 +77,7 @@ export class FilterTree extends React.Component<FilterTreeProps> {
                 if (this.isNodeChecked(id)) {
                     checkedIds = checkedIds.concat(childrenIds);
                 } else {
-                    const childIdsToCheck = childrenIds.filter(id => !this.isNodeChecked(id));
+                    const childIdsToCheck = childrenIds.filter(childId => !this.isNodeChecked(childId));
                     checkedIds = checkedIds.concat(childIdsToCheck);
                 }
             } else {
@@ -114,13 +114,13 @@ export class FilterTree extends React.Component<FilterTreeProps> {
 
     isCollapsed = (id: number): boolean => this.props.collapsedNodes.includes(id);
 
-    renderTreeNodes = (nodes: TreeNode[], parent: TreeNode = defaultTreeNode, level = 0): JSX.Element | null => {
+    renderTreeNodes = (nodes: TreeNode[], parent: TreeNode = defaultTreeNode, level = 0): JSX.Element | undefined => {
         const treeNodes = nodes.map((node: TreeNode) => {
-            const children = node.children.length > 0 ? this.renderTreeNodes(node.children, node, level+1) : null;
+            const children = node.children.length > 0 ? this.renderTreeNodes(node.children, node, level+1) : undefined;
             const checkedStatus = this.getCheckedStatus(node.id);
 
             if (!node.isRoot && this.isCollapsed(node.parentId)) {
-                return null;
+                return undefined;
             }
             return (
                 <TreeNodeComponent
@@ -145,8 +145,8 @@ export class FilterTree extends React.Component<FilterTreeProps> {
         );
     };
 
-    render() {
-        if (!this.props.nodes) {return null;}
+    render(): JSX.Element | undefined {
+        if (!this.props.nodes) {return undefined;}
         const rootNodes = this.getRootNodes();
         if (rootNodes && rootNodes.length) {
             return this.renderTreeNodes(rootNodes);

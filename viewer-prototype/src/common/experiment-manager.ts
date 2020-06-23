@@ -87,12 +87,12 @@ export class ExperimentManager {
             'name': name,
             'traces': traceURIs
         }));
-        const experiment = experimentResponse.getModel();
-        if (experiment && experimentResponse.isOk()) {
-            this.addExperiment(experiment);
-            this.experimentOpenedEmitter.fire(experiment);
-            return experiment;
-        } else if (experiment && experimentResponse.getStatusCode() === 409) {
+        const opendExperiment = experimentResponse.getModel();
+        if (opendExperiment && experimentResponse.isOk()) {
+            this.addExperiment(opendExperiment);
+            this.experimentOpenedEmitter.fire(opendExperiment);
+            return opendExperiment;
+        } else if (opendExperiment && experimentResponse.getStatusCode() === 409) {
             // Repost with a suffix as long as there are conflicts
             const handleConflict = async function (tspClient: TspClient, tryNb: number): Promise<TspClientResponse<Experiment>> {
                 const suffix = '(' + tryNb + ')';

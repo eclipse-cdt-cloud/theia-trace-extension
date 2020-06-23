@@ -12,7 +12,7 @@ const entryToTreeNode = (entry: Entry) => ({
 
 export const listToTree = (list: Entry[]) => {
     const rootNodes: TreeNode[] = [];
-    const lookup: any = {};
+    const lookup: { [key: string]: TreeNode } = {};
     list.forEach(entry => {
         lookup[entry.id] = entryToTreeNode(entry);
     });

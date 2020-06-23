@@ -6,7 +6,7 @@ export interface TreeNode {
     id: number;
     parentId: number;
     name: string;
-    children: [];
+    children: Array<TreeNode>;
     isRoot: boolean;
 }
 
@@ -25,7 +25,7 @@ interface TreeNodeComponentProps {
     padding: number;
     isCheckable: boolean;
     collapsed: boolean;
-    children: JSX.Element | null;
+    children: JSX.Element | undefined;
     onCollapsed: (id: number) => void;
     onChecked: (id: number) => void;
 }
@@ -37,14 +37,14 @@ export class TreeNodeComponent extends React.Component<TreeNodeComponentProps> {
 
     private isLeaf = (): boolean => this.props.node.children.length === 0;
 
-    renderChildren = (): JSX.Element | null => {
+    renderChildren = (): JSX.Element | undefined => {
         if (this.props.collapsed) {
-            return null;
+            return undefined;
         }
         return this.props.children;
     };
 
-    render() {
+    render(): JSX.Element {
         return (
             <li style={{paddingLeft:this.props.padding}}>
                 <div

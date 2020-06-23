@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { TspClient } from 'tsp-typescript-client/lib/protocol/tsp-client';
 import { QueryHelper } from 'tsp-typescript-client/lib/models/query/query-helper';
 import { OutputElementStyle } from 'tsp-typescript-client/lib/models/styles';

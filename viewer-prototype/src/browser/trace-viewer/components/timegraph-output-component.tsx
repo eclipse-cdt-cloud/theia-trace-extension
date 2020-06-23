@@ -62,7 +62,9 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
         this.vscrollLayer = new TimeGraphVerticalScrollbar('timeGraphVerticalScrollbar', this.rowController);
 
         this.rowController.onVerticalOffsetChangedHandler(()=>{
-            this.treeRef.current.scrollTop=this.rowController.verticalOffset;
+            if (this.treeRef.current) {
+                this.treeRef.current.scrollTop=this.rowController.verticalOffset;
+            }
         });
 
         this.chartLayer.onSelectedRowElementChanged(model => {
@@ -79,7 +81,9 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
     }
 
     synchronizeTreeScroll(): void {
-        this.rowController.verticalOffset=this.treeRef.current.scrollTop;
+        if (this.treeRef.current) {
+            this.rowController.verticalOffset=this.treeRef.current.scrollTop;
+        }
     }
 
     async componentDidMount() {
