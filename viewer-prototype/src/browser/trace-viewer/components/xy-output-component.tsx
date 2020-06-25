@@ -13,6 +13,7 @@ type XYOuputState = AbstractOutputState & {
     selectedSeriesId: number[];
     XYTree: Entry[];
     checkedSeries: number[];
+    collapsedNodes: number[];
     XYData: any;
 }
 
@@ -29,6 +30,7 @@ export class XYOutputComponent extends AbstractTreeOutputComponent<AbstractOutpu
             selectedSeriesId: [],
             XYTree: [],
             checkedSeries: [],
+            collapsedNodes: [],
             XYData: {}
         }
 
@@ -48,7 +50,8 @@ export class XYOutputComponent extends AbstractTreeOutputComponent<AbstractOutpu
     componentDidUpdate(prevProps: AbstractOutputProps, prevState: XYOuputState) {
         const viewRangeChanged = this.props.viewRange !== prevProps.viewRange;
         const checkedSeriesChanged = this.state.checkedSeries !== prevState.checkedSeries;
-        const needToUpdate = viewRangeChanged || checkedSeriesChanged || !this.state.XYData || !this.state.XYTree.length;
+        const collapsedNodesChanged = this.state.collapsedNodes !== prevState.collapsedNodes;
+        const needToUpdate = viewRangeChanged || checkedSeriesChanged || !this.state.XYData || !this.state.XYTree.length || collapsedNodesChanged;
         if (needToUpdate && this.state.outputStatus === ResponseStatus.COMPLETED) {
             this.updateTree();
             this.updateXY();
@@ -63,10 +66,13 @@ export class XYOutputComponent extends AbstractTreeOutputComponent<AbstractOutpu
 
     renderTree(): React.ReactNode {
         this.onSeriesChecked = this.onSeriesChecked.bind(this);
+        this.onCollapse = this.onCollapse.bind(this);
         return <XYTree
-            entries = {this.state.XYTree }
+            entries={this.state.XYTree}
+            collapsedNodes={this.state.collapsedNodes}
             checkedSeries={this.state.checkedSeries}
             onChecked={this.onSeriesChecked}
+            onCollapse={this.onCollapse}
         />
     }
 
@@ -161,6 +167,23 @@ export class XYOutputComponent extends AbstractTreeOutputComponent<AbstractOutpu
             }            
         })
         this.setState({checkedSeries: newList});
+    }
+
+    private onCollapse(id: number) {
+        let newList = [...this.state.collapsedNodes];
+        
+        const exist = this.state.collapsedNodes.find(expandId => {
+            return expandId === id;
+        })
+
+        if (exist !== undefined) {
+            newList = newList.filter(collapsed => {
+                return id !== collapsed;
+            });
+        } else {
+            newList = newList.concat(id);
+        }
+        this.setState({collapsedNodes: newList});
     }
 
     // private async waitAnalysisCompletion() {
