@@ -6,7 +6,9 @@ import { FilterTree } from './tree'
 type XYTreeProps = {
     entries: Entry[];   
     checkedSeries: number[];
+    collapsedNodes: number[];
     onChecked: (ids: number[]) => void;
+    onCollapse: (id: number) => void;
 }
 
 export class XYTree extends React.Component<XYTreeProps> {
@@ -22,8 +24,10 @@ export class XYTree extends React.Component<XYTreeProps> {
         return <FilterTree
             nodes = { listToTree(this.props.entries) }
             showCheckboxes={true}
+            collapsedNodes={this.props.collapsedNodes}
             checkedSeries={this.props.checkedSeries}
             onChecked={this.props.onChecked}
+            onCollapse={this.props.onCollapse}
         />
     }
 }

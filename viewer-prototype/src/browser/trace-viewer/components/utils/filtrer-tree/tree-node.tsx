@@ -1,13 +1,11 @@
 import * as React from 'react';
 import { CheckboxComponent } from './checkbox-component';
-import { Indent } from './indent';
 import icons from './icons';
 
 export type TreeNode = {
     id: number;
     parentId: number;
     name: string;
-    expanded: boolean;
     children: [];
     isRoot: boolean;
 }
@@ -16,7 +14,6 @@ export const defaultTreeNode: TreeNode = {
     id: -1,
     parentId: -1,
     name: '',
-    expanded: true,
     children: [],
     isRoot: false
 }
@@ -25,9 +22,11 @@ type TreeNodeComponentProps = {
     node: TreeNode;
     checkedStatus: number;
     level: number;
+    padding: number;
     isCheckable: boolean;
+    collapsed: boolean;
     children: JSX.Element | null;
-    onExpanded: (id: number) => void;
+    onCollapsed: (id: number) => void;
     onChecked: (id: number) => void;
 } 
 
@@ -41,7 +40,7 @@ export class TreeNodeComponent extends React.Component<TreeNodeComponentProps> {
     }
 
     renderChildren = (): JSX.Element | null => {
-        if (!this.props.node.expanded) {
+        if (this.props.collapsed) {
             return null;
         }
         return this.props.children;
@@ -49,22 +48,20 @@ export class TreeNodeComponent extends React.Component<TreeNodeComponentProps> {
 
     render() {
         return (
-            <React.Fragment>
+            <li style={{paddingLeft:this.props.padding}}>
                 <div 
                     data-level={this.props.level} 
                     key={this.props.node.id} 
                     style={{display: 'flex', flexDirection: 'row', padding: '5px 8px'}}
                 >
-                    <Indent level={this.props.level} isLastLevel={this.isLeaf()}></Indent>
-
-                    { !this.isLeaf() 
-                        &&
-                        <span 
-                            onClick={() => this.props.onExpanded(this.props.node.id)} 
+                    { this.isLeaf() 
+                        ? <span style={{paddingLeft:this.props.padding}}></span>
+                        : <span 
+                            onClick={() => this.props.onCollapsed(this.props.node.id)} 
                             key={'icon-' + this.props.node.id}
                             style={{width: 12}}
                         >
-                            {(this.props.node.expanded ? icons.collapse : icons.expand)}
+                            {(this.props.collapsed ? icons.expand : icons.collapse)}
                         </span>
                     }
                     
@@ -79,7 +76,7 @@ export class TreeNodeComponent extends React.Component<TreeNodeComponentProps> {
                     } 
                 </div>
                 {this.renderChildren()}
-            </React.Fragment>
+            </li>
         )
     }
 }

@@ -6,14 +6,12 @@ type FilterTreeProps = {
     nodes: TreeNode[];
     showCheckboxes: boolean;    
     checkedSeries: number[];                //Optional
+    collapsedNodes: number[];
     onChecked: (ids: number[]) => void;     //Optional
+    onCollapse: (id: number) => void;
 }
 
-type FilterTreeState = {
-    treeNodes: TreeNode[];
-}
-
-export class FilterTree extends React.Component<FilterTreeProps, FilterTreeState> {
+export class FilterTree extends React.Component<FilterTreeProps> {
     static defaultProps: Partial<FilterTreeProps> = {
         checkedSeries: [],
         onChecked: () => {},
@@ -21,28 +19,15 @@ export class FilterTree extends React.Component<FilterTreeProps, FilterTreeState
     
     constructor(props: FilterTreeProps) {
         super(props);
-        this.state = {
-            treeNodes: this.props.nodes,
-        }
-    }
-
-    //TODO: remove this function, get tree data from props and expand state managed by parent
-    static getDerivedStateFromProps = (nextProps: FilterTreeProps, prevState: FilterTreeState) => {
-        if (!prevState.treeNodes.length) {
-            return {
-                treeNodes: nextProps.nodes
-            }
-        }
-        return null;
     }
 
     getRootNodes = (): TreeNode[] => {
-        const nodes = [...this.state.treeNodes];
+        const nodes = [...this.props.nodes];
         return nodes.filter((node: TreeNode) => node.isRoot === true);
     }
 
     getNode = (id: number): TreeNode | null => {
-        let nodes: TreeNode[] = [...this.state.treeNodes];
+        let nodes: TreeNode[] = [...this.props.nodes];
         let currentNode: TreeNode;
         while(nodes.length) {
             currentNode = nodes.pop()!;
@@ -59,13 +44,8 @@ export class FilterTree extends React.Component<FilterTreeProps, FilterTreeState
         return null;
     }
 
-    handleExpand = (id: number): void => {
-        let nodes: TreeNode[] = [...this.state.treeNodes];
-        let toggledNode = this.getNode(id);
-        if (toggledNode) {
-            toggledNode.expanded = !toggledNode.expanded;
-            this.setState({treeNodes: nodes})
-        }
+    handleCollapse = (id: number): void => {
+        this.props.onCollapse(id);
     }
 
     getAllChildrenIds = (node: TreeNode, ids: number[]): number[] => {
@@ -146,12 +126,16 @@ export class FilterTree extends React.Component<FilterTreeProps, FilterTreeState
         })
     }
 
+    isCollapsed = (id: number): boolean => {
+        return this.props.collapsedNodes.includes(id);
+    }
+
     renderTreeNodes = (nodes: TreeNode[], parent: TreeNode = defaultTreeNode, level: number = 0): JSX.Element | null => {
         const treeNodes = nodes.map((node: TreeNode) => {
             const children = node.children.length > 0 ? this.renderTreeNodes(node.children, node, level+1) : null;
             const checkedStatus = this.getCheckedStatus(node.id);
 
-            if (!parent.expanded) {
+            if (!node.isRoot && this.isCollapsed(node.parentId)) {
                 return null;
             }
             return (
@@ -159,9 +143,11 @@ export class FilterTree extends React.Component<FilterTreeProps, FilterTreeState
                     node={node}
                     key={'node-'+node.id}
                     level={level}
+                    padding={15}
                     checkedStatus={checkedStatus}
+                    collapsed={this.isCollapsed(node.id)}
                     isCheckable={this.props.showCheckboxes}
-                    onExpanded={this.handleExpand}
+                    onCollapsed={this.handleCollapse}
                     onChecked={this.handleCheck}
                 >
                     {children}
@@ -169,9 +155,9 @@ export class FilterTree extends React.Component<FilterTreeProps, FilterTreeState
             )
         });
         return (
-            <React.Fragment>
+            <ul style={{margin: 0, listStyleType: 'none', padding: 0}}>
                 {treeNodes}
-            </React.Fragment>
+            </ul>
         )
     }
 
