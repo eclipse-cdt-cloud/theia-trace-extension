@@ -27,20 +27,21 @@ export class TspDataProvider {
         this.totalRange = 0;
     }
 
-    async getData(viewRange?: TimelineChart.TimeGraphRange, resolution?: number): Promise<TimelineChart.TimeGraphModel> {
-        // QueryHelper.timeQuery(QueryHelper.splitRangeIntoEqualParts(1332170682440133097, 1332170682540133097, 1120));
-        const resourcesTreeParameters = QueryHelper.timeQuery([0, 1]);
-        const treeResponse = (await this.client.fetchTimeGraphTree<TimeGraphEntry, EntryHeader>(
-            this.traceUUID,
-            this.outputId,
-            resourcesTreeParameters)).getModel();
-        this.timeGraphEntries = treeResponse.model.entries;
-        this.totalRange = this.timeGraphEntries[0].endTime - this.timeGraphEntries[0].startTime; // 1332170682540133097 - starttime
-        const selectedItems = new Array<number>();
-        this.timeGraphEntries.forEach(timeGraphEntry => {
-            selectedItems.push(timeGraphEntry.id);
-        });
-
+    async getData(ids: number[], viewRange?: TimelineChart.TimeGraphRange, resolution?: number): Promise<TimelineChart.TimeGraphModel> {
+        let selectedItems = [...ids]
+        if (!ids.length) {
+            const resourcesTreeParameters = QueryHelper.timeQuery([0, 1]); // QueryHelper.timeQuery(QueryHelper.splitRangeIntoEqualParts(1332170682440133097, 1332170682540133097, 1120));
+            const treeResponse = (await this.client.fetchTimeGraphTree<TimeGraphEntry, EntryHeader>(
+                this.traceUUID,
+                this.outputId,
+                resourcesTreeParameters)).getModel();
+            this.timeGraphEntries = treeResponse.model.entries
+            this.totalRange = this.timeGraphEntries[0].endTime - this.timeGraphEntries[0].startTime; // 1332170682540133097 - starttime
+            this.timeGraphEntries.forEach(timeGraphEntry => {
+                selectedItems.push(timeGraphEntry.id);
+            });
+        }
+        
         let statesParameters = QueryHelper.selectionTimeQuery(QueryHelper.splitRangeIntoEqualParts(1332170682440133097, 1332170682540133097, 1120), selectedItems);
         if (viewRange && resolution) {
             const start = viewRange.start + this.timeGraphEntries[0].startTime;

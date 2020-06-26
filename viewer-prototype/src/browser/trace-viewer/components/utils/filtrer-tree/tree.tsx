@@ -4,15 +4,20 @@ import { Message } from './message';
 
 interface FilterTreeProps {
     nodes: TreeNode[];
-    showCheckboxes: boolean;
-    checkedSeries: number[];                // Optional
-    collapsedNodes: number[];
+    showCheckboxes: boolean;  
+    padding: number;                        //Optional  
+    checkedSeries: number[];                //Optional
+    collapsedNodes: number[];               //Optional
+    collapseEnabled: boolean;               //Optional
     onChecked: (ids: number[]) => void;     // Optional
     onCollapse: (id: number) => void;
 }
 
 export class FilterTree extends React.Component<FilterTreeProps> {
     static defaultProps: Partial<FilterTreeProps> = {
+        padding: 15,
+        collapseEnabled: true,
+        collapsedNodes: [],
         checkedSeries: [],
         onChecked: () => { /* Nothing to do */ },
     };
@@ -131,19 +136,22 @@ export class FilterTree extends React.Component<FilterTreeProps> {
                     node={node}
                     key={'node-'+node.id}
                     level={level}
-                    padding={15}
+                    padding={this.props.padding}
                     checkedStatus={checkedStatus}
+                    collapseEnabled={this.props.collapseEnabled}
                     collapsed={this.isCollapsed(node.id)}
                     isCheckable={this.props.showCheckboxes}
                     onCollapsed={this.handleCollapse}
                     onChecked={this.handleCheck}
+
                 >
                     {children}
                 </TreeNodeComponent>
             );
         });
+        const padding = level == 0 ? 0 : this.props.padding;
         return (
-            <ul style={{margin: 0, listStyleType: 'none', padding: 0}}>
+            <ul style={{margin: 0, listStyleType: 'none', paddingLeft: padding}}>
                 {treeNodes}
             </ul>
         );

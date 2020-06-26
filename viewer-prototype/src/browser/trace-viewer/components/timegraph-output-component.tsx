@@ -18,6 +18,8 @@ import { StyleProvider } from './data-providers/style-provider';
 import { TspDataProvider } from './data-providers/tsp-data-provider';
 import { ReactTimeGraphContainer } from './utils/timegraph-container-component';
 import { OutputElementStyle } from 'tsp-typescript-client/lib/models/styles';
+import { EntryTree } from './utils/filtrer-tree/entry-tree';
+import { getAllVisibleEntriesId } from './utils/filtrer-tree/utils';
 
 type TimegraphOutputProps = AbstractOutputProps & {
     addWidgetResizeHandler: (handler: () => void) => void;
@@ -25,7 +27,8 @@ type TimegraphOutputProps = AbstractOutputProps & {
 
 type TimegraohOutputState = AbstractOutputState & {
     timegraphTree: TimeGraphEntry[];
-};
+    collapsedNodes: number[];
+}
 
 export class TimegraphOutputComponent extends AbstractTreeOutputComponent<TimegraphOutputProps, TimegraohOutputState> {
     private totalHeight = 0;
@@ -43,7 +46,8 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
         super(props);
         this.state = {
             outputStatus: ResponseStatus.RUNNING,
-            timegraphTree: []
+            timegraphTree: [],
+            collapsedNodes: []
         };
         this.tspDataProvider = new TspDataProvider(this.props.tspClient, this.props.traceId, this.props.outputDescriptor.id);
         this.rowController = new TimeGraphRowController(this.props.style.rowHeight, this.totalHeight);
@@ -106,18 +110,27 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
                 styleModel: styleResponse.model
             });
         }
+        if (this.state.collapsedNodes !== _prevState.collapsedNodes) {
+            this.updateChart();
+        }
+    }
+
+    private updateChart() {
+        //TODO: update timeline chart with visible rows (not collapsed)
+        //Get rows with tsp-data-provider using getAllVisibleEntriesId() in filter-tree/utils.tsx
+        //TODO: manage empty lines chart for root nodes with no data
     }
 
     renderTree(): React.ReactNode {
-        return <React.Fragment>
-            {this.state.timegraphTree.map((entry, i) => {
-                if (entry.parentId !== -1) {
-                    return <p style={{ height: this.props.style.rowHeight, margin: 0 }} key={i}>
-                        {entry.labels[0] + '\n'}
-                    </p>;
-                }
-            })}
-        </React.Fragment>;
+        this.onCollapse = this.onCollapse.bind(this);
+        return  <EntryTree
+            collapsedNodes={this.state.collapsedNodes}
+            padding={12}
+            collapseEnabled={false}
+            entries={this.state.timegraphTree}
+            showCheckboxes={false}
+            onCollapse={this.onCollapse}
+        />
     }
 
     renderChart(): React.ReactNode {
@@ -130,6 +143,23 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
         </React.Fragment>;
     }
 
+    private onCollapse(id: number) {
+        let newList = [...this.state.collapsedNodes];
+        
+        const exist = this.state.collapsedNodes.find(expandId => {
+            return expandId === id;
+        })
+
+        if (exist !== undefined) {
+            newList = newList.filter(collapsed => {
+                return id !== collapsed;
+            });
+        } else {
+            newList = newList.concat(id);
+        }
+        this.setState({collapsedNodes: newList});
+    }
+
     private renderTimeGraphContent() {
         return <div id='main-timegraph-content' ref={this.horizontalContainer}>
             {this.getChartContainer()}
@@ -138,7 +168,6 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
 
     private getChartContainer() {
         const grid = new TimeGraphChartGrid('timeGraphGrid', this.props.style.rowHeight, this.props.style.lineColor);
-
         const cursors = new TimeGraphChartCursors('chart-cursors', this.chartLayer, this.rowController, { color: this.props.style.cursorColor });
         const selectionRange = new TimeGraphChartSelectionRange('chart-selection-range', { color: this.props.style.cursorColor });
         return <ReactTimeGraphContainer
@@ -203,7 +232,8 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
         const end = range.end + overlap < this.props.unitController.absoluteRange ? range.end + overlap : this.props.unitController.absoluteRange;
         const newRange: TimelineChart.TimeGraphRange = { start, end };
         const newResolution: number = resolution * 0.8;
-        const timeGraphData: TimelineChart.TimeGraphModel = await this.tspDataProvider.getData(newRange, this.props.style.chartWidth);
+        const visibleRowsId = getAllVisibleEntriesId(this.state.timegraphTree, this.state.collapsedNodes)
+        const timeGraphData: TimelineChart.TimeGraphModel = await this.tspDataProvider.getData(visibleRowsId, newRange, this.props.style.chartWidth);
         if (timeGraphData && this.selectedElement) {
             for (const row of timeGraphData.rows) {
                 const selEl = row.states.find(el => !!this.selectedElement && el.id === this.selectedElement.id);

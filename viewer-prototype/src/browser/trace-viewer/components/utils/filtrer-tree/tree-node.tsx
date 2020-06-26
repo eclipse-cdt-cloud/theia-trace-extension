@@ -24,6 +24,7 @@ interface TreeNodeComponentProps {
     level: number;
     padding: number;
     isCheckable: boolean;
+    collapseEnabled: boolean;
     collapsed: boolean;
     children: JSX.Element | undefined;
     onCollapsed: (id: number) => void;
@@ -44,24 +45,32 @@ export class TreeNodeComponent extends React.Component<TreeNodeComponentProps> {
         return this.props.children;
     };
 
+    renderCollapseIcon = ():JSX.Element | undefined => {
+        if (this.props.collapseEnabled) {
+            return (
+                this.isLeaf() 
+                ? undefined
+                : <span
+                    onClick={() => this.props.onCollapsed(this.props.node.id)}
+                    key={'icon-' + this.props.node.id}
+                    style={{width: 12}}
+                >
+                    {(this.props.collapsed ? icons.expand : icons.collapse)}
+                </span>
+            )
+        } 
+        return undefined;
+    }
+
     render(): JSX.Element {
         return (
             <li style={{paddingLeft:this.props.padding}}>
                 <div
                     data-level={this.props.level}
                     key={this.props.node.id}
-                    style={{display: 'flex', flexDirection: 'row', padding: '5px 8px'}}
+                    style={{display: 'flex', flexDirection: 'row', minHeight: 20}}
                 >
-                    { this.isLeaf()
-                        ? <span style={{paddingLeft:this.props.padding}}></span>
-                        : <span
-                            onClick={() => this.props.onCollapsed(this.props.node.id)}
-                            key={'icon-' + this.props.node.id}
-                            style={{width: 12}}
-                        >
-                            {(this.props.collapsed ? icons.expand : icons.collapse)}
-                        </span>
-                    }
+                    { this.renderCollapseIcon()}
 
                     { this.props.isCheckable
                         ? <CheckboxComponent key={this.props.node.id}
@@ -70,7 +79,7 @@ export class TreeNodeComponent extends React.Component<TreeNodeComponentProps> {
                             checkedStatus={this.props.checkedStatus}
                             onChecked={this.props.onChecked}
                         />
-                        : <span style={{marginLeft: 5}}>{this.props.node.name}</span>
+                        : <span style={{marginLeft: 5, whiteSpace: 'nowrap'}}>{this.props.node.name}</span>
                     }
                 </div>
                 {this.renderChildren()}

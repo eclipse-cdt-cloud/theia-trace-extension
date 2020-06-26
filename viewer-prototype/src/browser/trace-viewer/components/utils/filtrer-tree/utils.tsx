@@ -27,4 +27,20 @@ export const listToTree = (list: Entry[]): TreeNode[] => {
         }
     });
     return rootNodes;
-};
+}
+
+export const getAllVisibleEntriesId = (entries: Entry[],collapsedNodes: number[]) => {
+    const nodes = listToTree(entries);
+    let visibleIds: number[] = [];
+    let currentNode: TreeNode;
+    while (nodes.length) {
+        currentNode = nodes.pop()!;
+        visibleIds.push(currentNode.id);
+        if (currentNode.children && currentNode.children.length && !collapsedNodes.includes(currentNode.id)) {
+            currentNode.children.forEach((child: TreeNode) => {
+                nodes.push(child);
+            })
+        }
+    }
+    return visibleIds
+}

@@ -8,7 +8,7 @@ import { Entry, EntryHeader } from 'tsp-typescript-client/lib/models/entry';
 import { ResponseStatus } from 'tsp-typescript-client/lib/models/response/responses';
 import { XYSeries } from 'tsp-typescript-client/lib/models/xy';
 import Chart = require('chart.js');
-import { XYTree } from './utils/filtrer-tree/xy-tree';
+import { EntryTree } from './utils/filtrer-tree/entry-tree';
 
 type XYOuputState = AbstractOutputState & {
     selectedSeriesId: number[];
@@ -70,9 +70,10 @@ export class XYOutputComponent extends AbstractTreeOutputComponent<AbstractOutpu
     renderTree(): React.ReactNode {
         this.onSeriesChecked = this.onSeriesChecked.bind(this);
         this.onCollapse = this.onCollapse.bind(this);
-        return <XYTree
-            entries={this.state.XYTree}
+        return <EntryTree
             collapsedNodes={this.state.collapsedNodes}
+            entries = {this.state.XYTree }
+            showCheckboxes={true}
             checkedSeries={this.state.checkedSeries}
             onChecked={this.onSeriesChecked}
             onCollapse={this.onCollapse}
