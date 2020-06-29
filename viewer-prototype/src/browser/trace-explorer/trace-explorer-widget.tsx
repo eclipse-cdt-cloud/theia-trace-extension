@@ -165,7 +165,7 @@ export class TraceExplorerWidget extends ReactWidget {
                     const matches = sourceCodeInfo.match('(.*):(\\d+)');
                     let fileLocation;
                     let line;
-                    if(matches && matches.length === 3) {
+                    if (matches && matches.length === 3) {
                         fileLocation = matches[1];
                         line = matches[2];
                     }
