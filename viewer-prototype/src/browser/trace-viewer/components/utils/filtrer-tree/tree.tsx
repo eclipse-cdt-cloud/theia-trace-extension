@@ -29,7 +29,7 @@ export class FilterTree extends React.Component<FilterTreeProps> {
     getNode = (id: number): TreeNode | undefined => {
         const nodes: TreeNode[] = [...this.props.nodes];
         let currentNode: TreeNode;
-        while(nodes.length) {
+        while (nodes.length) {
             currentNode = nodes.pop()!;
             if (currentNode.id === id) {
                 return currentNode;

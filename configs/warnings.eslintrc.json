@@ -1,6 +1,7 @@
 {
   "rules": {
     "@typescript-eslint/await-thenable": "warn",
-    "no-return-await": "warn"
+    "no-return-await": "warn",
+    "keyword-spacing": ["warn", { "before": true, "after": true} ]
   }
 }

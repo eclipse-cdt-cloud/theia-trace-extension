@@ -14,7 +14,7 @@ export class CheckboxComponent extends React.Component<CheckboxProps> {
     }
 
     renderCheckbox = (checkedStatus: number) => {
-        switch(checkedStatus) {
+        switch (checkedStatus) {
             case 0:
                 return icons.unchecked;
             case 1:
