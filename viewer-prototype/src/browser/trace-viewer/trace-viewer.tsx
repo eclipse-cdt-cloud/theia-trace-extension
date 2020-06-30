@@ -86,7 +86,7 @@ export class TraceViewerWidget extends ReactWidget {
         this.update();
     }
 
-    onCloseRequest(msg: Message) {
+    onCloseRequest(msg: Message): void {
         if (this.openedExperiment) {
 
             const traces = this.openedExperiment.traces;
@@ -107,7 +107,7 @@ export class TraceViewerWidget extends ReactWidget {
         super.onCloseRequest(msg);
     }
 
-    protected onResize() {
+    protected onResize(): void {
         this.resizeHandlers.forEach(h => h());
     }
 

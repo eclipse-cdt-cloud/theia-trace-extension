@@ -18,7 +18,7 @@ export class SignalManager {
         return this.instance;
     }
 
-    public fireTooltipSignal(payload: { [key: string]: string }) {
+    public fireTooltipSignal(payload: { [key: string]: string }): void {
         this.tooltipEmitter.fire(payload);
     }
 }

@@ -96,7 +96,7 @@ export class ExperimentManager {
             // Repost with a suffix as long as there are conflicts
             const handleConflict = async function (tspClient: TspClient, tryNb: number): Promise<TspClientResponse<Experiment>> {
                 const suffix = '(' + tryNb + ')';
-                return await tspClient.createExperiment(new Query({
+                return tspClient.createExperiment(new Query({
                     'name': name + suffix,
                     'traces': traceURIs
                 }));
@@ -141,7 +141,7 @@ export class ExperimentManager {
      * Close the given on the server
      * @param experimentUUID experiment UUID
      */
-    async closeExperiment(experimentUUID: string) {
+    async closeExperiment(experimentUUID: string): Promise<void> {
         const experimentToClose = this.fOpenExperiments.get(experimentUUID);
         if (experimentToClose) {
             await this.tspClient.deleteExperiment(experimentUUID);

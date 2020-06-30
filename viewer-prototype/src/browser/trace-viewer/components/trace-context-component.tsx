@@ -52,7 +52,7 @@ export class TraceContextComponent extends React.Component<TraceContextProps, Tr
     private traceContextContainer: React.RefObject<HTMLDivElement>;
 
     protected widgetResizeHandlers: (() => void)[] = [];
-    protected readonly addWidgetResizeHandler = (h: () => void) => {
+    protected readonly addWidgetResizeHandler = (h: () => void): void => {
         this.widgetResizeHandlers.push(h);
     };
 
@@ -124,7 +124,7 @@ export class TraceContextComponent extends React.Component<TraceContextProps, Tr
                     text: `Indexing ${this.props.experiment.name}: ${this.state.experiment.nbEvents}`,
                     alignment: StatusBarAlignment.RIGHT
                 });
-                await this.sleep(500);
+                this.sleep(500);
             }
         }
         this.props.statusBar.removeElement(this.INDEXING_STATUS_BAR_KEY);
@@ -134,13 +134,13 @@ export class TraceContextComponent extends React.Component<TraceContextProps, Tr
         new Promise(resolve => setTimeout(resolve, ms));
     }
 
-    componentDidMount() {
+    componentDidMount(): void {
         this.onResize = this.onResize.bind(this);
         this.props.addResizeHandler(this.onResize);
         this.onResize();
     }
 
-    componentWillUnmount() {
+    componentWillUnmount(): void {
         this.props.statusBar.removeElement(this.INDEXING_STATUS_BAR_KEY);
         this.props.statusBar.removeElement(this.TIME_SELECTION_STATUS_BAR_KEY);
     }
@@ -174,7 +174,7 @@ export class TraceContextComponent extends React.Component<TraceContextProps, Tr
             }));
     }
 
-    render() {
+    render(): JSX.Element {
         return <div className='trace-context-container' ref={this.traceContextContainer}>
             {this.props.outputs.length ? this.renderOutputs() : this.renderPlaceHolder()}
         </div>;

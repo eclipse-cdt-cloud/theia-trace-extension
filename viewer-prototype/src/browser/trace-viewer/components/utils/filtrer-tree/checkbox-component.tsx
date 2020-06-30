@@ -13,7 +13,7 @@ export class CheckboxComponent extends React.Component<CheckboxProps> {
         super(props);
     }
 
-    renderCheckbox = (checkedStatus: number) => {
+    renderCheckbox = (checkedStatus: number): React.ReactNode => {
         switch (checkedStatus) {
             case 0:
                 return icons.unchecked;
@@ -26,7 +26,7 @@ export class CheckboxComponent extends React.Component<CheckboxProps> {
         }
     };
 
-    render() {
+    render(): JSX.Element {
         return <div onClick={() => this.props.onChecked(this.props.id)} >
             <span style={{padding: 5}}>
                 {this.renderCheckbox(this.props.checkedStatus)}

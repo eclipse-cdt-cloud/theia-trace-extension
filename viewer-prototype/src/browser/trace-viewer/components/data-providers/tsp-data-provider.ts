@@ -97,7 +97,7 @@ export class TspDataProvider {
         this.timeGraphRows = newTimeGraphRows;
     }
 
-    protected getStateModelByRow(row: TimeGraphRow, chartStart: number) {
+    protected getStateModelByRow(row: TimeGraphRow, chartStart: number): TimelineChart.TimeGraphRowElementModel[] {
         const states: TimelineChart.TimeGraphRowElementModel[] = [];
         row.states.forEach((state: TimeGraphState, idx: number) => {
             const end = state.startTime + state.duration - chartStart;

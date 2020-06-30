@@ -28,8 +28,12 @@ export class FilterTree extends React.Component<FilterTreeProps> {
 
     getNode = (id: number): TreeNode | undefined => {
         const nodes: TreeNode[] = [...this.props.nodes];
+        if (!nodes) {
+            return undefined;
+        }
         let currentNode: TreeNode;
         while (nodes.length) {
+            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
             currentNode = nodes.pop()!;
             if (currentNode.id === id) {
                 return currentNode;
@@ -114,7 +118,7 @@ export class FilterTree extends React.Component<FilterTreeProps> {
 
     isCollapsed = (id: number): boolean => this.props.collapsedNodes.includes(id);
 
-    renderTreeNodes = (nodes: TreeNode[], parent: TreeNode = defaultTreeNode, level = 0): JSX.Element | undefined => {
+    renderTreeNodes = (nodes: TreeNode[], _parent: TreeNode = defaultTreeNode, level = 0): JSX.Element | undefined => {
         const treeNodes = nodes.map((node: TreeNode) => {
             const children = node.children.length > 0 ? this.renderTreeNodes(node.children, node, level+1) : undefined;
             const checkedStatus = this.getCheckedStatus(node.id);

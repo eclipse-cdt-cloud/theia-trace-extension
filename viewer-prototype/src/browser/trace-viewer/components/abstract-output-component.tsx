@@ -39,7 +39,7 @@ export abstract class AbstractOutputComponent<P extends AbstractOutputProps, S e
         this.mainAreaContainer = React.createRef();
     }
 
-    render() {
+    render(): JSX.Element {
         this.closeComponent = this.closeComponent.bind(this);
         return <div className='output-container' style={{ width: this.props.style.width }}>
             <div className='widget-handle' style={{ width: this.handleWidth }}>

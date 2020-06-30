@@ -26,7 +26,7 @@ export class TraceViewerContribution extends WidgetOpenHandler<TraceViewerWidget
         registry.registerCommand(TraceViewerCommands.OPEN);
     }
 
-    canHandle(uri: URI): number {
+    canHandle(_uri: URI): number {
         return 100;
     }
 }

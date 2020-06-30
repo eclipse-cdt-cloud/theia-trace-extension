@@ -17,7 +17,7 @@ export class ReactTimeGraphContainer extends React.Component<ReactTimeGraphConta
     protected ref: HTMLCanvasElement | undefined;
     protected container?: TimeGraphContainer;
 
-    componentDidMount() {
+    componentDidMount(): void {
         this.container = new TimeGraphContainer(this.props.options, this.props.unitController, this.ref);
         this.props.layer.forEach(l => {
             if (this.container) { this.container.addLayer(l); }
@@ -28,7 +28,7 @@ export class ReactTimeGraphContainer extends React.Component<ReactTimeGraphConta
         });
     }
 
-    render() {
+    render(): JSX.Element {
         return <canvas ref={ref => this.ref = ref || undefined} onWheel={e => e.preventDefault()}></canvas>;
     }
 }

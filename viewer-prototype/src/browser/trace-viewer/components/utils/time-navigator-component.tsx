@@ -15,7 +15,7 @@ interface TimeNavigatorProps {
 }
 
 export class TimeNavigatorComponent extends React.Component<TimeNavigatorProps> {
-    render() {
+    render(): JSX.Element {
         const navi = new TimeGraphNavigator('timeGraphNavigator');
         return <ReactTimeGraphContainer
             id='time-navigator'

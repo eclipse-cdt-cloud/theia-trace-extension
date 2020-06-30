@@ -19,7 +19,7 @@ export class TimeRange {
      * Get the range start time.
      * If an offset is present the return value is start + offset.
      */
-    public getstart() {
+    public getstart(): number {
         if (this.offset !== undefined) {
             return this.start + this.offset;
         }
@@ -30,7 +30,7 @@ export class TimeRange {
      * Get the range end time.
      * If an offset is present the return value is end + offset.
      */
-    public getEnd() {
+    public getEnd(): number {
         if (this.offset !== undefined) {
             return this.end + this.offset;
         }
@@ -40,14 +40,14 @@ export class TimeRange {
     /**
      * Get range duration
      */
-    public getDuration() {
+    public getDuration(): number {
         return this.end - this.start;
     }
 
     /**
      * Return the time offset
      */
-    public getOffset() {
+    public getOffset(): number | undefined {
         return this.offset;
     }
 }

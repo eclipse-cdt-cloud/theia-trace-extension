@@ -9,7 +9,7 @@ export abstract class AbstractTreeOutputComponent<P extends AbstractOutputProps,
         const treeWidth = this.props.style.width - this.props.style.chartWidth - this.getHandleWidth();
         return <React.Fragment>
             <div ref={this.treeRef} className='output-component-tree'
-                onScroll={ev => { this.synchronizeTreeScroll(); }}
+                onScroll={_ev => { this.synchronizeTreeScroll(); }}
                 style={{ width: treeWidth, height: this.props.style.height }}
             >
                 {this.renderTree()}
@@ -28,7 +28,7 @@ export abstract class AbstractTreeOutputComponent<P extends AbstractOutputProps,
 
     abstract synchronizeTreeScroll(): void;
 
-    protected async waitAnalysisCompletion() {
+    protected async waitAnalysisCompletion(): Promise<void> {
         const traceUUID = this.props.traceId;
         const tspClient = this.props.tspClient;
         const outPutId = this.props.outputDescriptor.id;
@@ -45,9 +45,9 @@ export abstract class AbstractTreeOutputComponent<P extends AbstractOutputProps,
         });
     }
 
-    componentWillUnmount() {
+    componentWillUnmount(): void {
         // fix Warning: Can't perform a React state update on an unmounted component
-        this.setState = (state,callback) => undefined;
+        this.setState = (_state, _callback) => undefined;
 
     }
 }

@@ -74,7 +74,7 @@ export class TraceExplorerWidget extends ReactWidget {
         this.updateAvailableAnalysis(openedExperiment);
     }
 
-    private onExperimentClosed(closedExperiment: Experiment) {
+    private onExperimentClosed(_closedExperiment: Experiment) {
         this.tooltip = {};
         this.updateOpenedExperiments();
         this.updateAvailableAnalysis(undefined);

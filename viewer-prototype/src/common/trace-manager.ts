@@ -94,7 +94,7 @@ export class TraceManager {
             // Repost with a suffix as long as there are conflicts
             const handleConflict = async function (tspClient: TspClient, tryNb: number): Promise<TspClientResponse<Trace>> {
                 const suffix = '(' + tryNb + ')';
-                return await tspClient.openTrace(new Query({
+                return tspClient.openTrace(new Query({
                     'name': name + suffix,
                     'uri': tracePath
                 }));
@@ -139,7 +139,7 @@ export class TraceManager {
      * Close the given on the server
      * @param traceUUID Trace UUID
      */
-    async closeTrace(traceUUID: string) {
+    async closeTrace(traceUUID: string): Promise<void> {
         const traceToClose = this.fOpenTraces.get(traceUUID);
         if (traceToClose) {
             await this.tspClient.deleteTrace(traceUUID);
