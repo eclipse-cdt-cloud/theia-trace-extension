@@ -93,7 +93,7 @@ export class StyleProvider {
         return this.styles;
     }
 
-    public getStylesTmp(forceUpdate?: boolean): { [key: string]: { [key: string]: any } } {
+    public getStylesTmp(_forceUpdate?: boolean): { [key: string]: { [key: string]: any } } {
         const styles = this.tmpStyleObject[this.outputId];
         return styles ? styles : {};
     }

@@ -16,9 +16,9 @@ export class XYTree extends React.Component<XYTreeProps> {
         super(props);
     }
 
-    shouldComponentUpdate = (nextProps: XYTreeProps) => (this.props.checkedSeries !== nextProps.checkedSeries || this.props.entries !== nextProps.entries);
+    shouldComponentUpdate = (nextProps: XYTreeProps): boolean => (this.props.checkedSeries !== nextProps.checkedSeries || this.props.entries !== nextProps.entries);
 
-    render() {
+    render(): JSX.Element {
         return <FilterTree
             nodes = { listToTree(this.props.entries) }
             showCheckboxes={true}

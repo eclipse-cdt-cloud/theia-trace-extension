@@ -2,6 +2,7 @@
   "rules": {
     "@typescript-eslint/await-thenable": "warn",
     "no-return-await": "warn",
-    "keyword-spacing": ["warn", { "before": true, "after": true} ]
+    "keyword-spacing": ["warn", { "before": true, "after": true} ],
+    "@typescript-eslint/no-unused-vars": ["warn", { "vars": "all", "args": "after-used", "argsIgnorePattern": "^_" }]
   }
 }

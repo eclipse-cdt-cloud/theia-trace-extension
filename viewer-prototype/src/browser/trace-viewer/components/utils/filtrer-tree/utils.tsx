@@ -10,7 +10,7 @@ const entryToTreeNode = (entry: Entry) => ({
         children: []
     } as TreeNode);
 
-export const listToTree = (list: Entry[]) => {
+export const listToTree = (list: Entry[]): TreeNode[] => {
     const rootNodes: TreeNode[] = [];
     const lookup: { [key: string]: TreeNode } = {};
     list.forEach(entry => {

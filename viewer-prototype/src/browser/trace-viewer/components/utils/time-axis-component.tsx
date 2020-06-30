@@ -16,7 +16,7 @@ interface TimeAxisProps {
 }
 
 export class TimeAxisComponent extends React.Component<TimeAxisProps> {
-    render() {
+    render(): JSX.Element {
         return <ReactTimeGraphContainer
             id='timegraph-axis'
             options={{
@@ -31,7 +31,7 @@ export class TimeAxisComponent extends React.Component<TimeAxisProps> {
             layer={[this.getAxisLayer(), this.getAxisCursors()]} />;
     }
 
-    protected getAxisLayer() {
+    protected getAxisLayer(): TimeGraphAxis {
         const timeAxisLayer = new TimeGraphAxis('timeGraphAxis', {
             color: this.props.style.naviBackgroundColor,
             lineColor: this.props.style.lineColor
@@ -39,7 +39,7 @@ export class TimeAxisComponent extends React.Component<TimeAxisProps> {
         return timeAxisLayer;
     }
 
-    protected getAxisCursors() {
+    protected getAxisCursors(): TimeGraphAxisCursors {
         return new TimeGraphAxisCursors('timeGraphAxisCursors', { color: this.props.style.cursorColor });
     }
 }

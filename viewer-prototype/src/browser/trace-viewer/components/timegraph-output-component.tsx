@@ -86,11 +86,11 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
         }
     }
 
-    async componentDidMount() {
+    async componentDidMount(): Promise<void> {
         this.waitAnalysisCompletion();
     }
 
-    async componentDidUpdate(prevProps: TimegraphOutputProps, prevState: TimegraohOutputState) {
+    async componentDidUpdate(_prevProps: TimegraphOutputProps, _prevState: TimegraohOutputState):  Promise<void> {
         if (this.state.outputStatus !== ResponseStatus.COMPLETED || !this.state.timegraphTree.length) {
             const treeParameters = QueryHelper.timeQuery([0, 1]);
             const treeResponse = (await this.props.tspClient.fetchTimeGraphTree<TimeGraphEntry, EntryHeader>(this.props.traceId,
@@ -161,7 +161,7 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
         </ReactTimeGraphContainer>;
     }
 
-    protected getVerticalScrollbar() {
+    protected getVerticalScrollbar(): JSX.Element {
         return <ReactTimeGraphContainer
             id='vscroll'
             options={{

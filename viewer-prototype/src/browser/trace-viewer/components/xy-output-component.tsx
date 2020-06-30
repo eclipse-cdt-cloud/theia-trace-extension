@@ -37,18 +37,18 @@ export class XYOutputComponent extends AbstractTreeOutputComponent<AbstractOutpu
 
         this.afterChartDraw = this.afterChartDraw.bind(this);
         Chart.pluginService.register({
-            afterDraw: (chart, easing) => {
+            afterDraw: (chart, _easing) => {
                 this.afterChartDraw(chart);
             }
         });
         this.lineChartRef = React.createRef();
     }
 
-    componentDidMount() {
+    componentDidMount(): void {
         this.waitAnalysisCompletion();
     }
 
-    componentDidUpdate(prevProps: AbstractOutputProps, prevState: XYOuputState) {
+    componentDidUpdate(prevProps: AbstractOutputProps, prevState: XYOuputState): void {
         const viewRangeChanged = this.props.viewRange !== prevProps.viewRange;
         const checkedSeriesChanged = this.state.checkedSeries !== prevState.checkedSeries;
         const collapsedNodesChanged = this.state.collapsedNodes !== prevState.collapsedNodes;
