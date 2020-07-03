@@ -10,10 +10,26 @@
     "download:server": "curl -o trace-compass-server.tar.gz https://download.eclipse.org/tracecompass.incubator/trace-server/rcp/trace-compass-server-latest-linux.gtk.x86_64.tar.gz; tar -xf trace-compass-server.tar.gz",
     "start:server": "./trace-compass-server/tracecompass-server",
     "start-all:browser": "yarn start:server & yarn start:browser",
-    "start-all:electron": "yarn start:server & yarn start:electron"
+    "start-all:electron": "yarn start:server & yarn start:electron",
+    "lint": "echo lint",
+    "test": "echo test"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged",
+      "commit-msg": "node ./scripts/hooks/commit-msg.js $HUSKY_GIT_PARAMS"
+    }
+  },
+  "lint-staged": {
+    "**/*.+(js|jsx|ts|tsx|json|css)": [
+      "yarn lint",
+      "yarn test"
+    ]
   },
   "devDependencies": {
-    "lerna": "2.4.0"
+    "husky": "^4.2.5",
+    "lerna": "2.4.0",
+    "lint-staged": "^10.2.11"
   },
   "workspaces": [
     "viewer-prototype",
