@@ -67,16 +67,19 @@ export class XYOutputComponent extends AbstractTreeOutputComponent<AbstractOutpu
 
     synchronizeTreeScroll(): void { /* Nothing to do by default */ }
 
-    renderTree(): React.ReactNode {
+    renderTree(): React.ReactNode | undefined {
         this.onSeriesChecked = this.onSeriesChecked.bind(this);
         this.onCollapse = this.onCollapse.bind(this);
-        return <XYTree
-            entries={this.state.XYTree}
-            collapsedNodes={this.state.collapsedNodes}
-            checkedSeries={this.state.checkedSeries}
-            onChecked={this.onSeriesChecked}
-            onCollapse={this.onCollapse}
-        />;
+        return this.state.XYTree.length 
+            ? <XYTree
+                entries={this.state.XYTree}
+                collapsedNodes={this.state.collapsedNodes}
+                checkedSeries={this.state.checkedSeries}
+                onChecked={this.onSeriesChecked}
+                onCollapse={this.onCollapse}
+            />
+            : undefined
+            ;
     }
 
     renderChart(): React.ReactNode {
