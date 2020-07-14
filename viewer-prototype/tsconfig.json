@@ -8,6 +8,7 @@
         "module": "commonjs",
         "moduleResolution": "node",
         "skipLibCheck": true,
+        "esModuleInterop": true,
         "target": "ESNEXT",
         "jsx": "react",
         "lib": [
@@ -16,9 +17,15 @@
         ],
         "sourceMap": true,
         "rootDir": "src",
-        "outDir": "lib"
+        "outDir": "lib",
+        "types": ["node", "jest"]
     },
     "include": [
         "src"
+    ],
+    "exclude": [
+        "**/__tests__",
+        "**/*.spec.ts",
+        "**/*.test.ts"
     ]
 }

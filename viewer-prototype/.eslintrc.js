@@ -25,7 +25,9 @@ module.exports = {
         'node_modules',
         'lib',
         '.eslintrc.js',
-        'plugins'
+        'plugins',
+        '**/*/__tests__',
+        'jestSetup.ts'
     ],
     parserOptions: {
         tsconfigRootDir: __dirname,

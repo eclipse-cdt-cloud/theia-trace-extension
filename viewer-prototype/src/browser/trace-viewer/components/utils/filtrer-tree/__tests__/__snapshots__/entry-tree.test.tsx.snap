@@ -1,0 +1,1486 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Empty tree 1`] = `
+<span>
+  
+</span>
+`;
+
+exports[`Entry with children All unchecked 1`] = `
+<div>
+  <table
+    className="table-tree"
+    style={
+      Object {
+        "borderCollapse": "collapse",
+      }
+    }
+  >
+    <thead>
+      <tr>
+        <th
+          onClick={[Function]}
+        >
+          Sortable column
+          <span
+            style={
+              Object {
+                "float": "right",
+              }
+            }
+          >
+            <svg
+              aria-hidden="true"
+              className="svg-inline--fa fa-sort fa-w-10 "
+              data-icon="sort"
+              data-prefix="fas"
+              focusable="false"
+              role="img"
+              style={Object {}}
+              viewBox="0 0 320 512"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M41 288h238c21.4 0 32.1 25.9 17 41L177 448c-9.4 9.4-24.6 9.4-33.9 0L24 329c-15.1-15.1-4.4-41 17-41zm255-105L177 64c-9.4-9.4-24.6-9.4-33.9 0L24 183c-15.1 15.1-4.4 41 17 41h238c21.4 0 32.1-25.9 17-41z"
+                fill="currentColor"
+                style={Object {}}
+              />
+            </svg>
+          </span>
+        </th>
+        <th
+          onClick={[Function]}
+        >
+          Unsortable column
+        </th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>
+          <span
+            onClick={[Function]}
+            style={
+              Object {
+                "marginLeft": "0px",
+                "paddingRight": 5,
+              }
+            }
+          >
+            <svg
+              aria-hidden="true"
+              className="svg-inline--fa fa-chevron-down fa-w-14 "
+              data-icon="chevron-down"
+              data-prefix="fas"
+              focusable="false"
+              role="img"
+              style={Object {}}
+              viewBox="0 0 448 512"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M207.029 381.476L12.686 187.132c-9.373-9.373-9.373-24.569 0-33.941l22.667-22.667c9.357-9.357 24.522-9.375 33.901-.04L224 284.505l154.745-154.021c9.379-9.335 24.544-9.317 33.901.04l22.667 22.667c9.373 9.373 9.373 24.569 0 33.941L240.971 381.476c-9.373 9.372-24.569 9.372-33.942 0z"
+                fill="currentColor"
+                style={Object {}}
+              />
+            </svg>
+          </span>
+          <span
+            onClick={[Function]}
+            style={
+              Object {
+                "padding": 5,
+              }
+            }
+          >
+            <svg
+              aria-hidden="true"
+              className="svg-inline--fa fa-square fa-w-14 "
+              data-icon="square"
+              data-prefix="fas"
+              focusable="false"
+              role="img"
+              style={Object {}}
+              viewBox="0 0 448 512"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M400 32H48C21.5 32 0 53.5 0 80v352c0 26.5 21.5 48 48 48h352c26.5 0 48-21.5 48-48V80c0-26.5-21.5-48-48-48z"
+                fill="currentColor"
+                style={Object {}}
+              />
+            </svg>
+          </span>
+          parent
+        </td>
+        <td>
+          parent second column
+        </td>
+      </tr>
+      <tr>
+        <td>
+          <span
+            style={
+              Object {
+                "marginLeft": "15px",
+                "paddingLeft": 20,
+              }
+            }
+          />
+          <span
+            onClick={[Function]}
+            style={
+              Object {
+                "padding": 5,
+              }
+            }
+          >
+            <svg
+              aria-hidden="true"
+              className="svg-inline--fa fa-square fa-w-14 "
+              data-icon="square"
+              data-prefix="fas"
+              focusable="false"
+              role="img"
+              style={Object {}}
+              viewBox="0 0 448 512"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M400 32H48C21.5 32 0 53.5 0 80v352c0 26.5 21.5 48 48 48h352c26.5 0 48-21.5 48-48V80c0-26.5-21.5-48-48-48z"
+                fill="currentColor"
+                style={Object {}}
+              />
+            </svg>
+          </span>
+          child1
+        </td>
+        <td>
+          child1 second column
+        </td>
+      </tr>
+      <tr>
+        <td>
+          <span
+            onClick={[Function]}
+            style={
+              Object {
+                "marginLeft": "15px",
+                "paddingRight": 5,
+              }
+            }
+          >
+            <svg
+              aria-hidden="true"
+              className="svg-inline--fa fa-chevron-down fa-w-14 "
+              data-icon="chevron-down"
+              data-prefix="fas"
+              focusable="false"
+              role="img"
+              style={Object {}}
+              viewBox="0 0 448 512"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M207.029 381.476L12.686 187.132c-9.373-9.373-9.373-24.569 0-33.941l22.667-22.667c9.357-9.357 24.522-9.375 33.901-.04L224 284.505l154.745-154.021c9.379-9.335 24.544-9.317 33.901.04l22.667 22.667c9.373 9.373 9.373 24.569 0 33.941L240.971 381.476c-9.373 9.372-24.569 9.372-33.942 0z"
+                fill="currentColor"
+                style={Object {}}
+              />
+            </svg>
+          </span>
+          <span
+            onClick={[Function]}
+            style={
+              Object {
+                "padding": 5,
+              }
+            }
+          >
+            <svg
+              aria-hidden="true"
+              className="svg-inline--fa fa-square fa-w-14 "
+              data-icon="square"
+              data-prefix="fas"
+              focusable="false"
+              role="img"
+              style={Object {}}
+              viewBox="0 0 448 512"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M400 32H48C21.5 32 0 53.5 0 80v352c0 26.5 21.5 48 48 48h352c26.5 0 48-21.5 48-48V80c0-26.5-21.5-48-48-48z"
+                fill="currentColor"
+                style={Object {}}
+              />
+            </svg>
+          </span>
+          child2
+        </td>
+        <td>
+          child2 second column
+        </td>
+      </tr>
+      <tr>
+        <td>
+          <span
+            style={
+              Object {
+                "marginLeft": "30px",
+                "paddingLeft": 20,
+              }
+            }
+          />
+          <span
+            onClick={[Function]}
+            style={
+              Object {
+                "padding": 5,
+              }
+            }
+          >
+            <svg
+              aria-hidden="true"
+              className="svg-inline--fa fa-square fa-w-14 "
+              data-icon="square"
+              data-prefix="fas"
+              focusable="false"
+              role="img"
+              style={Object {}}
+              viewBox="0 0 448 512"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M400 32H48C21.5 32 0 53.5 0 80v352c0 26.5 21.5 48 48 48h352c26.5 0 48-21.5 48-48V80c0-26.5-21.5-48-48-48z"
+                fill="currentColor"
+                style={Object {}}
+              />
+            </svg>
+          </span>
+          grandchild1
+        </td>
+        <td>
+          grandchild1 second column
+        </td>
+      </tr>
+      <tr>
+        <td>
+          <span
+            style={
+              Object {
+                "marginLeft": "30px",
+                "paddingLeft": 20,
+              }
+            }
+          />
+          <span
+            onClick={[Function]}
+            style={
+              Object {
+                "padding": 5,
+              }
+            }
+          >
+            <svg
+              aria-hidden="true"
+              className="svg-inline--fa fa-square fa-w-14 "
+              data-icon="square"
+              data-prefix="fas"
+              focusable="false"
+              role="img"
+              style={Object {}}
+              viewBox="0 0 448 512"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M400 32H48C21.5 32 0 53.5 0 80v352c0 26.5 21.5 48 48 48h352c26.5 0 48-21.5 48-48V80c0-26.5-21.5-48-48-48z"
+                fill="currentColor"
+                style={Object {}}
+              />
+            </svg>
+          </span>
+          grandchild2
+        </td>
+        <td>
+          grandchild2 second column
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+`;
+
+exports[`Entry with children Check one grandchild 1`] = `
+<div>
+  <table
+    className="table-tree"
+    style={
+      Object {
+        "borderCollapse": "collapse",
+      }
+    }
+  >
+    <thead>
+      <tr>
+        <th
+          onClick={[Function]}
+        >
+          Sortable column
+          <span
+            style={
+              Object {
+                "float": "right",
+              }
+            }
+          >
+            <svg
+              aria-hidden="true"
+              className="svg-inline--fa fa-sort fa-w-10 "
+              data-icon="sort"
+              data-prefix="fas"
+              focusable="false"
+              role="img"
+              style={Object {}}
+              viewBox="0 0 320 512"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M41 288h238c21.4 0 32.1 25.9 17 41L177 448c-9.4 9.4-24.6 9.4-33.9 0L24 329c-15.1-15.1-4.4-41 17-41zm255-105L177 64c-9.4-9.4-24.6-9.4-33.9 0L24 183c-15.1 15.1-4.4 41 17 41h238c21.4 0 32.1-25.9 17-41z"
+                fill="currentColor"
+                style={Object {}}
+              />
+            </svg>
+          </span>
+        </th>
+        <th
+          onClick={[Function]}
+        >
+          Unsortable column
+        </th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>
+          <span
+            onClick={[Function]}
+            style={
+              Object {
+                "marginLeft": "0px",
+                "paddingRight": 5,
+              }
+            }
+          >
+            <svg
+              aria-hidden="true"
+              className="svg-inline--fa fa-chevron-down fa-w-14 "
+              data-icon="chevron-down"
+              data-prefix="fas"
+              focusable="false"
+              role="img"
+              style={Object {}}
+              viewBox="0 0 448 512"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M207.029 381.476L12.686 187.132c-9.373-9.373-9.373-24.569 0-33.941l22.667-22.667c9.357-9.357 24.522-9.375 33.901-.04L224 284.505l154.745-154.021c9.379-9.335 24.544-9.317 33.901.04l22.667 22.667c9.373 9.373 9.373 24.569 0 33.941L240.971 381.476c-9.373 9.372-24.569 9.372-33.942 0z"
+                fill="currentColor"
+                style={Object {}}
+              />
+            </svg>
+          </span>
+          <span
+            onClick={[Function]}
+            style={
+              Object {
+                "padding": 5,
+              }
+            }
+          >
+            <svg
+              aria-hidden="true"
+              className="svg-inline--fa fa-minus-square fa-w-14 "
+              data-icon="minus-square"
+              data-prefix="fas"
+              focusable="false"
+              role="img"
+              style={Object {}}
+              viewBox="0 0 448 512"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M400 32H48C21.5 32 0 53.5 0 80v352c0 26.5 21.5 48 48 48h352c26.5 0 48-21.5 48-48V80c0-26.5-21.5-48-48-48zM92 296c-6.6 0-12-5.4-12-12v-56c0-6.6 5.4-12 12-12h264c6.6 0 12 5.4 12 12v56c0 6.6-5.4 12-12 12H92z"
+                fill="currentColor"
+                style={Object {}}
+              />
+            </svg>
+          </span>
+          parent
+        </td>
+        <td>
+          parent second column
+        </td>
+      </tr>
+      <tr>
+        <td>
+          <span
+            style={
+              Object {
+                "marginLeft": "15px",
+                "paddingLeft": 20,
+              }
+            }
+          />
+          <span
+            onClick={[Function]}
+            style={
+              Object {
+                "padding": 5,
+              }
+            }
+          >
+            <svg
+              aria-hidden="true"
+              className="svg-inline--fa fa-square fa-w-14 "
+              data-icon="square"
+              data-prefix="fas"
+              focusable="false"
+              role="img"
+              style={Object {}}
+              viewBox="0 0 448 512"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M400 32H48C21.5 32 0 53.5 0 80v352c0 26.5 21.5 48 48 48h352c26.5 0 48-21.5 48-48V80c0-26.5-21.5-48-48-48z"
+                fill="currentColor"
+                style={Object {}}
+              />
+            </svg>
+          </span>
+          child1
+        </td>
+        <td>
+          child1 second column
+        </td>
+      </tr>
+      <tr>
+        <td>
+          <span
+            onClick={[Function]}
+            style={
+              Object {
+                "marginLeft": "15px",
+                "paddingRight": 5,
+              }
+            }
+          >
+            <svg
+              aria-hidden="true"
+              className="svg-inline--fa fa-chevron-down fa-w-14 "
+              data-icon="chevron-down"
+              data-prefix="fas"
+              focusable="false"
+              role="img"
+              style={Object {}}
+              viewBox="0 0 448 512"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M207.029 381.476L12.686 187.132c-9.373-9.373-9.373-24.569 0-33.941l22.667-22.667c9.357-9.357 24.522-9.375 33.901-.04L224 284.505l154.745-154.021c9.379-9.335 24.544-9.317 33.901.04l22.667 22.667c9.373 9.373 9.373 24.569 0 33.941L240.971 381.476c-9.373 9.372-24.569 9.372-33.942 0z"
+                fill="currentColor"
+                style={Object {}}
+              />
+            </svg>
+          </span>
+          <span
+            onClick={[Function]}
+            style={
+              Object {
+                "padding": 5,
+              }
+            }
+          >
+            <svg
+              aria-hidden="true"
+              className="svg-inline--fa fa-minus-square fa-w-14 "
+              data-icon="minus-square"
+              data-prefix="fas"
+              focusable="false"
+              role="img"
+              style={Object {}}
+              viewBox="0 0 448 512"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M400 32H48C21.5 32 0 53.5 0 80v352c0 26.5 21.5 48 48 48h352c26.5 0 48-21.5 48-48V80c0-26.5-21.5-48-48-48zM92 296c-6.6 0-12-5.4-12-12v-56c0-6.6 5.4-12 12-12h264c6.6 0 12 5.4 12 12v56c0 6.6-5.4 12-12 12H92z"
+                fill="currentColor"
+                style={Object {}}
+              />
+            </svg>
+          </span>
+          child2
+        </td>
+        <td>
+          child2 second column
+        </td>
+      </tr>
+      <tr>
+        <td>
+          <span
+            style={
+              Object {
+                "marginLeft": "30px",
+                "paddingLeft": 20,
+              }
+            }
+          />
+          <span
+            onClick={[Function]}
+            style={
+              Object {
+                "padding": 5,
+              }
+            }
+          >
+            <svg
+              aria-hidden="true"
+              className="svg-inline--fa fa-check-square fa-w-14 "
+              data-icon="check-square"
+              data-prefix="fas"
+              focusable="false"
+              role="img"
+              style={Object {}}
+              viewBox="0 0 448 512"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M400 480H48c-26.51 0-48-21.49-48-48V80c0-26.51 21.49-48 48-48h352c26.51 0 48 21.49 48 48v352c0 26.51-21.49 48-48 48zm-204.686-98.059l184-184c6.248-6.248 6.248-16.379 0-22.627l-22.627-22.627c-6.248-6.248-16.379-6.249-22.628 0L184 302.745l-70.059-70.059c-6.248-6.248-16.379-6.248-22.628 0l-22.627 22.627c-6.248 6.248-6.248 16.379 0 22.627l104 104c6.249 6.25 16.379 6.25 22.628.001z"
+                fill="currentColor"
+                style={Object {}}
+              />
+            </svg>
+          </span>
+          grandchild1
+        </td>
+        <td>
+          grandchild1 second column
+        </td>
+      </tr>
+      <tr>
+        <td>
+          <span
+            style={
+              Object {
+                "marginLeft": "30px",
+                "paddingLeft": 20,
+              }
+            }
+          />
+          <span
+            onClick={[Function]}
+            style={
+              Object {
+                "padding": 5,
+              }
+            }
+          >
+            <svg
+              aria-hidden="true"
+              className="svg-inline--fa fa-square fa-w-14 "
+              data-icon="square"
+              data-prefix="fas"
+              focusable="false"
+              role="img"
+              style={Object {}}
+              viewBox="0 0 448 512"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M400 32H48C21.5 32 0 53.5 0 80v352c0 26.5 21.5 48 48 48h352c26.5 0 48-21.5 48-48V80c0-26.5-21.5-48-48-48z"
+                fill="currentColor"
+                style={Object {}}
+              />
+            </svg>
+          </span>
+          grandchild2
+        </td>
+        <td>
+          grandchild2 second column
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+`;
+
+exports[`Entry with children Collapse one child 1`] = `
+<div>
+  <table
+    className="table-tree"
+    style={
+      Object {
+        "borderCollapse": "collapse",
+      }
+    }
+  >
+    <thead>
+      <tr>
+        <th
+          onClick={[Function]}
+        >
+          Sortable column
+          <span
+            style={
+              Object {
+                "float": "right",
+              }
+            }
+          >
+            <svg
+              aria-hidden="true"
+              className="svg-inline--fa fa-sort fa-w-10 "
+              data-icon="sort"
+              data-prefix="fas"
+              focusable="false"
+              role="img"
+              style={Object {}}
+              viewBox="0 0 320 512"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M41 288h238c21.4 0 32.1 25.9 17 41L177 448c-9.4 9.4-24.6 9.4-33.9 0L24 329c-15.1-15.1-4.4-41 17-41zm255-105L177 64c-9.4-9.4-24.6-9.4-33.9 0L24 183c-15.1 15.1-4.4 41 17 41h238c21.4 0 32.1-25.9 17-41z"
+                fill="currentColor"
+                style={Object {}}
+              />
+            </svg>
+          </span>
+        </th>
+        <th
+          onClick={[Function]}
+        >
+          Unsortable column
+        </th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>
+          <span
+            onClick={[Function]}
+            style={
+              Object {
+                "marginLeft": "0px",
+                "paddingRight": 5,
+              }
+            }
+          >
+            <svg
+              aria-hidden="true"
+              className="svg-inline--fa fa-chevron-down fa-w-14 "
+              data-icon="chevron-down"
+              data-prefix="fas"
+              focusable="false"
+              role="img"
+              style={Object {}}
+              viewBox="0 0 448 512"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M207.029 381.476L12.686 187.132c-9.373-9.373-9.373-24.569 0-33.941l22.667-22.667c9.357-9.357 24.522-9.375 33.901-.04L224 284.505l154.745-154.021c9.379-9.335 24.544-9.317 33.901.04l22.667 22.667c9.373 9.373 9.373 24.569 0 33.941L240.971 381.476c-9.373 9.372-24.569 9.372-33.942 0z"
+                fill="currentColor"
+                style={Object {}}
+              />
+            </svg>
+          </span>
+          <span
+            onClick={[Function]}
+            style={
+              Object {
+                "padding": 5,
+              }
+            }
+          >
+            <svg
+              aria-hidden="true"
+              className="svg-inline--fa fa-square fa-w-14 "
+              data-icon="square"
+              data-prefix="fas"
+              focusable="false"
+              role="img"
+              style={Object {}}
+              viewBox="0 0 448 512"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M400 32H48C21.5 32 0 53.5 0 80v352c0 26.5 21.5 48 48 48h352c26.5 0 48-21.5 48-48V80c0-26.5-21.5-48-48-48z"
+                fill="currentColor"
+                style={Object {}}
+              />
+            </svg>
+          </span>
+          parent
+        </td>
+        <td>
+          parent second column
+        </td>
+      </tr>
+      <tr>
+        <td>
+          <span
+            style={
+              Object {
+                "marginLeft": "15px",
+                "paddingLeft": 20,
+              }
+            }
+          />
+          <span
+            onClick={[Function]}
+            style={
+              Object {
+                "padding": 5,
+              }
+            }
+          >
+            <svg
+              aria-hidden="true"
+              className="svg-inline--fa fa-square fa-w-14 "
+              data-icon="square"
+              data-prefix="fas"
+              focusable="false"
+              role="img"
+              style={Object {}}
+              viewBox="0 0 448 512"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M400 32H48C21.5 32 0 53.5 0 80v352c0 26.5 21.5 48 48 48h352c26.5 0 48-21.5 48-48V80c0-26.5-21.5-48-48-48z"
+                fill="currentColor"
+                style={Object {}}
+              />
+            </svg>
+          </span>
+          child1
+        </td>
+        <td>
+          child1 second column
+        </td>
+      </tr>
+      <tr>
+        <td>
+          <span
+            onClick={[Function]}
+            style={
+              Object {
+                "marginLeft": "15px",
+                "paddingRight": 5,
+              }
+            }
+          >
+            <svg
+              aria-hidden="true"
+              className="svg-inline--fa fa-chevron-right fa-w-10 "
+              data-icon="chevron-right"
+              data-prefix="fas"
+              focusable="false"
+              role="img"
+              style={Object {}}
+              viewBox="0 0 320 512"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M285.476 272.971L91.132 467.314c-9.373 9.373-24.569 9.373-33.941 0l-22.667-22.667c-9.357-9.357-9.375-24.522-.04-33.901L188.505 256 34.484 101.255c-9.335-9.379-9.317-24.544.04-33.901l22.667-22.667c9.373-9.373 24.569-9.373 33.941 0L285.475 239.03c9.373 9.372 9.373 24.568.001 33.941z"
+                fill="currentColor"
+                style={Object {}}
+              />
+            </svg>
+          </span>
+          <span
+            onClick={[Function]}
+            style={
+              Object {
+                "padding": 5,
+              }
+            }
+          >
+            <svg
+              aria-hidden="true"
+              className="svg-inline--fa fa-square fa-w-14 "
+              data-icon="square"
+              data-prefix="fas"
+              focusable="false"
+              role="img"
+              style={Object {}}
+              viewBox="0 0 448 512"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M400 32H48C21.5 32 0 53.5 0 80v352c0 26.5 21.5 48 48 48h352c26.5 0 48-21.5 48-48V80c0-26.5-21.5-48-48-48z"
+                fill="currentColor"
+                style={Object {}}
+              />
+            </svg>
+          </span>
+          child2
+        </td>
+        <td>
+          child2 second column
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+`;
+
+exports[`Entry with children With filter element 1`] = `
+Array [
+  <div
+    onChange={[Function]}
+  >
+    <input
+      id="input-filter-tree"
+      placeholder="Filter"
+      type="text"
+    />
+  </div>,
+  <div>
+    <table
+      className="table-tree"
+      style={
+        Object {
+          "borderCollapse": "collapse",
+        }
+      }
+    >
+      <thead>
+        <tr>
+          <th
+            onClick={[Function]}
+          >
+            Sortable column
+            <span
+              style={
+                Object {
+                  "float": "right",
+                }
+              }
+            >
+              <svg
+                aria-hidden="true"
+                className="svg-inline--fa fa-sort fa-w-10 "
+                data-icon="sort"
+                data-prefix="fas"
+                focusable="false"
+                role="img"
+                style={Object {}}
+                viewBox="0 0 320 512"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M41 288h238c21.4 0 32.1 25.9 17 41L177 448c-9.4 9.4-24.6 9.4-33.9 0L24 329c-15.1-15.1-4.4-41 17-41zm255-105L177 64c-9.4-9.4-24.6-9.4-33.9 0L24 183c-15.1 15.1-4.4 41 17 41h238c21.4 0 32.1-25.9 17-41z"
+                  fill="currentColor"
+                  style={Object {}}
+                />
+              </svg>
+            </span>
+          </th>
+          <th
+            onClick={[Function]}
+          >
+            Unsortable column
+          </th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>
+            <span
+              onClick={[Function]}
+              style={
+                Object {
+                  "marginLeft": "0px",
+                  "paddingRight": 5,
+                }
+              }
+            >
+              <svg
+                aria-hidden="true"
+                className="svg-inline--fa fa-chevron-down fa-w-14 "
+                data-icon="chevron-down"
+                data-prefix="fas"
+                focusable="false"
+                role="img"
+                style={Object {}}
+                viewBox="0 0 448 512"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M207.029 381.476L12.686 187.132c-9.373-9.373-9.373-24.569 0-33.941l22.667-22.667c9.357-9.357 24.522-9.375 33.901-.04L224 284.505l154.745-154.021c9.379-9.335 24.544-9.317 33.901.04l22.667 22.667c9.373 9.373 9.373 24.569 0 33.941L240.971 381.476c-9.373 9.372-24.569 9.372-33.942 0z"
+                  fill="currentColor"
+                  style={Object {}}
+                />
+              </svg>
+            </span>
+            <span
+              onClick={[Function]}
+              style={
+                Object {
+                  "padding": 5,
+                }
+              }
+            >
+              <svg
+                aria-hidden="true"
+                className="svg-inline--fa fa-square fa-w-14 "
+                data-icon="square"
+                data-prefix="fas"
+                focusable="false"
+                role="img"
+                style={Object {}}
+                viewBox="0 0 448 512"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M400 32H48C21.5 32 0 53.5 0 80v352c0 26.5 21.5 48 48 48h352c26.5 0 48-21.5 48-48V80c0-26.5-21.5-48-48-48z"
+                  fill="currentColor"
+                  style={Object {}}
+                />
+              </svg>
+            </span>
+            parent
+          </td>
+          <td>
+            parent second column
+          </td>
+        </tr>
+        <tr>
+          <td>
+            <span
+              style={
+                Object {
+                  "marginLeft": "15px",
+                  "paddingLeft": 20,
+                }
+              }
+            />
+            <span
+              onClick={[Function]}
+              style={
+                Object {
+                  "padding": 5,
+                }
+              }
+            >
+              <svg
+                aria-hidden="true"
+                className="svg-inline--fa fa-square fa-w-14 "
+                data-icon="square"
+                data-prefix="fas"
+                focusable="false"
+                role="img"
+                style={Object {}}
+                viewBox="0 0 448 512"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M400 32H48C21.5 32 0 53.5 0 80v352c0 26.5 21.5 48 48 48h352c26.5 0 48-21.5 48-48V80c0-26.5-21.5-48-48-48z"
+                  fill="currentColor"
+                  style={Object {}}
+                />
+              </svg>
+            </span>
+            child1
+          </td>
+          <td>
+            child1 second column
+          </td>
+        </tr>
+        <tr>
+          <td>
+            <span
+              onClick={[Function]}
+              style={
+                Object {
+                  "marginLeft": "15px",
+                  "paddingRight": 5,
+                }
+              }
+            >
+              <svg
+                aria-hidden="true"
+                className="svg-inline--fa fa-chevron-down fa-w-14 "
+                data-icon="chevron-down"
+                data-prefix="fas"
+                focusable="false"
+                role="img"
+                style={Object {}}
+                viewBox="0 0 448 512"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M207.029 381.476L12.686 187.132c-9.373-9.373-9.373-24.569 0-33.941l22.667-22.667c9.357-9.357 24.522-9.375 33.901-.04L224 284.505l154.745-154.021c9.379-9.335 24.544-9.317 33.901.04l22.667 22.667c9.373 9.373 9.373 24.569 0 33.941L240.971 381.476c-9.373 9.372-24.569 9.372-33.942 0z"
+                  fill="currentColor"
+                  style={Object {}}
+                />
+              </svg>
+            </span>
+            <span
+              onClick={[Function]}
+              style={
+                Object {
+                  "padding": 5,
+                }
+              }
+            >
+              <svg
+                aria-hidden="true"
+                className="svg-inline--fa fa-square fa-w-14 "
+                data-icon="square"
+                data-prefix="fas"
+                focusable="false"
+                role="img"
+                style={Object {}}
+                viewBox="0 0 448 512"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M400 32H48C21.5 32 0 53.5 0 80v352c0 26.5 21.5 48 48 48h352c26.5 0 48-21.5 48-48V80c0-26.5-21.5-48-48-48z"
+                  fill="currentColor"
+                  style={Object {}}
+                />
+              </svg>
+            </span>
+            child2
+          </td>
+          <td>
+            child2 second column
+          </td>
+        </tr>
+        <tr>
+          <td>
+            <span
+              style={
+                Object {
+                  "marginLeft": "30px",
+                  "paddingLeft": 20,
+                }
+              }
+            />
+            <span
+              onClick={[Function]}
+              style={
+                Object {
+                  "padding": 5,
+                }
+              }
+            >
+              <svg
+                aria-hidden="true"
+                className="svg-inline--fa fa-square fa-w-14 "
+                data-icon="square"
+                data-prefix="fas"
+                focusable="false"
+                role="img"
+                style={Object {}}
+                viewBox="0 0 448 512"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M400 32H48C21.5 32 0 53.5 0 80v352c0 26.5 21.5 48 48 48h352c26.5 0 48-21.5 48-48V80c0-26.5-21.5-48-48-48z"
+                  fill="currentColor"
+                  style={Object {}}
+                />
+              </svg>
+            </span>
+            grandchild1
+          </td>
+          <td>
+            grandchild1 second column
+          </td>
+        </tr>
+        <tr>
+          <td>
+            <span
+              style={
+                Object {
+                  "marginLeft": "30px",
+                  "paddingLeft": 20,
+                }
+              }
+            />
+            <span
+              onClick={[Function]}
+              style={
+                Object {
+                  "padding": 5,
+                }
+              }
+            >
+              <svg
+                aria-hidden="true"
+                className="svg-inline--fa fa-square fa-w-14 "
+                data-icon="square"
+                data-prefix="fas"
+                focusable="false"
+                role="img"
+                style={Object {}}
+                viewBox="0 0 448 512"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M400 32H48C21.5 32 0 53.5 0 80v352c0 26.5 21.5 48 48 48h352c26.5 0 48-21.5 48-48V80c0-26.5-21.5-48-48-48z"
+                  fill="currentColor"
+                  style={Object {}}
+                />
+              </svg>
+            </span>
+            grandchild2
+          </td>
+          <td>
+            grandchild2 second column
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>,
+]
+`;
+
+exports[`one level of entries 1`] = `
+<div>
+  <table
+    className="table-tree"
+    style={
+      Object {
+        "borderCollapse": "collapse",
+      }
+    }
+  >
+    <thead>
+      <tr>
+        <th
+          onClick={[Function]}
+        >
+          Sortable column
+          <span
+            style={
+              Object {
+                "float": "right",
+              }
+            }
+          >
+            <svg
+              aria-hidden="true"
+              className="svg-inline--fa fa-sort fa-w-10 "
+              data-icon="sort"
+              data-prefix="fas"
+              focusable="false"
+              role="img"
+              style={Object {}}
+              viewBox="0 0 320 512"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M41 288h238c21.4 0 32.1 25.9 17 41L177 448c-9.4 9.4-24.6 9.4-33.9 0L24 329c-15.1-15.1-4.4-41 17-41zm255-105L177 64c-9.4-9.4-24.6-9.4-33.9 0L24 183c-15.1 15.1-4.4 41 17 41h238c21.4 0 32.1-25.9 17-41z"
+                fill="currentColor"
+                style={Object {}}
+              />
+            </svg>
+          </span>
+        </th>
+        <th
+          onClick={[Function]}
+        >
+          Unsortable column
+        </th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>
+          <span
+            style={
+              Object {
+                "marginLeft": "0px",
+                "paddingLeft": 20,
+              }
+            }
+          />
+          <span
+            style={
+              Object {
+                "marginLeft": 5,
+              }
+            }
+          />
+          entry1
+        </td>
+        <td>
+          
+        </td>
+      </tr>
+      <tr>
+        <td>
+          <span
+            style={
+              Object {
+                "marginLeft": "0px",
+                "paddingLeft": 20,
+              }
+            }
+          />
+          <span
+            style={
+              Object {
+                "marginLeft": 5,
+              }
+            }
+          />
+          entry2
+        </td>
+        <td>
+          entry2 column2
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+`;
+
+exports[`one level of entries 2`] = `
+<div>
+  <table
+    className="table-tree"
+    style={
+      Object {
+        "borderCollapse": "collapse",
+      }
+    }
+  >
+    <thead>
+      <tr>
+        <th
+          onClick={[Function]}
+        >
+          Sortable column
+          <span
+            style={
+              Object {
+                "float": "right",
+              }
+            }
+          >
+            <svg
+              aria-hidden="true"
+              className="svg-inline--fa fa-sort fa-w-10 "
+              data-icon="sort"
+              data-prefix="fas"
+              focusable="false"
+              role="img"
+              style={Object {}}
+              viewBox="0 0 320 512"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M41 288h238c21.4 0 32.1 25.9 17 41L177 448c-9.4 9.4-24.6 9.4-33.9 0L24 329c-15.1-15.1-4.4-41 17-41zm255-105L177 64c-9.4-9.4-24.6-9.4-33.9 0L24 183c-15.1 15.1-4.4 41 17 41h238c21.4 0 32.1-25.9 17-41z"
+                fill="currentColor"
+                style={Object {}}
+              />
+            </svg>
+          </span>
+        </th>
+        <th
+          onClick={[Function]}
+        >
+          Unsortable column
+        </th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>
+          <span
+            style={
+              Object {
+                "marginLeft": "0px",
+                "paddingLeft": 20,
+              }
+            }
+          />
+          <span
+            onClick={[Function]}
+            style={
+              Object {
+                "padding": 5,
+              }
+            }
+          >
+            <svg
+              aria-hidden="true"
+              className="svg-inline--fa fa-square fa-w-14 "
+              data-icon="square"
+              data-prefix="fas"
+              focusable="false"
+              role="img"
+              style={Object {}}
+              viewBox="0 0 448 512"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M400 32H48C21.5 32 0 53.5 0 80v352c0 26.5 21.5 48 48 48h352c26.5 0 48-21.5 48-48V80c0-26.5-21.5-48-48-48z"
+                fill="currentColor"
+                style={Object {}}
+              />
+            </svg>
+          </span>
+          entry1
+        </td>
+        <td>
+          
+        </td>
+      </tr>
+      <tr>
+        <td>
+          <span
+            style={
+              Object {
+                "marginLeft": "0px",
+                "paddingLeft": 20,
+              }
+            }
+          />
+          <span
+            onClick={[Function]}
+            style={
+              Object {
+                "padding": 5,
+              }
+            }
+          >
+            <svg
+              aria-hidden="true"
+              className="svg-inline--fa fa-square fa-w-14 "
+              data-icon="square"
+              data-prefix="fas"
+              focusable="false"
+              role="img"
+              style={Object {}}
+              viewBox="0 0 448 512"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M400 32H48C21.5 32 0 53.5 0 80v352c0 26.5 21.5 48 48 48h352c26.5 0 48-21.5 48-48V80c0-26.5-21.5-48-48-48z"
+                fill="currentColor"
+                style={Object {}}
+              />
+            </svg>
+          </span>
+          entry2
+        </td>
+        <td>
+          entry2 column2
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+`;
+
+exports[`one level of entries 3`] = `
+<div>
+  <table
+    className="table-tree"
+    style={
+      Object {
+        "borderCollapse": "collapse",
+      }
+    }
+  >
+    <tbody>
+      <tr>
+        <td>
+          <span
+            style={
+              Object {
+                "marginLeft": "0px",
+                "paddingLeft": 20,
+              }
+            }
+          />
+          <span
+            onClick={[Function]}
+            style={
+              Object {
+                "padding": 5,
+              }
+            }
+          >
+            <svg
+              aria-hidden="true"
+              className="svg-inline--fa fa-square fa-w-14 "
+              data-icon="square"
+              data-prefix="fas"
+              focusable="false"
+              role="img"
+              style={Object {}}
+              viewBox="0 0 448 512"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M400 32H48C21.5 32 0 53.5 0 80v352c0 26.5 21.5 48 48 48h352c26.5 0 48-21.5 48-48V80c0-26.5-21.5-48-48-48z"
+                fill="currentColor"
+                style={Object {}}
+              />
+            </svg>
+          </span>
+          entry1
+        </td>
+        <td>
+          
+        </td>
+      </tr>
+      <tr>
+        <td>
+          <span
+            style={
+              Object {
+                "marginLeft": "0px",
+                "paddingLeft": 20,
+              }
+            }
+          />
+          <span
+            onClick={[Function]}
+            style={
+              Object {
+                "padding": 5,
+              }
+            }
+          >
+            <svg
+              aria-hidden="true"
+              className="svg-inline--fa fa-square fa-w-14 "
+              data-icon="square"
+              data-prefix="fas"
+              focusable="false"
+              role="img"
+              style={Object {}}
+              viewBox="0 0 448 512"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M400 32H48C21.5 32 0 53.5 0 80v352c0 26.5 21.5 48 48 48h352c26.5 0 48-21.5 48-48V80c0-26.5-21.5-48-48-48z"
+                fill="currentColor"
+                style={Object {}}
+              />
+            </svg>
+          </span>
+          entry2
+        </td>
+        <td>
+          entry2 column2
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+`;
