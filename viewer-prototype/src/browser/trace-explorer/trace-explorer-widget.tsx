@@ -5,7 +5,7 @@ import { List, ListRowProps } from 'react-virtualized';
 import { OutputDescriptor } from 'tsp-typescript-client/lib/models/output-descriptor';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faShareSquare, faCopy } from '@fortawesome/free-solid-svg-icons';
-import * as ReactModal from 'react-modal';
+import ReactModal from 'react-modal';
 import { Emitter } from '@theia/core';
 import { SignalManager } from '../../common/signal-manager';
 import { EditorManager, EditorOpenerOptions } from '@theia/editor/lib/browser';
