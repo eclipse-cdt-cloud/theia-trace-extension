@@ -70,7 +70,7 @@ export class XYOutputComponent extends AbstractTreeOutputComponent<AbstractOutpu
     renderTree(): React.ReactNode | undefined {
         this.onSeriesChecked = this.onSeriesChecked.bind(this);
         this.onCollapse = this.onCollapse.bind(this);
-        return this.state.XYTree.length 
+        return this.state.XYTree.length
             ? <XYTree
                 entries={this.state.XYTree}
                 collapsedNodes={this.state.collapsedNodes}

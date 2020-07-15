@@ -1,7 +1,7 @@
 import * as React from 'react';
 
-type FilterProps = {
-    onChange: (e:React.ChangeEvent<HTMLInputElement>) => void;
+interface FilterProps {
+    onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
 }
 
 export class Filter extends React.Component<FilterProps> {
@@ -9,9 +9,9 @@ export class Filter extends React.Component<FilterProps> {
         super(props);
     }
 
-    render() {
+    render(): JSX.Element {
         return <div onChange={this.props.onChange}>
-            <input 
+            <input
                 id="input-filter-tree"
                 type="text"
                 placeholder="Filter"
