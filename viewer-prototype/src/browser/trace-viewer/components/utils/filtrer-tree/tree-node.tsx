@@ -45,10 +45,10 @@ export class TreeNodeComponent extends React.Component<TreeNodeComponentProps> {
         return this.props.children;
     };
 
-    renderCollapseIcon = ():JSX.Element | undefined => {
+    renderCollapseIcon = (): JSX.Element | undefined => {
         if (this.props.collapseEnabled) {
             return (
-                this.isLeaf() 
+                this.isLeaf()
                 ? undefined
                 : <span
                     onClick={() => this.props.onCollapsed(this.props.node.id)}
@@ -57,10 +57,10 @@ export class TreeNodeComponent extends React.Component<TreeNodeComponentProps> {
                 >
                     {(this.props.collapsed ? icons.expand : icons.collapse)}
                 </span>
-            )
-        } 
+            );
+        }
         return undefined;
-    }
+    };
 
     render(): JSX.Element {
         return (

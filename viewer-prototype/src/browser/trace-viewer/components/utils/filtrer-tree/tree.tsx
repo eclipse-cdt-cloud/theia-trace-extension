@@ -4,11 +4,11 @@ import { Message } from './message';
 
 interface FilterTreeProps {
     nodes: TreeNode[];
-    showCheckboxes: boolean;  
-    padding: number;                        //Optional  
-    checkedSeries: number[];                //Optional
-    collapsedNodes: number[];               //Optional
-    collapseEnabled: boolean;               //Optional
+    showCheckboxes: boolean;
+    padding: number;                        // Optional
+    checkedSeries: number[];                // Optional
+    collapsedNodes: number[];               // Optional
+    collapseEnabled: boolean;               // Optional
     onChecked: (ids: number[]) => void;     // Optional
     onCollapse: (id: number) => void;
 }
@@ -149,7 +149,7 @@ export class FilterTree extends React.Component<FilterTreeProps> {
                 </TreeNodeComponent>
             );
         });
-        const padding = level == 0 ? 0 : this.props.padding;
+        const padding = level === 0 ? 0 : this.props.padding;
         return (
             <ul style={{margin: 0, listStyleType: 'none', paddingLeft: padding}}>
                 {treeNodes}

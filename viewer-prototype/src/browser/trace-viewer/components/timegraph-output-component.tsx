@@ -19,7 +19,7 @@ import { TspDataProvider } from './data-providers/tsp-data-provider';
 import { ReactTimeGraphContainer } from './utils/timegraph-container-component';
 import { OutputElementStyle } from 'tsp-typescript-client/lib/models/styles';
 import { EntryTree } from './utils/filtrer-tree/entry-tree';
-import { getAllVisibleEntriesId } from './utils/filtrer-tree/utils';
+import { listToTree, getOrderedIds } from './utils/filtrer-tree/utils';
 
 type TimegraphOutputProps = AbstractOutputProps & {
     addWidgetResizeHandler: (handler: () => void) => void;
@@ -28,12 +28,12 @@ type TimegraphOutputProps = AbstractOutputProps & {
 type TimegraohOutputState = AbstractOutputState & {
     timegraphTree: TimeGraphEntry[];
     collapsedNodes: number[];
-}
+};
 
 export class TimegraphOutputComponent extends AbstractTreeOutputComponent<TimegraphOutputProps, TimegraohOutputState> {
     private totalHeight = 0;
     private rowController: TimeGraphRowController;
-    private chartLayer: TimeGraphChart;
+    private chartLayer: TimeGraphChart | undefined;
     private vscrollLayer: TimeGraphVerticalScrollbar;
     private horizontalContainer: React.RefObject<HTMLDivElement>;
 
@@ -52,8 +52,19 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
         this.tspDataProvider = new TspDataProvider(this.props.tspClient, this.props.traceId, this.props.outputDescriptor.id);
         this.rowController = new TimeGraphRowController(this.props.style.rowHeight, this.totalHeight);
         this.horizontalContainer = React.createRef();
+
+        this.vscrollLayer = new TimeGraphVerticalScrollbar('timeGraphVerticalScrollbar', this.rowController);
+
+        this.rowController.onVerticalOffsetChangedHandler(()=>{
+            if (this.treeRef.current) {
+                this.treeRef.current.scrollTop=this.rowController.verticalOffset;
+            }
+        });
+    }
+
+    createChartLayer(orderedTreeIds: number[]): void {
         const providers: TimeGraphChartProviders = {
-            dataProvider: async (range: TimelineChart.TimeGraphRange, resolution: number) => this.fetchTimegraphData(range, resolution),
+            dataProvider: async (viewRange: TimelineChart.TimeGraphRange, resolution: number) => this.fetchTimegraphData(orderedTreeIds, viewRange, resolution),
             rowElementStyleProvider: (model: TimelineChart.TimeGraphRowElementModel) => this.getElementStyle(model),
             rowStyleProvider: (row: TimelineChart.TimeGraphRowModel) => ({
                     backgroundColor: 0x979797,// 0xaaaaff,
@@ -63,16 +74,8 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
                 })
         };
         this.chartLayer = new TimeGraphChart('timeGraphChart', providers, this.rowController);
-        this.vscrollLayer = new TimeGraphVerticalScrollbar('timeGraphVerticalScrollbar', this.rowController);
-
-        this.rowController.onVerticalOffsetChangedHandler(()=>{
-            if (this.treeRef.current) {
-                this.treeRef.current.scrollTop=this.rowController.verticalOffset;
-            }
-        });
-
         this.chartLayer.onSelectedRowElementChanged(model => {
-            if (model) {
+            if (model && this.chartLayer) {
                 const el = this.chartLayer.getElementById(model.id);
                 if (el) {
                     this.selectedElement = el;
@@ -104,11 +107,16 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
             this.rowController.totalHeight = this.totalHeight;
             // TODO Style should not be retreive in the "initialization" part or at least async
             const styleResponse = (await this.props.tspClient.fetchStyles(this.props.traceId, this.props.outputDescriptor.id, QueryHelper.query())).getModel();
+            // TODO Remove filter when timeline chart can manage empty rows
+            const filteredTree = treeResponse.model.entries.filter((entry: TimeGraphEntry) => entry.parentId !== -1);
             this.setState({
                 // outputStatus: ResponseStatus.COMPLETED,
-                timegraphTree: treeResponse.model.entries,
+                timegraphTree: filteredTree,
                 styleModel: styleResponse.model
             });
+            const treeNodes = listToTree(filteredTree, 0);
+            const orderedTreeIds = getOrderedIds(treeNodes);
+            this.createChartLayer(orderedTreeIds);
         }
         if (this.state.collapsedNodes !== _prevState.collapsedNodes) {
             this.updateChart();
@@ -116,9 +124,9 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
     }
 
     private updateChart() {
-        //TODO: update timeline chart with visible rows (not collapsed)
-        //Get rows with tsp-data-provider using getAllVisibleEntriesId() in filter-tree/utils.tsx
-        //TODO: manage empty lines chart for root nodes with no data
+        // TODO: update timeline chart with visible rows (not collapsed)
+        // Get rows with tsp-data-provider using getAllVisibleEntriesId() in filter-tree/utils.tsx
+        // TODO: manage empty lines chart for root nodes with no data
     }
 
     renderTree(): React.ReactNode {
@@ -126,11 +134,12 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
         return  <EntryTree
             collapsedNodes={this.state.collapsedNodes}
             padding={12}
+            rootId={0}
             collapseEnabled={false}
             entries={this.state.timegraphTree}
             showCheckboxes={false}
             onCollapse={this.onCollapse}
-        />
+        />;
     }
 
     renderChart(): React.ReactNode {
@@ -145,15 +154,11 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
 
     private onCollapse(id: number) {
         let newList = [...this.state.collapsedNodes];
-        
-        const exist = this.state.collapsedNodes.find(expandId => {
-            return expandId === id;
-        })
+
+        const exist = this.state.collapsedNodes.find(expandId => expandId === id);
 
         if (exist !== undefined) {
-            newList = newList.filter(collapsed => {
-                return id !== collapsed;
-            });
+            newList = newList.filter(collapsed => id !== collapsed);
         } else {
             newList = newList.concat(id);
         }
@@ -167,27 +172,30 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
     }
 
     private getChartContainer() {
-        const grid = new TimeGraphChartGrid('timeGraphGrid', this.props.style.rowHeight, this.props.style.lineColor);
-        const cursors = new TimeGraphChartCursors('chart-cursors', this.chartLayer, this.rowController, { color: this.props.style.cursorColor });
-        const selectionRange = new TimeGraphChartSelectionRange('chart-selection-range', { color: this.props.style.cursorColor });
-        return <ReactTimeGraphContainer
-            options={
-                {
-                    id: 'timegraph-chart',
-                    height: this.props.style.height,
-                    width: this.props.style.chartWidth, // this.props.style.mainWidth,
-                    backgroundColor: this.props.style.chartBackgroundColor,
-                    classNames: 'horizontal-canvas'
+        if (this.chartLayer) {
+            const grid = new TimeGraphChartGrid('timeGraphGrid', this.props.style.rowHeight, this.props.style.lineColor);
+            const cursors = new TimeGraphChartCursors('chart-cursors', this.chartLayer, this.rowController, { color: this.props.style.cursorColor });
+            const selectionRange = new TimeGraphChartSelectionRange('chart-selection-range', { color: this.props.style.cursorColor });
+            return <ReactTimeGraphContainer
+                options={
+                    {
+                        id: 'timegraph-chart',
+                        height: this.props.style.height,
+                        width: this.props.style.chartWidth, // this.props.style.mainWidth,
+                        backgroundColor: this.props.style.chartBackgroundColor,
+                        classNames: 'horizontal-canvas'
+                    }
                 }
-            }
-            onWidgetResize={this.props.addWidgetResizeHandler}
-            unitController={this.props.unitController}
-            id='timegraph-chart'
-            layer={[
-                grid, this.chartLayer, selectionRange, cursors
-            ]}
-        >
-        </ReactTimeGraphContainer>;
+                onWidgetResize={this.props.addWidgetResizeHandler}
+                unitController={this.props.unitController}
+                id='timegraph-chart'
+                layer={[
+                    grid, this.chartLayer, selectionRange, cursors
+                ]}
+            >
+            </ReactTimeGraphContainer>;
+        }
+
     }
 
     protected getVerticalScrollbar(): JSX.Element {
@@ -225,15 +233,15 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
         }
     }
 
-    private async fetchTimegraphData(range: TimelineChart.TimeGraphRange, resolution: number) {
+    private async fetchTimegraphData(ids: number[], range: TimelineChart.TimeGraphRange, resolution: number) {
         const length = range.end - range.start;
         const overlap = ((length * 5) - length) / 2;
         const start = range.start - overlap > 0 ? range.start - overlap : 0;
         const end = range.end + overlap < this.props.unitController.absoluteRange ? range.end + overlap : this.props.unitController.absoluteRange;
         const newRange: TimelineChart.TimeGraphRange = { start, end };
         const newResolution: number = resolution * 0.8;
-        const visibleRowsId = getAllVisibleEntriesId(this.state.timegraphTree, this.state.collapsedNodes)
-        const timeGraphData: TimelineChart.TimeGraphModel = await this.tspDataProvider.getData(visibleRowsId, newRange, this.props.style.chartWidth);
+        // const visibleRowsId = getAllVisibleEntriesId(this.state.timegraphTree, this.state.collapsedNodes)
+        const timeGraphData: TimelineChart.TimeGraphModel = await this.tspDataProvider.getData(ids, this.state.timegraphTree, newRange, this.props.style.chartWidth);
         if (timeGraphData && this.selectedElement) {
             for (const row of timeGraphData.rows) {
                 const selEl = row.states.find(el => !!this.selectedElement && el.id === this.selectedElement.id);
