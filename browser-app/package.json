@@ -30,7 +30,7 @@
     "@theia/vsx-registry": "next",
     "@theia/keymaps": "next",
     "@theia/getting-started": "next",
-    "trace-viewer": "0.0.0"
+    "trace-viewer": "0.1.0"
   },
   "devDependencies": {
     "@theia/cli": "next"

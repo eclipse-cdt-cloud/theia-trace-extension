@@ -1,7 +1,6 @@
 {
   "name": "trace-viewer",
-  "private": "true",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "Trace Compass trace viewer Theia Extension",
   "keywords": [
     "theia-extension"

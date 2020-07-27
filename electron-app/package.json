@@ -39,7 +39,7 @@
     "@theia/keymaps": "next",
     "@theia/getting-started": "next",
     "@theia/electron": "next",
-    "trace-viewer": "0.0.0"
+    "trace-viewer": "0.1.0"
   },
   "devDependencies": {
     "@theia/cli": "next",

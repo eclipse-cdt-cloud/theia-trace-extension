@@ -1,5 +1,7 @@
 {
+  "version": "0.0.1",
   "private": true,
+  "license": "MIT",
   "scripts": {
     "prepare": "lerna run prepare",
     "rebuild:browser": "theia rebuild:browser",
@@ -12,10 +14,27 @@
     "start-all:browser": "yarn start:server & yarn start:browser",
     "start-all:electron": "yarn start:server & yarn start:electron",
     "lint": "yarn workspace trace-viewer run lint",
-    "test": "echo test"
+    "test": "echo test",
+    "publish:latest": "lerna publish --registry=https://registry.npmjs.org/ --exact --skip-git",
+    "publish:next": "lerna publish --registry=https://registry.npmjs.org/ --exact --canary=next --npm-tag=next --skip-git --yes"
   },
+  "keywords": [
+      "theia-extension",
+      "trace-viewer",
+      "trace-analysis",
+      "tracing",
+      "trace"
+  ],
+  "repository": {
+     "type": "git",
+     "url": "https://github.com/theia-ide/theia-trace-extension"
+  },
+  "bugs": {
+      "url": "https://github.com/theia-ide/theia-trace-extension/issues"
+  },
+  "homepage": "https://github.com/theia-ide/theia-trace-extension",
   "devDependencies": {
-    "lerna": "2.4.0"
+    "lerna": "2.11.0"
   },
   "workspaces": [
     "viewer-prototype",
