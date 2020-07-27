@@ -10,7 +10,6 @@ interface EntryTreeProps {
     checkedSeries: number[];
     collapsedNodes: number[];
     collapseEnabled: boolean;
-    rootId: number;
     onChecked: (ids: number[]) => void;
     onCollapse: (id: number) => void;
 }
@@ -19,7 +18,6 @@ export class EntryTree extends React.Component<EntryTreeProps> {
     static defaultProps: Partial<EntryTreeProps> = {
         padding: 15,
         checkedSeries: [],
-        rootId: -1,
         collapseEnabled: true,
         onChecked: () => { /* Nothing to do */ },
     };
@@ -34,7 +32,7 @@ export class EntryTree extends React.Component<EntryTreeProps> {
 
     render(): JSX.Element {
         return <FilterTree
-            nodes={listToTree(this.props.entries, this.props.rootId)}
+            nodes={listToTree(this.props.entries)}
             {...this.props}
         />;
     }

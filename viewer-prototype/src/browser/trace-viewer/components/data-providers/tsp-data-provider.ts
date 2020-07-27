@@ -79,6 +79,9 @@ export class TspDataProvider {
             const timeGraphRow = this.timeGraphRows.find(row => (row as any).entryID === id);
             if (timeGraphRow) {
                 newTimeGraphRows.push(timeGraphRow);
+            } else {
+                const emptyRow: any = {states: [{value: 0, startTime: 0, duration: 0, label: '', tags: 0}], entryID: id};
+                newTimeGraphRows.push(emptyRow);
             }
         });
 

@@ -19,7 +19,7 @@ import { TspDataProvider } from './data-providers/tsp-data-provider';
 import { ReactTimeGraphContainer } from './utils/timegraph-container-component';
 import { OutputElementStyle } from 'tsp-typescript-client/lib/models/styles';
 import { EntryTree } from './utils/filtrer-tree/entry-tree';
-import { listToTree, getOrderedIds } from './utils/filtrer-tree/utils';
+import { listToTree, getAllVisibleNodeIds } from './utils/filtrer-tree/utils';
 
 type TimegraphOutputProps = AbstractOutputProps & {
     addWidgetResizeHandler: (handler: () => void) => void;
@@ -107,15 +107,13 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
             this.rowController.totalHeight = this.totalHeight;
             // TODO Style should not be retreive in the "initialization" part or at least async
             const styleResponse = (await this.props.tspClient.fetchStyles(this.props.traceId, this.props.outputDescriptor.id, QueryHelper.query())).getModel();
-            // TODO Remove filter when timeline chart can manage empty rows
-            const filteredTree = treeResponse.model.entries.filter((entry: TimeGraphEntry) => entry.parentId !== -1);
             this.setState({
                 // outputStatus: ResponseStatus.COMPLETED,
-                timegraphTree: filteredTree,
+                timegraphTree: treeResponse.model.entries,
                 styleModel: styleResponse.model
             });
-            const treeNodes = listToTree(filteredTree, 0);
-            const orderedTreeIds = getOrderedIds(treeNodes);
+            const treeNodes = listToTree(treeResponse.model.entries);
+            const orderedTreeIds = getAllVisibleNodeIds(treeNodes, []);
             this.createChartLayer(orderedTreeIds);
         }
         if (this.state.collapsedNodes !== _prevState.collapsedNodes) {
@@ -123,10 +121,11 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
         }
     }
 
-    private updateChart() {
+    private updateChart(): void {
         // TODO: update timeline chart with visible rows (not collapsed)
-        // Get rows with tsp-data-provider using getAllVisibleEntriesId() in filter-tree/utils.tsx
-        // TODO: manage empty lines chart for root nodes with no data
+        // Get rows with tsp-data-provider using getAllVisibleNodeIds() in filter-tree/utils.tsx
+        // const nodes = listToTree(this.state.timegraphTree);
+        // const visibleRowsId = getAllVisibleNodeIds(nodes, this.state.collapsedNodes);
     }
 
     renderTree(): React.ReactNode {
@@ -134,7 +133,6 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
         return  <EntryTree
             collapsedNodes={this.state.collapsedNodes}
             padding={12}
-            rootId={0}
             collapseEnabled={false}
             entries={this.state.timegraphTree}
             showCheckboxes={false}
@@ -240,7 +238,6 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
         const end = range.end + overlap < this.props.unitController.absoluteRange ? range.end + overlap : this.props.unitController.absoluteRange;
         const newRange: TimelineChart.TimeGraphRange = { start, end };
         const newResolution: number = resolution * 0.8;
-        // const visibleRowsId = getAllVisibleEntriesId(this.state.timegraphTree, this.state.collapsedNodes)
         const timeGraphData: TimelineChart.TimeGraphModel = await this.tspDataProvider.getData(ids, this.state.timegraphTree, newRange, this.props.style.chartWidth);
         if (timeGraphData && this.selectedElement) {
             for (const row of timeGraphData.rows) {

@@ -10,7 +10,7 @@ const entryToTreeNode = (entry: Entry) => ({
         children: []
     } as TreeNode);
 
-export const listToTree = (list: Entry[], rootId: number): TreeNode[] => {
+export const listToTree = (list: Entry[]): TreeNode[] => {
     const rootNodes: TreeNode[] = [];
     const lookup: { [key: string]: TreeNode } = {};
     list.forEach(entry => {
@@ -18,7 +18,7 @@ export const listToTree = (list: Entry[], rootId: number): TreeNode[] => {
     });
     Object.keys(lookup).forEach(id => {
         const entry = lookup[id];
-        if (entry.parentId === rootId) {
+        if (entry.parentId === -1) {
             entry.isRoot = true;
             rootNodes.push(entry);
         } else if (entry.parentId in lookup) {
@@ -29,31 +29,13 @@ export const listToTree = (list: Entry[], rootId: number): TreeNode[] => {
     return rootNodes;
 };
 
-export const getAllVisibleEntriesId = (entries: Entry[],collapsedNodes: number[]): number[] => {
-    const nodes = listToTree(entries, -1);
+export const getAllVisibleNodeIds = (nodes: TreeNode[],collapsedNodes: number[]): number[] => {
     const visibleIds: number[] = [];
-    let currentNode: TreeNode | undefined;
-    while (nodes.length) {
-        currentNode = nodes.pop();
-        if (currentNode) {
-            visibleIds.push(currentNode.id);
-            if (currentNode.children && currentNode.children.length && !collapsedNodes.includes(currentNode.id)) {
-                currentNode.children.forEach((child: TreeNode) => {
-                    nodes.push(child);
-                });
-            }
-        }
-    }
-    return visibleIds;
-};
-
-export const getOrderedIds = (nodes: TreeNode[]): number[] => {
-    const orderedIds: number[] = [];
     nodes.forEach((node: TreeNode) => {
-        orderedIds.push(node.id);
-        if (node.children.length) {
-            orderedIds.push(...getOrderedIds(node.children));
+        visibleIds.push(node.id);
+        if (node.children.length && !collapsedNodes.includes(node.id)) {
+            visibleIds.push(...getAllVisibleNodeIds(node.children, collapsedNodes));
         }
     });
-    return orderedIds;
+    return visibleIds;
 };
