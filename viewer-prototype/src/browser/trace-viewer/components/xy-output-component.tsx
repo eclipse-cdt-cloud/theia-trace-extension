@@ -68,15 +68,15 @@ export class XYOutputComponent extends AbstractTreeOutputComponent<AbstractOutpu
     synchronizeTreeScroll(): void { /* Nothing to do by default */ }
 
     renderTree(): React.ReactNode | undefined {
-        this.onSeriesChecked = this.onSeriesChecked.bind(this);
-        this.onCollapse = this.onCollapse.bind(this);
+        this.onToggleCheck = this.onToggleCheck.bind(this);
+        this.onToggleCollapse = this.onToggleCollapse.bind(this);
         return this.state.XYTree.length
             ? <XYTree
                 entries={this.state.XYTree}
                 collapsedNodes={this.state.collapsedNodes}
                 checkedSeries={this.state.checkedSeries}
-                onChecked={this.onSeriesChecked}
-                onCollapse={this.onCollapse}
+                onChecked={this.onToggleCheck}
+                onCollapse={this.onToggleCollapse}
             />
             : undefined
             ;
@@ -157,7 +157,7 @@ export class XYOutputComponent extends AbstractTreeOutputComponent<AbstractOutpu
         return nearestIndex ? nearestIndex : 0;
     }
 
-    private onSeriesChecked(ids: number[]) {
+    private onToggleCheck(ids: number[]) {
         let newList = [...this.state.checkedSeries];
         ids.forEach(id => {
             const exist = this.state.checkedSeries.find(seriesId => seriesId === id);
@@ -171,7 +171,7 @@ export class XYOutputComponent extends AbstractTreeOutputComponent<AbstractOutpu
         this.setState({checkedSeries: newList});
     }
 
-    private onCollapse(id: number) {
+    private onToggleCollapse(id: number) {
         let newList = [...this.state.collapsedNodes];
 
         const exist = this.state.collapsedNodes.find(expandId => expandId === id);

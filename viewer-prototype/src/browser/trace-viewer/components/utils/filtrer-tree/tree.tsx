@@ -78,8 +78,7 @@ export class FilterTree extends React.Component<FilterTreeProps, FilterTreeState
         if (parentNode) {
             if (toCheck && this.areAllSiblingsChecked(parentNode)) {
                 this.getParentIdsToCheck(parentNode.parentId, ids, toCheck);
-            }
-            if (!toCheck && this.isNodeChecked(parentNode.parentId)) {
+            } else if (!toCheck && this.isNodeChecked(parentNode.parentId)) {
                 this.getParentIdsToCheck(parentNode.parentId, ids, toCheck);
             }
         }
