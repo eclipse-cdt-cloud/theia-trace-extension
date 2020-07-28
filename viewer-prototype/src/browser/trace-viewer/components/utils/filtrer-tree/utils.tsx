@@ -5,7 +5,6 @@ const entryToTreeNode = (entry: Entry) => ({
         id: entry.id,
         parentId: entry.parentId,
         name: entry.labels[0],
-        expanded: true,
         isRoot: false,
         children: []
     } as TreeNode);

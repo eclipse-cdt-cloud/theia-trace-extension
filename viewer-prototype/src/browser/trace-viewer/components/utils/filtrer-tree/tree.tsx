@@ -72,6 +72,20 @@ export class FilterTree extends React.Component<FilterTreeProps, FilterTreeState
         return ids;
     };
 
+    getParentIdsToCheck = (parentId: number, ids: number[], toCheck: boolean): number[] => {
+        ids.push(parentId);
+        const parentNode = this.getNode(this.props.nodes, parentId);
+        if (parentNode) {
+            if (toCheck && this.areAllSiblingsChecked(parentNode)) {
+                this.getParentIdsToCheck(parentNode.parentId, ids, toCheck);
+            }
+            if (!toCheck && this.isNodeChecked(parentNode.parentId)) {
+                this.getParentIdsToCheck(parentNode.parentId, ids, toCheck);
+            }
+        }
+        return ids;
+    };
+
     isNodeChecked = (id: number): boolean => this.props.checkedSeries.includes(id);
 
     areAllSiblingsChecked = (node: TreeNode): boolean => {
@@ -86,19 +100,28 @@ export class FilterTree extends React.Component<FilterTreeProps, FilterTreeState
         let checkedIds: number[] = [];
         const checkedNode = this.getNode(this.props.nodes, id);
         if (checkedNode) {
-            if (checkedNode.children.length) {
-                const childrenIds = this.getAllChildrenIds(checkedNode, []);
-                const visibleChildrenIds = childrenIds.filter((childId: number) =>this.getNode(this.state.filteredNodes, childId) !== undefined);
-                if (this.isNodeChecked(id)) {
-                    checkedIds = checkedIds.concat(visibleChildrenIds);
-                } else {
+            const childrenIds = this.getAllChildrenIds(checkedNode, []);
+            const visibleChildrenIds = childrenIds.filter((childId: number) =>this.getNode(this.state.filteredNodes, childId) !== undefined);
+            if (!this.isNodeChecked(id)) {
+                if (checkedNode.children.length) {
                     const childIdsToCheck = visibleChildrenIds.filter(childId => !this.isNodeChecked(childId));
                     checkedIds = checkedIds.concat(childIdsToCheck);
+                } else {
+                    checkedIds = checkedIds.concat(id);
+                }
+                if (this.areAllSiblingsChecked(checkedNode) && !this.isNodeChecked(checkedNode.parentId)) {
+                    const parentsToCheck = this.getParentIdsToCheck(checkedNode.parentId, [], true);
+                    checkedIds = checkedIds.concat(parentsToCheck);
                 }
             } else {
-                checkedIds.push(id);
-                if (this.areAllSiblingsChecked(checkedNode)) {
-                    checkedIds.push(checkedNode.parentId);
+                if (checkedNode.children.length) {
+                    checkedIds = checkedIds.concat(visibleChildrenIds);
+                } else {
+                    checkedIds = checkedIds.concat(id);
+                }
+                if (this.isNodeChecked(checkedNode.parentId)) {
+                    const parentsToCheck = this.getParentIdsToCheck(checkedNode.parentId, [], false);
+                    checkedIds = checkedIds.concat(parentsToCheck);
                 }
             }
             this.props.onChecked(checkedIds);
@@ -123,9 +146,38 @@ export class FilterTree extends React.Component<FilterTreeProps, FilterTreeState
         return 0;
     };
 
-    isEveryChildChecked = (node: TreeNode): boolean => node.children.every((child: TreeNode) => this.isNodeChecked(child.id));
+    isEveryChildChecked = (node: TreeNode): boolean => {
+        const visibleNodes = node.children.filter((child: TreeNode) =>this.getNode(this.state.filteredNodes, child.id) !== undefined);
+        const allChildrenChecked = visibleNodes.every((child: TreeNode) => {
+            let isChecked = this.isNodeChecked(child.id);
+            if (child.children.length) {
+                isChecked = isChecked && this.isEveryChildChecked(child);
+            }
+            return isChecked;
+        });
+        const leaves = this.getAllLeavesId(this.state.filteredNodes, []);
+        const allLeavesChecked = leaves.every((id: number) => this.isNodeChecked(id));
+        return allChildrenChecked || allLeavesChecked;
+    };
 
-    isSomeChildChecked = (node: TreeNode): boolean => node.children.some((child: TreeNode) => this.isNodeChecked(child.id));
+    getAllLeavesId = (nodes: TreeNode[], ids: number[]): number[] => {
+        nodes.forEach((node: TreeNode) => {
+            if (node.children.length) {
+                this.getAllLeavesId(node.children, ids);
+            } else {
+                ids.push(node.id);
+            }
+        });
+        return ids;
+    };
+
+    isSomeChildChecked = (node: TreeNode): boolean => node.children.some((child: TreeNode) => {
+        let isChecked = this.isNodeChecked(child.id);
+        if (child.children.length) {
+            isChecked = isChecked || this.isSomeChildChecked(child);
+        }
+        return isChecked;
+    });
 
     isCollapsed = (id: number): boolean => this.props.collapsedNodes.includes(id);
 
