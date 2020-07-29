@@ -5,7 +5,7 @@ interface CheckboxProps {
     id: number;
     name: string;
     checkedStatus: number;
-    onChecked: (id: number) => void;
+    onToggleCheck: (id: number) => void;
 }
 
 export class CheckboxComponent extends React.Component<CheckboxProps> {
@@ -27,7 +27,7 @@ export class CheckboxComponent extends React.Component<CheckboxProps> {
     };
 
     render(): JSX.Element {
-        return <div onClick={() => this.props.onChecked(this.props.id)} >
+        return <div onClick={() => this.props.onToggleCheck(this.props.id)} >
             <span style={{padding: 5}}>
                 {this.renderCheckbox(this.props.checkedStatus)}
             </span>

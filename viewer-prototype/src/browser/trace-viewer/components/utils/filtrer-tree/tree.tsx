@@ -9,8 +9,8 @@ interface FilterTreeProps {
     showFilter: boolean;                    // Optional
     checkedSeries: number[];                // Optional
     collapsedNodes: number[];
-    onChecked: (ids: number[]) => void;     // Optional
-    onCollapse: (id: number) => void;
+    onToggleCheck: (ids: number[]) => void;     // Optional
+    onToggleCollapse: (id: number) => void;
 }
 
 interface FilterTreeState  {
@@ -21,7 +21,7 @@ export class FilterTree extends React.Component<FilterTreeProps, FilterTreeState
     static defaultProps: Partial<FilterTreeProps> = {
         checkedSeries: [],
         showFilter: true,
-        onChecked: () => { /* Nothing to do */ },
+        onToggleCheck: () => { /* Nothing to do */ },
     };
 
     constructor(props: FilterTreeProps) {
@@ -59,7 +59,7 @@ export class FilterTree extends React.Component<FilterTreeProps, FilterTreeState
     };
 
     handleCollapse = (id: number): void => {
-        this.props.onCollapse(id);
+        this.props.onToggleCollapse(id);
     };
 
     getAllChildrenIds = (node: TreeNode, ids: number[]): number[] => {
@@ -123,7 +123,7 @@ export class FilterTree extends React.Component<FilterTreeProps, FilterTreeState
                     checkedIds = checkedIds.concat(parentsToCheck);
                 }
             }
-            this.props.onChecked(checkedIds);
+            this.props.onToggleCheck(checkedIds);
         }
     };
 
@@ -235,8 +235,8 @@ export class FilterTree extends React.Component<FilterTreeProps, FilterTreeState
                     checkedStatus={checkedStatus}
                     collapsed={this.isCollapsed(node.id)}
                     isCheckable={this.props.showCheckboxes}
-                    onCollapsed={this.handleCollapse}
-                    onChecked={this.handleCheck}
+                    onToggleCollapse={this.handleCollapse}
+                    onToggleCheck={this.handleCheck}
                 >
                     {children}
                 </TreeNodeComponent>

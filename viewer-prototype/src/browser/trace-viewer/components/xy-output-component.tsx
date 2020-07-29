@@ -75,8 +75,8 @@ export class XYOutputComponent extends AbstractTreeOutputComponent<AbstractOutpu
                 entries={this.state.XYTree}
                 collapsedNodes={this.state.collapsedNodes}
                 checkedSeries={this.state.checkedSeries}
-                onChecked={this.onToggleCheck}
-                onCollapse={this.onToggleCollapse}
+                onToggleCheck={this.onToggleCheck}
+                onToggleCollapse={this.onToggleCollapse}
             />
             : undefined
             ;

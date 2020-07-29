@@ -26,8 +26,8 @@ interface TreeNodeComponentProps {
     isCheckable: boolean;
     collapsed: boolean;
     children: JSX.Element | undefined;
-    onCollapsed: (id: number) => void;
-    onChecked: (id: number) => void;
+    onToggleCollapse: (id: number) => void;
+    onToggleCheck: (id: number) => void;
 }
 
 export class TreeNodeComponent extends React.Component<TreeNodeComponentProps> {
@@ -55,7 +55,7 @@ export class TreeNodeComponent extends React.Component<TreeNodeComponentProps> {
                     { this.isLeaf()
                         ? <span style={{paddingLeft:this.props.padding}}></span>
                         : <span
-                            onClick={() => this.props.onCollapsed(this.props.node.id)}
+                            onClick={() => this.props.onToggleCollapse(this.props.node.id)}
                             key={'icon-' + this.props.node.id}
                             style={{width: 12}}
                         >
@@ -68,7 +68,7 @@ export class TreeNodeComponent extends React.Component<TreeNodeComponentProps> {
                             id={this.props.node.id}
                             name={this.props.node.name}
                             checkedStatus={this.props.checkedStatus}
-                            onChecked={this.props.onChecked}
+                            onToggleCheck={this.props.onToggleCheck}
                         />
                         : <span style={{marginLeft: 5}}>{this.props.node.name}</span>
                     }

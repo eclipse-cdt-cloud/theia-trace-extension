@@ -8,8 +8,8 @@ interface XYTreeProps {
     checkedSeries: number[];
     collapsedNodes: number[];
     showFilter: boolean;
-    onChecked: (ids: number[]) => void;
-    onCollapse: (id: number) => void;
+    onToggleCheck: (ids: number[]) => void;
+    onToggleCollapse: (id: number) => void;
 }
 
 export class XYTree extends React.Component<XYTreeProps> {
@@ -30,8 +30,8 @@ export class XYTree extends React.Component<XYTreeProps> {
             showFilter={this.props.showFilter}
             collapsedNodes={this.props.collapsedNodes}
             checkedSeries={this.props.checkedSeries}
-            onChecked={this.props.onChecked}
-            onCollapse={this.props.onCollapse}
+            onToggleCheck={this.props.onToggleCheck}
+            onToggleCollapse={this.props.onToggleCollapse}
         />;
     }
 }
