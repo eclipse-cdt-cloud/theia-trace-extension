@@ -37,6 +37,10 @@ export class TreeNodeComponent extends React.Component<TreeNodeComponentProps> {
 
     private isLeaf = (): boolean => this.props.node.children.length === 0;
 
+    private handleCollapse = (): void => {
+        this.props.onToggleCollapse(this.props.node.id);
+    };
+
     renderChildren = (): JSX.Element | undefined => {
         if (this.props.collapsed) {
             return undefined;
@@ -55,7 +59,7 @@ export class TreeNodeComponent extends React.Component<TreeNodeComponentProps> {
                     { this.isLeaf()
                         ? <span style={{paddingLeft:this.props.padding}}></span>
                         : <span
-                            onClick={() => this.props.onToggleCollapse(this.props.node.id)}
+                            onClick={this.handleCollapse}
                             key={'icon-' + this.props.node.id}
                             style={{width: 12}}
                         >
