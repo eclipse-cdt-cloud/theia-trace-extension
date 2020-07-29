@@ -13,6 +13,10 @@ export class CheckboxComponent extends React.Component<CheckboxProps> {
         super(props);
     }
 
+    private handleClick = (): void => {
+        this.props.onToggleCheck(this.props.id);
+    };
+
     renderCheckbox = (checkedStatus: number): React.ReactNode => {
         switch (checkedStatus) {
             case 0:
@@ -27,7 +31,7 @@ export class CheckboxComponent extends React.Component<CheckboxProps> {
     };
 
     render(): JSX.Element {
-        return <div onClick={() => this.props.onToggleCheck(this.props.id)} >
+        return <div onClick={this.handleClick} >
             <span style={{padding: 5}}>
                 {this.renderCheckbox(this.props.checkedStatus)}
             </span>
