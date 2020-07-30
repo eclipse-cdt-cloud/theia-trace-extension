@@ -3,7 +3,7 @@
   "name": "electron-theia-trace-example-app",
   "main": "scripts/theia-trace-main.js",
   "build": {
-    "electronVersion": "4.2.12"
+    "electronVersion": "9.1.2"
   },
   "version": "0.0.1",
   "theia": {
@@ -54,7 +54,7 @@
     "download:plugins": "theia download:plugins -p=true"
   },
   "engines": {
-    "node": ">=10.2.0 < 12"
+    "node": ">=10.2.0 < 13"
   },
   "repository": {
     "type": "git",
