@@ -42,7 +42,7 @@
     "download:plugins": "theia download:plugins -p=true"
   },
   "engines": {
-    "node": ">=10.2.0 < 12"
+    "node": ">=10.2.0 < 13"
   },
   "theiaPluginsDir": "plugins",
   "theiaPlugins": {

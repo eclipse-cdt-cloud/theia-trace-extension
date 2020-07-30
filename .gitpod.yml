@@ -21,7 +21,7 @@ tasks:
     yarn download:sample-traces &&
     yarn
   command: >
-    yarn start:electron ../TraceCompassTutorialTraces/ --hostname=0.0.0.0
+    yarn start:electron ../TraceCompassTutorialTraces/ --hostname=0.0.0.0 --ignore-gpu-blacklist --no-sandbox
 github:
   prebuilds:
     pullRequestsFromForks: true
