@@ -8,7 +8,7 @@ import { Entry, EntryHeader } from 'tsp-typescript-client/lib/models/entry';
 import { ResponseStatus } from 'tsp-typescript-client/lib/models/response/responses';
 import { XYSeries } from 'tsp-typescript-client/lib/models/xy';
 import Chart = require('chart.js');
-import { XYTree } from './utils/filtrer-tree/xy-tree';
+import { EntryTree } from './utils/filtrer-tree/entry-tree';
 
 type XYOuputState = AbstractOutputState & {
     selectedSeriesId: number[];
@@ -71,8 +71,9 @@ export class XYOutputComponent extends AbstractTreeOutputComponent<AbstractOutpu
         this.onToggleCheck = this.onToggleCheck.bind(this);
         this.onToggleCollapse = this.onToggleCollapse.bind(this);
         return this.state.XYTree.length
-            ? <XYTree
+            ? <EntryTree
                 entries={this.state.XYTree}
+                showCheckboxes={true}
                 collapsedNodes={this.state.collapsedNodes}
                 checkedSeries={this.state.checkedSeries}
                 onToggleCheck={this.onToggleCheck}
