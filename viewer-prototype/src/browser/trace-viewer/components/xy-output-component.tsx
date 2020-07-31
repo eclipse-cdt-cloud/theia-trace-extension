@@ -9,12 +9,15 @@ import { ResponseStatus } from 'tsp-typescript-client/lib/models/response/respon
 import { XYSeries } from 'tsp-typescript-client/lib/models/xy';
 import Chart = require('chart.js');
 import { EntryTree } from './utils/filtrer-tree/entry-tree';
+import { getAllExpandedNodeIds } from './utils/filtrer-tree/utils';
+import { TreeNode } from './utils/filtrer-tree/tree-node';
 
 type XYOuputState = AbstractOutputState & {
     selectedSeriesId: number[];
     XYTree: Entry[];
     checkedSeries: number[];
     collapsedNodes: number[];
+    orderedNodes: number[];
     XYData: any;
 };
 
@@ -32,6 +35,7 @@ export class XYOutputComponent extends AbstractTreeOutputComponent<AbstractOutpu
             XYTree: [],
             checkedSeries: [],
             collapsedNodes: [],
+            orderedNodes: [],
             XYData: {}
         };
 
@@ -70,6 +74,7 @@ export class XYOutputComponent extends AbstractTreeOutputComponent<AbstractOutpu
     renderTree(): React.ReactNode | undefined {
         this.onToggleCheck = this.onToggleCheck.bind(this);
         this.onToggleCollapse = this.onToggleCollapse.bind(this);
+        this.onOrderChange = this.onOrderChange.bind(this);
         return this.state.XYTree.length
             ? <EntryTree
                 entries={this.state.XYTree}
@@ -78,6 +83,7 @@ export class XYOutputComponent extends AbstractTreeOutputComponent<AbstractOutpu
                 checkedSeries={this.state.checkedSeries}
                 onToggleCheck={this.onToggleCheck}
                 onToggleCollapse={this.onToggleCollapse}
+                onOrderChange={this.onOrderChange}
             />
             : undefined
             ;
@@ -172,7 +178,7 @@ export class XYOutputComponent extends AbstractTreeOutputComponent<AbstractOutpu
         this.setState({checkedSeries: newList});
     }
 
-    private onToggleCollapse(id: number) {
+    private onToggleCollapse(id: number, nodes: TreeNode[]) {
         let newList = [...this.state.collapsedNodes];
 
         const exist = this.state.collapsedNodes.find(expandId => expandId === id);
@@ -182,7 +188,12 @@ export class XYOutputComponent extends AbstractTreeOutputComponent<AbstractOutpu
         } else {
             newList = newList.concat(id);
         }
-        this.setState({collapsedNodes: newList});
+        const orderedIds = getAllExpandedNodeIds(nodes, newList);
+        this.setState({collapsedNodes: newList, orderedNodes: orderedIds});
+    }
+
+    private onOrderChange(ids: number[]) {
+        this.setState({orderedNodes: ids});
     }
 
     // private async waitAnalysisCompletion() {
@@ -208,7 +219,9 @@ export class XYOutputComponent extends AbstractTreeOutputComponent<AbstractOutpu
             QueryHelper.splitRangeIntoEqualParts(this.props.range.getstart(), this.props.range.getEnd(), 1120), []); // , [], { 'cpus': [] }
         const xyTreeResponse = (await this.props.tspClient.fetchXYTree<Entry, EntryHeader>(this.props.traceId, this.props.outputDescriptor.id, xyTreeParameters)).getModel();
         const treeModel = xyTreeResponse.model;
-        this.buildTreeNodes(treeModel.entries);
+        if (treeModel) {
+            this.buildTreeNodes(treeModel.entries);
+        }
     }
 
     private async updateXY() {
