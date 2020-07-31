@@ -62,6 +62,18 @@ canvas {
     width: 100%;
 }
 
+.table-tree>tbody>tr:nth-child(1)>th {
+    background-color: var(--theia-editor-background);
+    position: sticky;
+    top: 0;
+}
+
+.table-tree th, .table-tree td {
+    padding: 3px 5px;
+    text-align: left;
+    border-bottom: '1px solid #333';
+    border-right: '1px solid #333';
+}
 #input-filter-tree {
     background-color: var(--theia-input-background);
     border: none;
