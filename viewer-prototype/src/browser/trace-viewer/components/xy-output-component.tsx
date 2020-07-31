@@ -8,7 +8,7 @@ import { Entry, EntryHeader } from 'tsp-typescript-client/lib/models/entry';
 import { ResponseStatus } from 'tsp-typescript-client/lib/models/response/responses';
 import { XYSeries } from 'tsp-typescript-client/lib/models/xy';
 import Chart = require('chart.js');
-import { XYTree } from './utils/filtrer-tree/xy-tree';
+import { EntryTree } from './utils/filtrer-tree/entry-tree';
 
 type XYOuputState = AbstractOutputState & {
     selectedSeriesId: number[];
@@ -67,16 +67,20 @@ export class XYOutputComponent extends AbstractTreeOutputComponent<AbstractOutpu
 
     synchronizeTreeScroll(): void { /* Nothing to do by default */ }
 
-    renderTree(): React.ReactNode {
-        this.onSeriesChecked = this.onSeriesChecked.bind(this);
-        this.onCollapse = this.onCollapse.bind(this);
-        return <XYTree
-            entries={this.state.XYTree}
-            collapsedNodes={this.state.collapsedNodes}
-            checkedSeries={this.state.checkedSeries}
-            onChecked={this.onSeriesChecked}
-            onCollapse={this.onCollapse}
-        />;
+    renderTree(): React.ReactNode | undefined {
+        this.onToggleCheck = this.onToggleCheck.bind(this);
+        this.onToggleCollapse = this.onToggleCollapse.bind(this);
+        return this.state.XYTree.length
+            ? <EntryTree
+                entries={this.state.XYTree}
+                showCheckboxes={true}
+                collapsedNodes={this.state.collapsedNodes}
+                checkedSeries={this.state.checkedSeries}
+                onToggleCheck={this.onToggleCheck}
+                onToggleCollapse={this.onToggleCollapse}
+            />
+            : undefined
+            ;
     }
 
     renderChart(): React.ReactNode {
@@ -154,7 +158,7 @@ export class XYOutputComponent extends AbstractTreeOutputComponent<AbstractOutpu
         return nearestIndex ? nearestIndex : 0;
     }
 
-    private onSeriesChecked(ids: number[]) {
+    private onToggleCheck(ids: number[]) {
         let newList = [...this.state.checkedSeries];
         ids.forEach(id => {
             const exist = this.state.checkedSeries.find(seriesId => seriesId === id);
@@ -168,7 +172,7 @@ export class XYOutputComponent extends AbstractTreeOutputComponent<AbstractOutpu
         this.setState({checkedSeries: newList});
     }
 
-    private onCollapse(id: number) {
+    private onToggleCollapse(id: number) {
         let newList = [...this.state.collapsedNodes];
 
         const exist = this.state.collapsedNodes.find(expandId => expandId === id);

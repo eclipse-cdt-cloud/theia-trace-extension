@@ -61,3 +61,12 @@ canvas {
 .innerContainer {
     width: 100%;
 }
+
+#input-filter-tree {
+    background-color: var(--theia-input-background);
+    border: none;
+    border-bottom: 1px solid var(--theia-input-foreground);
+    padding: 3px;
+    width: 180px;
+    color: var(--theia-input-placeholder-foreground)
+}
