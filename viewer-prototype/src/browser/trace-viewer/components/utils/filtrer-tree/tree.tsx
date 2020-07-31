@@ -1,7 +1,10 @@
 import * as React from 'react';
-import { TreeNode, TreeNodeComponent } from './tree-node';
+import { TreeNode } from './tree-node';
 import { Message } from './message';
 import { Filter } from './filter';
+import { Table } from './table';
+import { getAllExpandedNodeIds } from './utils';
+import { SortConfig, sortNodes } from './sort';
 
 interface FilterTreeProps {
     nodes: TreeNode[];
@@ -10,11 +13,15 @@ interface FilterTreeProps {
     checkedSeries: number[];                // Optional
     collapsedNodes: number[];
     onToggleCheck: (ids: number[]) => void;     // Optional
-    onToggleCollapse: (id: number) => void;
+    onToggleCollapse: (id: number, nodes: TreeNode[]) => void;
+    onOrderChange: (ids: number[]) => void;
+    showHeader: boolean;
+    className: string;
 }
 
 interface FilterTreeState  {
     filteredNodes: TreeNode[];
+    sortConfig: SortConfig[];
 }
 
 export class FilterTree extends React.Component<FilterTreeProps, FilterTreeState> {
@@ -22,12 +29,14 @@ export class FilterTree extends React.Component<FilterTreeProps, FilterTreeState
         checkedSeries: [],
         showFilter: true,
         onToggleCheck: () => { /* Nothing to do */ },
+        onOrderChange: () => { /* Nothing to do */ },
     };
 
     constructor(props: FilterTreeProps) {
         super(props);
         this.state = {
-            filteredNodes: this.props.nodes
+            filteredNodes: this.props.nodes,
+            sortConfig: []
         };
     }
 
@@ -59,7 +68,17 @@ export class FilterTree extends React.Component<FilterTreeProps, FilterTreeState
     };
 
     handleCollapse = (id: number): void => {
-        this.props.onToggleCollapse(id);
+        const nodes = sortNodes(this.state.filteredNodes, this.state.sortConfig);
+        this.props.onToggleCollapse(id, nodes);
+    };
+
+    handleOrderChange = (nodes: TreeNode[]): void => {
+        const ids = getAllExpandedNodeIds(nodes, this.props.collapsedNodes);
+        this.props.onOrderChange(ids);
+    };
+
+    handleSortConfigChange = (sortConfig: SortConfig[]): void => {
+        this.setState({sortConfig: sortConfig});
     };
 
     getAllChildrenIds = (node: TreeNode, ids: number[]): number[] => {
@@ -147,13 +166,16 @@ export class FilterTree extends React.Component<FilterTreeProps, FilterTreeState
 
     isEveryChildChecked = (node: TreeNode): boolean => {
         const visibleNodes = node.children.filter((child: TreeNode) =>this.getNode(this.state.filteredNodes, child.id) !== undefined);
-        const allChildrenChecked = visibleNodes.every((child: TreeNode) => {
-            let isChecked = this.isNodeChecked(child.id);
-            if (child.children.length) {
-                isChecked = isChecked && this.isEveryChildChecked(child);
-            }
-            return isChecked;
-        });
+        let allChildrenChecked = false;
+        if (visibleNodes.length) {
+            allChildrenChecked = visibleNodes.every((child: TreeNode) => {
+                let isChecked = this.isNodeChecked(child.id);
+                if (child.children.length) {
+                    isChecked = isChecked && this.isEveryChildChecked(child);
+                }
+                return isChecked;
+            });
+        }
         const leaves = this.getAllLeavesId(this.state.filteredNodes, []);
         const allLeavesChecked = leaves.every((id: number) => this.isNodeChecked(id));
         return allChildrenChecked || allLeavesChecked;
@@ -187,6 +209,7 @@ export class FilterTree extends React.Component<FilterTreeProps, FilterTreeState
         rootNodes.forEach((node: TreeNode) => this.getMatchingIds(node, filter, matchedIds));
         filteredTree = this.filterTree(this.props.nodes, matchedIds);
         this.setState({filteredNodes: filteredTree});
+        this.handleOrderChange(filteredTree);
     };
 
     getMatchingIds = (node: TreeNode, filter: string, foundIds: number[]): boolean => {
@@ -213,41 +236,25 @@ export class FilterTree extends React.Component<FilterTreeProps, FilterTreeState
     renderFilterTree = (): JSX.Element =>  <React.Fragment>
             <Filter onChange={(e: React.ChangeEvent<HTMLInputElement>)=> this.handleFilterChanged(e.target.value)}/>
             {this.state.filteredNodes.length
-                ? this.renderTreeNodes(this.state.filteredNodes)
+                ? this.renderTable(this.state.filteredNodes)
                 : <span>No entries found</span>
             }
         </React.Fragment>;
 
-    renderTreeNodes = (nodes: TreeNode[], level = 0): JSX.Element | undefined => {
-        const treeNodes = nodes.map((node: TreeNode) => {
-            const children = node.children.length > 0 ? this.renderTreeNodes(node.children, level+1) : undefined;
-            const checkedStatus = this.getCheckedStatus(node.id);
-
-            if (!node.isRoot && this.isCollapsed(node.parentId)) {
-                return undefined;
-            }
-            return (
-                <TreeNodeComponent
-                    node={node}
-                    key={'node-'+node.id}
-                    level={level}
-                    padding={15}
-                    checkedStatus={checkedStatus}
-                    collapsed={this.isCollapsed(node.id)}
-                    isCheckable={this.props.showCheckboxes}
-                    onToggleCollapse={this.handleCollapse}
-                    onToggleCheck={this.handleCheck}
-                >
-                    {children}
-                </TreeNodeComponent>
-            );
-        });
-        return (
-            <ul style={{margin: 0, listStyleType: 'none', padding: 0}}>
-                {treeNodes}
-            </ul>
-        );
-    };
+    renderTable = (nodes: TreeNode[]): JSX.Element =>
+        <Table
+            nodes={nodes}
+            collapsedNodes={this.props.collapsedNodes}
+            isCheckable={this.props.showCheckboxes}
+            sortConfig={this.state.sortConfig}
+            getCheckedStatus={this.getCheckedStatus}
+            onToggleCollapse={this.handleCollapse}
+            onToggleCheck={this.handleCheck}
+            onSort={this.handleOrderChange}
+            onSortConfigChange={this.handleSortConfigChange}
+            showHeader={this.props.showHeader}
+            className={this.props.className}
+        />;
 
     render(): JSX.Element | undefined {
         if (!this.props.nodes) {return undefined;}
@@ -256,7 +263,7 @@ export class FilterTree extends React.Component<FilterTreeProps, FilterTreeState
             return <React.Fragment>
                 { this.props.showFilter
                     ? this.renderFilterTree()
-                    : this.renderTreeNodes(rootNodes)
+                    : this.renderTable(rootNodes)
                 }
 
             </React.Fragment>;

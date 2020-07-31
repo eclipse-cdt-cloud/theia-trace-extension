@@ -3,7 +3,6 @@ import icons from './icons';
 
 interface CheckboxProps {
     id: number;
-    name: string;
     checkedStatus: number;
     onToggleCheck: (id: number) => void;
 }
@@ -31,11 +30,8 @@ export class CheckboxComponent extends React.Component<CheckboxProps> {
     };
 
     render(): JSX.Element {
-        return <div onClick={this.handleClick} >
-            <span style={{padding: 5}}>
+        return <span style={{padding: 5}} onClick={this.handleClick}>
                 {this.renderCheckbox(this.props.checkedStatus)}
-            </span>
-            {this.props.name}
-        </div>;
+            </span>;
     }
 }

@@ -130,12 +130,15 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
     }
 
     renderTree(): React.ReactNode {
+        // TODO Show header, when we can have entries in-line with timeline-chart
         return <EntryTree
             collapsedNodes={this.state.collapsedNodes}
             showFilter={false}
             entries={this.state.timegraphTree}
             showCheckboxes={false}
             onToggleCollapse={this.onToggleCollapse}
+            showHeader={false}
+            className="timegraph-tree"
         />;
     }
 
