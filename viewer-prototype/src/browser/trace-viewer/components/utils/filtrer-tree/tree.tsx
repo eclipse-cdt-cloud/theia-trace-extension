@@ -1,7 +1,8 @@
 import * as React from 'react';
-import { TreeNode, TreeNodeComponent } from './tree-node';
+import { TreeNode } from './tree-node';
 import { Message } from './message';
 import { Filter } from './filter';
+import { Table } from './table';
 
 interface FilterTreeProps {
     nodes: TreeNode[];
@@ -213,41 +214,20 @@ export class FilterTree extends React.Component<FilterTreeProps, FilterTreeState
     renderFilterTree = (): JSX.Element =>  <React.Fragment>
             <Filter onChange={(e: React.ChangeEvent<HTMLInputElement>)=> this.handleFilterChanged(e.target.value)}/>
             {this.state.filteredNodes.length
-                ? this.renderTreeNodes(this.state.filteredNodes)
+                ? this.renderTable(this.state.filteredNodes)
                 : <span>No entries found</span>
             }
         </React.Fragment>;
 
-    renderTreeNodes = (nodes: TreeNode[], level = 0): JSX.Element | undefined => {
-        const treeNodes = nodes.map((node: TreeNode) => {
-            const children = node.children.length > 0 ? this.renderTreeNodes(node.children, level+1) : undefined;
-            const checkedStatus = this.getCheckedStatus(node.id);
-
-            if (!node.isRoot && this.isCollapsed(node.parentId)) {
-                return undefined;
-            }
-            return (
-                <TreeNodeComponent
-                    node={node}
-                    key={'node-'+node.id}
-                    level={level}
-                    padding={15}
-                    checkedStatus={checkedStatus}
-                    collapsed={this.isCollapsed(node.id)}
-                    isCheckable={this.props.showCheckboxes}
-                    onToggleCollapse={this.handleCollapse}
-                    onToggleCheck={this.handleCheck}
-                >
-                    {children}
-                </TreeNodeComponent>
-            );
-        });
-        return (
-            <ul style={{margin: 0, listStyleType: 'none', padding: 0}}>
-                {treeNodes}
-            </ul>
-        );
-    };
+    renderTable = (nodes: TreeNode[]): JSX.Element =>
+        <Table
+            nodes={nodes}
+            collapsedNodes={this.props.collapsedNodes}
+            isCheckable={this.props.showCheckboxes}
+            getCheckedStatus={this.getCheckedStatus}
+            onToggleCollapse={this.props.onToggleCollapse}
+            onToggleCheck={this.handleCheck}
+        />;
 
     render(): JSX.Element | undefined {
         if (!this.props.nodes) {return undefined;}
@@ -256,7 +236,7 @@ export class FilterTree extends React.Component<FilterTreeProps, FilterTreeState
             return <React.Fragment>
                 { this.props.showFilter
                     ? this.renderFilterTree()
-                    : this.renderTreeNodes(rootNodes)
+                    : this.renderTable(rootNodes)
                 }
 
             </React.Fragment>;
