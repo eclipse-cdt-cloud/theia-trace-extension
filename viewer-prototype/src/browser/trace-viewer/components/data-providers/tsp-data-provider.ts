@@ -28,6 +28,16 @@ export class TspDataProvider {
 
     async getData(ids: number[], entries: TimeGraphEntry[], viewRange?: TimelineChart.TimeGraphRange, resolution?: number): Promise<TimelineChart.TimeGraphModel> {
         this.timeGraphEntries = [...entries];
+        if (!this.timeGraphEntries.length) {
+            return {
+                id: 'model',
+                totalLength: this.totalRange,
+                arrows: [],
+                rows: [],
+                data: {}
+            };
+        }
+
         this.totalRange = this.timeGraphEntries[0].endTime - this.timeGraphEntries[0].startTime; // 1332170682540133097 - starttime
         let statesParameters = QueryHelper.selectionTimeQuery(QueryHelper.splitRangeIntoEqualParts(1332170682440133097, 1332170682540133097, 1120), ids);
         if (viewRange && resolution) {
@@ -43,7 +53,6 @@ export class TspDataProvider {
 
         // the start time which is normalized to logical 0 in timeline chart.
         const chartStart = this.timeGraphEntries[0].startTime;
-
         const rows: TimelineChart.TimeGraphRowModel[] = [];
         this.timeGraphRows.forEach((row: TimeGraphRow) => {
             const rowId: number = (row as any).entryID;
