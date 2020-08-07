@@ -22,11 +22,12 @@ export class EntryTree extends React.Component<EntryTreeProps> {
         super(props);
     }
 
-    shouldComponentUpdate = (nextProps: EntryTreeProps): boolean => (this.props.checkedSeries !== nextProps.checkedSeries || this.props.entries !== nextProps.entries);
+    shouldComponentUpdate = (nextProps: EntryTreeProps): boolean =>
+        (this.props.checkedSeries !== nextProps.checkedSeries || this.props.entries !== nextProps.entries || this.props.collapsedNodes !== nextProps.collapsedNodes);
 
     render(): JSX.Element {
         return <FilterTree
-            nodes = { listToTree(this.props.entries) }
+            nodes={listToTree(this.props.entries)}
             {...this.props}
         />;
     }

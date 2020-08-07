@@ -18,16 +18,19 @@ import { StyleProvider } from './data-providers/style-provider';
 import { TspDataProvider } from './data-providers/tsp-data-provider';
 import { ReactTimeGraphContainer } from './utils/timegraph-container-component';
 import { OutputElementStyle } from 'tsp-typescript-client/lib/models/styles';
+import { EntryTree } from './utils/filtrer-tree/entry-tree';
+import { listToTree, getAllExpandedNodeIds } from './utils/filtrer-tree/utils';
 
 type TimegraphOutputProps = AbstractOutputProps & {
     addWidgetResizeHandler: (handler: () => void) => void;
 };
 
-type TimegraohOutputState = AbstractOutputState & {
+type TimegraphOutputState = AbstractOutputState & {
     timegraphTree: TimeGraphEntry[];
+    collapsedNodes: number[];
 };
 
-export class TimegraphOutputComponent extends AbstractTreeOutputComponent<TimegraphOutputProps, TimegraohOutputState> {
+export class TimegraphOutputComponent extends AbstractTreeOutputComponent<TimegraphOutputProps, TimegraphOutputState> {
     private totalHeight = 0;
     private rowController: TimeGraphRowController;
     private chartLayer: TimeGraphChart;
@@ -43,8 +46,10 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
         super(props);
         this.state = {
             outputStatus: ResponseStatus.RUNNING,
-            timegraphTree: []
+            timegraphTree: [],
+            collapsedNodes: []
         };
+        this.onToggleCollapse = this.onToggleCollapse.bind(this);
         this.tspDataProvider = new TspDataProvider(this.props.tspClient, this.props.traceId, this.props.outputDescriptor.id);
         this.rowController = new TimeGraphRowController(this.props.style.rowHeight, this.totalHeight);
         this.horizontalContainer = React.createRef();
@@ -52,18 +57,18 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
             dataProvider: async (range: TimelineChart.TimeGraphRange, resolution: number) => this.fetchTimegraphData(range, resolution),
             rowElementStyleProvider: (model: TimelineChart.TimeGraphRowElementModel) => this.getElementStyle(model),
             rowStyleProvider: (row: TimelineChart.TimeGraphRowModel) => ({
-                    backgroundColor: 0x979797,// 0xaaaaff,
-                    backgroundOpacity: row.selected ? 0.1 : 0,
-                    lineColor: 0xdddddd, // hasStates ? 0xdddddd : 0xaa4444, // row.data && row.data.hasStates
-                    lineThickness: 1, // hasStates ? 1 : 3 // row.data && row.data.hasStates
-                })
+                backgroundColor: 0x979797,// 0xaaaaff,
+                backgroundOpacity: row.selected ? 0.1 : 0,
+                lineColor: 0xdddddd, // hasStates ? 0xdddddd : 0xaa4444, // row.data && row.data.hasStates
+                lineThickness: 1, // hasStates ? 1 : 3 // row.data && row.data.hasStates
+            })
         };
         this.chartLayer = new TimeGraphChart('timeGraphChart', providers, this.rowController);
         this.vscrollLayer = new TimeGraphVerticalScrollbar('timeGraphVerticalScrollbar', this.rowController);
 
-        this.rowController.onVerticalOffsetChangedHandler(()=>{
+        this.rowController.onVerticalOffsetChangedHandler(() => {
             if (this.treeRef.current) {
-                this.treeRef.current.scrollTop=this.rowController.verticalOffset;
+                this.treeRef.current.scrollTop = this.rowController.verticalOffset;
             }
         });
 
@@ -82,7 +87,7 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
 
     synchronizeTreeScroll(): void {
         if (this.treeRef.current) {
-            this.rowController.verticalOffset=this.treeRef.current.scrollTop;
+            this.rowController.verticalOffset = this.treeRef.current.scrollTop;
         }
     }
 
@@ -90,7 +95,7 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
         this.waitAnalysisCompletion();
     }
 
-    async componentDidUpdate(_prevProps: TimegraphOutputProps, _prevState: TimegraohOutputState):  Promise<void> {
+    async componentDidUpdate(_prevProps: TimegraphOutputProps, _prevState: TimegraphOutputState): Promise<void> {
         if (this.state.outputStatus !== ResponseStatus.COMPLETED || !this.state.timegraphTree.length) {
             const treeParameters = QueryHelper.timeQuery([0, 1]);
             const treeResponse = (await this.props.tspClient.fetchTimeGraphTree<TimeGraphEntry, EntryHeader>(this.props.traceId,
@@ -105,19 +110,33 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
                 timegraphTree: treeResponse.model.entries,
                 styleModel: styleResponse.model
             });
+            this.chartLayer.updateChart();
+        }
+
+        if (this.state.collapsedNodes !== _prevState.collapsedNodes) {
+            this.chartLayer.updateChart();
         }
     }
 
+    private onToggleCollapse(id: number) {
+        let newList = [...this.state.collapsedNodes];
+        const exist = this.state.collapsedNodes.find(expandId => expandId === id);
+        if (exist !== undefined) {
+            newList = newList.filter(collapsed => id !== collapsed);
+        } else {
+            newList = newList.concat(id);
+        }
+        this.setState({ collapsedNodes: newList });
+    }
+
     renderTree(): React.ReactNode {
-        return <React.Fragment>
-            {this.state.timegraphTree.map((entry, i) => {
-                if (entry.parentId !== -1) {
-                    return <p style={{ height: this.props.style.rowHeight, margin: 0 }} key={i}>
-                        {entry.labels[0] + '\n'}
-                    </p>;
-                }
-            })}
-        </React.Fragment>;
+        return <EntryTree
+            collapsedNodes={this.state.collapsedNodes}
+            showFilter={false}
+            entries={this.state.timegraphTree}
+            showCheckboxes={false}
+            onToggleCollapse={this.onToggleCollapse}
+        />;
     }
 
     renderChart(): React.ReactNode {
@@ -197,13 +216,15 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
     }
 
     private async fetchTimegraphData(range: TimelineChart.TimeGraphRange, resolution: number) {
+        const treeNodes = listToTree(this.state.timegraphTree);
+        const orderedTreeIds = getAllExpandedNodeIds(treeNodes, this.state.collapsedNodes);
         const length = range.end - range.start;
         const overlap = ((length * 5) - length) / 2;
         const start = range.start - overlap > 0 ? range.start - overlap : 0;
         const end = range.end + overlap < this.props.unitController.absoluteRange ? range.end + overlap : this.props.unitController.absoluteRange;
         const newRange: TimelineChart.TimeGraphRange = { start, end };
         const newResolution: number = resolution * 0.8;
-        const timeGraphData: TimelineChart.TimeGraphModel = await this.tspDataProvider.getData(newRange, this.props.style.chartWidth);
+        const timeGraphData: TimelineChart.TimeGraphModel = await this.tspDataProvider.getData(orderedTreeIds, this.state.timegraphTree, newRange, this.props.style.chartWidth);
         if (timeGraphData && this.selectedElement) {
             for (const row of timeGraphData.rows) {
                 const selEl = row.states.find(el => !!this.selectedElement && el.id === this.selectedElement.id);
