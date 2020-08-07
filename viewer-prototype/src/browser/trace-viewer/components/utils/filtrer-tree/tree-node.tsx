@@ -54,7 +54,8 @@ export class TreeNodeComponent extends React.Component<TreeNodeComponentProps> {
                 <div
                     data-level={this.props.level}
                     key={this.props.node.id}
-                    style={{display: 'flex', flexDirection: 'row', padding: '5px 8px'}}
+                    style={{display: 'flex', flexDirection: 'row', position: 'relative', transform: 'translateY(+20%)', top:'50%',
+                    paddingRight: '8px', paddingLeft: '8px', height: 20, whiteSpace: 'nowrap'}}
                 >
                     { this.isLeaf()
                         ? <span style={{paddingLeft:this.props.padding}}></span>
