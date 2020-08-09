@@ -208,7 +208,9 @@ export class XYOutputComponent extends AbstractTreeOutputComponent<AbstractOutpu
             QueryHelper.splitRangeIntoEqualParts(this.props.range.getstart(), this.props.range.getEnd(), 1120), []); // , [], { 'cpus': [] }
         const xyTreeResponse = (await this.props.tspClient.fetchXYTree<Entry, EntryHeader>(this.props.traceId, this.props.outputDescriptor.id, xyTreeParameters)).getModel();
         const treeModel = xyTreeResponse.model;
-        this.buildTreeNodes(treeModel.entries);
+        if (treeModel) {
+            this.buildTreeNodes(treeModel.entries);
+        }
     }
 
     private async updateXY() {

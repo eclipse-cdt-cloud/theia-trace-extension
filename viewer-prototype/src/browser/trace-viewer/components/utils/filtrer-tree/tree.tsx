@@ -148,13 +148,16 @@ export class FilterTree extends React.Component<FilterTreeProps, FilterTreeState
 
     isEveryChildChecked = (node: TreeNode): boolean => {
         const visibleNodes = node.children.filter((child: TreeNode) =>this.getNode(this.state.filteredNodes, child.id) !== undefined);
-        const allChildrenChecked = visibleNodes.every((child: TreeNode) => {
-            let isChecked = this.isNodeChecked(child.id);
-            if (child.children.length) {
-                isChecked = isChecked && this.isEveryChildChecked(child);
-            }
-            return isChecked;
-        });
+        let allChildrenChecked = false;
+        if (visibleNodes.length) {
+            allChildrenChecked = visibleNodes.every((child: TreeNode) => {
+                let isChecked = this.isNodeChecked(child.id);
+                if (child.children.length) {
+                    isChecked = isChecked && this.isEveryChildChecked(child);
+                }
+                return isChecked;
+            });
+        }
         const leaves = this.getAllLeavesId(this.state.filteredNodes, []);
         const allLeavesChecked = leaves.every((id: number) => this.isNodeChecked(id));
         return allChildrenChecked || allLeavesChecked;
