@@ -2,6 +2,7 @@ import * as React from 'react';
 import { Entry } from 'tsp-typescript-client/lib/models/entry';
 import { listToTree } from './utils';
 import { FilterTree } from './tree';
+import { TreeNode } from './tree-node';
 
 interface EntryTreeProps {
     entries: Entry[];
@@ -10,12 +11,14 @@ interface EntryTreeProps {
     collapsedNodes: number[];
     showFilter: boolean;
     onToggleCheck: (ids: number[]) => void;
-    onToggleCollapse: (id: number) => void;
+    onToggleCollapse: (id: number, nodes: TreeNode[]) => void;
+    onOrderChange: (ids: number[]) => void
 }
 
 export class EntryTree extends React.Component<EntryTreeProps> {
     static defaultProps: Partial<EntryTreeProps> = {
-        showFilter: true
+        showFilter: true,
+        onOrderChange: () => { /* Nothing to do */ },
     };
 
     constructor(props: EntryTreeProps) {

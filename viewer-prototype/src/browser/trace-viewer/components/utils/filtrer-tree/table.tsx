@@ -8,17 +8,15 @@ interface TableProps {
     nodes: TreeNode[];
     collapsedNodes: number[];
     isCheckable: boolean;
+    sortConfig: SortConfig[];
     getCheckedStatus: (id: number) => number;
     onToggleCollapse: (id: number) => void;
     onToggleCheck: (id: number) => void;
+    onSort: (sortedNodes: TreeNode[]) => void;
+    onSortConfigChange: (sortConfig: SortConfig[]) => void;
 }
 
-interface TableState {
-    sortedNodes: TreeNode[];
-    sortConfig: SortConfig[];
-}
-
-export class Table extends React.Component<TableProps, TableState> {
+export class Table extends React.Component<TableProps> {
     private keys: string[] = [];
     private sortableColumns: string[] = [];
 
@@ -26,18 +24,15 @@ export class Table extends React.Component<TableProps, TableState> {
         super(props);
         this.keys = this.getTableHeaderKeys();
         this.sortableColumns = this.getSortableColumns();
-        this.state = {
-            sortedNodes: this.props.nodes,
-            sortConfig: this.initializeSortConfig()
-        };
+        this.initializeSortConfig();
     }
 
-    initializeSortConfig = (): SortConfig[] => {
+    initializeSortConfig = (): void => {
         const config: SortConfig[] = [];
         this.sortableColumns.forEach((column: string) => {
             config.push({column: column, sortState: sortState.default});
         });
-        return config;
+        this.props.onSortConfigChange(config);
     };
 
     getTableHeaderKeys = (): string[] => {
@@ -57,7 +52,7 @@ export class Table extends React.Component<TableProps, TableState> {
     };
 
     onSortChange = (sortColumn: string): void => {
-        let newSortConfigs: SortConfig[] = [...this.state.sortConfig];
+        let newSortConfigs: SortConfig[] = [...this.props.sortConfig];
         newSortConfigs = newSortConfigs.map((config: SortConfig) => {
             if (config.column === sortColumn) {
                 return {...config, sortState: nextSortState(config.sortState)};
@@ -65,17 +60,8 @@ export class Table extends React.Component<TableProps, TableState> {
                 return {...config, sortState: sortState.default};
             }
         });
-        const newSortedNodes = this.sortNodes(newSortConfigs);
-        this.setState({sortedNodes: newSortedNodes, sortConfig: newSortConfigs});
-    };
-
-    sortNodes = (sortConfigs: SortConfig[]): TreeNode[] => {
-        const orderToSort = sortConfigs.find((config: SortConfig) => config.sortState !== sortState.default);
-        if (orderToSort) {
-            return sortNodes(this.props.nodes, orderToSort);
-        } else {
-            return this.props.nodes;
-        }
+        const newSortedNodes = sortNodes(this.props.nodes, newSortConfigs);
+        this.props.onSort(newSortedNodes);
     };
 
     render(): JSX.Element {
@@ -86,11 +72,11 @@ export class Table extends React.Component<TableProps, TableState> {
                         columns={this.keys}
                         sortableColumns={this.sortableColumns}
                         onSort={this.onSortChange}
-                        sortConfig={this.state.sortConfig}
+                        sortConfig={this.props.sortConfig}
                     />
                     <TableBody
                         {...this.props}
-                        nodes={this.sortNodes(this.state.sortConfig)}
+                        nodes={sortNodes(this.props.nodes, this.props.sortConfig)}
                         keys={this.keys}
                     />
                 </table>

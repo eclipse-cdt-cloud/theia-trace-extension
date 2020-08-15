@@ -3,6 +3,8 @@ import { TreeNode } from './tree-node';
 import { Message } from './message';
 import { Filter } from './filter';
 import { Table } from './table';
+import { getAllVisibleNodesId } from './utils';
+import { SortConfig, sortNodes } from './sort';
 
 interface FilterTreeProps {
     nodes: TreeNode[];
@@ -11,11 +13,13 @@ interface FilterTreeProps {
     checkedSeries: number[];                // Optional
     collapsedNodes: number[];
     onToggleCheck: (ids: number[]) => void;     // Optional
-    onToggleCollapse: (id: number) => void;
+    onToggleCollapse: (id: number, nodes: TreeNode[]) => void;
+    onOrderChange: (ids: number[]) => void;
 }
 
 interface FilterTreeState  {
     filteredNodes: TreeNode[];
+    sortConfig: SortConfig[];
 }
 
 export class FilterTree extends React.Component<FilterTreeProps, FilterTreeState> {
@@ -23,12 +27,14 @@ export class FilterTree extends React.Component<FilterTreeProps, FilterTreeState
         checkedSeries: [],
         showFilter: true,
         onToggleCheck: () => { /* Nothing to do */ },
+        onOrderChange: () => { /* Nothing to do */ },
     };
 
     constructor(props: FilterTreeProps) {
         super(props);
         this.state = {
-            filteredNodes: this.props.nodes
+            filteredNodes: this.props.nodes,
+            sortConfig: []
         };
     }
 
@@ -60,7 +66,17 @@ export class FilterTree extends React.Component<FilterTreeProps, FilterTreeState
     };
 
     handleCollapse = (id: number): void => {
-        this.props.onToggleCollapse(id);
+        const nodes = sortNodes(this.state.filteredNodes, this.state.sortConfig);
+        this.props.onToggleCollapse(id, nodes);
+    };
+
+    handleOrderChange = (nodes: TreeNode[]): void => {
+        const ids = getAllVisibleNodesId(nodes, this.props.collapsedNodes);
+        this.props.onOrderChange(ids);
+    };
+
+    handleSortConfigChange = (sortConfig: SortConfig[]): void => {
+        this.setState({sortConfig: sortConfig});
     };
 
     getAllChildrenIds = (node: TreeNode, ids: number[]): number[] => {
@@ -191,6 +207,7 @@ export class FilterTree extends React.Component<FilterTreeProps, FilterTreeState
         rootNodes.forEach((node: TreeNode) => this.getMatchingIds(node, filter, matchedIds));
         filteredTree = this.filterTree(this.props.nodes, matchedIds);
         this.setState({filteredNodes: filteredTree});
+        this.handleOrderChange(filteredTree);
     };
 
     getMatchingIds = (node: TreeNode, filter: string, foundIds: number[]): boolean => {
@@ -227,9 +244,12 @@ export class FilterTree extends React.Component<FilterTreeProps, FilterTreeState
             nodes={nodes}
             collapsedNodes={this.props.collapsedNodes}
             isCheckable={this.props.showCheckboxes}
+            sortConfig={this.state.sortConfig}
             getCheckedStatus={this.getCheckedStatus}
-            onToggleCollapse={this.props.onToggleCollapse}
+            onToggleCollapse={this.handleCollapse}
             onToggleCheck={this.handleCheck}
+            onSort={this.handleOrderChange}
+            onSortConfigChange={this.handleSortConfigChange}
         />;
 
     render(): JSX.Element | undefined {

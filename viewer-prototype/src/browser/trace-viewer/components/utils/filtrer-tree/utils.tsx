@@ -26,3 +26,14 @@ export const listToTree = (list: Entry[]): TreeNode[] => {
     });
     return rootNodes;
 };
+
+export const getAllVisibleNodesId = (nodes: TreeNode[], collapsedNodes: number[]): number[] => {
+    const visibleIds: number[] = [];
+    nodes .forEach((node: TreeNode) => {
+        visibleIds.push(node.id);
+        if (node.children.length && !collapsedNodes.includes(node.id)) {
+            visibleIds.push(...getAllVisibleNodesId(node.children, collapsedNodes));
+        }
+    });
+    return visibleIds;
+};

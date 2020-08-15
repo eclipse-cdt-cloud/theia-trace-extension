@@ -28,40 +28,43 @@ export const nextSortState = (currentState: React.ReactNode): React.ReactNode =>
     }
 };
 
-export const sortNodes = (nodes: TreeNode[], sortConfig: SortConfig): TreeNode[] => {
+export const sortNodes = (nodes: TreeNode[], sortConfig: SortConfig[]): TreeNode[] => {
     const sortedNodes = [...nodes];
-    sortedNodes.sort((node1: TreeNode, node2: TreeNode) => {
-        const key = sortConfig.column;
-        const order = (sortConfig.sortState === sortState.asc) ? 'asc' : 'desc';
-        const value1 = node1[key as keyof TreeNode];
-        const value2 = node2[key as keyof TreeNode];
-        let result = 0;
-        if (!value1 && value2) {
-            result = -1;
-        } else if (value1 && !value2) {
-            result = 1;
-        } else if (!value1 && !value2) {
-            result = 0;
-        } else {
-            if (typeof value1 === 'string' && typeof value2 === 'string') {
-                const comp = value1.localeCompare(value2);
-                result = (order === 'asc') ? -comp : comp;
+    const orderToSort = sortConfig.find((config: SortConfig) => config.sortState !== sortState.default);
+    if (orderToSort) {
+        sortedNodes.sort((node1: TreeNode, node2: TreeNode) => {
+            const key = orderToSort.column;
+            const order = (orderToSort.sortState === sortState.asc) ? 'asc' : 'desc';
+            const value1 = node1[key as keyof TreeNode];
+            const value2 = node2[key as keyof TreeNode];
+            let result = 0;
+            if (!value1 && value2) {
+                result = -1;
+            } else if (value1 && !value2) {
+                result = 1;
+            } else if (!value1 && !value2) {
+                result = 0;
             } else {
-                if (value1 < value2) {
-                    result = (order === 'asc') ? -1 : 1;
-                } else if (value1 > value2) {
-                    result = (order === 'asc') ? 1 : -1;
+                if (typeof value1 === 'string' && typeof value2 === 'string') {
+                    const comp = value1.localeCompare(value2);
+                    result = (order === 'asc') ? -comp : comp;
                 } else {
-                    result = 0;
+                    if (value1 < value2) {
+                        result = (order === 'asc') ? -1 : 1;
+                    } else if (value1 > value2) {
+                        result = (order === 'asc') ? 1 : -1;
+                    } else {
+                        result = 0;
+                    }
                 }
             }
-        }
-        return result;
-    });
-    sortedNodes.forEach((node: TreeNode) => {
-        if (node.children.length) {
-            node.children = sortNodes(node.children, sortConfig);
-        }
-    });
+            return result;
+        });
+        sortedNodes.forEach((node: TreeNode) => {
+            if (node.children.length) {
+                node.children = sortNodes(node.children, sortConfig);
+            }
+        });
+    }
     return sortedNodes;
 };
