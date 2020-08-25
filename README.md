@@ -1,4 +1,5 @@
 [![Gitpod ready-to-code](https://img.shields.io/badge/Gitpod-ready--to--code-blue?logo=gitpod)](https://gitpod.io/#https://github.com/theia-ide/theia-trace-extension)
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Ftheia-ide%2Ftheia-trace-extension.svg?type=shield)](https://app.fossa.com/projects/git%2Bgithub.com%2Ftheia-ide%2Ftheia-trace-extension?ref=badge_shield)
 
 # Trace Viewer extension for Theia applications
 
@@ -102,3 +103,7 @@ There is only a limited number of such operations and they are only implemented 
 ### Time Graph Tooltip
 Currently, the **Time Graph Tooltip** is populated when selecting a state in a Time Graph view. 
 
+
+
+## License
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Ftheia-ide%2Ftheia-trace-extension.svg?type=large)](https://app.fossa.com/projects/git%2Bgithub.com%2Ftheia-ide%2Ftheia-trace-extension?ref=badge_large)
