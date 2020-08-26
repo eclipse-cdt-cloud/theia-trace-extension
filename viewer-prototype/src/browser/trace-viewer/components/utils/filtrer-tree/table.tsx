@@ -61,6 +61,7 @@ export class Table extends React.Component<TableProps> {
             }
         });
         const newSortedNodes = sortNodes(this.props.nodes, newSortConfigs);
+        this.props.onSortConfigChange(newSortConfigs);
         this.props.onSort(newSortedNodes);
     };
 
