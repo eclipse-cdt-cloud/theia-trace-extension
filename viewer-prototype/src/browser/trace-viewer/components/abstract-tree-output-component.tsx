@@ -6,7 +6,7 @@ import { Entry, EntryHeader } from 'tsp-typescript-client/lib/models/entry';
 
 export abstract class AbstractTreeOutputComponent<P extends AbstractOutputProps, S extends AbstractOutputState> extends AbstractOutputComponent<P, S> {
     renderMainArea(): React.ReactNode {
-        const treeWidth = this.props.style.width - this.props.style.chartWidth - this.getHandleWidth();
+        const treeWidth = this.props.widthWPBugWorkaround - this.getHandleWidth() - this.props.style.chartWidth;
         return <React.Fragment>
             <div ref={this.treeRef} className='output-component-tree'
                 onScroll={_ev => { this.synchronizeTreeScroll(); }}
@@ -14,7 +14,7 @@ export abstract class AbstractTreeOutputComponent<P extends AbstractOutputProps,
             >
                 {this.renderTree()}
             </div>
-            <div className='output-component-chart' style={{ width: this.props.style.chartWidth, backgroundColor: '#3f3f3f' }}>
+            <div className='output-component-chart' style={{ width: this.props.style.chartWidth, height: this.props.style.height , backgroundColor: '#3f3f3f' }}>
                 {this.renderChart()}
             </div>
         </React.Fragment>;

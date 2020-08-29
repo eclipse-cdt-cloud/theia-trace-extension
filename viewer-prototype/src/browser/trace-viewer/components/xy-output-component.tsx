@@ -109,7 +109,7 @@ export class XYOutputComponent extends AbstractTreeOutputComponent<AbstractOutpu
         // width={this.props.style.chartWidth}
         return <React.Fragment>
             {this.state.outputStatus === ResponseStatus.COMPLETED ?
-                <Line data={this.state.XYData} height={this.props.style.height} options={lineOptions} ref={this.lineChartRef}></Line> :
+                <Line data={this.state.XYData} height={parseInt(this.props.style.height.toString())} options={lineOptions} ref={this.lineChartRef}></Line> :
                 'Analysis running...'}
         </React.Fragment>;
     }

@@ -17,11 +17,20 @@ export interface AbstractOutputProps {
     resolution?: number;
     outputDescriptor: OutputDescriptor;
     style: OutputComponentStyle;
+    // WidthProvider (react-grid-layout version 0.16.7) has a bug.
+    // Workaround for it needs width to be explicitly passed
+    // https://github.com/STRML/react-grid-layout/issues/961
+    widthWPBugWorkaround: number;
     onOutputRemove: (outputId: string) => void;
     // TODO Not sure
     unitController: TimeGraphUnitController;
     onSelectionRangeChange?: () => void;
     onViewRangeChange?: () => void;
+    className?: string;
+    onMouseUp?: VoidFunction;
+    onMouseDown?: VoidFunction;
+    onTouchStart?: VoidFunction;
+    onTouchEnd?: VoidFunction;
 }
 
 export interface AbstractOutputState {
@@ -32,7 +41,7 @@ export interface AbstractOutputState {
 export abstract class AbstractOutputComponent<P extends AbstractOutputProps, S extends AbstractOutputState> extends React.Component<P, S> {
 
     private mainAreaContainer: React.RefObject<HTMLDivElement>;
-    private handleWidth = 30;
+    private readonly HANDLE_WIDTH = 30;
 
     constructor(props: P) {
         super(props);
@@ -41,13 +50,23 @@ export abstract class AbstractOutputComponent<P extends AbstractOutputProps, S e
 
     render(): JSX.Element {
         this.closeComponent = this.closeComponent.bind(this);
-        return <div className='output-container' style={{ width: this.props.style.width }}>
-            <div className='widget-handle' style={{ width: this.handleWidth }}>
+        const localStyle = Object.assign({},this.props.style);
+        localStyle.width = this.props.widthWPBugWorkaround;
+        return <div style={localStyle}
+            className={'output-container '+this.props.className}
+            onMouseUp={this.props.onMouseUp}
+            onMouseDown={this.props.onMouseDown}
+            onTouchStart={this.props.onTouchStart}
+            onTouchEnd={this.props.onTouchEnd}
+           >
+            <div className='widget-handle' style={{ width: this.HANDLE_WIDTH, height:this.props.style.height }}>
                 {this.renderTitleBar()}
             </div>
-            <div className='main-output-container' ref={this.mainAreaContainer} style={{ width: this.props.style.width - this.handleWidth }}>
+            <div className='main-output-container' ref={this.mainAreaContainer}
+            style={{ width: this.props.widthWPBugWorkaround - this.HANDLE_WIDTH, height:this.props.style.height }}>
                 {this.renderMainArea()}
             </div>
+            {this.props.children}
         </div>;
     }
 
@@ -75,7 +94,7 @@ export abstract class AbstractOutputComponent<P extends AbstractOutputProps, S e
     }
 
     public getHandleWidth(): number {
-        return this.handleWidth;
+        return this.HANDLE_WIDTH;
     }
 
     abstract renderMainArea(): React.ReactNode;

@@ -52,7 +52,7 @@ export class TableOutputComponent extends AbstractOutputComponent<TableOutputPro
     }
 
     renderMainArea(): React.ReactNode {
-        return <div id='events-table' className='ag-theme-balham-dark' style={{height: this.props.tableHeight, width: this.props.tableWidth}}>
+        return <div id='events-table' className='ag-theme-balham-dark' style={{ height: this.props.style.height, width: this.props.widthWPBugWorkaround }}>
             <AgGridReact
                 columnDefs={this.columnArray}
                 rowModelType='infinite'

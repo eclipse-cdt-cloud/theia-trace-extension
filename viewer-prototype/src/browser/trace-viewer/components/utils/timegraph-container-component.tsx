@@ -24,8 +24,19 @@ export class ReactTimeGraphContainer extends React.Component<ReactTimeGraphConta
         });
 
         this.props.onWidgetResize(() => {
-            if (this.container) { this.container.reInitCanvasSize(this.props.options.width); }
+            if (this.container) { this.container.reInitCanvasSize(this.props.options.width, this.props.options.height); }
         });
+    }
+
+    shouldComponentUpdate(nextProps: ReactTimeGraphContainer.Props): boolean {
+        return nextProps.options.height !== this.props.options.height
+               || nextProps.options.width !== this.props.options.width ;
+    }
+
+    componentDidUpdate(prevProps: ReactTimeGraphContainer.Props): void {
+        if (prevProps.options.height !== this.props.options.height && this.container) {
+            this.container.reInitCanvasSize(this.props.options.width, this.props.options.height);
+        }
     }
 
     render(): JSX.Element {
