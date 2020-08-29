@@ -44,7 +44,8 @@ export class TraceContextComponent extends React.Component<TraceContextProps, Tr
     private readonly COMPONENT_WIDTH_PROPORTION: number = 0.85;
     private readonly DEFAULT_COMPONENT_WIDTH: number = 1500;
     private readonly DEFAULT_CHART_WIDTH: number = Math.floor(this.DEFAULT_COMPONENT_WIDTH * this.COMPONENT_WIDTH_PROPORTION);
-    private readonly DEFAULT_COMPONENT_HEIGHT: number = 300;
+    private readonly DEFAULT_COMPONENT_HEIGHT: number = 10;
+    private readonly DEFAULT_COMPONENT_ROWHEIGHT: number = 20;
     private readonly SCROLLBAR_PADDING: number = 12;
 
     private unitController: TimeGraphUnitController;
@@ -76,11 +77,11 @@ export class TraceContextComponent extends React.Component<TraceContextProps, Tr
                 width: this.DEFAULT_COMPONENT_WIDTH, // 1245,
                 chartWidth: this.DEFAULT_CHART_WIDTH,
                 height: this.DEFAULT_COMPONENT_HEIGHT,
+                rowHeight: this.DEFAULT_COMPONENT_ROWHEIGHT,
                 naviBackgroundColor: 0x3f3f3f,
                 chartBackgroundColor: 0x3f3f3f,
                 cursorColor: 0x259fd8,
-                lineColor: 0xbbbbbb,
-                rowHeight: 20
+                lineColor: 0xbbbbbb
             }
         };
         const absoluteRange = traceRange.getDuration();
@@ -187,8 +188,12 @@ export class TraceContextComponent extends React.Component<TraceContextProps, Tr
             <div style={{ marginLeft: this.state.style.width - this.state.style.chartWidth }}>
                 <TimeAxisComponent unitController={this.unitController} style={this.state.style} addWidgetResizeHandler={this.addWidgetResizeHandler} />
             </div>
-            <ResponsiveGridLayout className='outputs-grid-layout' margin={[0, 5]} isResizable={false}
-                layouts={{ lg: layouts }} cols={{ lg: 1 }} breakpoints={{ lg: 1200 }} rowHeight={300} draggableHandle={'.widget-handle'}
+            {
+            // Syntax to use ReactGridLayout with Custom Components, while passing resized dimensions to children:
+            // https://github.com/STRML/react-grid-layout/issues/299#issuecomment-524959229
+            }
+            <ResponsiveGridLayout className='outputs-grid-layout' margin={[0, 5]} isResizable={true} isRearrangeable={true} isDraggable={true}
+                layouts={{ lg: layouts }} cols={{ lg: 1 }} breakpoints={{ lg: 1200 }} rowHeight={this.DEFAULT_COMPONENT_ROWHEIGHT} draggableHandle={'.widget-handle'}
                 style={{ paddingRight: this.SCROLLBAR_PADDING }}>
                 {outputs.map(output => {
                     const responseType = output.type;
@@ -201,22 +206,17 @@ export class TraceContextComponent extends React.Component<TraceContextProps, Tr
                         selectionRange: this.state.currentTimeSelection,
                         style: this.state.style,
                         onOutputRemove: this.props.onOutputRemove,
-                        unitController: this.unitController
+                        unitController: this.unitController,
+                        widthWPBugWorkaround: this.state.style.width
                     };
                     switch (responseType) {
                         case 'TIME_GRAPH':
-                            return <div key={output.id}>
-                                <TimegraphOutputComponent key={output.id} {...outputProps}
-                                    addWidgetResizeHandler={this.addWidgetResizeHandler} />
-                            </div>;
+                            return <TimegraphOutputComponent key={output.id} {...outputProps}
+                                    addWidgetResizeHandler={this.addWidgetResizeHandler} />;
                         case 'TREE_TIME_XY':
-                            return <div key={output.id}>
-                                <XYOutputComponent key={output.id} {...outputProps} />
-                            </div>;
+                            return <XYOutputComponent key={output.id} {...outputProps} />;
                         case 'TABLE':
-                            return <div key={output.id}>
-                                <TableOutputComponent key={output.id} {...outputProps} />
-                            </div>;
+                            return <TableOutputComponent key={output.id} {...outputProps} />;
                         default:
                             break;
                     }
@@ -244,7 +244,7 @@ export class TraceContextComponent extends React.Component<TraceContextProps, Tr
                     x: 0,
                     y: index,
                     w: 1,
-                    h: 1
+                    h: this.DEFAULT_COMPONENT_HEIGHT
                 };
                 layouts.push(itemLayout);
             });
