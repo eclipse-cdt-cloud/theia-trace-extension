@@ -5,6 +5,18 @@
     "version": "0.3.0",
     "configurations": [
         {
+            "name": "Launch Extension",
+            "type": "extensionHost",
+            "request": "launch",
+            "runtimeExecutable": "${execPath}",
+            "args": [
+                "--extensionDevelopmentPath=${workspaceFolder}/packages/vscode-extension"
+            ],
+            "outFiles": [
+                "${workspaceFolder}/packages/vscode-extension/build/extension/**/*.js"
+            ]
+        },
+        {
             "type": "chrome",
             "request": "launch",
             "name": "Start in Chrome",

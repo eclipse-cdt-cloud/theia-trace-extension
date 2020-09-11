@@ -2,4 +2,10 @@
     "editor.codeActionsOnSave": {
         "source.fixAll.eslint": true
     },
+    "search.exclude": {
+        "lib": true, // set this to false to include "lib" folder in search results
+        "build": true
+    },
+    // Turn off tsc task auto detection since we have the necessary tasks as npm scripts
+    "typescript.tsc.autoDetect": "off"
 }

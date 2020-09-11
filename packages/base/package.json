@@ -1,0 +1,32 @@
+{
+  "name": "@tracecompass/base",
+  "version": "0.0.0",
+  "description": "Trace Compass base package, contains trace management utilities",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/theia-ide/theia-trace-extension"
+  },
+  "files": [
+    "lib",
+    "src"
+  ],
+  "dependencies": {
+    "tsp-typescript-client": "next"
+  },
+  "devDependencies": {
+    "eslint": "^7.3.0",
+    "eslint-plugin-import": "^2.21.2",
+    "eslint-plugin-no-null": "^1.0.2",
+    "eslint-plugin-react": "^7.20.0",
+    "rimraf": "latest",
+    "typescript": "latest"
+  },
+  "scripts": {
+    "prepare": "yarn clean && yarn build",
+    "clean": "rimraf lib",
+    "build": "tsc",
+    "watch": "tsc -w",
+    "lint": "eslint ."
+  }
+}

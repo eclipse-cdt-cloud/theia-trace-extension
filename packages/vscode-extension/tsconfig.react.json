@@ -1,0 +1,15 @@
+{
+  "compilerOptions": {
+    "strict": true,
+    "sourceMap": true,
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "module": "commonjs",
+    "target": "ES2020",
+    "noEmit": true,
+    "jsx": "preserve"
+  },
+  "include": [
+    "react-app/src"
+  ]
+}

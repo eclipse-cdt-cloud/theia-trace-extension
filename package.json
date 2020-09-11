@@ -1,9 +1,12 @@
 {
   "private": true,
   "scripts": {
+    "reinstall": "rimraf ./**/node_modules && yarn install",
     "prepare": "lerna run prepare",
-    "rebuild:browser": "theia rebuild:browser",
-    "rebuild:electron": "theia rebuild:electron",
+    "build": "lerna run build",
+    "build:browser": "theia rebuild:browser",
+    "build:electron": "theia rebuild:electron",
+    "build:vscode-extension": "yarn workspace @tracecompass/vscode-extension build",
     "start:browser": "yarn rebuild:browser ; yarn --cwd browser-app start",
     "start:electron": "yarn rebuild:electron ; yarn --cwd electron-app start",
     "download:sample-traces": "curl -o TraceCompassTutorialTraces.tgz https://raw.githubusercontent.com/tuxology/tracevizlab/master/labs/TraceCompassTutorialTraces.tgz; tar -xf TraceCompassTutorialTraces.tgz",
@@ -11,15 +14,16 @@
     "start:server": "./trace-compass-server/tracecompass-server",
     "start-all:browser": "yarn start:server & yarn start:browser",
     "start-all:electron": "yarn start:server & yarn start:electron",
-    "lint": "yarn workspace trace-viewer run lint",
-    "test": "echo test"
+    "lint": "lerna run lint",
+    "test": "lerna run test"
   },
   "devDependencies": {
-    "lerna": "2.4.0"
+    "lerna": "2.4.0",
+    "rimraf": "^3.0.2"
   },
   "workspaces": [
-    "viewer-prototype",
-    "browser-app",
-    "electron-app"
+    "packages/base",
+    "packages/react-components",
+    "packages/vscode-extension"
   ]
 }
