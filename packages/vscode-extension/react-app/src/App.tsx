@@ -9,11 +9,7 @@ import { Experiment } from 'tsp-typescript-client/lib/models/experiment';
 import { TspClient } from 'tsp-typescript-client/lib/protocol/tsp-client';
 import { OutputDescriptor } from 'tsp-typescript-client/lib/models/output-descriptor';
 import { TraceContextComponent } from '@tracecompass/react-components/lib/components/trace-context-component';
-//import { VsCodeSignalHandler } from './vscode-signal-handler';
-//import { TraceContextComponent } from '../trace-viewer/trace-context-component';
-
-
-//const logo = require("../logo.svg") as string;
+import { VsCodeMessageManager } from './vscode-message-manager';
 
 interface TraceContextProps {
 }
@@ -25,7 +21,7 @@ interface TraceContextState {
 }
 
 class App extends React.Component<TraceContextProps, TraceContextState>  {
-  //private _signalHandler: VsCodeSignalHandler;
+  private _signalHandler: VsCodeMessageManager;
 
   constructor(props: TraceContextProps) {
     super(props);
@@ -34,7 +30,7 @@ class App extends React.Component<TraceContextProps, TraceContextState>  {
       tspClient: undefined,
       outputs: []
     };
-    //this._signalHandler = new VsCodeSignalHandler;
+    this._signalHandler = new VsCodeMessageManager();
     window.addEventListener('message', event => {
 
       const message = event.data; // The JSON data our extension sent
@@ -67,6 +63,7 @@ class App extends React.Component<TraceContextProps, TraceContextState>  {
           experiment={this.state.experiment} 
           tspClient={this.state.tspClient} 
           outputs={this.state.outputs}
+          messageManager={this._signalHandler}
           onOutputRemove={this.onOutputRemoved}></TraceContextComponent>
         }
       </div>

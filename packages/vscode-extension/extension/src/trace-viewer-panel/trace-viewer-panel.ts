@@ -3,6 +3,7 @@ import * as vscode from 'vscode';
 import { Experiment } from 'tsp-typescript-client/lib/models/experiment';
 import { getTspClient } from "../utils/tspClient";
 import { OutputDescriptor } from 'tsp-typescript-client/lib/models/output-descriptor';
+import { handleStatusMessage, handleRemoveMessage, setStatusFromPanel } from '../trace-explorer/trace-message';
 
 // inspired by https://github.com/rebornix/vscode-webview-react
 // TODO: manage mutiple panels (currently just a hack around, need to be fixed)
@@ -38,6 +39,7 @@ export class TraceViewerPanel {
 		} else {
 			openedPanel = new TraceViewerPanel(extensionPath, column || vscode.ViewColumn.One, name);
 			TraceViewerPanel.activePanels[name] = openedPanel;
+			setStatusFromPanel(name);
 		}
 		TraceViewerPanel.currentPanel = openedPanel;
 		return openedPanel;
@@ -56,8 +58,8 @@ export class TraceViewerPanel {
 			enableScripts: true,
 
 			// Do not destroy the content when hidden
-		    //	retainContextWhenHidden: true,
-			//enableCommandUris: true,
+		    retainContextWhenHidden: true,
+			enableCommandUris: true,
 
 			// And restric the webview to only loading content from our extension's `media` directory.
 			localResourceRoots: [
@@ -82,16 +84,21 @@ export class TraceViewerPanel {
 
 		this._panel.onDidChangeViewState(e => {
 			if (e.webviewPanel.active) {
-				console.log("TODO: Fire panel active event");
+				setStatusFromPanel(name);
 			}
 		});
 
 		// Handle messages from the webview
 		this._panel.webview.onDidReceiveMessage(message => {
-			console.log("REceived a message", message);
 			switch (message.command) {
 				case 'alert':
 					vscode.window.showErrorMessage(message.text);
+					return;
+				case 'newStatus':
+					handleStatusMessage(name, message.data);
+					return;
+				case 'rmStatus':
+					handleRemoveMessage(name, message.data);
 					return;
 			}
 		}, null, this._disposables);
@@ -115,6 +122,8 @@ export class TraceViewerPanel {
 				x.dispose();
 			}
 		}
+
+		// TODO close experiment
 	}
 
 	setExperiment(experiment: Experiment) {

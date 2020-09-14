@@ -18,6 +18,7 @@ import { OutputComponentStyle } from './utils/output-component-style';
 import { TimeAxisComponent } from './utils/time-axis-component';
 import { TimeNavigatorComponent } from './utils/time-navigator-component';
 import { XYOutputComponent } from './xy-output-component';
+import * as Messages from '@tracecompass/base/lib/message-manager';
 
 const ResponsiveGridLayout = WidthProvider(Responsive);
 
@@ -27,7 +28,7 @@ interface TraceContextProps {
     outputs: OutputDescriptor[];
     onOutputRemove: (outputId: string) => void;
     // Introduce dependency on Theia maybe it should be just a callback
-    // statusBar: StatusBar;
+    messageManager: Messages.MessageManager;
    // addResizeHandler: (handler: () => void) => void;
 }
 
@@ -43,8 +44,8 @@ interface TraceContextState {
 
 export class TraceContextComponent extends React.Component<TraceContextProps, TraceContextState> {
     private readonly INDEXING_RUNNING_STATUS: string = 'RUNNING';
-    // private readonly INDEXING_STATUS_BAR_KEY = 'indexing-status';
-    // private readonly TIME_SELECTION_STATUS_BAR_KEY = 'time-selection-range';
+    private readonly INDEXING_STATUS_BAR_KEY = 'indexing-status';
+    private readonly TIME_SELECTION_STATUS_BAR_KEY = 'time-selection-range';
     private readonly COMPONENT_WIDTH_PROPORTION: number = 0.85;
     private readonly DEFAULT_COMPONENT_WIDTH: number = 1500;
     private readonly DEFAULT_CHART_WIDTH: number = Math.floor(this.DEFAULT_COMPONENT_WIDTH * this.COMPONENT_WIDTH_PROPORTION);
@@ -127,18 +128,19 @@ export class TraceContextComponent extends React.Component<TraceContextProps, Tr
                 });
 
                 // Update status bar
-                /*this.props.statusBar.setElement(this.INDEXING_STATUS_BAR_KEY, {
+                console.log("will add status");
+                this.props.messageManager.addStatusMessage(this.INDEXING_STATUS_BAR_KEY, {
                     text: `Indexing ${this.props.experiment.name}: ${this.state.experiment.nbEvents}`,
-                    alignment: StatusBarAlignment.RIGHT
-                }); */
-                this.sleep(500);
+                    category: Messages.MessageCategory.SERVER_MESSAGE
+                }); 
+                await this.sleep(500);
             }
         }
-        // this.props.statusBar.removeElement(this.INDEXING_STATUS_BAR_KEY);
+        this.props.messageManager.removeStatusMessage(this.INDEXING_STATUS_BAR_KEY);
     }
 
-    private sleep(ms: number) {
-        new Promise(resolve => setTimeout(resolve, ms));
+    private async sleep(ms: number) {
+        return new Promise(resolve => setTimeout(resolve, ms));
     }
 
     componentDidMount(): void {
@@ -148,8 +150,8 @@ export class TraceContextComponent extends React.Component<TraceContextProps, Tr
     }
 
     componentWillUnmount(): void {
-        // this.props.statusBar.removeElement(this.INDEXING_STATUS_BAR_KEY);
-        // this.props.statusBar.removeElement(this.TIME_SELECTION_STATUS_BAR_KEY);
+        this.props.messageManager.removeStatusMessage(this.INDEXING_STATUS_BAR_KEY);
+        this.props.messageManager.removeStatusMessage(this.TIME_SELECTION_STATUS_BAR_KEY);
     }
 
     private onResize() {
@@ -163,13 +165,13 @@ export class TraceContextComponent extends React.Component<TraceContextProps, Tr
     }
 
     private handleTimeSelectionChange(range: TimelineChart.TimeGraphRange) {
-        // const t1 = Math.trunc(range.start + this.state.timeOffset);
-        // const t2 = Math.trunc(range.end + this.state.timeOffset);
+        const t1 = Math.trunc(range.start + this.state.timeOffset);
+        const t2 = Math.trunc(range.end + this.state.timeOffset);
 
-        /* this.props.statusBar.setElement(this.TIME_SELECTION_STATUS_BAR_KEY, {
+        this.props.messageManager.addStatusMessage(this.TIME_SELECTION_STATUS_BAR_KEY, {
             text: `T1: ${t1} T2: ${t2} Delta: ${t2 - t1}`,
-            alignment: StatusBarAlignment.LEFT,
-        }); */
+            category: Messages.MessageCategory.TRACE_CONTEXT
+        }); 
         this.setState(prevState => ({
                 currentTimeSelection: new TimeRange(range.start, range.end, prevState.timeOffset)
             }));
