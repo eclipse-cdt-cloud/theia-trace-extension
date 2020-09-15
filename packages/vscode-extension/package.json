@@ -42,7 +42,7 @@
       {
         "command": "outputs.openOutput",
         "title": "Open Output",
-        "icon": "assets/media/dep.svg"
+        "icon": "assets/media/chart-line-solid.svg"
       }
     ],
     "viewsContainers": {
@@ -50,7 +50,7 @@
         {
           "id": "trace-explorer",
           "title": "Trace Explorer",
-          "icon": "assets/media/dep.svg"
+          "icon": "assets/media/chart-line-solid.svg"
         }
       ]
     },
@@ -64,7 +64,7 @@
         {
           "id": "analysis",
           "name": "Analysis",
-          "icon": "assets/media/dep.svg"
+          "icon": "assets/media/chart-line-solid.svg"
         }
       ]
     },
