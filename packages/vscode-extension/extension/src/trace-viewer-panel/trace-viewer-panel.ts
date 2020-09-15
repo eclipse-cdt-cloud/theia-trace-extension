@@ -84,6 +84,7 @@ export class TraceViewerPanel {
 
 		this._panel.onDidChangeViewState(e => {
 			if (e.webviewPanel.active) {
+				TraceViewerPanel.currentPanel = this;
 				setStatusFromPanel(name);
 			}
 		});
