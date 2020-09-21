@@ -2,7 +2,7 @@ import * as React from 'react';
 import { Experiment } from 'tsp-typescript-client/lib/models/experiment';
 import { TspClient } from 'tsp-typescript-client/lib/protocol/tsp-client';
 import { OutputDescriptor } from 'tsp-typescript-client/lib/models/output-descriptor';
-import { TraceContextComponent } from '@tracecompass/react-components/lib/components/trace-context-component';
+import { TraceContextComponent } from '@trace-viewer/react-components/lib/components/trace-context-component';
 import { VsCodeMessageManager } from './vscode-message-manager';
 
 interface VscodeAppProps {

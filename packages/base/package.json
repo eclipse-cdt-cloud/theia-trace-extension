@@ -1,5 +1,5 @@
 {
-  "name": "@tracecompass/base",
+  "name": "@trace-viewer/base",
   "version": "0.0.0",
   "description": "Trace Compass base package, contains trace management utilities",
   "license": "MIT",

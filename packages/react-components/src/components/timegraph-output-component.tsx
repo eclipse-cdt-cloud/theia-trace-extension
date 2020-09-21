@@ -11,7 +11,7 @@ import { EntryHeader } from 'tsp-typescript-client/lib/models/entry';
 import { QueryHelper } from 'tsp-typescript-client/lib/models/query/query-helper';
 import { ResponseStatus } from 'tsp-typescript-client/lib/models/response/responses';
 import { TimeGraphEntry } from 'tsp-typescript-client/lib/models/timegraph';
-import { signalManager } from '@tracecompass/base/lib/signal-manager';
+import { signalManager } from '@trace-viewer/base/lib/signal-manager';
 import { AbstractOutputProps, AbstractOutputState } from './abstract-output-component';
 import { AbstractTreeOutputComponent } from './abstract-tree-output-component';
 import { StyleProvider } from './data-providers/style-provider';

@@ -1,5 +1,5 @@
 {
-  "name": "@tracecompass/theia-extension",
+  "name": "@trace-viewer/theia-extension",
   "version": "0.0.0",
   "description": "Trace Compass Theia Extension",
   "license": "MIT",
@@ -30,7 +30,7 @@
     "semantic-ui-react": "^0.86.0",
     "timeline-chart": "next",
     "tsp-typescript-client": "next",
-    "@tracecompass/base": "0.0.0"
+    "@trace-viewer/base": "0.0.0"
   },
   "devDependencies": {
     "@types/chart.js": "^2.7.52",

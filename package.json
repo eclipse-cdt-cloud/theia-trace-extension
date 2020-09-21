@@ -6,7 +6,7 @@
     "build": "lerna run build",
     "build:browser": "theia rebuild:browser",
     "build:electron": "theia rebuild:electron",
-    "build:vscode-extension": "yarn workspace @tracecompass/vscode-extension build",
+    "build:vscode-extension": "yarn workspace @trace-viewer/vscode-extension build",
     "start:browser": "yarn rebuild:browser ; yarn --cwd browser-app start",
     "start:electron": "yarn rebuild:electron ; yarn --cwd electron-app start",
     "download:sample-traces": "curl -o TraceCompassTutorialTraces.tgz https://raw.githubusercontent.com/tuxology/tracevizlab/master/labs/TraceCompassTutorialTraces.tgz; tar -xf TraceCompassTutorialTraces.tgz",

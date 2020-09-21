@@ -10,7 +10,7 @@ import { TimeGraphUnitController } from 'timeline-chart/lib/time-graph-unit-cont
 import { OutputDescriptor } from 'tsp-typescript-client/lib/models/output-descriptor';
 import { Experiment } from 'tsp-typescript-client/lib/models/experiment';
 import { TspClient } from 'tsp-typescript-client/lib/protocol/tsp-client';
-import { TimeRange } from '@tracecompass/base/lib/utils/time-range';
+import { TimeRange } from '@trace-viewer/base/lib/utils/time-range';
 import { AbstractOutputProps } from './abstract-output-component';
 import { TableOutputComponent } from './table-output-component';
 import { TimegraphOutputComponent } from './timegraph-output-component';
@@ -18,7 +18,7 @@ import { OutputComponentStyle } from './utils/output-component-style';
 import { TimeAxisComponent } from './utils/time-axis-component';
 import { TimeNavigatorComponent } from './utils/time-navigator-component';
 import { XYOutputComponent } from './xy-output-component';
-import * as Messages from '@tracecompass/base/lib/message-manager';
+import * as Messages from '@trace-viewer/base/lib/message-manager';
 
 const ResponsiveGridLayout = WidthProvider(Responsive);
 

@@ -1,5 +1,5 @@
 {
-  "name": "@tracecompass/vscode-extension",
+  "name": "@trace-viewer/vscode-extension",
   "version": "0.0.0",
   "description": "Trace Compass VSCode Extension",
   "license": "MIT",
@@ -178,8 +178,8 @@
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
     "tsp-typescript-client": "next",
-    "@tracecompass/base": "0.0.0",
-    "@tracecompass/react-components": "0.0.0"
+    "@trace-viewer/base": "0.0.0",
+    "@trace-viewer/react-components": "0.0.0"
   },
   "jest": {
     "roots": [

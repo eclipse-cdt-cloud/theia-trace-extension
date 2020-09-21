@@ -1,4 +1,4 @@
-import * as Messages from '@tracecompass/base/lib/message-manager';
+import * as Messages from '@trace-viewer/base/lib/message-manager';
 
 // eslint-disable-next-line
 interface vscode {

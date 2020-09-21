@@ -29,7 +29,7 @@
     "@theia/vsx-registry": "latest",
     "@theia/keymaps": "latest",
     "@theia/getting-started": "latest",
-    "@tracecompass/theia-extension": "0.0.0"
+    "@trace-viewer/theia-extension": "0.0.0"
   },
   "devDependencies": {
     "@theia/cli": "latest"
