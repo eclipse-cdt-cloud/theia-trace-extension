@@ -1,29 +1,23 @@
 import * as React from 'react';
-/*import './App.css';
-import '../style/trace-viewer.css';
-import '../style/trace-context-style.css';
-import '../style/output-components-style.css';
-import '../style/trace-explorer.css';
-import '../style/status-bar.css';*/
 import { Experiment } from 'tsp-typescript-client/lib/models/experiment';
 import { TspClient } from 'tsp-typescript-client/lib/protocol/tsp-client';
 import { OutputDescriptor } from 'tsp-typescript-client/lib/models/output-descriptor';
 import { TraceContextComponent } from '@tracecompass/react-components/lib/components/trace-context-component';
 import { VsCodeMessageManager } from './vscode-message-manager';
 
-interface TraceContextProps {
+interface VscodeAppProps {
 }
 
-interface TraceContextState {
+interface VscodeAppState {
   experiment: Experiment | undefined;
   tspClient: TspClient | undefined;
   outputs: OutputDescriptor[];
 }
 
-class App extends React.Component<TraceContextProps, TraceContextState>  {
+class App extends React.Component<VscodeAppProps, VscodeAppState>  {
   private _signalHandler: VsCodeMessageManager;
 
-  constructor(props: TraceContextProps) {
+  constructor(props: VscodeAppProps) {
     super(props);
     this.state = {
       experiment: undefined,
@@ -39,8 +33,7 @@ class App extends React.Component<TraceContextProps, TraceContextState>  {
           this.setState({experiment: message.data as Experiment});
           break;
         case "set-tspClient":
-          // TODO Pass only the URL instead of weak typing here
-          this.setState({tspClient: new TspClient(message.data.baseUrl)});
+          this.setState({tspClient: new TspClient(message.data)});
           break;
         case "add-output":
           console.log("Adding outputs", message.data);
@@ -67,10 +60,7 @@ class App extends React.Component<TraceContextProps, TraceContextState>  {
           onOutputRemove={this.onOutputRemoved}></TraceContextComponent>
         }
       </div>
-    ); 
-    return (
-        <h1>Hello</h1>
-      );
+    );
   }
 }
 

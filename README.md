@@ -24,10 +24,11 @@ Here is the step in order to build the trace viewer
 
 ## Try the trace extension
 
-This repository contains an example trace-viewer application that includes the trace extension. It has two versions:
+This repository contains a vscode extension, as well as example Theia-based applications that includes the trace extension. It has three versions:
 
-- _browser_: a "browser" application, accessed with a web browser
-- _electron_: a native desktop application
+- _vscode_: The extension runs from a running vscode instance
+- _browser_: **temporarily unavailable** a "browser" theia application, accessed with a web browser
+- _electron_: **temporarily unavailable** a native theia desktop application
 
 ### Run the Trace Server
 
@@ -42,7 +43,15 @@ You can also build the trace-server yourself using Trace Compass and the Incubat
 
 ### Run the example app
 
-From the repo root, run either
+To run the vscode extension, open vscode with this repo open
+
+```bash
+  $ code .
+```
+
+Then press `F5` to run the extension.
+
+To run theia applications, rrom the repo root, run either
 
 ```bash
   $ yarn start:browser
@@ -59,6 +68,8 @@ or
 And use the Electron application.
 
 ## Package the Example Theia Trace Viewer Application
+
+**Temporarily unavailable**
 
 It's possible to package the repo's example application with `electron-builder`. After running `yarn` in the repo root, do:
 
@@ -98,7 +109,4 @@ Now, you will see 3 sections: **Opened experiments**, **Available analysis** and
 
 ### Navigation and zooming
 There is only a limited number of such operations and they are only implemented in the Time Graph views (the ones looking like Gantt charts). For Zoom-in/out use CTRL+mouse wheel. Or use left mouse drag on time axis on top. Navigating the trace you can use the scrollbar at the bottom of the experiment container.
-
-### Time Graph Tooltip
-Currently, the **Time Graph Tooltip** is populated when selecting a state in a Time Graph view. 
 

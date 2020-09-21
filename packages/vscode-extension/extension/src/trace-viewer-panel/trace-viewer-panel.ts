@@ -1,7 +1,7 @@
 import * as path from 'path';
 import * as vscode from 'vscode';
 import { Experiment } from 'tsp-typescript-client/lib/models/experiment';
-import { getTspClient } from "../utils/tspClient";
+import { getTspClientUrl, getTraceServerUrl } from "../utils/tspClient";
 import { OutputDescriptor } from 'tsp-typescript-client/lib/models/output-descriptor';
 import { handleStatusMessage, handleRemoveMessage, setStatusFromPanel } from '../trace-explorer/trace-message';
 
@@ -68,7 +68,7 @@ export class TraceViewerPanel {
 		});
 
 		// Post the tspTypescriptClient
-		this._panel.webview.postMessage({command: "set-tspClient", data: getTspClient()});
+		this._panel.webview.postMessage({command: "set-tspClient", data: getTspClientUrl()});
 
 		// Set the webview's initial html content 
 		this._panel.webview.html = this._getHtmlForWebview();
@@ -180,7 +180,7 @@ export class TraceViewerPanel {
 				<meta name="theme-color" content="#000000">
 				<title>React App</title>
 				<link rel="stylesheet" type="text/css" href="${styleUri}">
-				<meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src vscode-resource: https:; script-src 'nonce-${nonce}' 'unsafe-eval';style-src vscode-resource: 'unsafe-inline' http: https: data:;connect-src http://localhost:8080 https://localhost:3000 https://local.versatic.net:8443;">
+				<meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src vscode-resource: https:; script-src 'nonce-${nonce}' 'unsafe-eval';style-src vscode-resource: 'unsafe-inline' http: https: data:;connect-src ${getTraceServerUrl()};">
 				<base href="${vscode.Uri.file(path.join(this._extensionPath, 'build', 'react-app')).with({ scheme: 'vscode-resource' })}/">
 			</head>
 
