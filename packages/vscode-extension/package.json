@@ -13,7 +13,7 @@
     "clean": "rimraf build",
     "build": "yarn build:extension && yarn build:react",
     "build:extension": "tsc -p tsconfig.extension.json",
-    "lint:extension": "eslint extension/src --ext ts",
+    "lint": "eslint extension/src --ext ts",
     "watch:extension": "tsc -watch -p tsconfig.extension.json",
     "pretest:extension": "yarn build-extension && yarn lint",
     "test:extension": "node ./out/test/runTest.js",

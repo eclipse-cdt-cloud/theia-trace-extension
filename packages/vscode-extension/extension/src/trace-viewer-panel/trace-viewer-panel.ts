@@ -1,7 +1,7 @@
 import * as path from 'path';
 import * as vscode from 'vscode';
 import { Experiment } from 'tsp-typescript-client/lib/models/experiment';
-import { getTspClientUrl, getTraceServerUrl } from "../utils/tspClient";
+import { getTspClientUrl, getTraceServerUrl } from '../utils/tspClient';
 import { OutputDescriptor } from 'tsp-typescript-client/lib/models/output-descriptor';
 import { handleStatusMessage, handleRemoveMessage, setStatusFromPanel } from '../trace-explorer/trace-message';
 
@@ -16,7 +16,7 @@ export class TraceViewerPanel {
 	 * Track the currently panels. Only allow a single panel to exist at a time.
 	 */
 	public static activePanels = {} as {
-		[key: string]: TraceViewerPanel | undefined
+		[key: string]: TraceViewerPanel | undefined;
 	};
 
 	private static readonly viewType = 'react';
@@ -68,9 +68,9 @@ export class TraceViewerPanel {
 		});
 
 		// Post the tspTypescriptClient
-		this._panel.webview.postMessage({command: "set-tspClient", data: getTspClientUrl()});
+		this._panel.webview.postMessage({command: 'set-tspClient', data: getTspClientUrl()});
 
-		// Set the webview's initial html content 
+		// Set the webview's initial html content
 		this._panel.webview.html = this._getHtmlForWebview();
 
 		// Listen for when the panel is disposed
@@ -102,7 +102,7 @@ export class TraceViewerPanel {
 					handleRemoveMessage(name, message.data);
 					return;
 			}
-		}, null, this._disposables);
+		}, undefined, this._disposables);
 	}
 
 	public doRefactor() {
@@ -129,18 +129,18 @@ export class TraceViewerPanel {
 
 	setExperiment(experiment: Experiment) {
 		this._experiment = experiment;
-		this._panel.webview.postMessage({command: "set-experiment", data: experiment});
+		this._panel.webview.postMessage({command: 'set-experiment', data: experiment});
 	}
 
 	addOutput(descriptor: OutputDescriptor) {
-		this._panel.webview.postMessage({command: "add-output", data: descriptor});
+		this._panel.webview.postMessage({command: 'add-output', data: descriptor});
 	}
 
 	private _getHtmlForWebview() {
 		try {
 			return this._getReactHtmlForWebview();
 		} catch (e) {
-			console.log("Exception getting manifest", e);
+			console.log('Exception getting manifest', e);
 			return `<!DOCTYPE html>
 			<html lang="en">
 			<head>
@@ -156,10 +156,12 @@ export class TraceViewerPanel {
 				<div>Error initializing trace viewer</div>
 			</body>
 			</html>`;
-		}	
+		}
 	}
 
-	private _getReactHtmlForWebview() {
+	/* eslint-disable max-len */
+	private _getReactHtmlForWebview(): string {
+		// eslint-disable-next-line @typescript-eslint/no-var-requires
 		const manifest = require(path.join(this._extensionPath, 'build', 'react-app', 'asset-manifest.json'));
 		const mainScript = manifest.files['main.js'];
 		const mainStyle = manifest.files['main.css'];
@@ -198,8 +200,8 @@ export class TraceViewerPanel {
 }
 
 function getNonce() {
-	let text = "";
-	const possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+	let text = '';
+	const possible = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
 	for (let i = 0; i < 32; i++) {
 		text += possible.charAt(Math.floor(Math.random() * possible.length));
 	}

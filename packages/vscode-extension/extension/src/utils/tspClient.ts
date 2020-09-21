@@ -10,7 +10,7 @@ import * as vscode from 'vscode';
  */
 export function getTraceServerUrl(): string {
     const tsConfig = vscode.workspace.getConfiguration('trace-compass.traceserver');
-    const traceServerUrl = tsConfig.get<string>("url");
+    const traceServerUrl = tsConfig.get<string>('url');
     if (!traceServerUrl) {
         return 'http://localhost:8080/';
     }
@@ -20,18 +20,18 @@ export function getTraceServerUrl(): string {
 export function getTspClientUrl(): string {
     const tsConfig = vscode.workspace.getConfiguration('trace-compass.traceserver');
     const traceServerUrl = getTraceServerUrl();
-    const apiPath = tsConfig.get<string>("apiPath");
+    const apiPath = tsConfig.get<string>('apiPath');
     return traceServerUrl + (apiPath ? apiPath : 'tsp/api');
 }
 
-function createTspClient() {
+function createTspClient(): TspClient {
     return new TspClient(getTspClientUrl());
 }
 
-export function updateTspClient() {
+export function updateTspClient(): void {
     tspClientInstance = createTspClient();
 }
 
 let tspClientInstance = createTspClient();
 
-export const getTspClient = () => tspClientInstance;
+export const getTspClient = (): TspClient => tspClientInstance;

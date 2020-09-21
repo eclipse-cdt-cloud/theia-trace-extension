@@ -7,7 +7,7 @@ import { TspClientResponse } from 'tsp-typescript-client/lib/protocol/tsp-client
 import { signalManager, Signals } from './signal-manager';
 
 export class TraceManager {
-    
+
     private fOpenTraces: Map<string, Trace> = new Map();
     private fTspClient: TspClient;
 

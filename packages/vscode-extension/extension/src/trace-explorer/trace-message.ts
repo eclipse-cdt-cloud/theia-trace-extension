@@ -31,12 +31,12 @@ function removeStatusForPanel(panelName: string, messageKey: string) {
 }
 
 export function handleStatusMessage(panelName: string, {
-    text = "",
+    text = '',
     category = Messages.MessageCategory.SERVER_MESSAGE,
     severity = Messages.MessageSeverity.INFO,
-    messageKey = ""
+    messageKey = ''
 }) {
-    switch(severity) {
+    switch (severity) {
         case Messages.MessageSeverity.ERROR:
             vscode.window.showErrorMessage(text);
             return;
@@ -50,15 +50,15 @@ export function handleStatusMessage(panelName: string, {
             }
             return;
         case Messages.MessageSeverity.DEBUG:
-            console.log("Status message " + messageKey + "(" + category + "): " + text);
+            console.log('Status message ' + messageKey + '(' + category + '): ' + text);
             return;
     }
 }
 
-export function handleRemoveMessage(panelName: string, {messageKey = ""}) {
+export function handleRemoveMessage(panelName: string, {messageKey = ''}) {
     const barItem = getBarItem(messageKey);
     if (barItem) {
-        barItem.text = "";
+        barItem.text = '';
         barItem.hide();
     }
     removeStatusForPanel(panelName, messageKey);
@@ -67,7 +67,7 @@ export function handleRemoveMessage(panelName: string, {messageKey = ""}) {
 export function setStatusFromPanel(panelName: string) {
     const expStatus = statusPerExperiment[panelName] || {};
     Object.keys(statusBarItem).forEach(barKey => {
-        const message = expStatus[barKey] || "";
+        const message = expStatus[barKey] || '';
         statusBarItem[barKey].text = message;
         if (message) {
             statusBarItem[barKey].show();

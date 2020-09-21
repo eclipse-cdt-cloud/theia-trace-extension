@@ -7,13 +7,13 @@ import { TspClientResponse } from 'tsp-typescript-client/lib/protocol/tsp-client
 import { signalManager, Signals } from './signal-manager';
 
 export class ExperimentManager {
-   
+
     private fOpenExperiments: Map<string, Experiment> = new Map();
     private fTspClient: TspClient;
 
     constructor(
         tspClient: TspClient
-    ) { 
+    ) {
         this.fTspClient = tspClient;
     }
 

@@ -2,11 +2,11 @@ import * as vscode from 'vscode';
 import * as fs from 'fs';
 import * as path from 'path';
 import { Trace as TspTrace } from 'tsp-typescript-client/lib/models/trace';
-import { TraceManager } from "@trace-viewer/base/lib/trace-manager";
-import { ExperimentManager } from "@trace-viewer/base/lib/experiment-manager";
-import { AnalysisProvider } from "./analysis-tree";
-import { TraceViewerPanel } from "../trace-viewer-panel/trace-viewer-panel";
-import { getTspClient } from "../utils/tspClient";
+import { TraceManager } from '@trace-viewer/base/lib/trace-manager';
+import { ExperimentManager } from '@trace-viewer/base/lib/experiment-manager';
+import { AnalysisProvider } from './analysis-tree';
+import { TraceViewerPanel } from '../trace-viewer-panel/trace-viewer-panel';
+import { getTspClient } from '../utils/tspClient';
 
 const rootPath = path.resolve(__dirname, '../../..');
 
@@ -70,7 +70,7 @@ export class Trace extends vscode.TreeItem {
   }
 
   get description(): string {
-    return "";
+    return '';
   }
 
   iconPath = {
@@ -84,7 +84,7 @@ export const traceHandler = (analysisTree: AnalysisProvider) => (context: vscode
   (async () => {
     const traces = new Array<TspTrace>();
     const t = await traceManager.openTrace(trace.uri, trace.name);
-    if (t) { traces.push(t); };
+    if (t) { traces.push(t); }
     const experiment = await experimentManager.openExperiment(trace.name, traces);
     if (experiment) {
       panel.setExperiment(experiment);

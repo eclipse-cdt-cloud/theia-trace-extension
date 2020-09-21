@@ -1,7 +1,7 @@
 import * as vscode from 'vscode';
 import * as path from 'path';
 import { OutputDescriptor } from 'tsp-typescript-client/lib/models/output-descriptor';
-import { TraceViewerPanel } from "../trace-viewer-panel/trace-viewer-panel";
+import { TraceViewerPanel } from '../trace-viewer-panel/trace-viewer-panel';
 
 export class AnalysisProvider implements vscode.TreeDataProvider<Analysis> {
 
@@ -45,7 +45,7 @@ class Analysis extends vscode.TreeItem {
   }
 
   get description(): string {
-    return "";
+    return '';
   }
 
   iconPath = {

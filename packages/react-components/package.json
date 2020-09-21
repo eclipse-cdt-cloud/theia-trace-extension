@@ -15,6 +15,7 @@
     "@fortawesome/fontawesome-svg-core": "^1.2.17",
     "@fortawesome/free-solid-svg-icons": "^5.8.1",
     "@fortawesome/react-fontawesome": "^0.1.4",
+    "@trace-viewer/base": "0.0.0",
     "ag-grid-community": "^20.2.0",
     "ag-grid-react": "^20.2.0",
     "chart.js": "^2.8.0",
@@ -26,8 +27,7 @@
     "semantic-ui-css": "^2.4.1",
     "semantic-ui-react": "^0.86.0",
     "timeline-chart": "next",
-    "tsp-typescript-client": "next",
-    "@trace-viewer/base": "0.0.0"
+    "tsp-typescript-client": "next"
   },
   "devDependencies": {
     "@types/chart.js": "^2.7.52",

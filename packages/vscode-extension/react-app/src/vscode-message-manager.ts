@@ -1,6 +1,6 @@
 import * as Messages from '@trace-viewer/base/lib/message-manager';
 
-// eslint-disable-next-line
+/* eslint-disable  @typescript-eslint/no-explicit-any, @typescript-eslint/class-name-casing */
 interface vscode {
     postMessage(message: any): void;
 }
@@ -14,16 +14,16 @@ export class VsCodeMessageManager extends Messages.MessageManager {
         super();
     }
 
-    addStatusMessage(messageKey: string, {text, 
+    addStatusMessage(messageKey: string, {text,
         category = Messages.MessageCategory.SERVER_MESSAGE,
         severity = Messages.MessageSeverity.INFO }: Messages.StatusMessage): void {
-        vscode.postMessage({command: "newStatus", data: {messageKey, text, category, severity }});
-        console.log("New status message", messageKey, text, category, severity);
+        vscode.postMessage({command: 'newStatus', data: {messageKey, text, category, severity }});
+        console.log('New status message', messageKey, text, category, severity);
     }
 
     removeStatusMessage(messageKey: string): void {
-        vscode.postMessage({command: "rmStatus", data: { messageKey }});
-        console.log("Removing status message status message", messageKey);
+        vscode.postMessage({command: 'rmStatus', data: { messageKey }});
+        console.log('Removing status message status message', messageKey);
     }
 
 }

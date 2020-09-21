@@ -5,19 +5,16 @@ import { OutputDescriptor } from 'tsp-typescript-client/lib/models/output-descri
 import { TraceContextComponent } from '@trace-viewer/react-components/lib/components/trace-context-component';
 import { VsCodeMessageManager } from './vscode-message-manager';
 
-interface VscodeAppProps {
-}
-
 interface VscodeAppState {
   experiment: Experiment | undefined;
   tspClient: TspClient | undefined;
   outputs: OutputDescriptor[];
 }
 
-class App extends React.Component<VscodeAppProps, VscodeAppState>  {
+class App extends React.Component<{}, VscodeAppState>  {
   private _signalHandler: VsCodeMessageManager;
 
-  constructor(props: VscodeAppProps) {
+  constructor(props: {}) {
     super(props);
     this.state = {
       experiment: undefined,
@@ -29,14 +26,14 @@ class App extends React.Component<VscodeAppProps, VscodeAppState>  {
 
       const message = event.data; // The JSON data our extension sent
       switch (message.command) {
-        case "set-experiment":
+        case 'set-experiment':
           this.setState({experiment: message.data as Experiment});
           break;
-        case "set-tspClient":
+        case 'set-tspClient':
           this.setState({tspClient: new TspClient(message.data)});
           break;
-        case "add-output":
-          console.log("Adding outputs", message.data);
+        case 'add-output':
+          console.log('Adding outputs', message.data);
           this.setState({outputs: [...this.state.outputs, message.data] });
           break;
       }
@@ -49,12 +46,12 @@ class App extends React.Component<VscodeAppProps, VscodeAppState>  {
     this.setState({outputs: outputToKeep});
   }
 
-  public render() {
+  public render(): React.ReactNode {
     return (
       <div className="App">
-        { this.state.experiment && this.state.tspClient && <TraceContextComponent 
-          experiment={this.state.experiment} 
-          tspClient={this.state.tspClient} 
+        { this.state.experiment && this.state.tspClient && <TraceContextComponent
+          experiment={this.state.experiment}
+          tspClient={this.state.tspClient}
           outputs={this.state.outputs}
           messageManager={this._signalHandler}
           onOutputRemove={this.onOutputRemoved}></TraceContextComponent>

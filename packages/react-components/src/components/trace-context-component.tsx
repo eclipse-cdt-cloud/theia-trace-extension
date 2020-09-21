@@ -128,11 +128,11 @@ export class TraceContextComponent extends React.Component<TraceContextProps, Tr
                 });
 
                 // Update status bar
-                console.log("will add status");
+                console.log('will add status');
                 this.props.messageManager.addStatusMessage(this.INDEXING_STATUS_BAR_KEY, {
                     text: `Indexing ${this.props.experiment.name}: ${this.state.experiment.nbEvents}`,
                     category: Messages.MessageCategory.SERVER_MESSAGE
-                }); 
+                });
                 await this.sleep(500);
             }
         }
@@ -145,7 +145,7 @@ export class TraceContextComponent extends React.Component<TraceContextProps, Tr
 
     componentDidMount(): void {
         this.onResize = this.onResize.bind(this);
-        //this.props.addResizeHandler(this.onResize);
+        // this.props.addResizeHandler(this.onResize);
         this.onResize();
     }
 
@@ -171,7 +171,7 @@ export class TraceContextComponent extends React.Component<TraceContextProps, Tr
         this.props.messageManager.addStatusMessage(this.TIME_SELECTION_STATUS_BAR_KEY, {
             text: `T1: ${t1} T2: ${t2} Delta: ${t2 - t1}`,
             category: Messages.MessageCategory.TRACE_CONTEXT
-        }); 
+        });
         this.setState(prevState => ({
                 currentTimeSelection: new TimeRange(range.start, range.end, prevState.timeOffset)
             }));

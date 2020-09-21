@@ -21,19 +21,19 @@ export declare interface MessageManager {
 
     addStatusMessage(messageKey: string, message: StatusMessage): void;
     removeStatusMessage(messageKey: string): void;
-    
+
 }
 
 export class MessageManager implements MessageManager {
 
-    addStatusMessage(messageKey: string, {text, 
+    addStatusMessage(messageKey: string, {text,
         category = MessageCategory.SERVER_MESSAGE,
         severity = MessageSeverity.INFO }: StatusMessage): void {
-        console.log("New status message", messageKey, text, category, severity);
+        console.log('New status message', messageKey, text, category, severity);
     }
 
     removeStatusMessage(messageKey: string): void {
-        console.log("Removing status message status message", messageKey);
+        console.log('Removing status message status message', messageKey);
     }
 
 }
