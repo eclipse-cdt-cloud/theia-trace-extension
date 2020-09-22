@@ -95,3 +95,88 @@ export const traceHandler = (analysisTree: AnalysisProvider) => (context: vscode
     }
   })();
 };
+
+export const fileHandler = (analysisTree: AnalysisProvider) => (context: vscode.ExtensionContext, file: any) => {
+  const uri: string = file.path;
+  if (!uri) {
+    console.log("Cannot open trace: invalid uri for file", file);
+    return;
+  }
+  const name = uri.substring(uri.lastIndexOf('/') + 1);
+  const panel = TraceViewerPanel.createOrShow(context.extensionPath, name);
+  (async () => {
+
+    /*
+     * TODO: use backend service to find traces
+     */
+    const tracesArray: string[] = [];
+    const fileStat = await vscode.workspace.fs.stat(file);
+    if (fileStat) {
+      if (fileStat.type === vscode.FileType.Directory) {
+          // Find recursivly CTF traces
+          const foundTraces = await findTraces(uri);
+          foundTraces.forEach(trace => tracesArray.push(trace));
+      } else {
+          // Open single trace file
+          tracesArray.push(uri);
+      }
+    }
+
+    const traces = new Array<TspTrace>();
+    for (let i = 0; i < tracesArray.length; i++) {
+      const traceName = tracesArray[i].substring(tracesArray[i].lastIndexOf('/') + 1);
+      const trace = await traceManager.openTrace(tracesArray[i], traceName);
+      if (trace) {
+          traces.push(trace);
+      }
+    }
+
+    const experiment = await experimentManager.openExperiment(name, traces);
+    if (experiment) {
+      panel.setExperiment(experiment);
+      const descriptors = await experimentManager.getAvailableOutputs(experiment.UUID);
+      if (descriptors && descriptors.length) {
+        analysisTree.refresh(descriptors);
+      }
+    }
+
+  })();
+};
+
+/*
+* TODO: Make a proper trace finder, not just CTF
+*/
+const findTraces = async (directory: string): Promise<string[]> => {
+  const traces: string[] = [];
+  const uri = vscode.Uri.file(directory);
+  /**
+    * If single file selection then return single trace in traces, if directory then find
+    * recoursivly CTF traces in starting from root directory.
+    */
+  const ctf = await isCtf(directory);
+  if (ctf) {
+      traces.push(directory);
+  } else {
+    // Look at the sub-directories of this 
+    const fileStat = await vscode.workspace.fs.stat(uri);
+    const childrenArr = await vscode.workspace.fs.readDirectory(uri);
+    for (const child of childrenArr) {
+      if (child[1] === vscode.FileType.Directory) {
+        const subTraces = await findTraces(directory + '/' + child[0]);
+        subTraces.forEach(trace => traces.push(trace));
+      }
+    }
+  }
+  return traces;
+};
+
+const isCtf = async (directory: string): Promise<boolean> => {
+  const uri = vscode.Uri.file(directory);
+  const childrenArr = await vscode.workspace.fs.readDirectory(uri);
+  for (const child of childrenArr) {
+    if (child[0] === 'metadata') {
+      return true;
+    }
+  }
+  return false;
+};

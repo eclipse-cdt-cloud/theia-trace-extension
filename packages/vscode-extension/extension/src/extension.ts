@@ -1,6 +1,6 @@
 'use strict';
 import * as vscode from 'vscode';
-import { TracesProvider, traceHandler } from './trace-explorer/trace-tree';
+import { TracesProvider, traceHandler, fileHandler } from './trace-explorer/trace-tree';
 import { AnalysisProvider, analysisHandler } from './trace-explorer/analysis-tree';
 import { updateTspClient } from './utils/tspClient';
 
@@ -21,6 +21,12 @@ export function activate(context: vscode.ExtensionContext) {
 
   context.subscriptions.push(vscode.commands.registerCommand('outputs.openOutput', output => {
     analysisHandler(context, output);
+  }));
+
+  // TODO: For now, a different command opens traces from file explorer. Remove when we have a proper trace finder
+  const fileOpenHandler = fileHandler(analysisProvider);
+  context.subscriptions.push(vscode.commands.registerCommand('traces.openTraceFile', file => {
+    fileOpenHandler(context, file);
   }));
 
   // Listening to configuration change for the trace server URL

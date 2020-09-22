@@ -29,7 +29,7 @@
     "Other"
   ],
   "activationEvents": [
-    "onView:traces"
+    "onStartupFinished"
   ],
   "main": "./build/extension/extension.js",
   "contributes": {
@@ -43,6 +43,11 @@
         "command": "outputs.openOutput",
         "title": "Open Output",
         "icon": "assets/media/chart-line-solid.svg"
+      },
+      {
+        "command": "traces.openTraceFile",
+        "title": "Open Trace",
+        "icon": "assets/media/dep.svg"
       }
     ],
     "viewsContainers": {
@@ -89,6 +94,12 @@
           "command": "outputs.openOutput",
           "when": "view == analysis",
           "group": "inline"
+        }
+      ],
+      "explorer/context": [
+        {
+          "command": "traces.openTraceFile",
+          "group": "navigation"
         }
       ]
     },
