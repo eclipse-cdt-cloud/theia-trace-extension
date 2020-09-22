@@ -23,22 +23,23 @@
     }
   },
   "dependencies": {
+    "@theia/compression-webpack-plugin": "latest",
     "@theia/core": "latest",
+    "@theia/editor": "latest",
+    "@theia/electron": "latest",
     "@theia/filesystem": "latest",
-    "@theia/workspace": "latest",
-    "@theia/preferences": "latest",
+    "@theia/getting-started": "latest",
+    "@theia/keymaps": "latest",
+    "@theia/markers": "latest",
+    "@theia/messages": "latest",
+    "@theia/monaco": "latest",
     "@theia/navigator": "latest",
+    "@theia/preferences": "latest",
     "@theia/process": "latest",
     "@theia/terminal": "latest",
-    "@theia/editor": "latest",
-    "@theia/markers": "latest",
-    "@theia/monaco": "latest",
-    "@theia/messages": "latest",
     "@theia/vsx-registry": "latest",
-    "@theia/keymaps": "latest",
-    "@theia/getting-started": "latest",
-    "@theia/electron": "latest",
-    "@trace-viewer/theia-extension": "0.0.0"
+    "@theia/workspace": "latest",
+    "circular-dependency-plugin": "^5.2.0"
   },
   "devDependencies": {
     "@theia/cli": "latest",
@@ -46,7 +47,8 @@
   },
   "scripts": {
     "prepare": "theia build --mode development && yarn download:plugins",
-    "start": "theia start --plugins=local-dir:./plugins",
+    "symlink:extension": "mkdir -p plugins && rm -f ./plugins/vscode-extension && ln -s ../../../packages/vscode-extension ./plugins/",
+    "start": "yarn run symlink:extension && theia start --plugins=local-dir:./plugins",
     "watch": "theia build --watch --mode development",
     "package": "electron-builder",
     "package:preview": "electron-builder --dir",
