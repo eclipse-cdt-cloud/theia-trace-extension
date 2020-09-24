@@ -1610,7 +1610,7 @@
     jsonc-parser "^2.0.2"
     lodash.debounce "^4.0.8"
 
-"@theia/languages@^1.4.0", "@theia/languages@latest":
+"@theia/languages@^1.4.0":
   version "1.4.0"
   resolved "https://registry.yarnpkg.com/@theia/languages/-/languages-1.4.0.tgz#9d9034ccfc304bd9fb4380855e5695740227f189"
   integrity sha512-FKjzr9b7wVzvs6y5HJG9Ddu7ilScZwZXvRonEGu8ESxgicvf6vNjBZjHV2grSHdBE/PwYINfDGBfh9y2o9Obqw==
