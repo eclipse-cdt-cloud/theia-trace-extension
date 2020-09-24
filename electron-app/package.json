@@ -31,7 +31,6 @@
     "@theia/process": "latest",
     "@theia/terminal": "latest",
     "@theia/editor": "latest",
-    "@theia/languages": "latest",
     "@theia/markers": "latest",
     "@theia/monaco": "latest",
     "@theia/messages": "latest",
