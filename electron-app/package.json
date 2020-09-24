@@ -54,7 +54,8 @@
     "download:plugins": "theia download:plugins -p=true"
   },
   "engines": {
-    "node": ">=10.2.0 < 13"
+    "yarn": "1.0.x || >=1.2.1",
+    "node": ">=12.14.1 <13"
   },
   "repository": {
     "type": "git",
