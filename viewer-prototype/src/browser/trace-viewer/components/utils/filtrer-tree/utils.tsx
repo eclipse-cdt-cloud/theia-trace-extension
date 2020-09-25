@@ -11,17 +11,25 @@ const entryToTreeNode = (entry: Entry) => ({
 export const listToTree = (list: Entry[]): TreeNode[] => {
     const rootNodes: TreeNode[] = [];
     const lookup: { [key: string]: TreeNode } = {};
+    // Fill-in the lookup table
     list.forEach(entry => {
         lookup[entry.id] = entryToTreeNode(entry);
     });
-    Object.keys(lookup).forEach(id => {
-        const entry = lookup[id];
-        if (entry.parentId === -1) {
-            entry.isRoot = true;
-            rootNodes.push(entry);
-        } else if (entry.parentId in lookup) {
-            const p = lookup[entry.parentId];
-            p.children.push(entry);
+    // Create the tree in the order it has been received
+    list.forEach(entry => {
+        const node = lookup[entry.id];
+        if ((entry.parentId !== undefined) && (entry.parentId !== -1)) {
+            const parent: TreeNode = lookup[entry.parentId];
+            if (parent) {
+                parent.children.push(node);
+            } else {
+                // no parent available, treat is as root node
+                node.isRoot = true;
+                rootNodes.push(node);
+            }
+        } else {
+            node.isRoot = true;
+            rootNodes.push(node);
         }
     });
     return rootNodes;
