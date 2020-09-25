@@ -46,10 +46,11 @@ export abstract class AbstractOutputComponent<P extends AbstractOutputProps, S e
     constructor(props: P) {
         super(props);
         this.mainAreaContainer = React.createRef();
+        this.closeComponent = this.closeComponent.bind(this);
+        this.renderTitleBar = this.renderTitleBar.bind(this);
     }
 
     render(): JSX.Element {
-        this.closeComponent = this.closeComponent.bind(this);
         const localStyle = Object.assign({},this.props.style);
         localStyle.width = this.props.widthWPBugWorkaround;
         return <div style={localStyle}
@@ -70,7 +71,7 @@ export abstract class AbstractOutputComponent<P extends AbstractOutputProps, S e
         </div>;
     }
 
-    renderTitleBar(): React.ReactNode {
+    private renderTitleBar(): React.ReactNode {
         const outputName = this.props.outputDescriptor.name;
         return <React.Fragment>
             <button className='remove-component-button' onClick={this.closeComponent}>

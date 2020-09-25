@@ -201,7 +201,7 @@ export class TraceContextComponent extends React.Component<TraceContextProps, Tr
             // https://github.com/STRML/react-grid-layout/issues/299#issuecomment-524959229
             }
             <ResponsiveGridLayout className='outputs-grid-layout' margin={[0, 5]} isResizable={true} isRearrangeable={true} isDraggable={true}
-                layouts={{ lg: layouts }} cols={{ lg: 1 }} breakpoints={{ lg: 1200 }} rowHeight={this.DEFAULT_COMPONENT_ROWHEIGHT} draggableHandle={'.widget-handle'}
+                layouts={{ lg: layouts }} cols={{ lg: 1 }} breakpoints={{ lg: 1200 }} rowHeight={this.DEFAULT_COMPONENT_ROWHEIGHT} draggableHandle={'.title-bar-label'}
                 style={{ paddingRight: this.SCROLLBAR_PADDING }}>
                 {outputs.map(output => {
                     const responseType = output.type;

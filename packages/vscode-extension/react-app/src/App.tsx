@@ -33,7 +33,6 @@ class App extends React.Component<{}, VscodeAppState>  {
           this.setState({tspClient: new TspClient(message.data)});
           break;
         case 'add-output':
-          console.log('Adding outputs', message.data);
           this.setState({outputs: [...this.state.outputs, message.data] });
           break;
       }
