@@ -4,7 +4,7 @@ import { TreeNode } from './tree-node';
 const entryToTreeNode = (entry: Entry) => ({
         id: entry.id,
         parentId: entry.parentId,
-        name: entry.labels[0],
+        name: ((entry.labels) && (entry.labels.length > 0)) ? entry.labels[0] : '',
         isRoot: false,
         children: []
     } as TreeNode);
