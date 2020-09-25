@@ -50,19 +50,19 @@ export class TreeNodeComponent extends React.Component<TreeNodeComponentProps> {
 
     render(): JSX.Element {
         return (
-            <li style={{paddingLeft:this.props.padding}}>
+            <li style={{ paddingLeft:this.props.padding }}>
                 <div
                     data-level={this.props.level}
                     key={this.props.node.id}
-                    style={{display: 'flex', flexDirection: 'row', position: 'relative', transform: 'translateY(+20%)', top:'50%',
-                    paddingRight: '8px', paddingLeft: '8px', height: 20, whiteSpace: 'nowrap'}}
+                    style={{ display: 'flex', flexDirection: 'row', position: 'relative', transform: 'translateY(+20%)', top:'50%',
+                    paddingRight: '8px', paddingLeft: '8px', height: 20, whiteSpace: 'nowrap' }}
                 >
                     { this.isLeaf()
-                        ? <span style={{paddingLeft:this.props.padding}}></span>
+                        ? <span style={{ paddingLeft:this.props.padding }}></span>
                         : <span
                             onClick={this.handleCollapse}
                             key={'icon-' + this.props.node.id}
-                            style={{width: 12}}
+                            style={{ width: 12 }}
                         >
                             {(this.props.collapsed ? icons.expand : icons.collapse)}
                         </span>
@@ -75,7 +75,7 @@ export class TreeNodeComponent extends React.Component<TreeNodeComponentProps> {
                             checkedStatus={this.props.checkedStatus}
                             onToggleCheck={this.props.onToggleCheck}
                         />
-                        : <span style={{marginLeft: 5}}>{this.props.node.name}</span>
+                        : <span style={{ marginLeft: 5 }}>{this.props.node.name}</span>
                     }
                 </div>
                 {this.renderChildren()}

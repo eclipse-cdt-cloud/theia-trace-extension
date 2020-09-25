@@ -28,7 +28,7 @@ export const listToTree = (list: Entry[]): TreeNode[] => {
     return rootNodes;
 };
 
-export const getAllExpandedNodeIds = (nodes: TreeNode[],collapsedNodes: number[]): number[] => {
+export const getAllExpandedNodeIds = (nodes: TreeNode[], collapsedNodes: number[]): number[] => {
     const visibleIds: number[] = [];
     nodes.forEach((node: TreeNode) => {
         visibleIds.push(node.id);

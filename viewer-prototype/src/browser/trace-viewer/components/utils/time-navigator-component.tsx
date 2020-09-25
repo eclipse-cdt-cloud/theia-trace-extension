@@ -28,6 +28,6 @@ export class TimeNavigatorComponent extends React.Component<TimeNavigatorProps> 
             }}
             onWidgetResize={this.props.addWidgetResizeHandler}
             unitController={this.props.unitController}
-            layer={[navi]} />;
+            layer={[ navi ]} />;
     }
 }

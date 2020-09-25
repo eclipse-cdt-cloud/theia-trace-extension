@@ -52,7 +52,7 @@ export class TableOutputComponent extends AbstractOutputComponent<TableOutputPro
     }
 
     renderMainArea(): React.ReactNode {
-        return <div id='events-table' className='ag-theme-balham-dark' style={{height: this.props.tableHeight, width: this.props.tableWidth}}>
+        return <div id='events-table' className='ag-theme-balham-dark' style={{ height: this.props.tableHeight, width: this.props.tableWidth }}>
             <AgGridReact
                 columnDefs={this.columnArray}
                 rowModelType='infinite'
@@ -125,7 +125,7 @@ export class TableOutputComponent extends AbstractOutputComponent<TableOutputPro
         const outPutId = this.props.outputDescriptor.id;
 
         // Fetch columns
-        const columnsResponse = (await tspClient.fetchTableColumns<Entry, EntryHeader>(traceUUID, outPutId, QueryHelper.timeQuery([0, 1]))).getModel();
+        const columnsResponse = (await tspClient.fetchTableColumns<Entry, EntryHeader>(traceUUID, outPutId, QueryHelper.timeQuery([ 0, 1 ]))).getModel();
         const columnEntries = columnsResponse.model.entries;
         const colIds: Array<number> = [];
         const columnsArray = new Array<any>();

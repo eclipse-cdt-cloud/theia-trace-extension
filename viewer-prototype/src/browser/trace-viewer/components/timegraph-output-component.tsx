@@ -57,7 +57,7 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
             dataProvider: async (range: TimelineChart.TimeGraphRange, resolution: number) => this.fetchTimegraphData(range, resolution),
             rowElementStyleProvider: (model: TimelineChart.TimeGraphRowElementModel) => this.getElementStyle(model),
             rowStyleProvider: (row: TimelineChart.TimeGraphRowModel) => ({
-                backgroundColor: 0x979797,// 0xaaaaff,
+                backgroundColor: 0x979797, // 0xaaaaff,
                 backgroundOpacity: row.selected ? 0.1 : 0,
                 lineColor: 0xdddddd, // hasStates ? 0xdddddd : 0xaa4444, // row.data && row.data.hasStates
                 lineThickness: 1, // hasStates ? 1 : 3 // row.data && row.data.hasStates
@@ -97,7 +97,7 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
 
     async componentDidUpdate(_prevProps: TimegraphOutputProps, _prevState: TimegraphOutputState): Promise<void> {
         if (this.state.outputStatus !== ResponseStatus.COMPLETED || !this.state.timegraphTree.length) {
-            const treeParameters = QueryHelper.timeQuery([0, 1]);
+            const treeParameters = QueryHelper.timeQuery([ 0, 1 ]);
             const treeResponse = (await this.props.tspClient.fetchTimeGraphTree<TimeGraphEntry, EntryHeader>(this.props.traceId,
                 this.props.outputDescriptor.id, treeParameters)).getModel();
             const nbEntries = treeResponse.model.entries.length;
@@ -119,7 +119,7 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
     }
 
     private onToggleCollapse(id: number) {
-        let newList = [...this.state.collapsedNodes];
+        let newList = [ ...this.state.collapsedNodes ];
         const exist = this.state.collapsedNodes.find(expandId => expandId === id);
         if (exist !== undefined) {
             newList = newList.filter(collapsed => id !== collapsed);
@@ -191,7 +191,7 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
             }}
             onWidgetResize={this.props.addWidgetResizeHandler}
             unitController={this.props.unitController}
-            layer={[this.vscrollLayer]}
+            layer={[ this.vscrollLayer ]}
         ></ReactTimeGraphContainer>;
     }
 

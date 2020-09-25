@@ -40,7 +40,7 @@ export default new ContainerModule(bind => {
     })).inSingletonScope();
 
     bind(TraceViewerContribution).toSelf().inSingletonScope();
-    [CommandContribution, OpenHandler, FrontendApplicationContribution].forEach(serviceIdentifier =>
+    [ CommandContribution, OpenHandler, FrontendApplicationContribution ].forEach(serviceIdentifier =>
         bind(serviceIdentifier).toService(TraceViewerContribution)
     );
 

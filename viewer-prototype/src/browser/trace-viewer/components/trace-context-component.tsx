@@ -187,7 +187,7 @@ export class TraceContextComponent extends React.Component<TraceContextProps, Tr
             <div style={{ marginLeft: this.state.style.width - this.state.style.chartWidth }}>
                 <TimeAxisComponent unitController={this.unitController} style={this.state.style} addWidgetResizeHandler={this.addWidgetResizeHandler} />
             </div>
-            <ResponsiveGridLayout className='outputs-grid-layout' margin={[0, 5]} isResizable={false}
+            <ResponsiveGridLayout className='outputs-grid-layout' margin={[ 0, 5 ]} isResizable={false}
                 layouts={{ lg: layouts }} cols={{ lg: 1 }} breakpoints={{ lg: 1200 }} rowHeight={300} draggableHandle={'.widget-handle'}
                 style={{ paddingRight: this.SCROLLBAR_PADDING }}>
                 {outputs.map(output => {

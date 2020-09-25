@@ -101,8 +101,9 @@ export class XYOutputComponent extends AbstractTreeOutputComponent<AbstractOutpu
                 }
             },
             scales: {
-                xAxes: [{ id: 'time-axis', display: false }],
-                yAxes: [{ display: false }]
+                xAxes: [ { id: 'time-axis', display: false } ],
+                yAxes: [ { display: false } ]
+
             },
             animation: { duration: 0 },
         };
@@ -159,7 +160,7 @@ export class XYOutputComponent extends AbstractTreeOutputComponent<AbstractOutpu
     }
 
     private onToggleCheck(ids: number[]) {
-        let newList = [...this.state.checkedSeries];
+        let newList = [ ...this.state.checkedSeries ];
         ids.forEach(id => {
             const exist = this.state.checkedSeries.find(seriesId => seriesId === id);
 
@@ -169,11 +170,11 @@ export class XYOutputComponent extends AbstractTreeOutputComponent<AbstractOutpu
                 newList = newList.concat(id);
             }
         });
-        this.setState({checkedSeries: newList});
+        this.setState({ checkedSeries: newList });
     }
 
     private onToggleCollapse(id: number) {
-        let newList = [...this.state.collapsedNodes];
+        let newList = [ ...this.state.collapsedNodes ];
 
         const exist = this.state.collapsedNodes.find(expandId => expandId === id);
 
@@ -182,7 +183,7 @@ export class XYOutputComponent extends AbstractTreeOutputComponent<AbstractOutpu
         } else {
             newList = newList.concat(id);
         }
-        this.setState({collapsedNodes: newList});
+        this.setState({ collapsedNodes: newList });
     }
 
     // private async waitAnalysisCompletion() {
@@ -264,8 +265,8 @@ export class XYOutputComponent extends AbstractTreeOutputComponent<AbstractOutpu
     }
 
     private getSeriesColor(key: string): string {
-        const colors = ['rgba(191, 33, 30, 1)', 'rgba(30, 56, 136, 1)', 'rgba(71, 168, 189, 1)', 'rgba(245, 230, 99, 1)', 'rgba(255, 173, 105, 1)',
-            'rgba(216, 219, 226, 1)', 'rgba(212, 81, 19, 1)', 'rgba(187, 155, 176  , 1)', 'rgba(6, 214, 160, 1)', 'rgba(239, 71, 111, 1)'];
+        const colors = [ 'rgba(191, 33, 30, 1)', 'rgba(30, 56, 136, 1)', 'rgba(71, 168, 189, 1)', 'rgba(245, 230, 99, 1)', 'rgba(255, 173, 105, 1)',
+            'rgba(216, 219, 226, 1)', 'rgba(212, 81, 19, 1)', 'rgba(187, 155, 176  , 1)', 'rgba(6, 214, 160, 1)', 'rgba(239, 71, 111, 1)' ];
         let colorIndex = this.colorMap.get(key);
         if (colorIndex === undefined) {
             colorIndex = this.currentColorIndex % colors.length;

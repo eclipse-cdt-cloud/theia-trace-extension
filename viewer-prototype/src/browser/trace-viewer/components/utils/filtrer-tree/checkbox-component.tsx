@@ -32,7 +32,7 @@ export class CheckboxComponent extends React.Component<CheckboxProps> {
 
     render(): JSX.Element {
         return <div onClick={this.handleClick} >
-            <span style={{padding: 5}}>
+            <span style={{ padding: 5 }}>
                 {this.renderCheckbox(this.props.checkedStatus)}
             </span>
             {this.props.name}

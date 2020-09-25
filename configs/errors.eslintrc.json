@@ -26,6 +26,9 @@
     "camelcase": "off",
     "comma-dangle": "off",
     "curly": "error",
+    "object-curly-spacing": [ "error", "always" ],
+    "array-bracket-spacing": [ "error", "always" ],
+    "comma-spacing": "error",
     "eol-last": "error",
     "eqeqeq": [
       "error",

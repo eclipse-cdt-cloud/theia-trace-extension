@@ -28,7 +28,7 @@ export class TimeAxisComponent extends React.Component<TimeAxisProps> {
             }}
             onWidgetResize={this.props.addWidgetResizeHandler}
             unitController={this.props.unitController}
-            layer={[this.getAxisLayer(), this.getAxisCursors()]} />;
+            layer={[ this.getAxisLayer(), this.getAxisCursors() ]} />;
     }
 
     protected getAxisLayer(): TimeGraphAxis {

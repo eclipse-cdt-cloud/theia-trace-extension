@@ -32,12 +32,12 @@ export class FilterTree extends React.Component<FilterTreeProps, FilterTreeState
     }
 
     getRootNodes = (): TreeNode[] => {
-        const nodes = [...this.props.nodes];
+        const nodes = [ ...this.props.nodes ];
         return nodes.filter((node: TreeNode) => node.isRoot === true);
     };
 
     getNode = (treeNodes: TreeNode[], id: number): TreeNode | undefined => {
-        const nodes: TreeNode[] = [...treeNodes];
+        const nodes: TreeNode[] = [ ...treeNodes ];
         if (!nodes) {
             return undefined;
         }
@@ -186,7 +186,7 @@ export class FilterTree extends React.Component<FilterTreeProps, FilterTreeState
         const rootNodes = this.getRootNodes();
         rootNodes.forEach((node: TreeNode) => this.getMatchingIds(node, filter, matchedIds));
         filteredTree = this.filterTree(this.props.nodes, matchedIds);
-        this.setState({filteredNodes: filteredTree});
+        this.setState({ filteredNodes: filteredTree });
     };
 
     getMatchingIds = (node: TreeNode, filter: string, foundIds: number[]): boolean => {
@@ -243,7 +243,7 @@ export class FilterTree extends React.Component<FilterTreeProps, FilterTreeState
             );
         });
         return (
-            <ul style={{margin: 0, listStyleType: 'none', padding: 0}}>
+            <ul style={{ margin: 0, listStyleType: 'none', padding: 0 }}>
                 {treeNodes}
             </ul>
         );
