@@ -30,7 +30,7 @@ export class ReactTimeGraphContainer extends React.Component<ReactTimeGraphConta
 
     shouldComponentUpdate(nextProps: ReactTimeGraphContainer.Props): boolean {
         return nextProps.options.height !== this.props.options.height
-               || nextProps.options.width !== this.props.options.width ;
+            || nextProps.options.width !== this.props.options.width;
     }
 
     componentDidUpdate(prevProps: ReactTimeGraphContainer.Props): void {
@@ -40,6 +40,6 @@ export class ReactTimeGraphContainer extends React.Component<ReactTimeGraphConta
     }
 
     render(): JSX.Element {
-        return <canvas ref={ref => this.ref = ref || undefined} onWheel={e => e.preventDefault()}></canvas>;
+        return <canvas ref={ ref => this.ref = ref || undefined } onWheel={ e => e.preventDefault() } tabIndex={ 1 }></canvas>;
     }
 }
