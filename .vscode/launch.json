@@ -8,6 +8,7 @@
             "name": "Launch Extension",
             "type": "extensionHost",
             "request": "launch",
+            "sourceMaps": true,
             "runtimeExecutable": "${execPath}",
             "args": [
                 "--extensionDevelopmentPath=${workspaceFolder}/packages/vscode-extension"
