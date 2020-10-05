@@ -145,7 +145,7 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
     renderChart(): React.ReactNode {
         return <React.Fragment>
             {this.state.outputStatus === ResponseStatus.COMPLETED ?
-                <div id='timegraph-main' className='ps__child--consume' onWheel={ev => { ev.preventDefault(); ev.stopPropagation(); }} style={{ height:this.props.style.height }} >
+                <div id='timegraph-main' className='ps__child--consume' onWheel={ev => { ev.preventDefault(); ev.stopPropagation(); }} style={{ height: this.props.style.height }} >
                     {this.renderTimeGraphContent()}
                 </div> :
                 'Analysis running...'}
@@ -153,7 +153,7 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
     }
 
     private renderTimeGraphContent() {
-        return <div id='main-timegraph-content' ref={this.horizontalContainer} style={{height:this.props.style.height}} >
+        return <div id='main-timegraph-content' ref={this.horizontalContainer} style={{ height: this.props.style.height }} >
             {this.getChartContainer()}
         </div>;
     }
@@ -326,7 +326,7 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
             }
             style = this.styleMap.get(value);
             if (!style) {
-                style = backupStyles[(value % backupStyles.length)];
+                style = backupStyles[(Math.abs(value) % backupStyles.length)];
                 this.styleMap.set(value, style);
             }
             return {
