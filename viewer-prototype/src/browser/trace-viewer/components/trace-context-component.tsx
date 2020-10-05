@@ -89,10 +89,11 @@ export class TraceContextComponent extends React.Component<TraceContextProps, Tr
         this.unitController.numberTranslator = (theNumber: number) => {
             const originalStart = traceRange.getstart();
             theNumber += originalStart;
-            const milli = Math.floor(theNumber / 1000000);
-            const micro = Math.floor((theNumber % 1000000) / 1000);
-            const nano = Math.floor((theNumber % 1000000) % 1000);
-            return milli + ':' + micro + ':' + nano; // THAT IS TOO LONG, need to find better format
+            const seconds = Math.floor(theNumber / 1000000000);
+            const millis = ('000' + Math.floor(theNumber / 1000000) % 1000).slice(-3);
+            const micros = ('000' + Math.floor(theNumber / 1000) % 1000).slice(-3);
+            const nanos = ('000' + Math.floor(theNumber) % 1000).slice(-3);
+            return seconds + '.' + millis + ' ' + micros + ' ' + nanos;
         };
         this.unitController.onSelectionRangeChange(range => { this.handleTimeSelectionChange(range); });
         this.unitController.onViewRangeChanged(viewRangeParam => { this.handleViewRangeChange(viewRangeParam); });
