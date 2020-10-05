@@ -228,15 +228,6 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
         const newRange: TimelineChart.TimeGraphRange = { start, end };
         const newResolution: number = resolution * 0.8;
         const timeGraphData: TimelineChart.TimeGraphModel = await this.tspDataProvider.getData(orderedTreeIds, this.state.timegraphTree, newRange, this.props.style.chartWidth);
-        if (timeGraphData && this.selectedElement) {
-            for (const row of timeGraphData.rows) {
-                const selEl = row.states.find(el => !!this.selectedElement && el.id === this.selectedElement.id);
-                if (selEl) {
-                    selEl.selected = true;
-                    break;
-                }
-            }
-        }
         return {
             rows: timeGraphData ? timeGraphData.rows : [],
             range: newRange,
