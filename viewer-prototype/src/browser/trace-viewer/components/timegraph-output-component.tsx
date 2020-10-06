@@ -7,7 +7,6 @@ import { TimeGraphChartSelectionRange } from 'timeline-chart/lib/layer/time-grap
 import { TimeGraphVerticalScrollbar } from 'timeline-chart/lib/layer/time-graph-vertical-scrollbar';
 import { TimelineChart } from 'timeline-chart/lib/time-graph-model';
 import { TimeGraphRowController } from 'timeline-chart/lib/time-graph-row-controller';
-import { EntryHeader } from 'tsp-typescript-client/lib/models/entry';
 import { QueryHelper } from 'tsp-typescript-client/lib/models/query/query-helper';
 import { ResponseStatus } from 'tsp-typescript-client/lib/models/response/responses';
 import { TimeGraphEntry } from 'tsp-typescript-client/lib/models/timegraph';
@@ -20,6 +19,8 @@ import { ReactTimeGraphContainer } from './utils/timegraph-container-component';
 import { OutputElementStyle } from 'tsp-typescript-client/lib/models/styles';
 import { EntryTree } from './utils/filtrer-tree/entry-tree';
 import { listToTree, getAllExpandedNodeIds } from './utils/filtrer-tree/utils';
+import hash from '../../../common/utils/value-hash';
+import ColumnHeader from './utils/filtrer-tree/column-header';
 
 type TimegraphOutputProps = AbstractOutputProps & {
     addWidgetResizeHandler: (handler: () => void) => void;
@@ -28,6 +29,7 @@ type TimegraphOutputProps = AbstractOutputProps & {
 type TimegraphOutputState = AbstractOutputState & {
     timegraphTree: TimeGraphEntry[];
     collapsedNodes: number[];
+    columns: ColumnHeader[];
 };
 
 export class TimegraphOutputComponent extends AbstractTreeOutputComponent<TimegraphOutputProps, TimegraphOutputState> {
@@ -47,7 +49,8 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
         this.state = {
             outputStatus: ResponseStatus.RUNNING,
             timegraphTree: [],
-            collapsedNodes: []
+            collapsedNodes: [],
+            columns: []
         };
         this.onToggleCollapse = this.onToggleCollapse.bind(this);
         this.tspDataProvider = new TspDataProvider(this.props.tspClient, this.props.traceId, this.props.outputDescriptor.id);
@@ -98,17 +101,26 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
     async componentDidUpdate(_prevProps: TimegraphOutputProps, _prevState: TimegraphOutputState): Promise<void> {
         if (this.state.outputStatus !== ResponseStatus.COMPLETED || !this.state.timegraphTree.length) {
             const treeParameters = QueryHelper.timeQuery([0, 1]);
-            const treeResponse = (await this.props.tspClient.fetchTimeGraphTree<TimeGraphEntry, EntryHeader>(this.props.traceId,
+            const treeResponse = (await this.props.tspClient.fetchTimeGraphTree(this.props.traceId,
                 this.props.outputDescriptor.id, treeParameters)).getModel();
             const nbEntries = treeResponse.model.entries.length;
             this.totalHeight = nbEntries * this.props.style.rowHeight;
             this.rowController.totalHeight = this.totalHeight;
+            const columns: ColumnHeader[] = [];
+            if (treeResponse.model.headers && treeResponse.model.headers.length > 0) {
+                treeResponse.model.headers.forEach(header => {
+                    columns.push({title: header.name, sortable: true, tooltip: header.tooltip});
+                });
+            } else {
+                columns.push({title: 'Name', sortable: true});
+            }
             // TODO Style should not be retreive in the "initialization" part or at least async
             const styleResponse = (await this.props.tspClient.fetchStyles(this.props.traceId, this.props.outputDescriptor.id, QueryHelper.query())).getModel();
             this.setState({
                 // outputStatus: ResponseStatus.COMPLETED,
                 timegraphTree: treeResponse.model.entries,
-                styleModel: styleResponse.model
+                styleModel: styleResponse.model,
+                columns
             });
             this.chartLayer.updateChart();
         }
@@ -219,7 +231,7 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
     }
 
     private async fetchTimegraphData(range: TimelineChart.TimeGraphRange, resolution: number) {
-        const treeNodes = listToTree(this.state.timegraphTree);
+        const treeNodes = listToTree(this.state.timegraphTree, this.state.columns);
         const orderedTreeIds = getAllExpandedNodeIds(treeNodes, this.state.collapsedNodes);
         const length = range.end - range.start;
         const overlap = ((length * 5) - length) / 2;
@@ -243,17 +255,20 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
                 const elementStyle: OutputElementStyle = metadata.style;
                 const modelStyle = styleModel.styles[elementStyle.parentKey];
                 if (modelStyle) {
-                    const color = this.hexStringToNumber(modelStyle.styleValues['background-color']);
-                    let height = this.props.style.rowHeight * 0.8;
-                    if (modelStyle.styleValues['height']) {
-                        height = modelStyle.styleValues['height'] * this.props.style.rowHeight;
+                    const currentStyle = Object.assign({}, modelStyle.values, elementStyle.values);
+                    if (currentStyle) {
+                        const color = this.hexStringToNumber(currentStyle['background-color']);
+                        let height = this.props.style.rowHeight * 0.8;
+                        if (currentStyle['height']) {
+                            height = currentStyle['height'] * this.props.style.rowHeight;
+                        }
+                        return {
+                            color: color,
+                            height: height,
+                            borderWidth: element.selected ? 2 : 0,
+                            borderColor: 0xeef20c
+                        };
                     }
-                    return {
-                        color: color,
-                        height: height,
-                        borderWidth: element.selected ? 2 : 0,
-                        borderColor: 0xeef20c
-                    };
                 }
             }
         }
@@ -296,8 +311,18 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
         const val = element.label;
         const modelData = element.data;
         if (modelData) {
-            const value = modelData.stateValue;
-            const elementStyle = styles[value.toString()];
+            const outputStyle = modelData.style;
+            if (!outputStyle) {
+                return {
+                    color: 0xCACACA,
+                    height: this.props.style.rowHeight * 0.5,
+                    borderWidth: element.selected ? 2 : 0,
+                    borderColor: 0xeef20c
+                };
+            }
+
+            const stateStyle = outputStyle as OutputElementStyle;
+            const elementStyle = styles[stateStyle.parentKey];
             if (elementStyle) {
                 return {
                     color: parseInt(elementStyle.color, 16),
@@ -307,18 +332,10 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
                 };
             }
 
-            if (value === -1) {
-                return {
-                    color: 0xCACACA,
-                    height: this.props.style.rowHeight * 0.5,
-                    borderWidth: element.selected ? 2 : 0,
-                    borderColor: 0xeef20c
-                };
-            }
-            style = this.styleMap.get(value);
+            style = this.styleMap.get(stateStyle.parentKey);
             if (!style) {
-                style = backupStyles[(Math.abs(value) % backupStyles.length)];
-                this.styleMap.set(value, style);
+                style = backupStyles[(hash(stateStyle.parentKey) as number % backupStyles.length)];
+                this.styleMap.set(stateStyle.parentKey, style);
             }
             return {
                 color: style.color,

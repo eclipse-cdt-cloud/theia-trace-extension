@@ -1,6 +1,5 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { TspClient } from 'tsp-typescript-client/lib/protocol/tsp-client';
-import { TimeGraphEntry, TimeGraphRow, TimeGraphModel, TimeGraphState } from 'tsp-typescript-client/lib/models/timegraph';
+import { TimeGraphEntry, TimeGraphRow, TimeGraphState } from 'tsp-typescript-client/lib/models/timegraph';
 import { TimelineChart } from 'timeline-chart/lib/time-graph-model';
 import { QueryHelper } from 'tsp-typescript-client/lib/models/query/query-helper';
 
@@ -38,24 +37,24 @@ export class TspDataProvider {
             };
         }
 
-        this.totalRange = this.timeGraphEntries[0].endTime - this.timeGraphEntries[0].startTime; // 1332170682540133097 - starttime
+        this.totalRange = this.timeGraphEntries[0].end - this.timeGraphEntries[0].start; // 1332170682540133097 - starttime
         let statesParameters = QueryHelper.selectionTimeQuery(QueryHelper.splitRangeIntoEqualParts(1332170682440133097, 1332170682540133097, 1120), ids);
         if (viewRange && resolution) {
-            const start = viewRange.start + this.timeGraphEntries[0].startTime;
-            const end = viewRange.end + this.timeGraphEntries[0].startTime;
+            const start = viewRange.start + this.timeGraphEntries[0].start;
+            const end = viewRange.end + this.timeGraphEntries[0].start;
             statesParameters = QueryHelper.selectionTimeQuery(QueryHelper.splitRangeIntoEqualParts(Math.trunc(start), Math.trunc(end), resolution), ids);
         }
-        const stateResponse = (await this.client.fetchTimeGraphStates<TimeGraphModel>(this.traceUUID,
+        const stateResponse = (await this.client.fetchTimeGraphStates(this.traceUUID,
             this.outputId, statesParameters)).getModel();
 
         this.timeGraphRows = stateResponse.model.rows;
         this.timeGraphRowsOrdering(ids);
 
         // the start time which is normalized to logical 0 in timeline chart.
-        const chartStart = this.timeGraphEntries[0].startTime;
+        const chartStart = this.timeGraphEntries[0].start;
         const rows: TimelineChart.TimeGraphRowModel[] = [];
         this.timeGraphRows.forEach((row: TimeGraphRow) => {
-            const rowId: number = (row as any).entryID;
+            const rowId: number = row.entryId;
             const entry = this.timeGraphEntries.find(tgEntry => tgEntry.id === rowId);
             if (entry) {
                 const states = this.getStateModelByRow(row, chartStart);
@@ -63,8 +62,8 @@ export class TspDataProvider {
                     id: rowId,
                     name: entry.labels[0], // 'row' + rowId,
                     range: {
-                        start: entry.startTime - chartStart,
-                        end: entry.endTime - chartStart
+                        start: entry.start - chartStart,
+                        end: entry.end - chartStart
                     },
                     states
                 });
@@ -85,11 +84,11 @@ export class TspDataProvider {
     private timeGraphRowsOrdering(orderedIds: number[]) {
         const newTimeGraphRows: TimeGraphRow[] = [];
         orderedIds.forEach(id => {
-            const timeGraphRow = this.timeGraphRows.find(row => (row as any).entryID === id);
+            const timeGraphRow = this.timeGraphRows.find(row => row.entryId === id);
             if (timeGraphRow) {
                 newTimeGraphRows.push(timeGraphRow);
             } else {
-                const emptyRow: any = {states: [{value: 0, startTime: 0, duration: 0, label: '', tags: 0}], entryID: id};
+                const emptyRow: TimeGraphRow = {states: [{start: 0, end: 0, label: '', tags: 0}], entryId: id};
                 newTimeGraphRows.push(emptyRow);
             }
         });
@@ -100,17 +99,16 @@ export class TspDataProvider {
     protected getStateModelByRow(row: TimeGraphRow, chartStart: number): TimelineChart.TimeGraphRowElementModel[] {
         const states: TimelineChart.TimeGraphRowElementModel[] = [];
         row.states.forEach((state: TimeGraphState, idx: number) => {
-            const end = state.startTime + state.duration - chartStart;
-            if (state.style || state.value >= 0) {
+            const end = state.end - chartStart;
+            if (state.style) {
                 states.push({
-                    id: (row as any).entryID + '-' + idx,
-                    label: state.label,
+                    id: row.entryId + '-' + idx,
+                    label: state.label || '',
                     range: {
-                        start: state.startTime - chartStart,
+                        start: state.start - chartStart,
                         end
                     },
                     data: {
-                        stateValue: state.value,
                         style: state.style
                     }
                 });
@@ -118,17 +116,17 @@ export class TspDataProvider {
             } else {
                 const nextIndex = idx + 1;
                 const nextState = row.states[nextIndex];
-                if (nextState && nextState.value < 0) {
+                if (nextState && nextState.start > state.end + 1) {
                     // Add gap state
                     states.push({
-                        id: (row as any).entryID + '-' + idx,
+                        id: row.entryId + '-' + idx,
                         label: 'GAP',
                         range: {
                             start: end,
-                            end: nextState.startTime - chartStart
+                            end: nextState.start - chartStart
                         },
                         data: {
-                            stateValue: -1
+
                         }
                     });
                 }

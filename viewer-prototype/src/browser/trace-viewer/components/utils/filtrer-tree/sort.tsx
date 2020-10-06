@@ -15,6 +15,7 @@ export const sortState: SortState = {
 
 export interface SortConfig {
     column: string;
+    columnIndex: number;
     sortState: React.ReactNode;
 }
 
@@ -33,10 +34,10 @@ export const sortNodes = (nodes: TreeNode[], sortConfig: SortConfig[]): TreeNode
     const orderToSort = sortConfig.find((config: SortConfig) => config.sortState !== sortState.default);
     if (orderToSort) {
         sortedNodes.sort((node1: TreeNode, node2: TreeNode) => {
-            const key = orderToSort.column;
+            const index = orderToSort.columnIndex;
             const order = (orderToSort.sortState === sortState.asc) ? 'asc' : 'desc';
-            const value1 = node1[key as keyof TreeNode];
-            const value2 = node2[key as keyof TreeNode];
+            const value1 = node1.labels[index];
+            const value2 = node2.labels[index];
             let result = 0;
             if (!value1 && value2) {
                 result = -1;
@@ -46,7 +47,7 @@ export const sortNodes = (nodes: TreeNode[], sortConfig: SortConfig[]): TreeNode
                 result = 0;
             } else {
                 if (typeof value1 === 'string' && typeof value2 === 'string') {
-                    const comp = value1.localeCompare(value2);
+                    const comp = (value1 as string).localeCompare(value2);
                     result = (order === 'asc') ? -comp : comp;
                 } else {
                     if (value1 < value2) {

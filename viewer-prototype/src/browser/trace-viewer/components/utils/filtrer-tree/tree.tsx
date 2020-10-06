@@ -5,6 +5,7 @@ import { Filter } from './filter';
 import { Table } from './table';
 import { getAllExpandedNodeIds } from './utils';
 import { SortConfig, sortNodes } from './sort';
+import ColumnHeader from './column-header';
 
 interface FilterTreeProps {
     nodes: TreeNode[];
@@ -16,6 +17,7 @@ interface FilterTreeProps {
     onToggleCollapse: (id: number, nodes: TreeNode[]) => void;
     onOrderChange: (ids: number[]) => void;
     showHeader: boolean;
+    headers: ColumnHeader[];
     className: string;
 }
 
@@ -213,7 +215,7 @@ export class FilterTree extends React.Component<FilterTreeProps, FilterTreeState
     };
 
     getMatchingIds = (node: TreeNode, filter: string, foundIds: number[]): boolean => {
-        let isMatching = node.name.indexOf(filter) > -1;
+        let isMatching = node.labels[0].indexOf(filter) > -1;
         if (node.children && node.children.length) {
             node.children.forEach((child: TreeNode) => {
                 const hasMatchingChild = this.getMatchingIds(child, filter, foundIds);
@@ -253,6 +255,7 @@ export class FilterTree extends React.Component<FilterTreeProps, FilterTreeState
             onSort={this.handleOrderChange}
             onSortConfigChange={this.handleSortConfigChange}
             showHeader={this.props.showHeader}
+            headers={this.props.headers}
             className={this.props.className}
         />;
 

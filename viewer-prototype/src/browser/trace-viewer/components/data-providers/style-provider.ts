@@ -89,6 +89,7 @@ export class StyleProvider {
             const styleModel = styleResponse.getModel().model;
             const styles = styleModel.styles;
             this.styles = styles;
+            return styles;
         }
         return this.styles;
     }

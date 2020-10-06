@@ -1,8 +1,9 @@
 import * as React from 'react';
 import { SortConfig } from './sort';
+import ColumnHeader from './column-header';
 
 interface TableHeaderProps {
-    columns: string[];
+    columns: ColumnHeader[];
     sortableColumns: string[];
     sortConfig: SortConfig[];
     onSort: (sortColumn: string) => void;
@@ -29,10 +30,10 @@ export class TableHeader extends React.Component<TableHeaderProps> {
         return undefined;
     };
 
-    renderHeader = (): React.ReactNode => this.props.columns.map((column: string, index) =>
-        <th key={'th-'+index} onClick={() => this.handleSortChange(column)}>
-            {this.toCapitalCase(column)}
-            {this.renderSortIcon(column)}
+    renderHeader = (): React.ReactNode => this.props.columns.map((column: ColumnHeader, index) =>
+        <th key={'th-'+index} onClick={() => this.handleSortChange(column.title)}>
+            {this.toCapitalCase(column.title)}
+            {this.renderSortIcon(column.title)}
         </th>
     );
 

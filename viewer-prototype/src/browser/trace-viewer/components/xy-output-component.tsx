@@ -4,13 +4,14 @@ import { AbstractTreeOutputComponent } from './abstract-tree-output-component';
 import * as React from 'react';
 import { Line } from 'react-chartjs-2';
 import { QueryHelper } from 'tsp-typescript-client/lib/models/query/query-helper';
-import { Entry, EntryHeader } from 'tsp-typescript-client/lib/models/entry';
+import { Entry, EntryModel } from 'tsp-typescript-client/lib/models/entry';
 import { ResponseStatus } from 'tsp-typescript-client/lib/models/response/responses';
 import { XYSeries } from 'tsp-typescript-client/lib/models/xy';
 import Chart = require('chart.js');
 import { EntryTree } from './utils/filtrer-tree/entry-tree';
 import { getAllExpandedNodeIds } from './utils/filtrer-tree/utils';
 import { TreeNode } from './utils/filtrer-tree/tree-node';
+import ColumnHeader from './utils/filtrer-tree/column-header';
 
 type XYOuputState = AbstractOutputState & {
     selectedSeriesId: number[];
@@ -18,7 +19,9 @@ type XYOuputState = AbstractOutputState & {
     checkedSeries: number[];
     collapsedNodes: number[];
     orderedNodes: number[];
+    // FIXME Type this properly
     XYData: any;
+    columns: ColumnHeader[];
 };
 
 export class XYOutputComponent extends AbstractTreeOutputComponent<AbstractOutputProps, XYOuputState> {
@@ -36,7 +39,8 @@ export class XYOutputComponent extends AbstractTreeOutputComponent<AbstractOutpu
             checkedSeries: [],
             collapsedNodes: [],
             orderedNodes: [],
-            XYData: {}
+            XYData: {},
+            columns: [{title: 'Name', sortable: true}]
         };
 
         this.afterChartDraw = this.afterChartDraw.bind(this);
@@ -84,6 +88,7 @@ export class XYOutputComponent extends AbstractTreeOutputComponent<AbstractOutpu
                 onToggleCheck={this.onToggleCheck}
                 onToggleCollapse={this.onToggleCollapse}
                 onOrderChange={this.onOrderChange}
+                headers={this.state.columns}
             />
             : undefined
             ;
@@ -217,10 +222,10 @@ export class XYOutputComponent extends AbstractTreeOutputComponent<AbstractOutpu
         // TODO Remove cpus parameters at some point. This is very specific to Trace Compass server
         const xyTreeParameters = QueryHelper.selectionTimeQuery(
             QueryHelper.splitRangeIntoEqualParts(this.props.range.getstart(), this.props.range.getEnd(), 1120), []); // , [], { 'cpus': [] }
-        const xyTreeResponse = (await this.props.tspClient.fetchXYTree<Entry, EntryHeader>(this.props.traceId, this.props.outputDescriptor.id, xyTreeParameters)).getModel();
+        const xyTreeResponse = (await this.props.tspClient.fetchXYTree(this.props.traceId, this.props.outputDescriptor.id, xyTreeParameters)).getModel();
         const treeModel = xyTreeResponse.model;
         if (treeModel) {
-            this.buildTreeNodes(treeModel.entries);
+            this.buildTreeNodes(treeModel);
         }
     }
 
@@ -233,26 +238,21 @@ export class XYOutputComponent extends AbstractTreeOutputComponent<AbstractOutpu
             end = viewRange.getEnd();
         }
 
-        // TODO Remove isCumulative parameters at some point. This is very specific to Trace Compass server
         const xyDataParameters = QueryHelper.selectionTimeQuery(
-            QueryHelper.splitRangeIntoEqualParts(Math.trunc(start), Math.trunc(end), this.props.style.chartWidth), this.state.checkedSeries); // , [], { 'isCumulative': false }
+            QueryHelper.splitRangeIntoEqualParts(Math.trunc(start), Math.trunc(end), this.props.style.chartWidth), this.state.checkedSeries);
 
         const xyDataResponse = (await this.props.tspClient.fetchXY(this.props.traceId, this.props.outputDescriptor.id, xyDataParameters)).getModel();
-        // TODO Fix that, model is wrong, map are not working
-        const cpuXY = xyDataResponse.model;
-        const seriesObject = cpuXY.series;
-        this.buildXYData(seriesObject);
+        this.buildXYData(xyDataResponse.model.series);
     }
 
-    private buildXYData(seriesObj: { [key: string]: XYSeries }) {
+    private buildXYData(seriesObj: XYSeries[]) {
         const dataSetArray = new Array<any>();
-        let xValues: any[] = [];
-        Object.keys(seriesObj).forEach(key => {
-            const series = seriesObj[key];
-            const color = this.getSeriesColor(key);
-            xValues = seriesObj[key].xValues;
+        let xValues: number[] = [];
+        seriesObj.forEach(series => {
+            const color = this.getSeriesColor(series.seriesName);
+            xValues = series.xValues;
             dataSetArray.push({
-                label: key,
+                label: series.seriesName,
                 fill: false,
                 borderColor: color,
                 borderWidth: 2,
@@ -269,10 +269,21 @@ export class XYOutputComponent extends AbstractTreeOutputComponent<AbstractOutpu
         });
     }
 
-    private buildTreeNodes(flatTree: Entry[]) {
-        const tree: any[] = flatTree;
+    private buildTreeNodes(entryModel: EntryModel<Entry>) {
+        const tree: Entry[] = entryModel.entries;
+        const headers = entryModel.headers;
+        const columns: ColumnHeader[] = [];
+        if (headers && headers.length > 0) {
+            headers.forEach(header => {
+                columns.push({title: header.name, sortable: true, tooltip: header.tooltip});
+            });
+        } else {
+            columns.push({title: 'Name', sortable: true});
+        }
+        columns.push({title: 'Legend', sortable: false});
         this.setState({
-            XYTree: tree
+            XYTree: tree,
+            columns
         });
     }
 

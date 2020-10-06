@@ -3,7 +3,6 @@ import { AbstractOutputComponent, AbstractOutputProps, AbstractOutputState } fro
 import * as React from 'react';
 import { AgGridReact } from 'ag-grid-react';
 import { ColDef, IDatasource, GridReadyEvent } from 'ag-grid-community';
-import { Entry, EntryHeader } from 'tsp-typescript-client/lib/models/entry';
 import { QueryHelper } from 'tsp-typescript-client/lib/models/query/query-helper';
 import { cloneDeep } from 'lodash';
 
@@ -125,8 +124,8 @@ export class TableOutputComponent extends AbstractOutputComponent<TableOutputPro
         const outPutId = this.props.outputDescriptor.id;
 
         // Fetch columns
-        const columnsResponse = (await tspClient.fetchTableColumns<Entry, EntryHeader>(traceUUID, outPutId, QueryHelper.timeQuery([0, 1]))).getModel();
-        const columnEntries = columnsResponse.model.entries;
+        const columnsResponse = (await tspClient.fetchTableColumns(traceUUID, outPutId, QueryHelper.timeQuery([0, 1]))).getModel();
+        const columnEntries = columnsResponse.model;
         const colIds: Array<number> = [];
         const columnsArray = new Array<any>();
 
@@ -140,16 +139,12 @@ export class TableOutputComponent extends AbstractOutputComponent<TableOutputPro
             colIds.push(0);
         }
 
-        columnEntries.forEach(entry => {
-            const id = this.showIndexColumn ? ++entry.id : entry.id;
+        columnEntries.forEach(columnHeader => {
+            const id = this.showIndexColumn ? ++columnHeader.id : columnHeader.id;
             colIds.push(id);
-            let columnName = '';
-            if (entry.labels.length) {
-                columnName = entry.labels[0];
-            }
             columnsArray.push({
-                headerName: columnName,
-                field: entry.id.toString(),
+                headerName: columnHeader.name,
+                field: columnHeader.id.toString(),
                 width: this.props.columnWidth
             });
         });
