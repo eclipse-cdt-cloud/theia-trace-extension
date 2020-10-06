@@ -13648,9 +13648,9 @@ tslint@^5.20.1:
     tsutils "^2.29.0"
 
 tsp-typescript-client@next:
-  version "0.2.0-next.85560d3"
-  resolved "https://registry.yarnpkg.com/tsp-typescript-client/-/tsp-typescript-client-0.2.0-next.85560d3.tgz#083281fac24725c48585e6d352a12a1e0202f045"
-  integrity sha512-MUr6iD+LKTs6wzXni21NUQz0CsQA731+zMfyqYRWycsu60RzcpQTFwwVFn9dKzllzKD4/l2N+ZR7NaY1Y5pg8A==
+  version "0.2.0-next.339f1e7"
+  resolved "https://registry.yarnpkg.com/tsp-typescript-client/-/tsp-typescript-client-0.2.0-next.339f1e7.tgz#de2190af8ff6e1773211d601d53e7755c4a142e6"
+  integrity sha512-cIPbP+uZpNOQTvRHJHQYdHdCZY7Qq5TJSPkbilN/qGG3LSgjfNQgXoWJfoA2RK/n1l3yOTs3CAN5YYqHtPFUlA==
   dependencies:
     node-fetch "^2.5.0"
 

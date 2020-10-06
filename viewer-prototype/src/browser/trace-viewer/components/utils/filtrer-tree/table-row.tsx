@@ -6,7 +6,6 @@ import icons from './icons';
 
 interface TableRowProps {
     node: TreeNode;
-    keys: string[];
     level: number;
     collapsedNodes: number[];
     isCheckable: boolean;
@@ -49,7 +48,7 @@ export class TableRow extends React.Component<TableRowProps> {
                 : <span style={{marginLeft: 5}}></span>;
     };
 
-    renderRow = (): React.ReactNode => this.props.keys.map((nodeKey: string, index) => {
+    renderRow = (): React.ReactNode => this.props.node.labels.map((_label: string, index) => {
         let toggleCollapse: React.ReactNode;
         let toggleCheck: React.ReactNode;
         if (index === 0) {
@@ -57,7 +56,7 @@ export class TableRow extends React.Component<TableRowProps> {
             toggleCheck = this.renderCheckbox();
         }
 
-        return <TableCell key={this.props.node.id+'-'+index} nodeKey={nodeKey} node={this.props.node}>
+        return <TableCell key={this.props.node.id+'-'+index} index={index} node={this.props.node}>
             {toggleCollapse}
             {toggleCheck}
         </TableCell>;

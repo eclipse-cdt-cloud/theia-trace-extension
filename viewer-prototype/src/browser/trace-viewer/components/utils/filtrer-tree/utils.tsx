@@ -1,19 +1,29 @@
 import { Entry } from 'tsp-typescript-client/lib/models/entry';
 import { TreeNode } from './tree-node';
+import ColumnHeader from './column-header';
 
-const entryToTreeNode = (entry: Entry) => ({
-        name: ((entry.labels) && (entry.labels.length > 0)) ? entry.labels[0] : '',
+const entryToTreeNode = (entry: Entry, headers: ColumnHeader[]) => {
+    // TODO Instead of padding the labels, ColumnHeader should use a getter function  instead of just assuming strings, this will allow to get the legend for XY charts
+    const labels = ((entry.labels) && (entry.labels.length > 0)) ? entry.labels : [''];
+    // Pad the labels to match the header count
+    for (let i = labels.length; i <= headers.length - 1; i++) {
+        labels[i] = '';
+    }
+    return ({
+        labels: labels,
         isRoot: false,
-        children: [],
-        ...entry
+        id: entry.id,
+        parentId: entry.parentId,
+        children: []
     } as TreeNode);
+};
 
-export const listToTree = (list: Entry[]): TreeNode[] => {
+export const listToTree = (list: Entry[], headers: ColumnHeader[]): TreeNode[] => {
     const rootNodes: TreeNode[] = [];
     const lookup: { [key: string]: TreeNode } = {};
     // Fill-in the lookup table
     list.forEach(entry => {
-        lookup[entry.id] = entryToTreeNode(entry);
+        lookup[entry.id] = entryToTreeNode(entry, headers);
     });
     // Create the tree in the order it has been received
     list.forEach(entry => {

@@ -2,7 +2,6 @@ import { AbstractOutputComponent, AbstractOutputProps, AbstractOutputState } fro
 import * as React from 'react';
 import { QueryHelper } from 'tsp-typescript-client/lib/models/query/query-helper';
 import { ResponseStatus } from 'tsp-typescript-client/lib/models/response/responses';
-import { Entry, EntryHeader } from 'tsp-typescript-client/lib/models/entry';
 
 export abstract class AbstractTreeOutputComponent<P extends AbstractOutputProps, S extends AbstractOutputState> extends AbstractOutputComponent<P, S> {
     renderMainArea(): React.ReactNode {
@@ -36,9 +35,9 @@ export abstract class AbstractTreeOutputComponent<P extends AbstractOutputProps,
         // TODO Use the output descriptor to find out if the analysis is completed
         const xyTreeParameters = QueryHelper.selectionTimeQuery(
             QueryHelper.splitRangeIntoEqualParts(this.props.range.getstart(), this.props.range.getEnd(), 1120), []);
-        let xyTreeResponse = (await tspClient.fetchXYTree<Entry, EntryHeader>(traceUUID, outPutId, xyTreeParameters)).getModel();
+        let xyTreeResponse = (await tspClient.fetchXYTree(traceUUID, outPutId, xyTreeParameters)).getModel();
         while (xyTreeResponse.status === ResponseStatus.RUNNING) {
-            xyTreeResponse = (await tspClient.fetchXYTree<Entry, EntryHeader>(traceUUID, outPutId, xyTreeParameters)).getModel();
+            xyTreeResponse = (await tspClient.fetchXYTree(traceUUID, outPutId, xyTreeParameters)).getModel();
         }
         this.setState({
             outputStatus: xyTreeResponse.status

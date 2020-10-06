@@ -4,7 +4,6 @@ import { TableRow } from './table-row';
 
 interface TableBodyProps {
     nodes: TreeNode[];
-    keys: string[];
     collapsedNodes: number[];
     isCheckable: boolean;
     getCheckedStatus: (id: number) => number;

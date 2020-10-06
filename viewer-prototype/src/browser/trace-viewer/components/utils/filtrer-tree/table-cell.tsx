@@ -2,8 +2,8 @@ import * as React from 'react';
 import { TreeNode } from './tree-node';
 
 interface TableCellProps {
-    nodeKey: string;
     node: TreeNode;
+    index: number;
 }
 
 export class TableCell extends React.Component<TableCellProps> {
@@ -12,11 +12,9 @@ export class TableCell extends React.Component<TableCellProps> {
     }
 
     render(): React.ReactNode {
-        const content: React.ReactNode = (this.props.nodeKey !== 'Legend')
-            ? this.props.node[this.props.nodeKey as keyof TreeNode]
-            : undefined;
+        const content = this.props.node.labels[this.props.index];
         return (
-            <td key={this.props.nodeKey+'-'+this.props.node.id}>
+            <td key={this.props.index+'-td-'+this.props.node.id}>
                 {this.props.children}
                 {content}
             </td>

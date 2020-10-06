@@ -3,6 +3,7 @@ import { Entry } from 'tsp-typescript-client/lib/models/entry';
 import { listToTree } from './utils';
 import { FilterTree } from './tree';
 import { TreeNode } from './tree-node';
+import ColumnHeader from './column-header';
 
 interface EntryTreeProps {
     entries: Entry[];
@@ -14,6 +15,7 @@ interface EntryTreeProps {
     onToggleCollapse: (id: number, nodes: TreeNode[]) => void;
     onOrderChange: (ids: number[]) => void;
     showHeader: boolean;
+    headers: ColumnHeader[];
     className: string;
 }
 
@@ -22,7 +24,8 @@ export class EntryTree extends React.Component<EntryTreeProps> {
         showFilter: true,
         onOrderChange: () => { /* Nothing to do */ },
         showHeader: true,
-        className: 'table-tree'
+        className: 'table-tree',
+        headers: [{title: 'Name', sortable: true}]
     };
 
     constructor(props: EntryTreeProps) {
@@ -34,7 +37,7 @@ export class EntryTree extends React.Component<EntryTreeProps> {
 
     render(): JSX.Element {
         return <FilterTree
-            nodes={listToTree(this.props.entries)}
+            nodes={listToTree(this.props.entries, this.props.headers)}
             {...this.props}
         />;
     }

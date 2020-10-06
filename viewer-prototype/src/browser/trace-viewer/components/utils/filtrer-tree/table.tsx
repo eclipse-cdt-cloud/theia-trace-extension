@@ -3,6 +3,7 @@ import { TreeNode } from './tree-node';
 import { TableHeader } from './table-header';
 import { TableBody } from './table-body';
 import { SortConfig, sortState, nextSortState, sortNodes } from './sort';
+import ColumnHeader from './column-header';
 
 interface TableProps {
     nodes: TreeNode[];
@@ -15,45 +16,27 @@ interface TableProps {
     onSort: (sortedNodes: TreeNode[]) => void;
     onSortConfigChange: (sortConfig: SortConfig[]) => void;
     showHeader: boolean;
+    headers: ColumnHeader[];
     className: string;
 }
 
 export class Table extends React.Component<TableProps> {
 
-    private keys: string[] = [];
-    private sortableColumns: string[] = [];
+    private sortableColumns: string[];
 
     constructor(props: TableProps) {
         super(props);
-        this.keys = this.getTableHeaderKeys();
-        this.sortableColumns = this.getSortableColumns();
-        this.initializeSortConfig();
-    }
-
-    initializeSortConfig = (): void => {
+        const sortableCols: string[] = [];
         const config: SortConfig[] = [];
-        this.sortableColumns.forEach((column: string) => {
-            config.push({column: column, sortState: sortState.default});
-        });
-        this.props.onSortConfigChange(config);
-    };
-
-    getTableHeaderKeys = (): string[] => {
-        // TODO Re-factor this once the server can properly send column headers
-        const keys = Object.keys(this.props.nodes[0]);
-        const excludeKeys = ['isRoot', 'children', 'style', 'metadata', 'labels', 'id', 'parentId'];
-        return keys.filter(key => !excludeKeys.includes(key)).concat('Legend');
-    };
-
-    getSortableColumns = (): string[] => {
-        const sortableColumns: string[] = [];
-        this.keys.forEach((key: string) => {
-            if (typeof this.props.nodes[0][key as keyof TreeNode] === 'string' || typeof this.props.nodes[0][key as keyof TreeNode] === 'number') {
-                sortableColumns.push(key);
+        this.props.headers.forEach((header: ColumnHeader, columnIndex) => {
+            if (header.sortable) {
+                config.push({column: header.title, columnIndex: columnIndex, sortState: sortState.default});
+                sortableCols.push(header.title);
             }
         });
-        return sortableColumns;
-    };
+        this.props.onSortConfigChange(config);
+        this.sortableColumns = sortableCols;
+    }
 
     onSortChange = (sortColumn: string): void => {
         let newSortConfigs: SortConfig[] = [...this.props.sortConfig];
@@ -74,7 +57,7 @@ export class Table extends React.Component<TableProps> {
             <div>
                 <table style={{borderCollapse: 'collapse'}} className={this.props.className}>
                     {this.props.showHeader && <TableHeader
-                        columns={this.keys}
+                        columns={this.props.headers}
                         sortableColumns={this.sortableColumns}
                         onSort={this.onSortChange}
                         sortConfig={this.props.sortConfig}
@@ -82,7 +65,6 @@ export class Table extends React.Component<TableProps> {
                     <TableBody
                         {...this.props}
                         nodes={sortNodes(this.props.nodes, this.props.sortConfig)}
-                        keys={this.keys}
                     />
                 </table>
             </div>

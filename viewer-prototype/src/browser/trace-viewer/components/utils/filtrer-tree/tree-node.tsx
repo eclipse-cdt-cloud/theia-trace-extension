@@ -1,7 +1,7 @@
 export interface TreeNode {
     id: number;
     parentId: number;
-    name: string;
+    labels: string[];
     children: Array<TreeNode>;
     isRoot: boolean;
 }
