@@ -57,16 +57,7 @@ export class TspDataProvider {
             const rowId: number = row.entryId;
             const entry = this.timeGraphEntries.find(tgEntry => tgEntry.id === rowId);
             if (entry) {
-                const states = this.getStateModelByRow(row, chartStart);
-                rows.push({
-                    id: rowId,
-                    name: entry.labels[0], // 'row' + rowId,
-                    range: {
-                        start: entry.start - chartStart,
-                        end: entry.end - chartStart
-                    },
-                    states
-                });
+                rows.push(this.getRowModel(row, chartStart, rowId, entry));
             }
         });
 
@@ -96,8 +87,10 @@ export class TspDataProvider {
         this.timeGraphRows = newTimeGraphRows;
     }
 
-    protected getStateModelByRow(row: TimeGraphRow, chartStart: number): TimelineChart.TimeGraphRowElementModel[] {
+    private getRowModel(row: TimeGraphRow, chartStart: number, rowId: number, entry: TimeGraphEntry) {
         const states: TimelineChart.TimeGraphRowElementModel[] = [];
+        let prevPossibleState = entry.start;
+        let nextPossibleState = entry.end;
         row.states.forEach((state: TimeGraphState, idx: number) => {
             const end = state.end - chartStart;
             if (state.style) {
@@ -119,6 +112,7 @@ export class TspDataProvider {
                 if (nextState && nextState.start > state.end + 1) {
                     // Add gap state
                     states.push({
+                        // TODO: We should probably remove id from state. We don't use it anywhere.
                         id: row.entryId + '-' + idx,
                         label: 'GAP',
                         range: {
@@ -131,7 +125,24 @@ export class TspDataProvider {
                     });
                 }
             }
+            if (idx === 0) {
+                prevPossibleState = state.start - chartStart;
+            }
+            if (idx === row.states.length - 1) {
+                nextPossibleState = state.end - chartStart;
+            }
         });
-        return states;
+
+        return {
+            id: rowId,
+            name: entry.labels[0], // 'row' + rowId,
+            range: {
+                start: entry.start - chartStart,
+                end: entry.end - chartStart
+            },
+            states,
+            prevPossibleState,
+            nextPossibleState
+        };
     }
 }
