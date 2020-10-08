@@ -7,13 +7,14 @@ import { OutputDescriptor } from 'tsp-typescript-client/lib/models/output-descri
 import { Experiment } from 'tsp-typescript-client/lib/models/experiment';
 import { TspClient } from 'tsp-typescript-client/lib/protocol/tsp-client';
 import { TimeRange } from '../../../common/utils/time-range';
-import { AbstractOutputProps } from './abstract-output-component';
 import { TableOutputComponent } from './table-output-component';
 import { TimegraphOutputComponent } from './timegraph-output-component';
 import { OutputComponentStyle } from './utils/output-component-style';
 import { TimeAxisComponent } from './utils/time-axis-component';
 import { TimeNavigatorComponent } from './utils/time-navigator-component';
 import { XYOutputComponent } from './xy-output-component';
+import { NullOutputComponent } from './null-output-component';
+import { AbstractOutputProps } from './abstract-output-component';
 
 const ResponsiveGridLayout = WidthProvider(Responsive);
 
@@ -220,7 +221,7 @@ export class TraceContextComponent extends React.Component<TraceContextProps, Tr
                         case 'TABLE':
                             return <TableOutputComponent key={output.id} {...outputProps} />;
                         default:
-                            break;
+                            return <NullOutputComponent key={output.id} {...outputProps} />;
                     }
                 })}
             </ResponsiveGridLayout>
