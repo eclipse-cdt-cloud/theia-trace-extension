@@ -18,12 +18,10 @@ export class VsCodeMessageManager extends Messages.MessageManager {
         category = Messages.MessageCategory.SERVER_MESSAGE,
         severity = Messages.MessageSeverity.INFO }: Messages.StatusMessage): void {
         vscode.postMessage({command: 'newStatus', data: {messageKey, text, category, severity }});
-        console.log('New status message', messageKey, text, category, severity);
     }
 
     removeStatusMessage(messageKey: string): void {
         vscode.postMessage({command: 'rmStatus', data: { messageKey }});
-        console.log('Removing status message status message', messageKey);
     }
 
 }

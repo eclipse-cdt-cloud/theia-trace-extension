@@ -1,6 +1,5 @@
 {
     "compilerOptions": {
-        "composite": true,
         "strict": true,
         "sourceMap": true,
         "esModuleInterop": true,

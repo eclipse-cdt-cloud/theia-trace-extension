@@ -16,7 +16,7 @@ export const Signals = {
 export class SignalManager extends EventEmitter implements SignalManager {
 
     fireTooltipSignal(payload: { [key: string]: string; }): void {
-        console.log('tooltip signal was fired');
+        /* To be implemented by extending clases */
     }
 
 }
