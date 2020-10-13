@@ -58,7 +58,8 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
             rowElementStyleProvider: (model: TimelineChart.TimeGraphRowElementModel) => this.getElementStyle(model),
             rowStyleProvider: (row: TimelineChart.TimeGraphRowModel) => ({
                 backgroundColor: 0x979797,// 0xaaaaff,
-                backgroundOpacity: row.selected ? 0.1 : 0,
+                // PIXI 5 doesn't handle events on elements with opacity 0. As a workaround set it to 0.001
+                backgroundOpacity: row.selected ? 0.1 : 0.001,
                 lineColor: 0xdddddd, // hasStates ? 0xdddddd : 0xaa4444, // row.data && row.data.hasStates
                 lineThickness: 1, // hasStates ? 1 : 3 // row.data && row.data.hasStates
             })
@@ -145,7 +146,7 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
     renderChart(): React.ReactNode {
         return <React.Fragment>
             {this.state.outputStatus === ResponseStatus.COMPLETED ?
-                <div id='timegraph-main' className='ps__child--consume' onWheel={ev => { ev.preventDefault(); ev.stopPropagation(); }} style={{ height:this.props.style.height }} >
+                <div id='timegraph-main' className='ps__child--consume' onWheel={ev => { ev.preventDefault(); ev.stopPropagation(); }} style={{ height: this.props.style.height }} >
                     {this.renderTimeGraphContent()}
                 </div> :
                 'Analysis running...'}
@@ -153,7 +154,7 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
     }
 
     private renderTimeGraphContent() {
-        return <div id='main-timegraph-content' ref={this.horizontalContainer} style={{height:this.props.style.height}} >
+        return <div id='main-timegraph-content' ref={this.horizontalContainer} style={{ height: this.props.style.height }} >
             {this.getChartContainer()}
         </div>;
     }
