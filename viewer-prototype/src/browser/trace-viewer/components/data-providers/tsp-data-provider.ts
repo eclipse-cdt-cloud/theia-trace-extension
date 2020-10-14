@@ -2,6 +2,7 @@ import { TspClient } from 'tsp-typescript-client/lib/protocol/tsp-client';
 import { TimeGraphEntry, TimeGraphRow, TimeGraphState } from 'tsp-typescript-client/lib/models/timegraph';
 import { TimelineChart } from 'timeline-chart/lib/time-graph-model';
 import { QueryHelper } from 'tsp-typescript-client/lib/models/query/query-helper';
+import { OutputElementStyle } from 'tsp-typescript-client/lib/models/styles';
 
 export class TspDataProvider {
 
@@ -79,7 +80,7 @@ export class TspDataProvider {
             if (timeGraphRow) {
                 newTimeGraphRows.push(timeGraphRow);
             } else {
-                const emptyRow: TimeGraphRow = {states: [{start: 0, end: 0, label: '', tags: 0}], entryId: id};
+                const emptyRow: TimeGraphRow = { states: [{ start: 0, end: 0, label: '', tags: 0 }], entryId: id };
                 newTimeGraphRows.push(emptyRow);
             }
         });
@@ -87,7 +88,26 @@ export class TspDataProvider {
         this.timeGraphRows = newTimeGraphRows;
     }
 
+    private getDefaultForGapStyle() {
+        // Default color and height for the GAP state
+        return {
+            parentKey: '',
+            values: {
+                color: 0xCACACA,
+                height: 1.0
+            }
+        };
+
+    }
+
     private getRowModel(row: TimeGraphRow, chartStart: number, rowId: number, entry: TimeGraphEntry) {
+
+        let gapStyle: OutputElementStyle;
+        if (!entry.style) {
+            gapStyle = this.getDefaultForGapStyle();
+        } else {
+            gapStyle = entry.style;
+        }
         const states: TimelineChart.TimeGraphRowElementModel[] = [];
         let prevPossibleState = entry.start;
         let nextPossibleState = entry.end;
@@ -114,13 +134,13 @@ export class TspDataProvider {
                     states.push({
                         // TODO: We should probably remove id from state. We don't use it anywhere.
                         id: row.entryId + '-' + idx,
-                        label: 'GAP',
+                        label: '',
                         range: {
                             start: end,
                             end: nextState.start - chartStart
                         },
                         data: {
-
+                            style: gapStyle
                         }
                     });
                 }
