@@ -333,8 +333,8 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
             }
 
             style = this.styleMap.get(stateStyle.parentKey);
-            if (!style) {
-                style = backupStyles[(hash(stateStyle.parentKey) as number % backupStyles.length)];
+            if (style === undefined) {
+                style = backupStyles[(Math.abs(hash(stateStyle.parentKey)) as number % backupStyles.length)];
                 this.styleMap.set(stateStyle.parentKey, style);
             }
             return {
