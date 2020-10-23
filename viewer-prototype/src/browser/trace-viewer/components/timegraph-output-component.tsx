@@ -21,6 +21,7 @@ import { EntryTree } from './utils/filtrer-tree/entry-tree';
 import { listToTree, getAllExpandedNodeIds } from './utils/filtrer-tree/utils';
 import hash from '../../../common/utils/value-hash';
 import ColumnHeader from './utils/filtrer-tree/column-header';
+import { TooltipComponent } from './utils/tooltip-component';
 
 type TimegraphOutputProps = AbstractOutputProps & {
     addWidgetResizeHandler: (handler: () => void) => void;
@@ -30,15 +31,17 @@ type TimegraphOutputState = AbstractOutputState & {
     timegraphTree: TimeGraphEntry[];
     collapsedNodes: number[];
     columns: ColumnHeader[];
+    isElementSelected: boolean;
+    isTooltipOpened: boolean;
 };
-
 export class TimegraphOutputComponent extends AbstractTreeOutputComponent<TimegraphOutputProps, TimegraphOutputState> {
     private totalHeight = 0;
     private rowController: TimeGraphRowController;
     private chartLayer: TimeGraphChart;
     private vscrollLayer: TimeGraphVerticalScrollbar;
     private horizontalContainer: React.RefObject<HTMLDivElement>;
-
+    private toolTipObject: { [key: string]: string } = {};
+    private toolTipPosition: { x: number, y: number } = { x: 0, y: 0 };
     private tspDataProvider: TspDataProvider;
     private styleMap = new Map<string, TimeGraphRowElementStyle>();
 
@@ -50,9 +53,13 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
             outputStatus: ResponseStatus.RUNNING,
             timegraphTree: [],
             collapsedNodes: [],
-            columns: []
+            columns: [],
+            isElementSelected: false,
+            isTooltipOpened: false,
         };
         this.onToggleCollapse = this.onToggleCollapse.bind(this);
+        this.closeTooltip = this.closeTooltip.bind(this);
+        this.openTooltip = this.openTooltip.bind(this);
         this.tspDataProvider = new TspDataProvider(this.props.tspClient, this.props.traceId, this.props.outputDescriptor.id);
         this.rowController = new TimeGraphRowController(this.props.style.rowHeight, this.totalHeight);
         this.horizontalContainer = React.createRef();
@@ -68,13 +75,23 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
         };
         this.chartLayer = new TimeGraphChart('timeGraphChart', providers, this.rowController);
         this.vscrollLayer = new TimeGraphVerticalScrollbar('timeGraphVerticalScrollbar', this.rowController);
+        this.chartLayer.registerRowElementMouseInteractions({
+            click: (el: TimeGraphRowElement, ev: PIXI.InteractionEvent) => {
+                this.setTooltipPosition(el, ev);
+            },
+            mouseover: (el: TimeGraphRowElement, ev: PIXI.InteractionEvent) => {
+                this.setTooltipPosition(el, ev);
+            },
+            mouseout: () => {
+                setTimeout(() => { this.closeTooltip(); }, 6000);
+            }
+        });
 
         this.rowController.onVerticalOffsetChangedHandler(() => {
             if (this.treeRef.current) {
                 this.treeRef.current.scrollTop = this.rowController.verticalOffset;
             }
         });
-
         this.chartLayer.onSelectedRowElementChanged(model => {
             if (model) {
                 const el = this.chartLayer.getElementById(model.id);
@@ -93,6 +110,32 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
             this.rowController.verticalOffset = this.treeRef.current.scrollTop;
         }
     }
+    closeTooltip = (): void => {
+        this.setState({
+            isTooltipOpened: false
+        });
+    };
+
+    openTooltip(): void {
+        this.setState({
+            isElementSelected: true,
+            isTooltipOpened: true
+        });
+    }
+
+    setTooltipPosition(el: TimeGraphRowElement, ev: PIXI.InteractionEvent): void {
+        const X_MAX = document.documentElement.clientWidth * 0.5;
+        const Y_MAX = this.totalHeight - 100;
+        const TOOLTIP_OFFSET = 40;
+        let posx = ev.data.getLocalPosition(el.displayObject).x;
+        posx = Math.min(posx, X_MAX - 0.5 * TOOLTIP_OFFSET);
+        el.position.y = Math.min(el.position.y, Y_MAX - 1.5 * TOOLTIP_OFFSET);
+        this.toolTipPosition.x = (posx > 0.9 * X_MAX) ? posx - 0.5 * TOOLTIP_OFFSET : posx + 0.5 * TOOLTIP_OFFSET;
+        this.toolTipPosition.y = (el.position.y > 0.5 * Y_MAX) ? el.position.y - 0.5 * TOOLTIP_OFFSET : el.position.y + 0.5 * TOOLTIP_OFFSET;
+        this.onElementSelected(this.chartLayer.getElementById(el.id));
+        this.closeTooltip();
+        this.openTooltip();
+    }
 
     async componentDidMount(): Promise<void> {
         this.waitAnalysisCompletion();
@@ -109,10 +152,10 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
             const columns: ColumnHeader[] = [];
             if (treeResponse.model.headers && treeResponse.model.headers.length > 0) {
                 treeResponse.model.headers.forEach(header => {
-                    columns.push({title: header.name, sortable: true, tooltip: header.tooltip});
+                    columns.push({ title: header.name, sortable: true, tooltip: header.tooltip });
                 });
             } else {
-                columns.push({title: 'Name', sortable: true});
+                columns.push({ title: 'Name', sortable: true });
             }
             // TODO Style should not be retreive in the "initialization" part or at least async
             const styleResponse = (await this.props.tspClient.fetchStyles(this.props.traceId, this.props.outputDescriptor.id, QueryHelper.query())).getModel();
@@ -157,8 +200,11 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
     renderChart(): React.ReactNode {
         return <React.Fragment>
             {this.state.outputStatus === ResponseStatus.COMPLETED ?
-                <div id='timegraph-main' className='ps__child--consume' onWheel={ev => { ev.preventDefault(); ev.stopPropagation(); }} style={{ height: this.props.style.height }} >
+                <div id='timegraph-main' className='ps__child--consume' onMouseLeave={_ev => this.closeTooltip()}
+                    onWheel={ev => { ev.preventDefault(); ev.stopPropagation(); }} style={{ height: this.props.style.height }}>
                     {this.renderTimeGraphContent()}
+                    {this.state.isElementSelected && this.state.isTooltipOpened &&
+                        <TooltipComponent tooltip={this.toolTipObject} position={this.toolTipPosition}></TooltipComponent>}
                 </div> :
                 'Analysis running...'}
         </React.Fragment>;
@@ -209,8 +255,7 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
             layer={[this.vscrollLayer]}
         ></ReactTimeGraphContainer>;
     }
-
-    private async onElementSelected(element: TimeGraphRowElement | undefined) {
+    async getToolTipObject(element: TimeGraphRowElement | undefined): Promise<{ [key: string]: string }> {
         if (element && this.props.viewRange) {
             const elementRange = element.model.range;
             const offset = this.props.viewRange.getOffset();
@@ -225,11 +270,16 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
                     ...responseModel.model,
                     'Row': element.row.model.name
                 };
-                SignalManager.getInstance().fireTooltipSignal(tooltipObject);
+                this.toolTipObject = tooltipObject;
+                this.forceUpdate();
+                return this.toolTipObject;
             }
         }
+        return {};
     }
-
+    async onElementSelected(element: TimeGraphRowElement | undefined): Promise<void> {
+        SignalManager.getInstance().fireTooltipSignal(await this.getToolTipObject(element));
+    }
     private async fetchTimegraphData(range: TimelineChart.TimeGraphRange, resolution: number) {
         const treeNodes = listToTree(this.state.timegraphTree, this.state.columns);
         const orderedTreeIds = getAllExpandedNodeIds(treeNodes, this.state.collapsedNodes);
@@ -359,3 +409,4 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
     }
 
 }
+

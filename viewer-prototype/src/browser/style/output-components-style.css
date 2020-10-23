@@ -1,96 +1,94 @@
 /* Output component styling */
 /* Main container*/
 .output-container {
-    display: flex;
-    color: var(--theia-ui-font-color0)
+   display: flex;
+   color: var(--theia-ui-font-color0)
 }
 
 .widget-handle {
-    background-color: var(--theia-layout-color4);
-    display: grid;
-    grid-template-rows: 25px 1fr;
+   background-color: var(--theia-layout-color4);
+   display: grid;
+   grid-template-rows: 25px 1fr;
 }
 .title-bar-label {
-    text-align: center;
-    writing-mode: vertical-rl;
-    height: 50%;
-    min-height: 150px;
-    transform: rotate(180deg);
-    user-select: none;
-    align-self: center;
-    justify-self: center;
+   text-align: center;
+   writing-mode: vertical-rl;
+   height: 50%;
+   min-height: 150px;
+   transform: rotate(180deg);
+   user-select: none;
+   align-self: center;
+   justify-self: center;
 }
+
 .remove-component-button {
-    background: none;
-    border: none;
-    padding: 2px 8px;
-    align-self: center;
-    justify-self: center;
-    color: var(--theia-ui-font-color0)
+   background: none;
+   border: none;
+   padding: 2px 8px;
+   align-self: center;
+   justify-self: center;
+   color: var(--theia-ui-font-color0)
 }
 
 .main-output-container {
-    display: flex;
+   display: flex;
 }
 
 .output-component-tree {
-    overflow-y: scroll;
-    white-space: pre-wrap;
+   overflow-y: scroll;
+   white-space: pre-wrap;
 }
 
 .output-component-chart {
-    align-self: center;
-    text-align: center;
+   align-self: center;
+   text-align: center;
+}
+
+#tooltip-box {
+   position:absolute;
+   overflow:hidden;
+   z-index :2;
+   top: 80px;
+   right: 20px;
+   background-color: rgb(247, 231, 8);
+   width: 250px;
+   height: auto;
+   opacity: 0.8;
+   font-size: 13px;
+   font-family: arial;
+   text-align: left;
+   color: black;
+   padding-inline-start: 10px;
 }
 
 #timegraph-main {
-    width: 100%;
-    display: flex;
+   width:100%;
+   overflow-y:scroll;
+   position:relative;
+   height: 300px;
+   z-index:1;
 }
 
 #main {
-    border: 1px solid;
-    margin: 10px 0;
-    overflow: hidden;
+   border: 1px solid;
+   margin: 10px 0;
+   overflow: hidden;
 }
 
 canvas {
-    display: block;
+   display: block;
 }
 
 .innerContainer {
-    width: 100%;
-}
-
-.table-tree>tbody>tr:nth-child(1)>th {
-    background-color: var(--theia-editor-background);
-    position: sticky;
-    top: 0;
-}
-
-.table-tree th, .table-tree td {
-    padding: 3px 5px;
-    text-align: left;
-    border-bottom: 1px solid #333;
-    border-right: 1px solid #333;
-    white-space: nowrap;
-    min-width: 50px;
-}
-
-.timegraph-tree tr {
-    /* TODO: Fix row alignment, this number is arbitrary, it works [on my machine], but it should match line height in timeline-chart */
-    line-height: 18px;
-    position: relative;
-    white-space: nowrap;
-    top: 50%;
-    padding: 0 0;
+   width: 100%;
 }
 
 #input-filter-tree {
-    background-color: var(--theia-input-background);
-    border: none;
-    border-bottom: 1px solid var(--theia-input-foreground);
-    padding: 3px;
-    width: 180px;
-    color: var(--theia-input-placeholder-foreground)
+   background-color: var(--theia-input-background);
+   border: none;
+   border-bottom: 1px solid var(--theia-input-foreground);
+   padding: 3px;
+   width: 180px;
+   color: var(--theia-input-placeholder-foreground)
 }
+
