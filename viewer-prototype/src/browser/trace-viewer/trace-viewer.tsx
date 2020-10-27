@@ -7,6 +7,7 @@ import * as React from 'react';
 import { OutputDescriptor } from 'tsp-typescript-client/lib/models/output-descriptor';
 import { Trace } from 'tsp-typescript-client/lib/models/trace';
 import { TspClient } from 'tsp-typescript-client/lib/protocol/tsp-client';
+import { TspClientProvider } from '../tsp-client-provider';
 import { TraceManager } from '../../common/trace-manager';
 import { ExperimentManager } from '../../common/experiment-manager';
 import { OutputAddedSignalPayload, TraceExplorerWidget } from '../trace-explorer/trace-explorer-widget';
@@ -27,6 +28,7 @@ export class TraceViewerWidget extends ReactWidget {
     protected readonly uri: Path;
     private openedExperiment: Experiment | undefined;
     private outputDescriptors: OutputDescriptor[] = [];
+    private tspClient: TspClient;
 
     private resizeHandlers: (() => void)[] = [];
     private readonly addResizeHandler = (h: () => void) => {
@@ -37,7 +39,7 @@ export class TraceViewerWidget extends ReactWidget {
         @inject(TraceViewerWidgetOptions) protected readonly options: TraceViewerWidgetOptions,
         @inject(TraceManager) private traceManager: TraceManager,
         @inject(ExperimentManager) private experimentManager: ExperimentManager,
-        @inject(TspClient) private tspClient: TspClient,
+        @inject(TspClientProvider) private tspClientProvider: TspClientProvider,
         @inject(StatusBar) private statusBar: StatusBar,
         @inject(FileSystem) private readonly fileSystem: FileSystem,
     ) {
@@ -49,6 +51,8 @@ export class TraceViewerWidget extends ReactWidget {
         this.addClass('theia-trace-open');
         this.toDispose.push(TraceExplorerWidget.outputAddedSignal(output => this.onOutputAdded(output)));
         this.initialize();
+        this.tspClient = this.tspClientProvider.getTspClient();
+        this.tspClientProvider.addTspClientChangeListener(tspClient => this.tspClient = tspClient);
     }
 
     async initialize(): Promise<void> {

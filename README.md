@@ -58,6 +58,16 @@ or
 
 And use the Electron application.
 
+### Change the trace server URL
+
+By default, the trace server is expected to be on responding at `http://localhost:8080/tsp/api`. If it is not the case, the URL can be changed using the `TRACE_SERVER_URL` environment variable when running the app.
+
+For example, to start the browser example app with a specific URL, one can run
+
+```bash
+ $ TRACE_SERVER_URL=https://my.trace.server:port/tsp/api yarn start:browser
+```
+
 ## Package the Example Theia Trace Viewer Application
 
 It's possible to package the repo's example application with `electron-builder`. After running `yarn` in the repo root, do:
