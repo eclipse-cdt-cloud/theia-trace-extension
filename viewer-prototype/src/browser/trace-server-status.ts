@@ -11,16 +11,20 @@ import { StatusBar, StatusBarAlignment } from '@theia/core/lib/browser/status-ba
 import { Disposable, DisposableCollection } from '@theia/core/lib//common';
 import { ConnectionStatusService, ConnectionStatus, AbstractConnectionStatusService } from '@theia/core/lib/browser/connection-status-service';
 import { TspClient } from 'tsp-typescript-client/lib/protocol/tsp-client';
+import { TspClientProvider } from './tsp-client-provider';
 
 @injectable()
 export class TraceServerConnectionStatusService extends AbstractConnectionStatusService {
 
     private scheduledPing: number | undefined;
+    private tspClient: TspClient;
 
     private constructor(
-        @inject(TspClient) private tspClient: TspClient
+        @inject(TspClientProvider) private tspClientProvider: TspClientProvider
     ) {
         super();
+        this.tspClient = this.tspClientProvider.getTspClient();
+        this.tspClientProvider.addTspClientChangeListener(tspClient => this.tspClient = tspClient);
     }
 
     @postConstruct()

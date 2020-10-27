@@ -1,6 +1,7 @@
 import { Trace } from 'tsp-typescript-client/lib/models/trace';
 import { Path, Emitter } from '@theia/core';
 import { TspClient } from 'tsp-typescript-client/lib/protocol/tsp-client';
+import { TspClientProvider } from '../browser/tsp-client-provider';
 import { Query } from 'tsp-typescript-client/lib/models/query/query';
 import { injectable, inject } from 'inversify';
 import { OutputDescriptor } from 'tsp-typescript-client/lib/models/output-descriptor';
@@ -18,9 +19,14 @@ export class TraceManager {
 
     private fOpenTraces: Map<string, Trace> = new Map();
 
+    private tspClient: TspClient;
+
     private constructor(
-        @inject(TspClient) private tspClient: TspClient
-    ) { }
+        @inject(TspClientProvider) private tspClientProvider: TspClientProvider
+    ) {
+        this.tspClient = this.tspClientProvider.getTspClient();
+        this.tspClientProvider.addTspClientChangeListener(tspClient => this.tspClient = tspClient);
+    }
 
     /**
      * Get an array of opened traces

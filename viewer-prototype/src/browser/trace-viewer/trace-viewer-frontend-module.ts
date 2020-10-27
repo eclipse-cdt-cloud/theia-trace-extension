@@ -2,6 +2,8 @@ import { ContainerModule, Container } from 'inversify';
 import { WidgetFactory, OpenHandler, FrontendApplicationContribution, bindViewContribution } from '@theia/core/lib/browser';
 import { TraceViewerWidget, TraceViewerWidgetOptions } from './trace-viewer';
 import { TraceViewerContribution } from './trace-viewer-contribution';
+import { TraceViewerEnvironment } from '../../common/trace-viewer-environment';
+import { TraceServerUrlProvider } from '../../common/trace-server-url-provider';
 import { CommandContribution } from '@theia/core/lib/common';
 
 import 'ag-grid-community/dist/styles/ag-grid.css';
@@ -16,17 +18,21 @@ import '../../../src/browser/style/status-bar.css';
 // import 'semantic-ui-css/semantic.min.css';
 import { TraceExplorerContribution } from '../trace-explorer/trace-explorer-contribution';
 import { TRACE_EXPLORER_ID, TraceExplorerWidget } from '../trace-explorer/trace-explorer-widget';
-import { TspClient } from 'tsp-typescript-client/lib/protocol/tsp-client';
+import { TspClientProvider } from '../tsp-client-provider';
 import { TraceManager } from '../../common/trace-manager';
 import { ExperimentManager } from '../../common/experiment-manager';
 import { TraceServerConnectionStatusService, TraceServerConnectionStatusContribution } from '../../browser/trace-server-status';
+import { TraceServerUrlProviderImpl } from '../trace-server-url-provider-frontend-impl';
 // import { TracePropertiesContribution } from '../trace-properties-view/trace-properties-view-contribution';
 // import { TracePropertiesWidget, TRACE_PROPERTIES_ID } from '../trace-properties-view/trace-properties-view-widget';
 
 export default new ContainerModule(bind => {
-    bind(TspClient).toDynamicValue(() => new TspClient('http://localhost:8080/tsp/api')).inSingletonScope();
-    bind(TraceManager).toSelf().inSingletonScope();
-    bind(ExperimentManager).toSelf().inSingletonScope();
+
+    bind(TraceViewerEnvironment).toSelf().inRequestScope();
+    bind(TraceServerUrlProviderImpl).toSelf().inSingletonScope();
+    bind(FrontendApplicationContribution).toService(TraceServerUrlProviderImpl);
+    bind(TraceServerUrlProvider).toService(TraceServerUrlProviderImpl);
+    bind(TspClientProvider).toSelf().inSingletonScope();
 
     bind(TraceViewerWidget).toSelf();
     bind<WidgetFactory>(WidgetFactory).toDynamicValue(context => ({
@@ -51,6 +57,9 @@ export default new ContainerModule(bind => {
         id: TRACE_EXPLORER_ID,
         createWidget: () => context.container.get<TraceExplorerWidget>(TraceExplorerWidget)
     }));
+
+    bind(TraceManager).toSelf().inSingletonScope();
+    bind(ExperimentManager).toSelf().inSingletonScope();
 
     bind(TraceServerConnectionStatusService).toSelf().inSingletonScope();
     bind(FrontendApplicationContribution).toService(TraceServerConnectionStatusService);
