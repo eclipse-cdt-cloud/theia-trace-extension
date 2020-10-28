@@ -61,6 +61,7 @@ export class TableOutputComponent extends AbstractOutputComponent<TableOutputPro
                 debug={this.debugMode}
                 onGridReady={this.onGridReady}
                 components={this.components}
+                enableColResize={true}
             >
             </AgGridReact>
         </div>;
@@ -146,6 +147,7 @@ export class TableOutputComponent extends AbstractOutputComponent<TableOutputPro
                 headerName: columnHeader.name,
                 field: columnHeader.id.toString(),
                 width: this.props.columnWidth
+
             });
         });
 
