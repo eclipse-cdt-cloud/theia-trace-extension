@@ -21,7 +21,9 @@ tasks:
     yarn download:sample-traces &&
     yarn
   command: >
-    yarn start:electron ../TraceCompassTutorialTraces/ --hostname=0.0.0.0 --ignore-gpu-blacklist --no-sandbox
+    export GITPOD_URL=$(gp url 8080) &&
+    export TRACE_SERVER_URL=$(echo "$GITPOD_URL/tsp/api") &&
+    yarn start:browser ../TraceCompassTutorialTraces/ --hostname=0.0.0.0
 github:
   prebuilds:
     pullRequestsFromForks: true
