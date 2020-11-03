@@ -5,7 +5,10 @@ import { AgGridReact } from 'ag-grid-react';
 import { ColDef, IDatasource, GridReadyEvent } from 'ag-grid-community';
 import { QueryHelper } from 'tsp-typescript-client/lib/models/query/query-helper';
 import { cloneDeep } from 'lodash';
-
+interface ColumnHeaderType {
+    hidden: boolean;
+    tag: string;
+}
 type TableOuputState = AbstractOutputState & {
     tableColumns: ColDef[];
 };
@@ -141,13 +144,20 @@ export class TableOutputComponent extends AbstractOutputComponent<TableOutputPro
         }
 
         columnEntries.forEach(columnHeader => {
+            const typeString: string | null = columnHeader.type;
+            let hiddenColumn = false;
+            if (typeString) {
+                const type: ColumnHeaderType = JSON.parse(typeString);
+                hiddenColumn = type.hidden;
+            }
+
             const id = this.showIndexColumn ? ++columnHeader.id : columnHeader.id;
             colIds.push(id);
             columnsArray.push({
                 headerName: columnHeader.name,
                 field: columnHeader.id.toString(),
-                width: this.props.columnWidth
-
+                width: this.props.columnWidth,
+                hide: hiddenColumn
             });
         });
 
@@ -161,5 +171,6 @@ export class TableOutputComponent extends AbstractOutputComponent<TableOutputPro
         this.setState({
             tableColumns: this.columnArray
         });
+
     }
 }
