@@ -1,6 +1,6 @@
 import { Path } from '@theia/core';
 import { FileSystem, FileStat } from '@theia/filesystem/lib/common/filesystem';
-import { Message, StatusBar } from '@theia/core/lib/browser';
+import { ApplicationShell, Message, StatusBar } from '@theia/core/lib/browser';
 import { ReactWidget } from '@theia/core/lib/browser/widgets/react-widget';
 import { inject, injectable } from 'inversify';
 import * as React from 'react';
@@ -8,6 +8,7 @@ import { OutputDescriptor } from 'tsp-typescript-client/lib/models/output-descri
 import { Trace } from 'tsp-typescript-client/lib/models/trace';
 import { TspClient } from 'tsp-typescript-client/lib/protocol/tsp-client';
 import { TraceManager } from '../../common/trace-manager';
+import { Emitter } from '@theia/core';
 import { ExperimentManager } from '../../common/experiment-manager';
 import { OutputAddedSignalPayload, TraceExplorerWidget } from '../trace-explorer/trace-explorer-widget';
 import { TraceContextComponent } from './components/trace-context-component';
@@ -33,6 +34,9 @@ export class TraceViewerWidget extends ReactWidget {
         this.resizeHandlers.push(h);
     };
 
+    private static widgetActivatedEmitter = new Emitter<Experiment>();
+    public static widgetActivatedSignal = TraceViewerWidget.widgetActivatedEmitter.event;
+
     constructor(
         @inject(TraceViewerWidgetOptions) protected readonly options: TraceViewerWidgetOptions,
         @inject(TraceManager) private traceManager: TraceManager,
@@ -40,6 +44,7 @@ export class TraceViewerWidget extends ReactWidget {
         @inject(TspClient) private tspClient: TspClient,
         @inject(StatusBar) private statusBar: StatusBar,
         @inject(FileSystem) private readonly fileSystem: FileSystem,
+        @inject(ApplicationShell) protected readonly shell: ApplicationShell
     ) {
         super();
         this.uri = new Path(this.options.traceURI);
@@ -48,6 +53,8 @@ export class TraceViewerWidget extends ReactWidget {
         this.title.closable = true;
         this.addClass('theia-trace-open');
         this.toDispose.push(TraceExplorerWidget.outputAddedSignal(output => this.onOutputAdded(output)));
+        this.toDispose.push(TraceExplorerWidget.experimentSelectedSignal(experiment => this.onExperimentSelected(experiment)));
+
         this.initialize();
     }
 
@@ -81,6 +88,11 @@ export class TraceViewerWidget extends ReactWidget {
         if (experiment) {
             this.openedExperiment = experiment;
             this.title.label = 'Trace: ' + experiment.name;
+            this.id = experiment.UUID;
+
+            if (this.isVisible) {
+                TraceViewerWidget.widgetActivatedEmitter.fire(experiment);
+            }
         }
 
         this.update();
@@ -105,6 +117,20 @@ export class TraceViewerWidget extends ReactWidget {
         }
         this.statusBar.removeElement('time-selection-range');
         super.onCloseRequest(msg);
+    }
+
+    onAfterShow(msg: Message): void {
+        super.onAfterShow(msg);
+        if (this.openedExperiment) {
+            TraceViewerWidget.widgetActivatedEmitter.fire(this.openedExperiment);
+        }
+    }
+
+    onActivateRequest(msg: Message): void {
+        super.onActivateRequest(msg);
+        if (this.openedExperiment) {
+            TraceViewerWidget.widgetActivatedEmitter.fire(this.openedExperiment);
+        }
     }
 
     protected onResize(): void {
@@ -137,6 +163,12 @@ export class TraceViewerWidget extends ReactWidget {
         const outputToKeep = this.outputDescriptors.filter(output => output.id !== outputId);
         this.outputDescriptors = outputToKeep;
         this.update();
+    }
+
+    private onExperimentSelected(experiment: Experiment) {
+        if (this.openedExperiment && this.openedExperiment.UUID === experiment.UUID) {
+            this.shell.activateWidget(this.openedExperiment.UUID);
+        }
     }
 
     /*
