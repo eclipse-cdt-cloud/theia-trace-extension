@@ -1,0 +1,66 @@
+{
+  "name": "@trace-viewer/react-components",
+  "version": "0.0.0",
+  "description": "Trace Compass react components",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/theia-ide/theia-trace-extension"
+  },
+  "files": [
+    "lib",
+    "src"
+  ],
+  "dependencies": {
+    "@fortawesome/fontawesome-svg-core": "^1.2.17",
+    "@fortawesome/free-solid-svg-icons": "^5.8.1",
+    "@fortawesome/react-fontawesome": "^0.1.4",
+    "@trace-viewer/base": "0.0.0",
+    "ag-grid-community": "^20.2.0",
+    "ag-grid-react": "^20.2.0",
+    "chart.js": "^2.8.0",
+    "lodash": "^4.17.15",
+    "react-chartjs-2": "^2.7.6",
+    "react-grid-layout": "^1.1.0",
+    "react-modal": "^3.8.1",
+    "react-virtualized": "^9.21.0",
+    "semantic-ui-css": "^2.4.1",
+    "semantic-ui-react": "^0.86.0",
+    "timeline-chart": "next",
+    "tsp-typescript-client": "next"
+  },
+  "devDependencies": {
+    "@testing-library/react": "^10.4.6",
+    "@types/chart.js": "^2.7.52",
+    "@types/enzyme": "^3.10.5",
+    "@types/enzyme-adapter-react-16": "^1.0.6",
+    "@types/jest": "^26.0.4",
+    "@types/lodash": "^4.14.142",
+    "@types/react-grid-layout": "^0.16.7",
+    "@types/react-modal": "^3.8.2",
+    "@types/react-test-renderer": "^16.9.2",
+    "@types/react-virtualized": "^9.21.1",
+    "@typescript-eslint/eslint-plugin": "^3.4.0",
+    "@typescript-eslint/parser": "^3.4.0",
+    "enzyme": "^3.11.0",
+    "enzyme-adapter-react-16": "^1.15.2",
+    "eslint": "^7.3.0",
+    "eslint-plugin-import": "^2.21.2",
+    "eslint-plugin-no-null": "^1.0.2",
+    "eslint-plugin-react": "^7.20.0",
+    "jest": "^26.1.0",
+    "react-test-renderer": "^16.13.1",
+    "rimraf": "latest",
+    "ts-jest": "^26.3.0",
+    "typescript": "latest"
+  },
+  "scripts": {
+    "assets": "mkdir -p ./lib/style && cp -r ./src/style/* ./lib/style",
+    "build": "tsc && yarn run assets",
+    "clean": "rimraf lib",
+    "lint": "eslint .",
+    "prepare": "yarn clean && yarn build",
+    "test": "jest  --config jest.config.json",
+    "watch": "tsc -w"
+  }
+}

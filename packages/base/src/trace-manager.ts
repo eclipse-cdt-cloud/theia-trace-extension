@@ -1,31 +1,20 @@
+
 import { Trace } from 'tsp-typescript-client/lib/models/trace';
-import { Path, Emitter } from '@theia/core';
 import { TspClient } from 'tsp-typescript-client/lib/protocol/tsp-client';
-import { TspClientProvider } from '../browser/tsp-client-provider';
 import { Query } from 'tsp-typescript-client/lib/models/query/query';
-import { injectable, inject } from 'inversify';
 import { OutputDescriptor } from 'tsp-typescript-client/lib/models/output-descriptor';
 import { TspClientResponse } from 'tsp-typescript-client/lib/protocol/tsp-client-response';
+import { signalManager, Signals } from './signal-manager';
 
-@injectable()
 export class TraceManager {
-    // Open signal
-    private traceOpenedEmitter = new Emitter<Trace>();
-    public traceOpenedSignal = this.traceOpenedEmitter.event;
-
-    // Close signal
-    private traceClosedEmitter = new Emitter<Trace>();
-    public traceClosedSignal = this.traceClosedEmitter.event;
 
     private fOpenTraces: Map<string, Trace> = new Map();
+    private fTspClient: TspClient;
 
-    private tspClient: TspClient;
-
-    private constructor(
-        @inject(TspClientProvider) private tspClientProvider: TspClientProvider
+    constructor(
+        tspClient: TspClient
     ) {
-        this.tspClient = this.tspClientProvider.getTspClient();
-        this.tspClientProvider.addTspClientChangeListener(tspClient => this.tspClient = tspClient);
+        this.fTspClient = tspClient;
     }
 
     /**
@@ -35,7 +24,7 @@ export class TraceManager {
     async getOpenedTraces(): Promise<Trace[]> {
         const openedTraces: Array<Trace> = [];
         // Look on the server for opened trace
-        const tracesResponse = await this.tspClient.fetchTraces();
+        const tracesResponse = await this.fTspClient.fetchTraces();
         if (tracesResponse.isOk()) {
             openedTraces.push(...tracesResponse.getModel());
         }
@@ -52,7 +41,7 @@ export class TraceManager {
 
         // If the trace is undefined, check on the server
         if (!trace) {
-            const traceResponse = await this.tspClient.fetchTrace(traceUUID);
+            const traceResponse = await this.fTspClient.fetchTrace(traceUUID);
             if (traceResponse.isOk()) {
                 trace = traceResponse.getModel();
             }
@@ -68,7 +57,7 @@ export class TraceManager {
         // Check if the trace is opened
         const trace = this.fOpenTraces.get(traceUUID);
         if (trace) {
-            const outputsResponse = await this.tspClient.experimentOutputs(trace.UUID);
+            const outputsResponse = await this.fTspClient.experimentOutputs(trace.UUID);
             return outputsResponse.getModel();
         }
         return undefined;
@@ -80,21 +69,16 @@ export class TraceManager {
      * @param traceName Optional name for the trace. If not specified the URI name is used
      * @returns The opened trace
      */
-    async openTrace(traceURI: Path, traceName?: string): Promise<Trace | undefined> {
-        let name = traceURI.name;
-        if (traceName) {
-            name = traceName;
-        }
-
-        const tracePath = traceURI.toString();
-        const traceResponse = await this.tspClient.openTrace(new Query({
-            'name': name,
-            'uri': tracePath
+    async openTrace(traceURI: string, traceName?: string): Promise<Trace | undefined> {
+        const traceResponse = await this.fTspClient.openTrace(new Query({
+            'name': traceName,
+            'uri': traceURI
         }));
+
         const openedTrace = traceResponse.getModel();
         if (openedTrace && traceResponse.isOk()) {
             this.addTrace(openedTrace);
-            this.traceOpenedEmitter.fire(openedTrace);
+            signalManager().emit(Signals.TRACE_OPENED, {trace: openedTrace});
             return openedTrace;
         } else if (openedTrace && traceResponse.getStatusCode() === 409) {
             // Repost with a suffix as long as there are conflicts
@@ -102,19 +86,19 @@ export class TraceManager {
                 const suffix = '(' + tryNb + ')';
                 return tspClient.openTrace(new Query({
                     'name': name + suffix,
-                    'uri': tracePath
+                    'uri': traceURI
                 }));
             };
             let conflictResolutionResponse = traceResponse;
             let i = 1;
             while (conflictResolutionResponse.getStatusCode() === 409) {
-                conflictResolutionResponse = await handleConflict(this.tspClient, i);
+                conflictResolutionResponse = await handleConflict(this.fTspClient, i);
                 i++;
             }
             const trace = conflictResolutionResponse.getModel();
             if (trace && conflictResolutionResponse.isOk()) {
                 this.addTrace(trace);
-                this.traceOpenedEmitter.fire(trace);
+                signalManager().emit(Signals.TRACE_OPENED, {trace: openedTrace});
                 return trace;
             }
         }
@@ -130,7 +114,7 @@ export class TraceManager {
     async updateTrace(traceUUID: string): Promise<Trace | undefined> {
         const currentTrace = this.fOpenTraces.get(traceUUID);
         if (currentTrace) {
-            const traceResponse = await this.tspClient.fetchTrace(currentTrace.UUID);
+            const traceResponse = await this.fTspClient.fetchTrace(currentTrace.UUID);
             const trace = traceResponse.getModel();
             if (trace && traceResponse.isOk) {
                 this.fOpenTraces.set(traceUUID, trace);
@@ -148,10 +132,10 @@ export class TraceManager {
     async closeTrace(traceUUID: string): Promise<void> {
         const traceToClose = this.fOpenTraces.get(traceUUID);
         if (traceToClose) {
-            await this.tspClient.deleteTrace(traceUUID);
+            await this.fTspClient.deleteTrace(traceUUID);
             const deletedTrace = this.removeTrace(traceUUID);
             if (deletedTrace) {
-                this.traceClosedEmitter.fire(deletedTrace);
+                signalManager().emit(Signals.TRACE_CLOSED, {trace: deletedTrace});
             }
         }
     }

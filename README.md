@@ -110,5 +110,4 @@ Now, you will see 3 sections: **Opened experiments**, **Available analysis** and
 There is only a limited number of such operations and they are only implemented in the Time Graph views (the ones looking like Gantt charts). For Zoom-in/out use CTRL+mouse wheel. Or use left mouse drag on time axis on top. Navigating the trace you can use the scrollbar at the bottom of the experiment container.
 
 ### Time Graph Tooltip
-Currently, the **Time Graph Tooltip** is populated when selecting a state in a Time Graph view. 
-
+Currently, the **Time Graph Tooltip** is populated when selecting a state in a Time Graph view.

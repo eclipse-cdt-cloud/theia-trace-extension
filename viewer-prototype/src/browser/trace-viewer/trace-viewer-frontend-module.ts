@@ -10,17 +10,11 @@ import 'ag-grid-community/dist/styles/ag-grid.css';
 import 'ag-grid-community/dist/styles/ag-theme-balham-dark.css';
 import 'react-grid-layout/css/styles.css';
 import 'react-resizable/css/styles.css';
-import '../../../src/browser/style/trace-viewer.css';
-import '../../../src/browser/style/trace-context-style.css';
-import '../../../src/browser/style/output-components-style.css';
-import '../../../src/browser/style/trace-explorer.css';
-import '../../../src/browser/style/status-bar.css';
 // import 'semantic-ui-css/semantic.min.css';
 import { TraceExplorerContribution } from '../trace-explorer/trace-explorer-contribution';
 import { TRACE_EXPLORER_ID, TraceExplorerWidget } from '../trace-explorer/trace-explorer-widget';
 import { TspClientProvider } from '../tsp-client-provider';
-import { TraceManager } from '../../common/trace-manager';
-import { ExperimentManager } from '../../common/experiment-manager';
+import { TheiaMessageManager } from '../theia-message-manager';
 import { TraceServerConnectionStatusService, TraceServerConnectionStatusContribution } from '../../browser/trace-server-status';
 import { TraceServerUrlProviderImpl } from '../trace-server-url-provider-frontend-impl';
 // import { TracePropertiesContribution } from '../trace-properties-view/trace-properties-view-contribution';
@@ -33,6 +27,7 @@ export default new ContainerModule(bind => {
     bind(FrontendApplicationContribution).toService(TraceServerUrlProviderImpl);
     bind(TraceServerUrlProvider).toService(TraceServerUrlProviderImpl);
     bind(TspClientProvider).toSelf().inSingletonScope();
+    bind(TheiaMessageManager).toSelf().inSingletonScope();
 
     bind(TraceViewerWidget).toSelf();
     bind<WidgetFactory>(WidgetFactory).toDynamicValue(context => ({
@@ -57,9 +52,6 @@ export default new ContainerModule(bind => {
         id: TRACE_EXPLORER_ID,
         createWidget: () => context.container.get<TraceExplorerWidget>(TraceExplorerWidget)
     }));
-
-    bind(TraceManager).toSelf().inSingletonScope();
-    bind(ExperimentManager).toSelf().inSingletonScope();
 
     bind(TraceServerConnectionStatusService).toSelf().inSingletonScope();
     bind(FrontendApplicationContribution).toService(TraceServerConnectionStatusService);

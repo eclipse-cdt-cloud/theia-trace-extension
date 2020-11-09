@@ -4,7 +4,7 @@ import { TspClient } from 'tsp-typescript-client/lib/protocol/tsp-client';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTimes } from '@fortawesome/free-solid-svg-icons';
 import { TimeGraphUnitController } from 'timeline-chart/lib/time-graph-unit-controller';
-import { TimeRange } from '../../../common/utils/time-range';
+import { TimeRange } from '@trace-viewer/base/lib/utils/time-range';
 import { OutputComponentStyle } from './utils/output-component-style';
 import { OutputStyleModel } from 'tsp-typescript-client/lib/models/styles';
 
@@ -46,10 +46,11 @@ export abstract class AbstractOutputComponent<P extends AbstractOutputProps, S e
     constructor(props: P) {
         super(props);
         this.mainAreaContainer = React.createRef();
+        this.closeComponent = this.closeComponent.bind(this);
+        this.renderTitleBar = this.renderTitleBar.bind(this);
     }
 
     render(): JSX.Element {
-        this.closeComponent = this.closeComponent.bind(this);
         const localStyle = Object.assign({},this.props.style);
         localStyle.width = this.props.widthWPBugWorkaround;
         return <div style={localStyle}
@@ -70,7 +71,7 @@ export abstract class AbstractOutputComponent<P extends AbstractOutputProps, S e
         </div>;
     }
 
-    renderTitleBar(): React.ReactNode {
+    private renderTitleBar(): React.ReactNode {
         const outputName = this.props.outputDescriptor.name;
         return <React.Fragment>
             <button className='remove-component-button' onClick={this.closeComponent}>

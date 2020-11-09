@@ -1,32 +1,20 @@
 import { Trace } from 'tsp-typescript-client/lib/models/trace';
-import { Emitter } from '@theia/core';
 import { TspClient } from 'tsp-typescript-client/lib/protocol/tsp-client';
-import { TspClientProvider } from '../browser/tsp-client-provider';
 import { Query } from 'tsp-typescript-client/lib/models/query/query';
-import { injectable, inject } from 'inversify';
 import { OutputDescriptor } from 'tsp-typescript-client/lib/models/output-descriptor';
 import { Experiment } from 'tsp-typescript-client/lib/models/experiment';
 import { TspClientResponse } from 'tsp-typescript-client/lib/protocol/tsp-client-response';
+import { signalManager, Signals } from './signal-manager';
 
-@injectable()
 export class ExperimentManager {
-    // Open signal
-    private experimentOpenedEmitter = new Emitter<Experiment>();
-    public experimentOpenedSignal = this.experimentOpenedEmitter.event;
-
-    // Close signal
-    private experimentClosedEmitter = new Emitter<Experiment>();
-    public experimentClosedSignal = this.experimentClosedEmitter.event;
 
     private fOpenExperiments: Map<string, Experiment> = new Map();
+    private fTspClient: TspClient;
 
-    private tspClient: TspClient;
-
-    private constructor(
-        @inject(TspClientProvider) private tspClientProvider: TspClientProvider
+    constructor(
+        tspClient: TspClient
     ) {
-        this.tspClient = this.tspClientProvider.getTspClient();
-        this.tspClientProvider.addTspClientChangeListener(tspClient => this.tspClient = tspClient);
+        this.fTspClient = tspClient;
     }
 
     /**
@@ -36,7 +24,7 @@ export class ExperimentManager {
     async getOpenedExperiments(): Promise<Experiment[]> {
         const openedExperiments: Array<Experiment> = [];
         // Look on the server for opened experiments
-        const experimentResponse = await this.tspClient.fetchExperiments();
+        const experimentResponse = await this.fTspClient.fetchExperiments();
         if (experimentResponse.isOk()) {
             openedExperiments.push(...experimentResponse.getModel());
         }
@@ -53,7 +41,7 @@ export class ExperimentManager {
 
         // If the experiment is undefined, check on the server
         if (!experiment) {
-            const experimentResponse = await this.tspClient.fetchExperiment(experimentUUID);
+            const experimentResponse = await this.fTspClient.fetchExperiment(experimentUUID);
             if (experimentResponse.isOk()) {
                 experiment = experimentResponse.getModel();
             }
@@ -69,7 +57,7 @@ export class ExperimentManager {
         // Check if the experiment is opened
         const experiment = this.fOpenExperiments.get(experimentUUID);
         if (experiment) {
-            const outputsResponse = await this.tspClient.experimentOutputs(experiment.UUID);
+            const outputsResponse = await this.fTspClient.experimentOutputs(experiment.UUID);
             return outputsResponse.getModel();
         }
         return undefined;
@@ -89,14 +77,14 @@ export class ExperimentManager {
             traceURIs.push(traces[i].UUID);
         }
 
-        const experimentResponse = await this.tspClient.createExperiment(new Query({
+        const experimentResponse = await this.fTspClient.createExperiment(new Query({
             'name': name,
             'traces': traceURIs
         }));
         const opendExperiment = experimentResponse.getModel();
         if (opendExperiment && experimentResponse.isOk()) {
             this.addExperiment(opendExperiment);
-            this.experimentOpenedEmitter.fire(opendExperiment);
+            signalManager().emit(Signals.EXPERIMENT_OPENED, {experiment: opendExperiment});
             return opendExperiment;
         } else if (opendExperiment && experimentResponse.getStatusCode() === 409) {
             // Repost with a suffix as long as there are conflicts
@@ -110,13 +98,13 @@ export class ExperimentManager {
             let conflictResolutionResponse = experimentResponse;
             let i = 1;
             while (conflictResolutionResponse.getStatusCode() === 409) {
-                conflictResolutionResponse = await handleConflict(this.tspClient, i);
+                conflictResolutionResponse = await handleConflict(this.fTspClient, i);
                 i++;
             }
             const experiment = conflictResolutionResponse.getModel();
             if (experiment && conflictResolutionResponse.isOk()) {
                 this.addExperiment(experiment);
-                this.experimentOpenedEmitter.fire(experiment);
+                signalManager().emit(Signals.EXPERIMENT_OPENED, {experiment: experiment});
                 return experiment;
             }
         }
@@ -132,7 +120,7 @@ export class ExperimentManager {
     async updateExperiment(experimentUUID: string): Promise<Experiment | undefined> {
         const currentExperiment = this.fOpenExperiments.get(experimentUUID);
         if (currentExperiment) {
-            const experimentResponse = await this.tspClient.fetchExperiment(currentExperiment.UUID);
+            const experimentResponse = await this.fTspClient.fetchExperiment(currentExperiment.UUID);
             const experiment = experimentResponse.getModel();
             if (experiment && experimentResponse.isOk) {
                 this.fOpenExperiments.set(experimentUUID, experiment);
@@ -150,10 +138,10 @@ export class ExperimentManager {
     async closeExperiment(experimentUUID: string): Promise<void> {
         const experimentToClose = this.fOpenExperiments.get(experimentUUID);
         if (experimentToClose) {
-            await this.tspClient.deleteExperiment(experimentUUID);
+            await this.fTspClient.deleteExperiment(experimentUUID);
             const deletedExperiment = this.removeExperiment(experimentUUID);
             if (deletedExperiment) {
-                this.experimentClosedEmitter.fire(deletedExperiment);
+                signalManager().emit(Signals.EXPERIMENT_CLOSED, {experiment: deletedExperiment});
             }
         }
     }

@@ -11,13 +11,15 @@
     "start:server": "./trace-compass-server/tracecompass-server",
     "start-all:browser": "yarn start:server & yarn start:browser",
     "start-all:electron": "yarn start:server & yarn start:electron",
-    "lint": "yarn workspace trace-viewer run lint",
-    "test": "yarn workspace trace-viewer run test"
+    "lint": "lerna run lint",
+    "test": "lerna run test"
   },
   "devDependencies": {
     "lerna": "2.4.0"
   },
   "workspaces": [
+    "packages/base",
+    "packages/react-components",
     "viewer-prototype",
     "browser-app",
     "electron-app"
