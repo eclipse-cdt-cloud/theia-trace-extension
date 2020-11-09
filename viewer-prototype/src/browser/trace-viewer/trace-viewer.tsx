@@ -8,13 +8,14 @@ import { OutputDescriptor } from 'tsp-typescript-client/lib/models/output-descri
 import { Trace } from 'tsp-typescript-client/lib/models/trace';
 import { TspClient } from 'tsp-typescript-client/lib/protocol/tsp-client';
 import { TspClientProvider } from '../tsp-client-provider';
-import { TraceManager } from '../../common/trace-manager';
+import { TraceManager } from '@trace-viewer/base/lib/trace-manager';
 import { Emitter } from '@theia/core';
-import { ExperimentManager } from '../../common/experiment-manager';
+import { ExperimentManager } from '@trace-viewer/base/lib/experiment-manager';
 import { OutputAddedSignalPayload, TraceExplorerWidget } from '../trace-explorer/trace-explorer-widget';
-import { TraceContextComponent } from './components/trace-context-component';
+import { TraceContextComponent } from '@trace-viewer/react-components/lib/components/trace-context-component';
 import { Experiment } from 'tsp-typescript-client/lib/models/experiment';
 import URI from '@theia/core/lib/common/uri';
+import { TheiaMessageManager } from '../theia-message-manager';
 
 export const TraceViewerWidgetOptions = Symbol('TraceViewerWidgetOptions');
 export interface TraceViewerWidgetOptions {
@@ -30,6 +31,8 @@ export class TraceViewerWidget extends ReactWidget {
     private openedExperiment: Experiment | undefined;
     private outputDescriptors: OutputDescriptor[] = [];
     private tspClient: TspClient;
+    private traceManager: TraceManager;
+    private experimentManager: ExperimentManager;
 
     private resizeHandlers: (() => void)[] = [];
     private readonly addResizeHandler = (h: () => void) => {
@@ -41,12 +44,11 @@ export class TraceViewerWidget extends ReactWidget {
 
     constructor(
         @inject(TraceViewerWidgetOptions) protected readonly options: TraceViewerWidgetOptions,
-        @inject(TraceManager) private traceManager: TraceManager,
-        @inject(ExperimentManager) private experimentManager: ExperimentManager,
         @inject(TspClientProvider) private tspClientProvider: TspClientProvider,
         @inject(StatusBar) private statusBar: StatusBar,
         @inject(FileSystem) private readonly fileSystem: FileSystem,
-        @inject(ApplicationShell) protected readonly shell: ApplicationShell
+        @inject(ApplicationShell) protected readonly shell: ApplicationShell,
+        @inject(TheiaMessageManager) private readonly _signalHandler: TheiaMessageManager
     ) {
         super();
         this.uri = new Path(this.options.traceURI);
@@ -59,7 +61,13 @@ export class TraceViewerWidget extends ReactWidget {
 
         this.initialize();
         this.tspClient = this.tspClientProvider.getTspClient();
-        this.tspClientProvider.addTspClientChangeListener(tspClient => this.tspClient = tspClient);
+        this.traceManager = this.tspClientProvider.getTraceManager();
+        this.experimentManager = this.experimentManager = this.tspClientProvider.getExperimentManager();
+        this.tspClientProvider.addTspClientChangeListener(tspClient => {
+            this.tspClient = tspClient;
+            this.traceManager = this.tspClientProvider.getTraceManager();
+            this.experimentManager = this.experimentManager = this.tspClientProvider.getExperimentManager();
+        });
     }
 
     async initialize(): Promise<void> {
@@ -82,7 +90,7 @@ export class TraceViewerWidget extends ReactWidget {
         const traces = new Array<Trace>();
 
         for (let i = 0; i < tracesArray.length; i++) {
-            const trace = await this.traceManager.openTrace(tracesArray[i], tracesArray[i].name);
+            const trace = await this.traceManager.openTrace(tracesArray[i].toString(), tracesArray[i].name);
             if (trace) {
                 traces.push(trace);
             }
@@ -148,8 +156,8 @@ export class TraceViewerWidget extends ReactWidget {
                 tspClient={this.tspClient}
                 outputs={this.outputDescriptors}
                 onOutputRemove={this.onOutputRemoved}
-                statusBar={this.statusBar}
-                addResizeHandler={this.addResizeHandler} /> : 'Trace is loading...'}
+                addResizeHandler={this.addResizeHandler}
+                messageManager={this._signalHandler} /> : 'Trace is loading...'}
         </div>;
     }
 

@@ -1,12 +1,16 @@
-import { StatusBar, StatusBarAlignment } from '@theia/core/lib/browser';
 import * as React from 'react';
+import '../style/trace-viewer.css';
+import '../style/trace-context-style.css';
+import '../style/output-components-style.css';
+import '../style/trace-explorer.css';
+import '../style/status-bar.css';
 import { Layout, Responsive, WidthProvider } from 'react-grid-layout';
 import { TimelineChart } from 'timeline-chart/lib/time-graph-model';
 import { TimeGraphUnitController } from 'timeline-chart/lib/time-graph-unit-controller';
 import { OutputDescriptor } from 'tsp-typescript-client/lib/models/output-descriptor';
 import { Experiment } from 'tsp-typescript-client/lib/models/experiment';
 import { TspClient } from 'tsp-typescript-client/lib/protocol/tsp-client';
-import { TimeRange } from '../../../common/utils/time-range';
+import { TimeRange } from '@trace-viewer/base/lib/utils/time-range';
 import { TableOutputComponent } from './table-output-component';
 import { TimegraphOutputComponent } from './timegraph-output-component';
 import { OutputComponentStyle } from './utils/output-component-style';
@@ -15,6 +19,7 @@ import { TimeNavigatorComponent } from './utils/time-navigator-component';
 import { XYOutputComponent } from './xy-output-component';
 import { NullOutputComponent } from './null-output-component';
 import { AbstractOutputProps } from './abstract-output-component';
+import * as Messages from '@trace-viewer/base/lib/message-manager';
 
 const ResponsiveGridLayout = WidthProvider(Responsive);
 
@@ -24,7 +29,7 @@ interface TraceContextProps {
     outputs: OutputDescriptor[];
     onOutputRemove: (outputId: string) => void;
     // Introduce dependency on Theia maybe it should be just a callback
-    statusBar: StatusBar;
+    messageManager: Messages.MessageManager;
     addResizeHandler: (handler: () => void) => void;
 }
 
@@ -124,18 +129,18 @@ export class TraceContextComponent extends React.Component<TraceContextProps, Tr
                 });
 
                 // Update status bar
-                this.props.statusBar.setElement(this.INDEXING_STATUS_BAR_KEY, {
+                this.props.messageManager.addStatusMessage(this.INDEXING_STATUS_BAR_KEY, {
                     text: `Indexing ${this.props.experiment.name}: ${this.state.experiment.nbEvents}`,
-                    alignment: StatusBarAlignment.RIGHT
+                    category: Messages.MessageCategory.SERVER_MESSAGE
                 });
-                this.sleep(500);
+                await this.sleep(500);
             }
         }
-        this.props.statusBar.removeElement(this.INDEXING_STATUS_BAR_KEY);
+        this.props.messageManager.removeStatusMessage(this.INDEXING_STATUS_BAR_KEY);
     }
 
-    private sleep(ms: number) {
-        new Promise(resolve => setTimeout(resolve, ms));
+    private async sleep(ms: number) {
+        return new Promise(resolve => setTimeout(resolve, ms));
     }
 
     componentDidMount(): void {
@@ -145,8 +150,8 @@ export class TraceContextComponent extends React.Component<TraceContextProps, Tr
     }
 
     componentWillUnmount(): void {
-        this.props.statusBar.removeElement(this.INDEXING_STATUS_BAR_KEY);
-        this.props.statusBar.removeElement(this.TIME_SELECTION_STATUS_BAR_KEY);
+        this.props.messageManager.removeStatusMessage(this.INDEXING_STATUS_BAR_KEY);
+        this.props.messageManager.removeStatusMessage(this.TIME_SELECTION_STATUS_BAR_KEY);
     }
 
     private onResize() {
@@ -163,9 +168,9 @@ export class TraceContextComponent extends React.Component<TraceContextProps, Tr
         const t1 = Math.trunc(range.start + this.state.timeOffset);
         const t2 = Math.trunc(range.end + this.state.timeOffset);
 
-        this.props.statusBar.setElement(this.TIME_SELECTION_STATUS_BAR_KEY, {
+        this.props.messageManager.addStatusMessage(this.TIME_SELECTION_STATUS_BAR_KEY, {
             text: `T1: ${t1} T2: ${t2} Delta: ${t2 - t1}`,
-            alignment: StatusBarAlignment.LEFT,
+            category: Messages.MessageCategory.TRACE_CONTEXT
         });
         this.setState(prevState => ({
                 currentTimeSelection: new TimeRange(range.start, range.end, prevState.timeOffset)
@@ -196,7 +201,7 @@ export class TraceContextComponent extends React.Component<TraceContextProps, Tr
             // https://github.com/STRML/react-grid-layout/issues/299#issuecomment-524959229
             }
             <ResponsiveGridLayout className='outputs-grid-layout' margin={[0, 5]} isResizable={true} isRearrangeable={true} isDraggable={true}
-                layouts={{ lg: layouts }} cols={{ lg: 1 }} breakpoints={{ lg: 1200 }} rowHeight={this.DEFAULT_COMPONENT_ROWHEIGHT} draggableHandle={'.widget-handle'}
+                layouts={{ lg: layouts }} cols={{ lg: 1 }} breakpoints={{ lg: 1200 }} rowHeight={this.DEFAULT_COMPONENT_ROWHEIGHT} draggableHandle={'.title-bar-label'}
                 style={{ paddingRight: this.SCROLLBAR_PADDING }}>
                 {outputs.map(output => {
                     const responseType = output.type;

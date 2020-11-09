@@ -1,26 +1,42 @@
 import { injectable, inject } from 'inversify';
 import { TraceServerUrlProvider } from '../common/trace-server-url-provider';
 import { TspClient } from 'tsp-typescript-client/lib/protocol/tsp-client';
+import { ExperimentManager } from '@trace-viewer/base/lib/experiment-manager';
+import { TraceManager } from '@trace-viewer/base/lib/trace-manager';
 
 @injectable()
 export class TspClientProvider {
 
     private _tspClient: TspClient;
+    private _traceManager: TraceManager;
+    private _experimentManager: ExperimentManager;
     private _listeners: ((tspClient: TspClient) => void)[];
 
     constructor(
         @inject(TraceServerUrlProvider) private tspUrlProvider: TraceServerUrlProvider
     ) {
         this._tspClient = new TspClient(this.tspUrlProvider.getTraceServerUrl());
+        this._traceManager = new TraceManager(this._tspClient);
+        this._experimentManager = new ExperimentManager(this._tspClient);
         this._listeners = [];
         tspUrlProvider.addTraceServerUrlChangedListener(url => {
             this._tspClient = new TspClient(url);
+            this._traceManager = new TraceManager(this._tspClient);
+            this._experimentManager = new ExperimentManager(this._tspClient);
             this._listeners.forEach(listener => listener(this._tspClient));
         });
     }
 
     public getTspClient(): TspClient {
         return this._tspClient;
+    }
+
+    public getTraceManager(): TraceManager {
+        return this._traceManager;
+    }
+
+    public getExperimentManager(): ExperimentManager {
+        return this._experimentManager;
     }
 
     /**

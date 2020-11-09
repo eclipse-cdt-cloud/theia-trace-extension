@@ -7,11 +7,12 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { /* faShareSquare, */ faCopy } from '@fortawesome/free-solid-svg-icons';
 import ReactModal from 'react-modal';
 import { Emitter } from '@theia/core';
-import { SignalManager } from '../../common/signal-manager';
 import { EditorManager, EditorOpenerOptions } from '@theia/editor/lib/browser';
 import URI from '@theia/core/lib/common/uri';
 import { Experiment } from 'tsp-typescript-client/lib/models/experiment';
-import { ExperimentManager } from '../../common/experiment-manager';
+import { ExperimentManager } from '@trace-viewer/base/lib/experiment-manager';
+import { TspClientProvider } from '../tsp-client-provider';
+import { signalManager, Signals } from '@trace-viewer/base/lib/signal-manager';
 /* FIXME: This may cause Circular dependency between trace-viewer and trace-explorer-widget */
 import { TraceViewerWidget } from '../trace-viewer/trace-viewer';
 
@@ -52,6 +53,7 @@ export class TraceExplorerWidget extends ReactWidget {
 
     private tooltip: { [key: string]: string } = {};
     private selectedExperiment: Experiment | undefined;
+    private experimentManager: ExperimentManager;
 
     private static outputAddedEmitter = new Emitter<OutputAddedSignalPayload>();
     public static outputAddedSignal = TraceExplorerWidget.outputAddedEmitter.event;
@@ -60,7 +62,7 @@ export class TraceExplorerWidget extends ReactWidget {
     public static experimentSelectedSignal = TraceExplorerWidget.experimentSelectedEmitter.event;
 
     constructor(
-        @inject(ExperimentManager) private experimentManager: ExperimentManager,
+        @inject(TspClientProvider) private tspClientProvider: TspClientProvider,
         @inject(EditorManager) protected readonly editorManager: EditorManager
     ) {
         super();
@@ -68,11 +70,25 @@ export class TraceExplorerWidget extends ReactWidget {
         this.title.label = TRACE_EXPLORER_LABEL;
         this.title.caption = TRACE_EXPLORER_LABEL;
         this.title.iconClass = 'trace-explorer-tab-icon';
-        this.toDispose.push(experimentManager.experimentOpenedSignal(experiment => this.onExperimentOpened(experiment)));
-        this.toDispose.push(experimentManager.experimentClosedSignal(experiment => this.onExperimentClosed(experiment)));
+        this.experimentManager = this.tspClientProvider.getExperimentManager();
+        signalManager().on(Signals.EXPERIMENT_OPENED, ({experiment}) => this.onExperimentOpened(experiment));
+        signalManager().on(Signals.EXPERIMENT_CLOSED, ({experiment}) => this.onExperimentClosed(experiment));
+        signalManager().on(Signals.EXPERIMENT_SELECTED, ({experiment}) => this.onWidgetActivated(experiment));
+        signalManager().on(Signals.TOOLTIP_UPDATED, ({tooltip}) => this.onTooltip(tooltip));
         this.toDispose.push(TraceViewerWidget.widgetActivatedSignal(experiment => this.onWidgetActivated(experiment)));
-        this.toDispose.push(SignalManager.getInstance().tooltipSignal(tooltip => this.onTooltip(tooltip)));
         this.initialize();
+
+        this.tspClientProvider.addTspClientChangeListener(tspClient => {
+            this.experimentManager = this.tspClientProvider.getExperimentManager();
+        });
+    }
+
+    dispose() {
+        super.dispose();
+        signalManager().off(Signals.EXPERIMENT_OPENED, ({experiment}) => this.onExperimentOpened(experiment));
+        signalManager().off(Signals.EXPERIMENT_CLOSED, ({experiment}) => this.onExperimentClosed(experiment));
+        signalManager().off(Signals.EXPERIMENT_SELECTED, ({experiment}) => this.onWidgetActivated(experiment));
+        signalManager().off(Signals.TOOLTIP_UPDATED, ({tooltip}) => this.onTooltip(tooltip));
     }
 
     private onExperimentOpened(openedExperiment: Experiment) {

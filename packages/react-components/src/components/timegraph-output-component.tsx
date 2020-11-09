@@ -10,7 +10,7 @@ import { TimeGraphRowController } from 'timeline-chart/lib/time-graph-row-contro
 import { QueryHelper } from 'tsp-typescript-client/lib/models/query/query-helper';
 import { ResponseStatus } from 'tsp-typescript-client/lib/models/response/responses';
 import { TimeGraphEntry } from 'tsp-typescript-client/lib/models/timegraph';
-import { SignalManager } from '../../../common/signal-manager';
+import { signalManager } from '@trace-viewer/base/lib/signal-manager';
 import { AbstractOutputProps, AbstractOutputState } from './abstract-output-component';
 import { AbstractTreeOutputComponent } from './abstract-tree-output-component';
 import { StyleProvider } from './data-providers/style-provider';
@@ -19,7 +19,7 @@ import { ReactTimeGraphContainer } from './utils/timegraph-container-component';
 import { OutputElementStyle } from 'tsp-typescript-client/lib/models/styles';
 import { EntryTree } from './utils/filtrer-tree/entry-tree';
 import { listToTree, getAllExpandedNodeIds } from './utils/filtrer-tree/utils';
-import hash from '../../../common/utils/value-hash';
+import hash from '@trace-viewer/base/lib/utils/value-hash';
 import ColumnHeader from './utils/filtrer-tree/column-header';
 
 type TimegraphOutputProps = AbstractOutputProps & {
@@ -225,7 +225,7 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
                     ...responseModel.model,
                     'Row': element.row.model.name
                 };
-                SignalManager.getInstance().fireTooltipSignal(tooltipObject);
+                signalManager().fireTooltipSignal(tooltipObject);
             }
         }
     }
