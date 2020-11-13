@@ -4,7 +4,7 @@ import * as React from 'react';
 import { List, ListRowProps } from 'react-virtualized';
 import { OutputDescriptor } from 'tsp-typescript-client/lib/models/output-descriptor';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faShareSquare, faCopy } from '@fortawesome/free-solid-svg-icons';
+import { /* faShareSquare, */ faCopy } from '@fortawesome/free-solid-svg-icons';
 import ReactModal from 'react-modal';
 import { Emitter } from '@theia/core';
 import { SignalManager } from '../../common/signal-manager';
@@ -284,11 +284,11 @@ export class TraceExplorerWidget extends ReactWidget {
                         {tracePath}
                     </div>
                 </div>
-                <div className='trace-element-options'>
+                {/* <div className='trace-element-options'>
                     <button className='share-context-button' onClick={this.handleShareButtonClick.bind(this, props.index)}>
                         <FontAwesomeIcon icon={faShareSquare} />
                     </button>
-                </div>
+                </div> */}
             </div>
         </div>;
     }
