@@ -77,36 +77,23 @@ export class ExperimentManager {
             traceURIs.push(traces[i].UUID);
         }
 
-        const experimentResponse = await this.fTspClient.createExperiment(new Query({
-            'name': name,
-            'traces': traceURIs
-        }));
-        const opendExperiment = experimentResponse.getModel();
-        if (opendExperiment && experimentResponse.isOk()) {
-            this.addExperiment(opendExperiment);
-            signalManager().emit(Signals.EXPERIMENT_OPENED, {experiment: opendExperiment});
-            return opendExperiment;
-        } else if (opendExperiment && experimentResponse.getStatusCode() === 409) {
-            // Repost with a suffix as long as there are conflicts
-            const handleConflict = async function (tspClient: TspClient, tryNb: number): Promise<TspClientResponse<Experiment>> {
-                const suffix = '(' + tryNb + ')';
-                return tspClient.createExperiment(new Query({
-                    'name': name + suffix,
-                    'traces': traceURIs
-                }));
-            };
-            let conflictResolutionResponse = experimentResponse;
-            let i = 1;
-            while (conflictResolutionResponse.getStatusCode() === 409) {
-                conflictResolutionResponse = await handleConflict(this.fTspClient, i);
-                i++;
-            }
-            const experiment = conflictResolutionResponse.getModel();
-            if (experiment && conflictResolutionResponse.isOk()) {
-                this.addExperiment(experiment);
-                signalManager().emit(Signals.EXPERIMENT_OPENED, {experiment: experiment});
-                return experiment;
-            }
+        const tryCreate = async function (tspClient: TspClient, retry: number): Promise<TspClientResponse<Experiment>> {
+            return tspClient.createExperiment(new Query({
+                'name': retry === 0 ? name : name + '(' + retry + ')',
+                'traces': traceURIs
+            }));
+        };
+        let tryNb = 0;
+        let experimentResponse: TspClientResponse<Experiment> | undefined;
+        while (experimentResponse === undefined || experimentResponse.getStatusCode() === 409) {
+            experimentResponse = await tryCreate(this.fTspClient, tryNb);
+            tryNb++;
+        }
+        if (experimentResponse.isOk()) {
+            const experiment = experimentResponse.getModel();
+            this.addExperiment(experiment);
+            signalManager().emit(Signals.EXPERIMENT_OPENED, {experiment: experiment});
+            return experiment;
         }
         // TODO Handle any other experiment open errors
         return undefined;
@@ -156,3 +143,4 @@ export class ExperimentManager {
         return deletedExperiment;
     }
 }
+
