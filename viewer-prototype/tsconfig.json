@@ -9,7 +9,7 @@
         "moduleResolution": "node",
         "skipLibCheck": true,
         "esModuleInterop": true,
-        "target": "ESNEXT",
+        "target": "es5",
         "jsx": "react",
         "lib": [
             "es6",
@@ -18,7 +18,11 @@
         "sourceMap": true,
         "rootDir": "src",
         "outDir": "lib",
-        "types": ["node", "jest"]
+        "types": [
+            "node",
+            "jest"
+        ],
+        "strictPropertyInitialization": false
     },
     "include": [
         "src"
@@ -28,4 +32,4 @@
         "**/*.spec.ts",
         "**/*.test.ts"
     ]
-} 
+}

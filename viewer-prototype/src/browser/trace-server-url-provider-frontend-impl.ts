@@ -1,18 +1,32 @@
 import { inject, injectable } from 'inversify';
 import { TraceViewerEnvironment } from '../common/trace-viewer-environment';
-import { TraceServerUrlProvider, TRACE_SERVER_DEFAULT_URL } from '../common/trace-server-url-provider';
-import { FrontendApplicationContribution, FrontendApplication } from '@theia/core/lib/browser';
+import { TraceServerUrlProvider, TRACE_SERVER_DEFAULT_URL, TRACE_SERVER_DEFAULT_PORT } from '../common/trace-server-url-provider';
+import { FrontendApplicationContribution, FrontendApplication, PreferenceService } from '@theia/core/lib/browser';
+import { TRACE_PORT } from './trace-server-preference';
 
 @injectable()
 export class TraceServerUrlProviderImpl implements TraceServerUrlProvider, FrontendApplicationContribution {
 
     protected _traceServerUrl: string;
     protected _listeners: ((url: string) => void)[];
+    private port: string | undefined;
 
     constructor(
-        @inject(TraceViewerEnvironment) protected readonly traceViewerEnvironment: TraceViewerEnvironment
+        @inject(TraceViewerEnvironment) protected readonly traceViewerEnvironment: TraceViewerEnvironment,
+        @inject(PreferenceService) protected readonly preferenceService: PreferenceService
+
     ) {
-        this._traceServerUrl = TRACE_SERVER_DEFAULT_URL;
+        this.port = this.preferenceService.get(TRACE_PORT);
+        this.preferenceService.onPreferenceChanged(event => {
+            if (event.preferenceName === TRACE_PORT) {
+                this.port = event.newValue;
+                this._traceServerUrl = TRACE_SERVER_DEFAULT_URL.replace(/{}/g, this.port ? this.port : TRACE_SERVER_DEFAULT_PORT);
+                this.updateListeners();
+            }
+
+        });
+
+        this._traceServerUrl = TRACE_SERVER_DEFAULT_URL.replace(/{}/g, this.port ? this.port : TRACE_SERVER_DEFAULT_PORT);
         this._listeners = [];
     }
 

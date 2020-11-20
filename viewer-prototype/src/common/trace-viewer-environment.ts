@@ -1,13 +1,24 @@
 import { injectable, inject } from 'inversify';
 import { EnvVariablesServer } from '@theia/core/lib/common/env-variables';
-import { TRACE_SERVER_DEFAULT_URL } from './trace-server-url-provider';
+import { TRACE_SERVER_DEFAULT_URL, TRACE_SERVER_DEFAULT_PORT } from './trace-server-url-provider';
+import { PreferenceService } from '@theia/core/lib/browser';
+import { TRACE_PORT } from '../browser/trace-server-preference';
 
 @injectable()
 export class TraceViewerEnvironment {
+    private port: string | undefined;
 
     constructor(
-        @inject(EnvVariablesServer) protected readonly environments: EnvVariablesServer) {
+        @inject(EnvVariablesServer) protected readonly environments: EnvVariablesServer,
+        @inject(PreferenceService) protected readonly preferenceService: PreferenceService) {
 
+        this.port = this.preferenceService.get(TRACE_PORT);
+        this.preferenceService.onPreferenceChanged(event => {
+            if (event.preferenceName === TRACE_PORT) {
+                this.port = event.newValue;
+                this._traceServerUrl = TRACE_SERVER_DEFAULT_URL.replace(/{}/g, this.port ? this.port : TRACE_SERVER_DEFAULT_PORT);
+            }
+        });
     }
 
     protected _traceServerUrl: string | undefined;
@@ -16,7 +27,7 @@ export class TraceViewerEnvironment {
             const traceServerUrl = await this.environments.getValue('TRACE_SERVER_URL');
             this._traceServerUrl = traceServerUrl ? this.parseUrl(traceServerUrl.value || TRACE_SERVER_DEFAULT_URL) : TRACE_SERVER_DEFAULT_URL;
         }
-        return this._traceServerUrl;
+        return this._traceServerUrl.replace(/{}/g, this.port ? this.port : TRACE_SERVER_DEFAULT_PORT);
     }
 
     private parseUrl(url: string): string {
