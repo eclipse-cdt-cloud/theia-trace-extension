@@ -12,6 +12,9 @@ import { Disposable, DisposableCollection } from '@theia/core/lib//common';
 import { ConnectionStatusService, ConnectionStatus, AbstractConnectionStatusService } from '@theia/core/lib/browser/connection-status-service';
 import { TspClient } from 'tsp-typescript-client/lib/protocol/tsp-client';
 import { TspClientProvider } from './tsp-client-provider';
+import { TraceServerConfigService } from '../common/trace-server-config';
+import { PreferenceService } from '@theia/core/lib/browser';
+import { TRACE_PATH, TRACE_PORT } from './trace-server-preference';
 
 @injectable()
 export class TraceServerConnectionStatusService extends AbstractConnectionStatusService {
@@ -52,6 +55,29 @@ export class TraceServerConnectionStatusService extends AbstractConnectionStatus
 @injectable()
 export class TraceServerConnectionStatusContribution extends DefaultFrontendApplicationContribution {
 
+    @inject(PreferenceService) protected readonly preferenceService: PreferenceService;
+
+    private path: string | undefined;
+    private port: number | undefined;
+
+    @postConstruct()
+    async init(): Promise<void> {
+
+        this.path = this.preferenceService.get(TRACE_PATH);
+        this.port = this.preferenceService.get(TRACE_PORT);
+
+        this.preferenceService.onPreferenceChanged(event => {
+            if (event.preferenceName === TRACE_PORT) {
+                this.port = event.newValue;
+            }
+            if (event.preferenceName === TRACE_PATH) {
+                this.path = event.newValue;
+            }
+        });
+    }
+
+    @inject(TraceServerConfigService) protected readonly traceServerConfigService: TraceServerConfigService;
+
     protected readonly toDisposeOnOnline = new DisposableCollection();
 
     constructor(
@@ -61,6 +87,9 @@ export class TraceServerConnectionStatusContribution extends DefaultFrontendAppl
     ) {
         super();
         this.connectionStatusService.onStatusChange(state => this.onStateChange(state));
+        if (this.connectionStatusService.currentStatus === ConnectionStatus.ONLINE) {
+            this.handleOnline();
+        }
     }
 
     protected onStateChange(state: ConnectionStatus): void {
@@ -80,15 +109,34 @@ export class TraceServerConnectionStatusContribution extends DefaultFrontendAppl
 
     protected handleOnline(): void {
         this.toDisposeOnOnline.dispose();
+        this.statusBar.setElement(this.statusbarId, {
+            alignment: StatusBarAlignment.LEFT,
+            text: '$(fas fa-stop) Stop trace server',
+            tooltip: 'Click here to stop the trace server',
+            priority: 5003,
+            onclick: this.stopServer.bind(this)
+        });
+
+    }
+
+    private async startServer() {
+        await this.traceServerConfigService.startTraceServer(this.path, this.port);
+    }
+
+    private async stopServer() {
+        await this.traceServerConfigService.stopTraceServer(this.port);
     }
 
     protected handleOffline(): void {
+        this.toDisposeOnOnline.dispose();
         this.statusBar.setElement(this.statusbarId, {
             alignment: StatusBarAlignment.LEFT,
-            text: 'Trace Server Offline',
-            tooltip: 'Cannot connect to trace server.',
-            priority: 5000
+            text: '$(fas fa-play) Start trace server',
+            tooltip: 'Click here to start the trace server',
+            priority: 5001,
+            onclick: this.startServer.bind(this)
         });
+
         this.toDisposeOnOnline.push(Disposable.create(() => this.statusBar.removeElement(this.statusbarId)));
         document.body.classList.add('traceserver-mod-offline');
         this.toDisposeOnOnline.push(Disposable.create(() => document.body.classList.remove('traceserver-mod-offline')));

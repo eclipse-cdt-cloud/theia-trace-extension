@@ -1,49 +1,49 @@
 {
-    "name": "theia-trace-viewer",
-    "private": "true",
-    "version": "0.0.0",
-    "description": "Trace Compass trace viewer Theia Extension",
-    "keywords": [
-        "theia-extension"
-    ],
-    "license": "MIT",
-    "repository": {
-      "type": "git",
-      "url": "https://github.com/theia-ide/theia-trace-extension"
-    },
-    "files": [
-      "lib",
-      "src"
-    ],
-    "dependencies": {
-      "@trace-viewer/base": "0.0.0",
-      "@trace-viewer/react-components": "0.0.0",
-      "@theia/core": "latest",
-      "@theia/editor": "latest",
-      "@theia/filesystem": "latest"
-    },
-    "devDependencies": {
-      "@typescript-eslint/eslint-plugin": "^3.4.0",
-      "@typescript-eslint/parser": "^3.4.0",
-      "eslint": "^7.3.0",
-      "eslint-plugin-import": "^2.21.2",
-      "eslint-plugin-no-null": "^1.0.2",
-      "eslint-plugin-react": "^7.20.0",
-      "rimraf": "latest",
-      "typescript": "latest"
-    },
-    "scripts": {
-      "build": "tsc",
-      "clean": "rimraf lib",
-      "lint": "eslint .",
-      "prepare": "yarn run clean && yarn run build",
-      "test": "echo 'test'",
-      "watch": "tsc -w"
-    },
-    "theiaExtensions": [
-        {
-          "frontend": "lib/browser/trace-viewer/trace-viewer-frontend-module"
-        }
-    ]
-  }
-  
+  "name": "theia-trace-viewer",
+  "private": "true",
+  "version": "0.0.0",
+  "description": "Trace Compass trace viewer Theia Extension",
+  "keywords": [
+    "theia-extension"
+  ],
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/theia-ide/theia-trace-extension"
+  },
+  "files": [
+    "lib",
+    "src"
+  ],
+  "dependencies": {
+    "@trace-viewer/base": "0.0.0",
+    "@trace-viewer/react-components": "0.0.0",
+    "@theia/core": "latest",
+    "@theia/editor": "latest",
+    "@theia/filesystem": "latest"
+  },
+  "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "^3.4.0",
+    "@typescript-eslint/parser": "^3.4.0",
+    "eslint": "^7.3.0",
+    "eslint-plugin-import": "^2.21.2",
+    "eslint-plugin-no-null": "^1.0.2",
+    "eslint-plugin-react": "^7.20.0",
+    "rimraf": "latest",
+    "typescript": "latest"
+  },
+  "scripts": {
+    "build": "tsc",
+    "clean": "rimraf lib",
+    "lint": "eslint .",
+    "prepare": "yarn run clean && yarn run build",
+    "test": "echo 'test'",
+    "watch": "tsc -w"
+  },
+  "theiaExtensions": [
+    {
+      "frontend": "lib/browser/trace-viewer/trace-viewer-frontend-module",
+      "backend": "lib/node/trace-server-backend-module"
+    }
+  ]
+}

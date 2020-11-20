@@ -1,5 +1,7 @@
 export const TraceServerUrlProvider = Symbol('TraceServerUrlProvider');
-export const TRACE_SERVER_DEFAULT_URL = 'http://localhost:8080/tsp/api';
+export const TRACE_SERVER_DEFAULT_URL = 'http://localhost:{}/tsp/api';
+export const TRACE_SERVER_DEFAULT_PORT = '8080';
+
 export interface TraceServerUrlProvider {
 
     /**

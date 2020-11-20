@@ -1,5 +1,5 @@
 import { ContainerModule, Container } from 'inversify';
-import { WidgetFactory, OpenHandler, FrontendApplicationContribution, bindViewContribution } from '@theia/core/lib/browser';
+import { WidgetFactory, OpenHandler, FrontendApplicationContribution, bindViewContribution, WebSocketConnectionProvider } from '@theia/core/lib/browser';
 import { TraceViewerWidget, TraceViewerWidgetOptions } from './trace-viewer';
 import { TraceViewerContribution } from './trace-viewer-contribution';
 import { TraceViewerEnvironment } from '../../common/trace-viewer-environment';
@@ -11,16 +11,14 @@ import 'ag-grid-community/dist/styles/ag-theme-balham-dark.css';
 import 'ag-grid-community/dist/styles/ag-theme-balham.css';
 import 'react-grid-layout/css/styles.css';
 import 'react-resizable/css/styles.css';
-// import 'semantic-ui-css/semantic.min.css';
 import { TraceExplorerContribution } from '../trace-explorer/trace-explorer-contribution';
 import { TRACE_EXPLORER_ID, TraceExplorerWidget } from '../trace-explorer/trace-explorer-widget';
 import { TspClientProvider } from '../tsp-client-provider';
 import { TheiaMessageManager } from '../theia-message-manager';
 import { TraceServerConnectionStatusService, TraceServerConnectionStatusContribution } from '../../browser/trace-server-status';
 import { TraceServerUrlProviderImpl } from '../trace-server-url-provider-frontend-impl';
-// import { TracePropertiesContribution } from '../trace-properties-view/trace-properties-view-contribution';
-// import { TracePropertiesWidget, TRACE_PROPERTIES_ID } from '../trace-properties-view/trace-properties-view-widget';
-
+import { bindTraceServerPreferences } from '../trace-server-bindings';
+import { TraceServerConfigService, traceServerPath } from '../../common/trace-server-config';
 export default new ContainerModule(bind => {
 
     bind(TraceViewerEnvironment).toSelf().inRequestScope();
@@ -54,10 +52,17 @@ export default new ContainerModule(bind => {
         createWidget: () => context.container.get<TraceExplorerWidget>(TraceExplorerWidget)
     }));
 
+    bind(TraceServerConfigService).toDynamicValue(ctx => {
+        const connection = ctx.container.get(WebSocketConnectionProvider);
+        return connection.createProxy<TraceServerConfigService>(traceServerPath);
+    }).inSingletonScope();
+
     bind(TraceServerConnectionStatusService).toSelf().inSingletonScope();
     bind(FrontendApplicationContribution).toService(TraceServerConnectionStatusService);
     bind(TraceServerConnectionStatusContribution).toSelf().inSingletonScope();
     bind(FrontendApplicationContribution).toService(TraceServerConnectionStatusContribution);
+
+    bindTraceServerPreferences(bind);
 
     // bindViewContribution(bind, TracePropertiesContribution);
     // bind(TracePropertiesWidget).toSelf();
