@@ -15,6 +15,7 @@ import { TspClientProvider } from '../tsp-client-provider';
 import { signalManager, Signals } from '@trace-viewer/base/lib/signal-manager';
 /* FIXME: This may cause Circular dependency between trace-viewer and trace-explorer-widget */
 import { TraceViewerWidget } from '../trace-viewer/trace-viewer';
+import { TraceViewerContribution } from '../trace-viewer/trace-viewer-contribution';
 
 export const TRACE_EXPLORER_ID = 'trace-explorer';
 export const TRACE_EXPLORER_LABEL = 'Trace Explorer';
@@ -39,6 +40,9 @@ export class OutputAddedSignalPayload {
 
 @injectable()
 export class TraceExplorerWidget extends ReactWidget {
+    @inject(TraceViewerContribution)
+    protected readonly traceViewerContribution!: TraceViewerContribution;
+
     private OPENED_TRACE_TITLE = 'Opened experiments';
     // private FILE_NAVIGATOR_TITLE: string = 'File navigator';
     private ANALYSIS_TITLE = 'Available analysis';
@@ -71,10 +75,10 @@ export class TraceExplorerWidget extends ReactWidget {
         this.title.caption = TRACE_EXPLORER_LABEL;
         this.title.iconClass = 'trace-explorer-tab-icon';
         this.experimentManager = this.tspClientProvider.getExperimentManager();
-        signalManager().on(Signals.EXPERIMENT_OPENED, ({experiment}) => this.onExperimentOpened(experiment));
-        signalManager().on(Signals.EXPERIMENT_CLOSED, ({experiment}) => this.onExperimentClosed(experiment));
-        signalManager().on(Signals.EXPERIMENT_SELECTED, ({experiment}) => this.onWidgetActivated(experiment));
-        signalManager().on(Signals.TOOLTIP_UPDATED, ({tooltip}) => this.onTooltip(tooltip));
+        signalManager().on(Signals.EXPERIMENT_OPENED, ({ experiment }) => this.onExperimentOpened(experiment));
+        signalManager().on(Signals.EXPERIMENT_CLOSED, ({ experiment }) => this.onExperimentClosed(experiment));
+        signalManager().on(Signals.EXPERIMENT_SELECTED, ({ experiment }) => this.onWidgetActivated(experiment));
+        signalManager().on(Signals.TOOLTIP_UPDATED, ({ tooltip }) => this.onTooltip(tooltip));
         this.toDispose.push(TraceViewerWidget.widgetActivatedSignal(experiment => this.onWidgetActivated(experiment)));
         this.initialize();
 
@@ -85,10 +89,10 @@ export class TraceExplorerWidget extends ReactWidget {
 
     dispose() {
         super.dispose();
-        signalManager().off(Signals.EXPERIMENT_OPENED, ({experiment}) => this.onExperimentOpened(experiment));
-        signalManager().off(Signals.EXPERIMENT_CLOSED, ({experiment}) => this.onExperimentClosed(experiment));
-        signalManager().off(Signals.EXPERIMENT_SELECTED, ({experiment}) => this.onWidgetActivated(experiment));
-        signalManager().off(Signals.TOOLTIP_UPDATED, ({tooltip}) => this.onTooltip(tooltip));
+        signalManager().off(Signals.EXPERIMENT_OPENED, ({ experiment }) => this.onExperimentOpened(experiment));
+        signalManager().off(Signals.EXPERIMENT_CLOSED, ({ experiment }) => this.onExperimentClosed(experiment));
+        signalManager().off(Signals.EXPERIMENT_SELECTED, ({ experiment }) => this.onWidgetActivated(experiment));
+        signalManager().off(Signals.TOOLTIP_UPDATED, ({ tooltip }) => this.onTooltip(tooltip));
     }
 
     private onExperimentOpened(openedExperiment: Experiment) {
@@ -112,12 +116,17 @@ export class TraceExplorerWidget extends ReactWidget {
         this.updateAvailableAnalysis(undefined);
     }
 
+    private async handleOpenTrace() {
+        this.traceViewerContribution.openDialog();
+    }
+
     protected render(): React.ReactNode {
         this.updateOpenedExperiments = this.updateOpenedExperiments.bind(this);
         this.updateAvailableAnalysis = this.updateAvailableAnalysis.bind(this);
         this.experimentRowRenderer = this.experimentRowRenderer.bind(this);
         this.outputsRowRenderer = this.outputsRowRenderer.bind(this);
         this.handleShareModalClose = this.handleShareModalClose.bind(this);
+        this.handleOpenTrace = this.handleOpenTrace.bind(this);
 
         let outputsRowCount = 0;
         if (this.openedExperiments.length) {
@@ -125,53 +134,54 @@ export class TraceExplorerWidget extends ReactWidget {
             if (outputs) {
                 outputsRowCount = outputs.length;
             }
+
+            return <div className='trace-explorer-container'>
+                <ReactModal isOpen={this.showShareDialog} onRequestClose={this.handleShareModalClose}
+                    ariaHideApp={false} className='sharing-modal' overlayClassName='sharing-overlay'>
+                    {this.renderSharingModal()}
+                </ReactModal>
+                <div className='trace-explorer-opened'>
+                    <div className='trace-explorer-panel-title' onClick={this.updateOpenedExperiments}>
+                        {this.OPENED_TRACE_TITLE}
+                    </div>
+                    <div className='trace-explorer-panel-content'>
+                        <List
+                            height={300}
+                            width={300}
+                            rowCount={this.openedExperiments.length}
+                            rowHeight={50}
+                            rowRenderer={this.experimentRowRenderer} />
+                    </div>
+                </div>
+                <div className='trace-explorer-analysis'>
+                    <div className='trace-explorer-panel-title'>
+                        {this.ANALYSIS_TITLE}
+                    </div>
+                    <div className='trace-explorer-panel-content'>
+                        <List
+                            height={300}
+                            width={300}
+                            rowCount={outputsRowCount}
+                            rowHeight={50}
+                            rowRenderer={this.outputsRowRenderer} />
+                    </div>
+                </div>
+                <div className='trace-explorer-tooltip'>
+                    <div className='trace-explorer-panel-title'>
+                        {'Time Graph Tooltip'}
+                    </div>
+                    <div className='trace-explorer-panel-content'>
+                        {this.renderTooltip()}
+                    </div>
+                </div>
+            </div>;
         }
 
-        return <div className='trace-explorer-container'>
-            <ReactModal isOpen={this.showShareDialog} onRequestClose={this.handleShareModalClose} ariaHideApp={false} className='sharing-modal' overlayClassName='sharing-overlay'>
-                {this.renderSharingModal()}
-            </ReactModal>
-            <div className='trace-explorer-opened'>
-                <div className='trace-explorer-panel-title' onClick={this.updateOpenedExperiments}>
-                    {this.OPENED_TRACE_TITLE}
-                </div>
-                <div className='trace-explorer-panel-content'>
-                    <List
-                        height={300}
-                        width={300}
-                        rowCount={this.openedExperiments.length}
-                        rowHeight={50}
-                        rowRenderer={this.experimentRowRenderer} />
-                </div>
-            </div>
-            {/* <div className='trace-explorer-files'>
-                <div className='trace-explorer-panel-title'>
-                    {this.FILE_NAVIGATOR_TITLE}
-                </div>
-                <div className='trace-explorer-panel-content'>
-                    {'List of files'}
-                </div>
-            </div> */}
-            <div className='trace-explorer-analysis'>
-                <div className='trace-explorer-panel-title'>
-                    {this.ANALYSIS_TITLE}
-                </div>
-                <div className='trace-explorer-panel-content'>
-                    <List
-                        height={300}
-                        width={300}
-                        rowCount={outputsRowCount}
-                        rowHeight={50}
-                        rowRenderer={this.outputsRowRenderer} />
-                </div>
-            </div>
-            <div className='trace-explorer-tooltip'>
-                <div className='trace-explorer-panel-title'>
-                    {'Time Graph Tooltip'}
-                </div>
-                <div className='trace-explorer-panel-content'>
-                    {this.renderTooltip()}
-                </div>
+        return <div className='theia-navigator-container' tabIndex={0}>
+            <div className='center'>{'You have not yet opened a trace.'}</div>
+            <div className='open-workspace-button-container'>
+                <button className='theia-button open-workspace-button' title='Select a trace to open'
+                    onClick={this.handleOpenTrace}>{'Open Trace'}</button>
             </div>
         </div>;
     }
