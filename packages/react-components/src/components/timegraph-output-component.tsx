@@ -58,7 +58,8 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
         this.horizontalContainer = React.createRef();
         const providers: TimeGraphChartProviders = {
             dataProvider: async (range: TimelineChart.TimeGraphRange, resolution: number) => this.fetchTimegraphData(range, resolution),
-            rowElementStyleProvider: (model: TimelineChart.TimeGraphState) => this.getElementStyle(model),
+            rowElementStyleProvider: (state: TimelineChart.TimeGraphState) => this.getStateStyle(state),
+            rowAnnotationStyleProvider: (annotation: TimelineChart.TimeGraphAnnotation) => this.getAnnotationStyle(annotation),
             rowStyleProvider: (row: TimelineChart.TimeGraphRowModel) => ({
                 backgroundColor: 0x979797,// 0xaaaaff,
                 backgroundOpacity: row.selected ? 0.1 : 0,
@@ -259,10 +260,10 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
         };
     }
 
-    private getElementStyle(element: TimelineChart.TimeGraphState) {
+    private getStateStyle(state: TimelineChart.TimeGraphState) {
         const styleModel = this.state.styleModel;
         if (styleModel) {
-            const metadata = element.data;
+            const metadata = state.data;
             if (metadata && metadata.style) {
                 const elementStyle: OutputElementStyle = metadata.style;
                 const modelStyle = styleModel.styles[elementStyle.parentKey];
@@ -272,26 +273,25 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
                         const color = this.hexStringToNumber(currentStyle['background-color']);
                         let height = this.props.style.rowHeight * 0.8;
                         if (currentStyle['height']) {
-                            height = currentStyle['height'] * this.props.style.rowHeight;
+                            height = currentStyle['height'] * height;
                         }
                         return {
                             color: color,
                             height: height,
-                            borderWidth: element.selected ? 2 : 0,
+                            borderWidth: state.selected ? 2 : 0,
                             borderColor: 0xeef20c
                         };
                     }
                 }
             }
         }
-        return this.getDefaultElementStyle(element);
+        return this.getDefaultStateStyle(state);
     }
-
     private hexStringToNumber(hexString: string): number {
         return parseInt(hexString.replace(/^#/, ''), 16);
     }
 
-    private getDefaultElementStyle(element: TimelineChart.TimeGraphState) {
+    private getDefaultStateStyle(state: TimelineChart.TimeGraphState) {
         const styleProvider = new StyleProvider(this.props.outputDescriptor.id, this.props.traceId, this.props.tspClient);
         const styles = styleProvider.getStylesTmp();
         const backupStyles: TimeGraphRowElementStyle[] = [
@@ -320,15 +320,15 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
         ];
 
         let style: TimeGraphRowElementStyle | undefined = backupStyles[0];
-        const val = element.label;
-        const modelData = element.data;
+        const val = state.label;
+        const modelData = state.data;
         if (modelData) {
             const outputStyle = modelData.style;
             if (!outputStyle) {
                 return {
                     color: 0xCACACA,
                     height: this.props.style.rowHeight * 0.5,
-                    borderWidth: element.selected ? 2 : 0,
+                    borderWidth: state.selected ? 2 : 0,
                     borderColor: 0xeef20c
                 };
             }
@@ -339,7 +339,7 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
                 return {
                     color: parseInt(elementStyle.color, 16),
                     height: this.props.style.rowHeight * elementStyle.height,
-                    borderWidth: element.selected ? 2 : 0,
+                    borderWidth: state.selected ? 2 : 0,
                     borderColor: 0xeef20c
                 };
             }
@@ -352,7 +352,7 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
             return {
                 color: style.color,
                 height: style.height,
-                borderWidth: element.selected ? 2 : 0,
+                borderWidth: state.selected ? 2 : 0,
                 borderColor: 0xeef20c
             };
         }
@@ -365,9 +365,38 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
         return {
             color: style.color,
             height: style.height,
-            borderWidth: element.selected ? 2 : 0,
+            borderWidth: state.selected ? 2 : 0,
             borderColor: 0xeef20c
         };
     }
 
+    private getAnnotationStyle(annotation: TimelineChart.TimeGraphAnnotation) {
+        const styleModel = this.state.styleModel;
+        if (styleModel) {
+            const metadata = annotation.data;
+            if (metadata && metadata.style) {
+                const elementStyle: OutputElementStyle = metadata.style;
+                const modelStyle = styleModel.styles[elementStyle.parentKey];
+                if (modelStyle) {
+                    const currentStyle = Object.assign({}, modelStyle.values, elementStyle.values);
+                    if (currentStyle) {
+                        let color = 0;
+                        if (currentStyle['color']) {
+                            color = this.hexStringToNumber(currentStyle['color']);
+                        }
+                        let symbolSize = this.props.style.rowHeight * 0.8 / 2;
+                        if (currentStyle['height']) {
+                            symbolSize = currentStyle['height'] * symbolSize;
+                        }
+                        return {
+                            symbol: currentStyle['symbol-type'],
+                            size: symbolSize,
+                            color: color
+                        };
+                    }
+                }
+            }
+        }
+        return undefined;
+    }
 }

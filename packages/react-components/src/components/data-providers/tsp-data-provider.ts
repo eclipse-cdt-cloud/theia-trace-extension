@@ -3,6 +3,7 @@ import { TimeGraphEntry, TimeGraphRow, TimeGraphState } from 'tsp-typescript-cli
 import { TimelineChart } from 'timeline-chart/lib/time-graph-model';
 import { QueryHelper } from 'tsp-typescript-client/lib/models/query/query-helper';
 import { OutputElementStyle } from 'tsp-typescript-client/lib/models/styles';
+import { Annotation, Type } from 'tsp-typescript-client/lib/models/annotation';
 
 export class TspDataProvider {
 
@@ -32,20 +33,20 @@ export class TspDataProvider {
             return {
                 id: 'model',
                 totalLength: this.totalRange,
-                arrows: [],
                 rows: [],
+                arrows: [],
                 data: {}
             };
         }
 
         this.totalRange = this.timeGraphEntries[0].end - this.timeGraphEntries[0].start; // 1332170682540133097 - starttime
-        let statesParameters = QueryHelper.selectionTimeQuery(QueryHelper.splitRangeIntoEqualParts(1332170682440133097, 1332170682540133097, 1120), ids);
+        let fetchParameters = QueryHelper.selectionTimeQuery(QueryHelper.splitRangeIntoEqualParts(1332170682440133097, 1332170682540133097, 1120), ids);
         if (viewRange && resolution) {
             const start = viewRange.start + this.timeGraphEntries[0].start;
             const end = viewRange.end + this.timeGraphEntries[0].start;
-            statesParameters = QueryHelper.selectionTimeQuery(QueryHelper.splitRangeIntoEqualParts(Math.trunc(start), Math.trunc(end), resolution), ids);
+            fetchParameters = QueryHelper.selectionTimeQuery(QueryHelper.splitRangeIntoEqualParts(Math.trunc(start), Math.trunc(end), resolution), ids);
         }
-        const tspClientResponse = await this.client.fetchTimeGraphStates(this.traceUUID, this.outputId, statesParameters);
+        const tspClientResponse = await this.client.fetchTimeGraphStates(this.traceUUID, this.outputId, fetchParameters);
         const stateResponse = tspClientResponse.getModel();
         if (tspClientResponse.isOk() && stateResponse) {
             this.timeGraphRows = stateResponse.model.rows;
@@ -65,11 +66,34 @@ export class TspDataProvider {
             }
         });
 
+        const annotations: Map<number, TimelineChart.TimeGraphAnnotation[]> = new Map();
+        const tspClientResponse2 = await this.client.fetchAnnotations(this.traceUUID, this.outputId, fetchParameters);
+        const annotationsResponse = tspClientResponse2.getModel();
+        if (tspClientResponse2.isOk() && annotationsResponse) {
+            Object.values(annotationsResponse.model.annotations).forEach(categoryArray => {
+                categoryArray.forEach(annotation => {
+                    if (annotation.type === Type.CHART) {
+                        let entryArray = annotations.get(annotation.entryId);
+                        if (entryArray === undefined) {
+                            entryArray = [];
+                            annotations.set(annotation.entryId, entryArray);
+                        }
+                        entryArray.push(this.getAnnotation(annotation, entryArray.length, chartStart));
+                    }
+                });
+            });
+        }
+        for (const [entryId, entryArray] of annotations.entries()) {
+            const row = rows.find(tgEntry => tgEntry.id === entryId);
+            if (row) {
+                row.annotations = entryArray;
+            }
+        }
         return {
             id: 'model',
             totalLength: this.totalRange,
-            arrows: [],
             rows,
+            arrows: [],
             data: {
                 originalStart: chartStart
             }
@@ -112,7 +136,6 @@ export class TspDataProvider {
             gapStyle = entry.style;
         }
         const states: TimelineChart.TimeGraphState[] = [];
-        const annotations: TimelineChart.TimeGraphAnnotation[] = [];
         let prevPossibleState = entry.start;
         let nextPossibleState = entry.end;
         row.states.forEach((state: TimeGraphState, idx: number) => {
@@ -165,9 +188,23 @@ export class TspDataProvider {
                 end: entry.end - chartStart
             },
             states,
-            annotations,
+            annotations: [],
             prevPossibleState,
             nextPossibleState
+        };
+    }
+
+    private getAnnotation(annotation: Annotation, idx: number, chartStart: number) {
+        return {
+            id: annotation.entryId + '-' + idx,
+            range: {
+                start: annotation.time - chartStart,
+                end: annotation.time + annotation.duration - chartStart
+            },
+            label: annotation.label,
+            data: {
+                style: annotation.style
+            },
         };
     }
 }
