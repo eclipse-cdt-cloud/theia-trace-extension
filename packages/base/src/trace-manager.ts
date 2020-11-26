@@ -70,37 +70,25 @@ export class TraceManager {
      * @returns The opened trace
      */
     async openTrace(traceURI: string, traceName?: string): Promise<Trace | undefined> {
-        const traceResponse = await this.fTspClient.openTrace(new Query({
-            'name': traceName,
-            'uri': traceURI
-        }));
+        const name = traceName ? traceName : traceURI.replace(/\/$/, '').replace(/(.*\/)?/, '');
 
-        const openedTrace = traceResponse.getModel();
-        if (openedTrace && traceResponse.isOk()) {
-            this.addTrace(openedTrace);
-            signalManager().emit(Signals.TRACE_OPENED, {trace: openedTrace});
-            return openedTrace;
-        } else if (openedTrace && traceResponse.getStatusCode() === 409) {
-            // Repost with a suffix as long as there are conflicts
-            const handleConflict = async function (tspClient: TspClient, tryNb: number): Promise<TspClientResponse<Trace>> {
-                const suffix = '(' + tryNb + ')';
-                return tspClient.openTrace(new Query({
-                    'name': name + suffix,
-                    'uri': traceURI
-                }));
-            };
-            let conflictResolutionResponse = traceResponse;
-            let i = 1;
-            while (conflictResolutionResponse.getStatusCode() === 409) {
-                conflictResolutionResponse = await handleConflict(this.fTspClient, i);
-                i++;
-            }
-            const trace = conflictResolutionResponse.getModel();
-            if (trace && conflictResolutionResponse.isOk()) {
-                this.addTrace(trace);
-                signalManager().emit(Signals.TRACE_OPENED, {trace: openedTrace});
-                return trace;
-            }
+        const tryOpen = async function (tspClient: TspClient, retry: number): Promise<TspClientResponse<Trace>> {
+            return tspClient.openTrace(new Query({
+                'name': retry === 0 ? name : name + '(' + retry + ')',
+                'uri': traceURI
+            }));
+        };
+        let tryNb = 0;
+        let traceResponse: TspClientResponse<Trace> | undefined;
+        while (traceResponse === undefined || traceResponse.getStatusCode() === 409) {
+            traceResponse = await tryOpen(this.fTspClient, tryNb);
+            tryNb++;
+        }
+        if (traceResponse.isOk()) {
+            const trace = traceResponse.getModel();
+            this.addTrace(trace);
+            signalManager().emit(Signals.TRACE_OPENED, {trace: trace});
+            return trace;
         }
         // TODO Handle trace open errors
         return undefined;
