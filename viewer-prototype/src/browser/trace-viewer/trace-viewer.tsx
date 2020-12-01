@@ -112,20 +112,8 @@ export class TraceViewerWidget extends ReactWidget {
 
     onCloseRequest(msg: Message): void {
         if (this.openedExperiment) {
-
-            const traces = this.openedExperiment.traces;
             // Close experiment
             this.experimentManager.closeExperiment(this.openedExperiment.UUID);
-
-            /*
-             TODO:
-             Decide wheather to delete traces from server as well.
-             Other experiments might wan to be create with these traces.
-            */
-            // Close each trace
-            for (let i = 0; i < traces.length; i++) {
-                this.traceManager.closeTrace(traces[i].UUID);
-            }
         }
         this.statusBar.removeElement('time-selection-range');
         super.onCloseRequest(msg);

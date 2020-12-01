@@ -17,12 +17,12 @@ export class TspClientProvider {
     ) {
         this._tspClient = new TspClient(this.tspUrlProvider.getTraceServerUrl());
         this._traceManager = new TraceManager(this._tspClient);
-        this._experimentManager = new ExperimentManager(this._tspClient);
+        this._experimentManager = new ExperimentManager(this._tspClient, this._traceManager);
         this._listeners = [];
         tspUrlProvider.addTraceServerUrlChangedListener(url => {
             this._tspClient = new TspClient(url);
             this._traceManager = new TraceManager(this._tspClient);
-            this._experimentManager = new ExperimentManager(this._tspClient);
+            this._experimentManager = new ExperimentManager(this._tspClient, this._traceManager);
             this._listeners.forEach(listener => listener(this._tspClient));
         });
     }
