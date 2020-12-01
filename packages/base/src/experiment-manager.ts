@@ -3,6 +3,7 @@ import { TspClient } from 'tsp-typescript-client/lib/protocol/tsp-client';
 import { Query } from 'tsp-typescript-client/lib/models/query/query';
 import { OutputDescriptor } from 'tsp-typescript-client/lib/models/output-descriptor';
 import { Experiment } from 'tsp-typescript-client/lib/models/experiment';
+import { TraceManager } from './trace-manager';
 import { TspClientResponse } from 'tsp-typescript-client/lib/protocol/tsp-client-response';
 import { signalManager, Signals } from './signal-manager';
 
@@ -10,11 +11,15 @@ export class ExperimentManager {
 
     private fOpenExperiments: Map<string, Experiment> = new Map();
     private fTspClient: TspClient;
+    private fTraceManager: TraceManager;
 
     constructor(
-        tspClient: TspClient
+        tspClient: TspClient,
+        traceManager: TraceManager
     ) {
         this.fTspClient = tspClient;
+        this.fTraceManager = traceManager;
+        signalManager().on(Signals.EXPERIMENT_CLOSED, ({experiment}) => this.onExperimentClosed(experiment));
     }
 
     /**
@@ -130,6 +135,17 @@ export class ExperimentManager {
             if (deletedExperiment) {
                 signalManager().emit(Signals.EXPERIMENT_CLOSED, {experiment: deletedExperiment});
             }
+        }
+    }
+
+    private onExperimentClosed(experiment: Experiment) {
+        /*
+         * TODO: Do not close traces used by another experiment
+         */
+        // Close each trace
+        const traces = experiment.traces;
+        for (let i = 0; i < traces.length; i++) {
+            this.fTraceManager.closeTrace(traces[i].UUID);
         }
     }
 
