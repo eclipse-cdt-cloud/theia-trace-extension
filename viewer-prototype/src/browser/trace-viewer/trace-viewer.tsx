@@ -1,4 +1,4 @@
-import { Path } from '@theia/core';
+import { MessageService, Path } from '@theia/core';
 import { FileSystem, FileStat } from '@theia/filesystem/lib/common/filesystem';
 import { ApplicationShell, Message, StatusBar } from '@theia/core/lib/browser';
 import { ReactWidget } from '@theia/core/lib/browser/widgets/react-widget';
@@ -48,7 +48,8 @@ export class TraceViewerWidget extends ReactWidget {
         @inject(StatusBar) private statusBar: StatusBar,
         @inject(FileSystem) private readonly fileSystem: FileSystem,
         @inject(ApplicationShell) protected readonly shell: ApplicationShell,
-        @inject(TheiaMessageManager) private readonly _signalHandler: TheiaMessageManager
+        @inject(TheiaMessageManager) private readonly _signalHandler: TheiaMessageManager,
+        @inject(MessageService) protected readonly messageService: MessageService
     ) {
         super();
         this.uri = new Path(this.options.traceURI);
@@ -71,43 +72,82 @@ export class TraceViewerWidget extends ReactWidget {
     }
 
     async initialize(): Promise<void> {
-
         /*
          * TODO: use backend service to find traces
          */
-        const tracesArray = new Array<Path>();
-        const fileStat = await this.fileSystem.getFileStat(this.uri.toString());
-        if (fileStat) {
-            if (fileStat.isDirectory) {
-                // Find recursivly CTF traces
-                await this.findTraces(fileStat, tracesArray);
-            } else {
-                // Open single trace file
-                tracesArray.push(this.uri);
-            }
-        }
 
-        const traces = new Array<Trace>();
+         const isCancelled = { value: false };
 
-        for (let i = 0; i < tracesArray.length; i++) {
-            const trace = await this.traceManager.openTrace(tracesArray[i].toString(), tracesArray[i].name);
-            if (trace) {
-                traces.push(trace);
-            }
-        }
+        // This will show a progress dialog with "Cancel" option
+        this.messageService.showProgress({
+            text: 'Open traces'
+        },
+        () => {
+            isCancelled.value = true;
+        })
+        .then(async progress => {
+            try {
+                const tracesArray = new Array<Path>();
+                const fileStat = await this.fileSystem.getFileStat(this.uri.toString());
+                progress.report({message: 'Finding traces ', work: {done: 10, total: 100}});
+                    if (fileStat) {
+                        if (fileStat.isDirectory) {
+                            // Find recursivly CTF traces
+                            await this.findTraces(fileStat, tracesArray, isCancelled);
+                        } else {
+                            // Open single trace file
+                            tracesArray.push(this.uri);
+                        }
+                    }
 
-        const experiment = await this.experimentManager.openExperiment(this.uri.name, traces);
-        if (experiment) {
-            this.openedExperiment = experiment;
-            this.title.label = 'Trace: ' + experiment.name;
-            this.id = experiment.UUID;
+                    const traces = new Array<Trace>();
+                    if (isCancelled.value) {
+                        progress.report({message: 'Complete', work: {done: 100, total: 100}});
+                        this.dispose();
+                        return;
+                    }
 
-            if (this.isVisible) {
-                TraceViewerWidget.widgetActivatedEmitter.fire(experiment);
-            }
-        }
+                    progress.report({message: 'Opening traces', work: {done: 30, total: 100}});
+                    for (let i = 0; i < tracesArray.length; i++) {
+                        if (isCancelled.value) {
+                            break;
+                        }
+                        const trace = await this.traceManager.openTrace(tracesArray[i].toString(), tracesArray[i].name);
+                        if (trace) {
+                            traces.push(trace);
+                        }
+                    }
 
-        this.update();
+                    if (isCancelled.value) {
+                        // Rollback traces
+                        progress.report({message: 'Rolling back traces', work: {done: 50, total: 100}});
+                        for (let i = 0; i < traces.length; i++) {
+                            await this.traceManager.closeTrace(traces[i].UUID);
+                        }
+                        progress.report({message: 'Complete', work: {done: 100, total: 100}});
+                        this.dispose();
+                        return;
+                    }
+                    progress.report({message: 'Merging traces', work: {done: 70, total: 100}});
+                    const experiment = await this.experimentManager.openExperiment(this.uri.name, traces);
+                    if (experiment) {
+                        this.openedExperiment = experiment;
+                        this.title.label = 'Trace: ' + experiment.name;
+                        this.id = experiment.UUID;
+
+                        if (this.isVisible) {
+                            TraceViewerWidget.widgetActivatedEmitter.fire(experiment);
+                        }
+                    }
+
+                    this.update();
+                } catch (e) {
+                    console.log(e);
+                    this.dispose();
+                }
+            progress.report({message: 'Complete', work: {done: 100, total: 100}});
+            progress.cancel();
+        });
     }
 
     onCloseRequest(msg: Message): void {
@@ -174,22 +214,28 @@ export class TraceViewerWidget extends ReactWidget {
     /*
      * TODO: use backend service to find traces
      */
-    private async findTraces(rootStat: FileStat | undefined, traces: Array<Path>) {
+    private async findTraces(rootStat: FileStat | undefined, traces: Array<Path>, isCancelled: { value: boolean; }) {
         /**
          * If single file selection then return single trace in traces, if directory then find
          * recoursivly CTF traces in starting from root directory.
          */
         if (rootStat) {
+            if (isCancelled.value) {
+                return;
+            }
             if (rootStat.isDirectory) {
-                    const isCtf = this.isCtf(rootStat);
+                const isCtf = this.isCtf(rootStat);
                 if (isCtf) {
                     const uri = new URI(rootStat.uri);
                     traces.push(uri.path);
                 } else {
                     if (rootStat.children) {
                         for (let i = 0; i < rootStat.children.length; i++) {
+                            if (isCancelled.value) {
+                                return;
+                            }
                             const fileStat = await this.fileSystem.getFileStat(rootStat.children[i].uri);
-                            await this.findTraces(fileStat, traces);
+                            await this.findTraces(fileStat, traces, isCancelled);
                         }
                     }
                 }
