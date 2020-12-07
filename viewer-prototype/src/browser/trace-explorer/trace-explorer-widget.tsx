@@ -43,9 +43,9 @@ export class TraceExplorerWidget extends ReactWidget {
     @inject(TraceViewerContribution)
     protected readonly traceViewerContribution!: TraceViewerContribution;
 
-    private OPENED_TRACE_TITLE = 'Opened experiments';
+    private OPENED_TRACE_TITLE = 'Opened Traces';
     // private FILE_NAVIGATOR_TITLE: string = 'File navigator';
-    private ANALYSIS_TITLE = 'Available analysis';
+    private ANALYSIS_TITLE = 'Available Analyses';
 
     private openedExperiments: Array<Experiment> = [];
     private selectedExperimentIndex = 0;

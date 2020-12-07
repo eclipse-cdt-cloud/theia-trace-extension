@@ -82,18 +82,16 @@ It's possible to package the repo's example application with `electron-builder`.
 ## Using the trace extension
 This section describes how to operate the Theia trace extension to view and analyze traces. The UI, view interactions, and UX are prelimiary and subject to revisions in the future.
 
-![theia-trace-extension](https://raw.githubusercontent.com/theia-ide/theia-trace-extension/master/doc/images/theia-trace-extension-0.0.1.png)
+![theia-trace-extension](https://raw.githubusercontent.com/theia-ide/theia-trace-extension/master/doc/images/theia-trace-extension-0.0.2.png)
 
-### Open trace(s)
-To open a trace in the Theia Trace Extension, use the **File Explorer** in Theia to navigate to the trace directory. Then right-mouse click on the trace and select menu **Open With->Open Trace(s)**.
+### Open a trace
+To open a trace in the Theia Trace Extension, use the **File Explorer** in Theia to navigate to the trace directory. Then right-mouse click on the trace and select menu **Open With->Open Trace**.
 
-![Open trace(s)](https://raw.githubusercontent.com/theia-ide/theia-trace-extension/master/doc/images/theia-trace-extension-open-traces-0.0.1.png)
+![Open Trace](https://raw.githubusercontent.com/theia-ide/theia-trace-extension/master/doc/images/theia-trace-extension-open-traces-0.0.2.png)
 
-If the selection is a single file, then the tool will open the file directly as an experiment.
+If the selection is a single file, then the tool will open the file directly as a trace.
 
-If the selection is a directory, then the tool will look for traces in **Common Trace Format (CTF)** format, such as **Linux Tracing Toolkit traces (LTTng)** Kernel and UST (Userspace) traces, and open all found CTF traces as an experiment. With this you're able to open e.g. LTTng Kernel and UST Traces at the same time.
-
-Note that an experiment is a collection of traces that are analyzed together where each event of each trace in the experiment is analyzed in chronological order.
+If the selection is a directory, then the tool will look for traces in **Common Trace Format (CTF)** format, such as **Linux Tracing Toolkit traces (LTTng)** Kernel and UST (Userspace) traces, and open all found CTF traces together under the same timeline. The trace events of each CTF trace will be analyzed in chronological order. With this you're able to open e.g. LTTng Kernel and UST Traces at the same time.
 
 The example Trace Compass trace server above supports LTTng Kernel and UST traces. Example LTTng traces can be retrieved from the [Trace Compass Tutorials](https://github.com/tuxology/tracevizlab). Just download the archive [TraceCompassTutorialTraces](https://github.com/tuxology/tracevizlab/blob/master/labs/TraceCompassTutorialTraces.tgz), extract them into a local directory on your computer. They can also be automatically downloaded by running `yarn download:sample-traces` from the repository's root.
 
@@ -102,12 +100,12 @@ To open the **Trace Explorer**, select menu **View** from the top-level menu and
 
 Select the **Trace Explorer** icon to switch to the trace explorer.
 
-![Trace Explorer](https://raw.githubusercontent.com/theia-ide/theia-trace-extension/master/doc/images/theia-trace-extension-trace-explorer-0.0.1.png)
+![Trace Explorer](https://raw.githubusercontent.com/theia-ide/theia-trace-extension/master/doc/images/theia-trace-extension-trace-explorer-0.0.2.png)
 
-Now, you will see 3 sections: **Opened experiments**, **Available analysis** and **Time Graph Tooltip**. Select the experiment you opened and the available analysis will be populated. Now you can select different analysis and the graphs will be added into a single container view for that experiment.
+Now, you will see 3 sections: **Opened Traces**, **Available Analyses** and **Time Graph Tooltip**. Select the trace that you opened and the available analyses will be populated. Now you can select different analysis and the graphs will be added into a single container view for that trace.
 
 ### Navigation and zooming
-There is only a limited number of such operations and they are only implemented in the Time Graph views (the ones looking like Gantt charts). For Zoom-in/out use CTRL+mouse wheel. Or use left mouse drag on time axis on top. Navigating the trace you can use the scrollbar at the bottom of the experiment container.
+There is only a limited number of such operations and they are only implemented in the Time Graph views (the ones looking like Gantt charts). For Zoom-in/out use CTRL+mouse wheel. Or use left mouse drag on time axis on top. Navigating the trace you can use the scrollbar at the bottom of the trace timeline container.
 
 ### Time Graph Tooltip
 Currently, the **Time Graph Tooltip** is populated when selecting a state in a Time Graph view.
