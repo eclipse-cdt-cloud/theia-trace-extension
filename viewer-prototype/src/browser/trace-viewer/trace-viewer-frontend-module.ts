@@ -8,6 +8,7 @@ import { CommandContribution } from '@theia/core/lib/common';
 
 import 'ag-grid-community/dist/styles/ag-grid.css';
 import 'ag-grid-community/dist/styles/ag-theme-balham-dark.css';
+import 'ag-grid-community/dist/styles/ag-theme-balham.css';
 import 'react-grid-layout/css/styles.css';
 import 'react-resizable/css/styles.css';
 // import 'semantic-ui-css/semantic.min.css';
