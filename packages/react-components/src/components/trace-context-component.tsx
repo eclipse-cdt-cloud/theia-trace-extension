@@ -20,6 +20,7 @@ import { XYOutputComponent } from './xy-output-component';
 import { NullOutputComponent } from './null-output-component';
 import { AbstractOutputProps } from './abstract-output-component';
 import * as Messages from '@trace-viewer/base/lib/message-manager';
+import { signalManager, Signals } from '@trace-viewer/base/lib/signal-manager';
 
 const ResponsiveGridLayout = WidthProvider(Responsive);
 
@@ -31,6 +32,7 @@ interface TraceContextProps {
     // Introduce dependency on Theia maybe it should be just a callback
     messageManager: Messages.MessageManager;
     addResizeHandler: (handler: () => void) => void;
+    backgroundTheme: string;
 }
 
 interface TraceContextState {
@@ -41,6 +43,7 @@ interface TraceContextState {
     experiment: Experiment
     traceIndexing: boolean;
     style: OutputComponentStyle;
+    backgroundTheme: string;
 }
 
 export class TraceContextComponent extends React.Component<TraceContextProps, TraceContextState> {
@@ -84,11 +87,12 @@ export class TraceContextComponent extends React.Component<TraceContextProps, Tr
                 chartWidth: this.DEFAULT_CHART_WIDTH,
                 height: this.DEFAULT_COMPONENT_HEIGHT,
                 rowHeight: this.DEFAULT_COMPONENT_ROWHEIGHT,
-                naviBackgroundColor: 0x3f3f3f,
-                chartBackgroundColor: 0x3f3f3f,
+                naviBackgroundColor: this.props.backgroundTheme === 'light' ? 0xf4f7fb : 0x3f3f3f,
+                chartBackgroundColor: this.props.backgroundTheme === 'light' ? 0xf4f7fb : 0x3f3f3f,
                 cursorColor: 0x259fd8,
-                lineColor: 0xbbbbbb
-            }
+                lineColor: this.props.backgroundTheme === 'light' ? 0x757575 : 0xbbbbbb
+            },
+            backgroundTheme: this.props.backgroundTheme
         };
         const absoluteRange = traceRange.getDuration();
         this.unitController = new TimeGraphUnitController(absoluteRange, { start: 0, end: absoluteRange });
@@ -106,6 +110,23 @@ export class TraceContextComponent extends React.Component<TraceContextProps, Tr
         this.unitController.onViewRangeChanged(viewRangeParam => { this.handleViewRangeChange(viewRangeParam); });
         this.traceContextContainer = React.createRef();
         this.initialize();
+        signalManager().on(Signals.THEME_CHANGED, (theme: string) => this.updateBackgroundTheme(theme));
+    }
+
+    public updateBackgroundTheme(theme: string) {
+        this.setState({
+            style: {
+                width: this.DEFAULT_COMPONENT_WIDTH,
+                chartWidth: this.DEFAULT_CHART_WIDTH,
+                height: this.DEFAULT_COMPONENT_HEIGHT,
+                rowHeight: this.DEFAULT_COMPONENT_ROWHEIGHT,
+                naviBackgroundColor: theme === 'light' ? 0xf4f7fb : 0x3f3f3f,
+                chartBackgroundColor: theme === 'light' ? 0xf4f7fb : 0x3f3f3f,
+                cursorColor: 0x259fd8,
+                lineColor: theme === 'light' ? 0x757575 : 0xbbbbbb
+            },
+            backgroundTheme: theme
+        });
     }
 
     private async initialize() {
@@ -150,6 +171,7 @@ export class TraceContextComponent extends React.Component<TraceContextProps, Tr
     }
 
     componentWillUnmount(): void {
+        signalManager().off(Signals.THEME_CHANGED, (theme: string) => this.updateBackgroundTheme(theme));
         this.props.messageManager.removeStatusMessage(this.INDEXING_STATUS_BAR_KEY);
         this.props.messageManager.removeStatusMessage(this.TIME_SELECTION_STATUS_BAR_KEY);
     }
@@ -173,14 +195,14 @@ export class TraceContextComponent extends React.Component<TraceContextProps, Tr
             category: Messages.MessageCategory.TRACE_CONTEXT
         });
         this.setState(prevState => ({
-                currentTimeSelection: new TimeRange(range.start, range.end, prevState.timeOffset)
-            }));
+            currentTimeSelection: new TimeRange(range.start, range.end, prevState.timeOffset)
+        }));
     }
 
     private handleViewRangeChange(viewRange: TimelineChart.TimeGraphRange) {
         this.setState(prevState => ({
-                currentViewRange: new TimeRange(viewRange.start, viewRange.end, prevState.timeOffset)
-            }));
+            currentViewRange: new TimeRange(viewRange.start, viewRange.end, prevState.timeOffset)
+        }));
     }
 
     render(): JSX.Element {
@@ -197,8 +219,8 @@ export class TraceContextComponent extends React.Component<TraceContextProps, Tr
                 <TimeAxisComponent unitController={this.unitController} style={this.state.style} addWidgetResizeHandler={this.addWidgetResizeHandler} />
             </div>
             {
-            // Syntax to use ReactGridLayout with Custom Components, while passing resized dimensions to children:
-            // https://github.com/STRML/react-grid-layout/issues/299#issuecomment-524959229
+                // Syntax to use ReactGridLayout with Custom Components, while passing resized dimensions to children:
+                // https://github.com/STRML/react-grid-layout/issues/299#issuecomment-524959229
             }
             <ResponsiveGridLayout className='outputs-grid-layout' margin={[0, 5]} isResizable={true} isRearrangeable={true} isDraggable={true}
                 layouts={{ lg: layouts }} cols={{ lg: 1 }} breakpoints={{ lg: 1200 }} rowHeight={this.DEFAULT_COMPONENT_ROWHEIGHT} draggableHandle={'.title-bar-label'}
@@ -215,12 +237,13 @@ export class TraceContextComponent extends React.Component<TraceContextProps, Tr
                         style: this.state.style,
                         onOutputRemove: this.props.onOutputRemove,
                         unitController: this.unitController,
-                        widthWPBugWorkaround: this.state.style.width
+                        widthWPBugWorkaround: this.state.style.width,
+                        backgroundTheme: this.state.backgroundTheme
                     };
                     switch (responseType) {
                         case 'TIME_GRAPH':
                             return <TimegraphOutputComponent key={output.id} {...outputProps}
-                                    addWidgetResizeHandler={this.addWidgetResizeHandler} />;
+                                addWidgetResizeHandler={this.addWidgetResizeHandler} />;
                         case 'TREE_TIME_XY':
                             return <XYOutputComponent key={output.id} {...outputProps} />;
                         case 'TABLE':

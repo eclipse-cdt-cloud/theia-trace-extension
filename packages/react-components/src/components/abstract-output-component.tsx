@@ -21,6 +21,7 @@ export interface AbstractOutputProps {
     // Workaround for it needs width to be explicitly passed
     // https://github.com/STRML/react-grid-layout/issues/961
     widthWPBugWorkaround: number;
+    backgroundTheme: string;
     onOutputRemove: (outputId: string) => void;
     // TODO Not sure
     unitController: TimeGraphUnitController;

@@ -13,7 +13,10 @@ export abstract class AbstractTreeOutputComponent<P extends AbstractOutputProps,
             >
                 {this.renderTree()}
             </div>
-            <div className='output-component-chart' style={{ width: this.props.style.chartWidth, height: this.props.style.height , backgroundColor: '#3f3f3f' }}>
+            <div className='output-component-chart' style={{
+                width: this.props.style.chartWidth, height: this.props.style.height,
+                backgroundColor: '#' + this.props.style.chartBackgroundColor.toString(16)
+            }}>
                 {this.renderChart()}
             </div>
         </React.Fragment>;

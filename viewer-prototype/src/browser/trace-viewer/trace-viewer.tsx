@@ -16,6 +16,8 @@ import { TraceContextComponent } from '@trace-viewer/react-components/lib/compon
 import { Experiment } from 'tsp-typescript-client/lib/models/experiment';
 import URI from '@theia/core/lib/common/uri';
 import { TheiaMessageManager } from '../theia-message-manager';
+import { ThemeService } from '@theia/core/lib/browser/theming';
+import { signalManager } from '@trace-viewer/base/lib/signal-manager';
 
 export const TraceViewerWidgetOptions = Symbol('TraceViewerWidgetOptions');
 export interface TraceViewerWidgetOptions {
@@ -33,6 +35,7 @@ export class TraceViewerWidget extends ReactWidget {
     private tspClient: TspClient;
     private traceManager: TraceManager;
     private experimentManager: ExperimentManager;
+    private backgroundTheme: string;
 
     private resizeHandlers: (() => void)[] = [];
     private readonly addResizeHandler = (h: () => void) => {
@@ -59,7 +62,8 @@ export class TraceViewerWidget extends ReactWidget {
         this.addClass('theia-trace-open');
         this.toDispose.push(TraceExplorerWidget.outputAddedSignal(output => this.onOutputAdded(output)));
         this.toDispose.push(TraceExplorerWidget.experimentSelectedSignal(experiment => this.onExperimentSelected(experiment)));
-
+        this.backgroundTheme = ThemeService.get().getCurrentTheme().type;
+        ThemeService.get().onThemeChange(() => this.updateBackgroundTheme());
         this.initialize();
         this.tspClient = this.tspClientProvider.getTspClient();
         this.traceManager = this.tspClientProvider.getTraceManager();
@@ -69,6 +73,11 @@ export class TraceViewerWidget extends ReactWidget {
             this.traceManager = this.tspClientProvider.getTraceManager();
             this.experimentManager = this.experimentManager = this.tspClientProvider.getExperimentManager();
         });
+    }
+
+    private updateBackgroundTheme() {
+        const currentThemeType = ThemeService.get().getCurrentTheme().type;
+        signalManager().fireThemeChangedSignal(currentThemeType);
     }
 
     async initialize(): Promise<void> {
@@ -185,6 +194,7 @@ export class TraceViewerWidget extends ReactWidget {
                 outputs={this.outputDescriptors}
                 onOutputRemove={this.onOutputRemoved}
                 addResizeHandler={this.addResizeHandler}
+                backgroundTheme={this.backgroundTheme}
                 messageManager={this._signalHandler} /> : 'Trace is loading...'}
         </div>;
     }

@@ -3,6 +3,7 @@ import { EventEmitter } from 'events';
 export declare interface SignalManager {
 
     fireTooltipSignal(tooltip: { [key: string]: string }): void;
+    fireThemeChangedSignal(theme: string): void;
 
 }
 
@@ -12,13 +13,18 @@ export const Signals = {
     EXPERIMENT_OPENED: 'experiment opened',
     EXPERIMENT_CLOSED: 'experiment closed',
     EXPERIMENT_SELECTED: 'experiment selected',
-    TOOLTIP_UPDATED: 'tooltip updated'
+    TOOLTIP_UPDATED: 'tooltip updated',
+    THEME_CHANGED: 'theme changed'
 };
 
 export class SignalManager extends EventEmitter implements SignalManager {
 
     fireTooltipSignal(tooltip: { [key: string]: string; }): void {
         this.emit(Signals.TOOLTIP_UPDATED, {tooltip});
+    }
+
+    fireThemeChangedSignal(theme: string) {
+        this.emit(Signals.THEME_CHANGED, theme);
     }
 
 }
