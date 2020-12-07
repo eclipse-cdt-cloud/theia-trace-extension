@@ -9,7 +9,7 @@ import { WorkspaceService } from '@theia/workspace/lib/browser/workspace-service
 export namespace TraceViewerCommands {
     export const OPEN: Command = {
         id: 'trace:open',
-        label: 'Open Trace(s)'
+        label: 'Open Trace'
     };
 }
 
