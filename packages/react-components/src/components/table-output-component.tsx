@@ -2,9 +2,10 @@
 import { AbstractOutputComponent, AbstractOutputProps, AbstractOutputState } from './abstract-output-component';
 import * as React from 'react';
 import { AgGridReact } from 'ag-grid-react';
-import { ColDef, IDatasource, GridReadyEvent } from 'ag-grid-community';
+import { ColDef, IDatasource, GridReadyEvent, CellClickedEvent } from 'ag-grid-community';
 import { QueryHelper } from 'tsp-typescript-client/lib/models/query/query-helper';
 import { cloneDeep } from 'lodash';
+import { signalManager } from '@trace-viewer/base/lib/signal-manager';
 
 type TableOuputState = AbstractOutputState & {
     tableColumns: ColDef[];
@@ -64,9 +65,23 @@ export class TableOutputComponent extends AbstractOutputComponent<TableOutputPro
                 onGridReady={this.onGridReady}
                 components={this.components}
                 enableColResize={true}
+                onCellClicked={this.onEventClick}
+                rowSelection='single'
             >
             </AgGridReact>
         </div>;
+    }
+
+    private onEventClick(event: CellClickedEvent) {
+        const columns = event.columnApi.getAllColumns();
+        const timestampHeader = columns.find(column => column.getColDef().headerName === 'Timestamp ns');
+        if (timestampHeader) {
+            const timestamp = timestampHeader.getColDef().field;
+            const payload = {
+                'timestamp': (timestamp ? event.data[timestamp] : '')
+            };
+            signalManager().fireSelectionChangedSignal(payload);
+        }
     }
 
     private async fetchTableLines(fetchIndex: number, linesToFetch: number) {

@@ -10,7 +10,7 @@ import { TimeGraphRowController } from 'timeline-chart/lib/time-graph-row-contro
 import { QueryHelper } from 'tsp-typescript-client/lib/models/query/query-helper';
 import { ResponseStatus } from 'tsp-typescript-client/lib/models/response/responses';
 import { TimeGraphEntry } from 'tsp-typescript-client/lib/models/timegraph';
-import { signalManager } from '@trace-viewer/base/lib/signal-manager';
+import { signalManager, Signals } from '@trace-viewer/base/lib/signal-manager';
 import { AbstractOutputProps, AbstractOutputState } from './abstract-output-component';
 import { AbstractTreeOutputComponent } from './abstract-tree-output-component';
 import { StyleProvider } from './data-providers/style-provider';
@@ -37,6 +37,7 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
     private rowController: TimeGraphRowController;
     private chartLayer: TimeGraphChart;
     private vscrollLayer: TimeGraphVerticalScrollbar;
+    private chartCursors: TimeGraphChartCursors;
     private horizontalContainer: React.RefObject<HTMLDivElement>;
 
     private tspDataProvider: TspDataProvider;
@@ -69,7 +70,7 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
         };
         this.chartLayer = new TimeGraphChart('timeGraphChart', providers, this.rowController);
         this.vscrollLayer = new TimeGraphVerticalScrollbar('timeGraphVerticalScrollbar', this.rowController);
-
+        this.chartCursors = new TimeGraphChartCursors('chart-cursors', this.chartLayer, this.rowController, { color: this.props.style.cursorColor });
         this.rowController.onVerticalOffsetChangedHandler(() => {
             if (this.treeRef.current) {
                 this.treeRef.current.scrollTop = this.rowController.verticalOffset;
@@ -87,6 +88,7 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
             }
             this.onElementSelected(this.selectedElement);
         });
+        signalManager().on(Signals.SELECTION_CHANGED, ({ payload }) => this.onSelectionChanged(payload));
     }
 
     synchronizeTreeScroll(): void {
@@ -154,6 +156,19 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
         this.setState({ collapsedNodes: newList });
     }
 
+    private onSelectionChanged(payload: { [key: string]: number }) {
+        const offset = this.props.viewRange.getOffset() || 0;
+        const timestamp = Number(payload['timestamp']);
+        if (!isNaN(timestamp)) {
+            const selectionRangeStart = timestamp - offset;
+            this.props.unitController.selectionRange = {
+                start: selectionRangeStart,
+                end: selectionRangeStart
+            };
+            this.chartCursors.maybeCenterCursor();
+        }
+    }
+
     renderTree(): React.ReactNode {
         // TODO Show header, when we can have entries in-line with timeline-chart
         return <EntryTree
@@ -185,8 +200,6 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
 
     private getChartContainer() {
         const grid = new TimeGraphChartGrid('timeGraphGrid', this.props.style.rowHeight, this.props.style.lineColor);
-
-        const cursors = new TimeGraphChartCursors('chart-cursors', this.chartLayer, this.rowController, { color: this.props.style.cursorColor });
         const selectionRange = new TimeGraphChartSelectionRange('chart-selection-range', { color: this.props.style.cursorColor });
         return <ReactTimeGraphContainer
             options={
@@ -202,7 +215,7 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
             unitController={this.props.unitController}
             id='timegraph-chart'
             layer={[
-                grid, this.chartLayer, selectionRange, cursors
+                grid, this.chartLayer, selectionRange, this.chartCursors
             ]}
         >
         </ReactTimeGraphContainer>;
