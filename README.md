@@ -1,10 +1,26 @@
-[![Gitpod ready-to-code](https://img.shields.io/badge/Gitpod-ready--to--code-blue?logo=gitpod)](https://gitpod.io/#https://github.com/theia-ide/theia-trace-extension)
-
 # Trace Viewer extension for Theia applications
 
 Theia trace viewer extension using the tsp-typescript-client (https://github.com/theia-ide/tsp-typescript-client) and Trace Server Protocol (https://github.com/theia-ide/trace-server-protocol).
 
 Prerequisites for running this extension are the same as those for [running the theia IDE](https://github.com/eclipse-theia/theia/blob/master/doc/Developing.md#prerequisites).
+
+## Try a live demo via Gitpod!
+Click the Gitpod button below to access a live demo of the trace viewer. In a couple clicks and around 2 minutes you'll be on your way.
+
+[![Gitpod ready-to-code](https://img.shields.io/badge/Gitpod-ready--to--code-blue?logo=gitpod)](https://gitpod.io/#https://github.com/theia-ide/theia-trace-extension)
+
+Prerequisites: A GitHub account (for logging into Gitpod)
+
+* Click [here](https://gitpod.io/#https://github.com/theia-ide/theia-trace-extension) to open Gitpod.
+* After logging in, it takes around a minute for Gitpod to set up the in-browser IDE used to build the project.
+* When the workspace has loaded, the project builds automatically in about a minute. Then, the workspace pops a notification saying a service (i.e. the tool) is now available.
+![gitpod-service-ready-notification](https://raw.githubusercontent.com/theia-ide/theia-trace-extension/master/doc/images/gitpod-service-ready-notification.PNG)
+* After opening the tool via the notification, the interface loads in a few seconds.
+* Now you're ready to try the trace viewer!
+    * Head to the trace explorer tab in the left side menu to get started.
+    * The tool is already loaded with example traces from a set of [Trace Visualisation Labs](https://github.com/tuxology/tracevizlab), so no need to hunt for your own.
+
+![gitpod-live-demo-setup](https://raw.githubusercontent.com/theia-ide/theia-trace-extension/master/doc/images/gitpod-live-demo-setup.gif)
 
 ## Consume the trace viewer extension from npm
 
