@@ -1,5 +1,6 @@
 {
     "compilerOptions": {
+        "composite": true,
         "strict": true,
         "experimentalDecorators": true,
         "noUnusedLocals": true,
@@ -31,5 +32,13 @@
         "**/__tests__",
         "**/*.spec.ts",
         "**/*.test.ts"
+    ],
+    "references": [
+        {
+            "path": "../../packages/base"
+        },
+        {
+            "path": "../../packages/react-components"
+        }
     ]
 }

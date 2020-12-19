@@ -10,10 +10,6 @@
             "name": "Start in Chrome",
             "port": 9222,
             "sourceMaps": true,
-            "sourceMapPathOverrides": {
-                "viewer-prototype:///./js/*": "${workspaceRoot}/viewer-prototype/lib/**/*.js",
-                "viewer-prototype:///js/*": "${workspaceRoot}/viewer-prototype/lib/**/*.js"
-            },
             "webRoot": "${workspaceRoot}",
             "url": "http://localhost:3000"
         },
@@ -23,10 +19,6 @@
             "name": "Attach to Chrome",
             "port": 9222,
             "sourceMaps": true,
-            "sourceMapPathOverrides": {
-                "viewer-prototype:///./js/*": "${workspaceRoot}/viewer-prototype/lib/**/*.js",
-                "viewer-prototype:///js/*": "${workspaceRoot}/viewer-prototype/lib/**/*.js"
-            },
             "webRoot": "${workspaceRoot}"
         },
         {
@@ -35,19 +27,14 @@
             "name": "Start in Firefox",
             "reAttach": true,
             "webRoot": "${workspaceRoot}",
-            "url": "http://localhost:3000",
-            "pathMappings": [
-                {
-                    "url": "webpack:///viewer-prototype",
-                    "path": "${workspaceFolder}/viewer-prototype"
-                }
-            ]
+            "url": "http://localhost:3000"
         },
         {
             "type": "node",
             "request": "launch",
             "name": "Start Browser Backend",
-            "program": "${workspaceRoot}/browser-app/src-gen/backend/main.js",
+            "program": "${workspaceRoot}/examples/browser/src-gen/backend/main.js",
+            "cwd": "${workspaceFolder}/examples/browser",
             "args": [
                 "--loglevel=debug",
                 "--port=3000",
@@ -59,8 +46,10 @@
             "sourceMaps": true,
             "outFiles": [
                 "${workspaceRoot}/node_modules/@theia/*/lib/**/*.js",
-                "${workspaceRoot}/browser-app/lib/**/*.js",
-                "${workspaceRoot}/browser-app/src-gen/**/*.js"
+                "${workspaceRoot}/packages/*/lib/**/*.js",
+                "${workspaceRoot}/theia-extensions/*/lib/**/*.js",
+                "${workspaceRoot}/examples/browser/lib/**/*.js",
+                "${workspaceRoot}/examples/browser/src-gen/**/*.js"
             ],
             "smartStep": true,
             "internalConsoleOptions": "openOnSessionStart",
@@ -74,7 +63,8 @@
             "windows": {
                 "runtimeExecutable": "${workspaceRoot}/node_modules/.bin/electron.cmd"
             },
-            "program": "${workspaceRoot}/electron-app/src-gen/frontend/electron-main.js",
+            "program": "${workspaceRoot}/examples/electron/src-gen/frontend/electron-main.js",
+            "cwd": "${workspaceFolder}/examples/electron",
             "protocol": "inspector",
             "args": [
                 "--loglevel=debug",
@@ -86,10 +76,11 @@
             },
             "sourceMaps": true,
             "outFiles": [
-                "${workspaceRoot}/electron-app/src-gen/frontend/electron-main.js",
-                "${workspaceRoot}/electron-app/src-gen/backend/main.js",
-                "${workspaceRoot}/electron-app/lib/**/*.js",
-                "${workspaceRoot}/node_modules/@theia/*/lib/**/*.js"
+                "${workspaceRoot}/node_modules/@theia/*/lib/**/*.js",
+                "${workspaceRoot}/packages/*/lib/**/*.js",
+                "${workspaceRoot}/theia-extensions/*/lib/**/*.js",
+                "${workspaceRoot}/examples/electron/lib/**/*.js",
+                "${workspaceRoot}/examples/electron/src-gen/**/*.js",
             ],
             "smartStep": true,
             "internalConsoleOptions": "openOnSessionStart",
@@ -101,9 +92,9 @@
             "name": "Jest Current File",
             "program": "${workspaceFolder}/node_modules/.bin/jest",
             "args": [
-              "${fileBasenameNoExtension}",
-              "--config",
-              "viewer-prototype/jest.config.json"
+                "${fileBasenameNoExtension}",
+                "--config",
+                "viewer-prototype/jest.config.json"
             ],
             "console": "integratedTerminal",
             "internalConsoleOptions": "neverOpen",

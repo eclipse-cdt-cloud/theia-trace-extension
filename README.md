@@ -24,7 +24,7 @@ Prerequisites: A GitHub account (for logging into Gitpod)
 
 ## Consume the trace viewer extension from npm
 
-We plan to distribute this extension on npm. 
+We plan to distribute this extension on npm.
 
 Availability: TBD
 
@@ -38,12 +38,29 @@ Here is the step in order to build the trace viewer
 
 **Note for some debian-based machines**: On some distros, there are 2 yarn commands. If you get an error message saying **ERROR: There are no scenarios; must have at least one.**, you are using the wrong yarn. See [https://github.com/yarnpkg/yarn/issues/2821](https://github.com/yarnpkg/yarn/issues/2821).
 
+You can also run two scripts to watch for changes and rebuild automatically:
+
+1. From the root:
+
+```sh
+yarn tswatch # to compile TypeScript files
+```
+
+2. In parallel run:
+
+```sh
+cd examples/<browser or electron>
+yarn watch # to update the frontend bundles (loaded by the browser)
+```
+
 ## Try the trace extension
 
 This repository contains an example trace-viewer application that includes the trace extension. It has two versions:
 
 - _browser_: a "browser" application, accessed with a web browser
 - _electron_: a native desktop application
+
+You can find those example applications under `examples/`.
 
 ### Run the Trace Server
 

@@ -23,7 +23,7 @@ tasks:
   command: >
     export GITPOD_URL=$(gp url 8080) &&
     export TRACE_SERVER_URL=$(echo "$GITPOD_URL/tsp/api") &&
-    yarn start:browser ../TraceCompassTutorialTraces/ --hostname=0.0.0.0
+    yarn start:browser ../../TraceCompassTutorialTraces/ --hostname=0.0.0.0
 github:
   prebuilds:
     pullRequestsFromForks: true

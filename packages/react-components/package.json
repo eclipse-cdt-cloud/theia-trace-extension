@@ -9,7 +9,8 @@
   },
   "files": [
     "lib",
-    "src"
+    "src",
+    "style"
   ],
   "dependencies": {
     "@fortawesome/fontawesome-svg-core": "^1.2.17",
@@ -55,12 +56,10 @@
     "typescript": "latest"
   },
   "scripts": {
-    "assets": "mkdir -p ./lib/style && cp -r ./src/style/* ./lib/style",
-    "build": "tsc && yarn run assets",
-    "clean": "rimraf lib",
+    "build": "tsc -b",
+    "clean": "rimraf lib *.tsbuildinfo",
     "lint": "eslint .",
-    "prepare": "yarn clean && yarn build",
     "test": "jest  --config jest.config.json",
-    "watch": "tsc -w"
+    "watch": "tsc -b -w"
   }
 }

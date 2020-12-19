@@ -1,8 +1,9 @@
 import * as React from 'react';
-import '../style/trace-viewer.css';
-import '../style/trace-context-style.css';
-import '../style/output-components-style.css';
-import '../style/trace-explorer.css';
+import '../../style/trace-viewer.css';
+import '../../style/trace-context-style.css';
+import '../../style/output-components-style.css';
+import '../../style/trace-explorer.css';
+import '../../style/status-bar.css';
 import { Layout, Responsive, WidthProvider } from 'react-grid-layout';
 import { TimelineChart } from 'timeline-chart/lib/time-graph-model';
 import { TimeGraphUnitController } from 'timeline-chart/lib/time-graph-unit-controller';

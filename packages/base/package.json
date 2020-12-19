@@ -25,10 +25,9 @@
     "typescript": "latest"
   },
   "scripts": {
-    "build": "tsc",
-    "clean": "rimraf lib",
+    "build": "tsc -b",
+    "clean": "rimraf lib *.tsbuildinfo",
     "lint": "eslint .",
-    "prepare": "yarn clean && yarn build",
     "test": "echo 'test'",
     "watch": "tsc -w"
   }

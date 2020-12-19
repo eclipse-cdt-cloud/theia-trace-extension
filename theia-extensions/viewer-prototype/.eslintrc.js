@@ -17,16 +17,16 @@ module.exports = {
     extends: [
         'plugin:react/recommended',
         'plugin:@typescript-eslint/recommended',
-        '../configs/base.eslintrc.json',
-        '../configs/warnings.eslintrc.json',
-        '../configs/errors.eslintrc.json'
+        '../../configs/base.eslintrc.json',
+        '../../configs/warnings.eslintrc.json',
+        '../../configs/errors.eslintrc.json'
     ],
     ignorePatterns: [
         'node_modules',
         'lib',
         '.eslintrc.js',
         'plugins',
-        '**/*/__tests__',
+        '**/__tests__',
         'jestSetup.ts'
     ],
     parserOptions: {

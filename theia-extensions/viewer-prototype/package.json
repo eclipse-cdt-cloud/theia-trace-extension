@@ -34,10 +34,9 @@
     "tree-kill": "latest"
   },
   "scripts": {
-    "build": "tsc",
-    "clean": "rimraf lib",
+    "build": "tsc -b",
+    "clean": "rimraf lib *.tsbuildinfo",
     "lint": "eslint .",
-    "prepare": "yarn run clean && yarn run build",
     "test": "echo 'test'",
     "watch": "tsc -w"
   },

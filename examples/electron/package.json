@@ -1,17 +1,25 @@
 {
   "private": true,
-  "name": "browser-theia-trace-example-app",
+  "name": "electron-theia-trace-example-app",
+  "main": "scripts/theia-trace-main.js",
+  "build": {
+    "electronVersion": "9.1.2"
+  },
   "version": "0.0.1",
   "theia": {
-    "target": "browser",
+    "target": "electron",
+    "backend": {
+      "config": {
+        "startupTimeout": -1
+      }
+    },
     "frontend": {
       "config": {
         "applicationName": "Theia-Trace Example Application",
         "preferences": {
           "editor.autoSave": "on",
-          "trace-viewer.path" : "../trace-compass-server/tracecompass-server",
+          "trace-viewer.path" : "../../trace-compass-server/tracecompass-server",
           "trace-viewer.port" : 8080
-
         }
       }
     }
@@ -28,24 +36,31 @@
     "@theia/markers": "latest",
     "@theia/monaco": "latest",
     "@theia/messages": "latest",
-    "@theia/cpp-debug": "latest",
     "@theia/vsx-registry": "latest",
     "@theia/keymaps": "latest",
     "@theia/getting-started": "latest",
+    "@theia/electron": "latest",
     "theia-trace-viewer": "0.0.0"
   },
   "devDependencies": {
-    "@theia/cli": "latest"
+    "@theia/cli": "latest",
+    "electron-builder": "^22.3.2"
   },
   "scripts": {
     "prepare": "theia build --mode development && yarn download:plugins",
     "start": "theia start --plugins=local-dir:./plugins",
     "watch": "theia build --watch --mode development",
+    "package": "electron-builder",
+    "package:preview": "electron-builder --dir",
     "download:plugins": "theia download:plugins -p=true"
   },
   "engines": {
     "yarn": "1.0.x || >=1.2.1",
     "node": ">=12.14.1 <13"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/theia-ide/theia-trace-extension"
   },
   "theiaPluginsDir": "plugins",
   "theiaPlugins": {
@@ -114,6 +129,7 @@
     "vscode-builtin-xml": "https://open-vsx.org/api/vscode/xml/1.39.1/file/vscode.xml-1.39.1.vsix",
     "vscode-builtin-yaml": "https://open-vsx.org/api/vscode/yaml/1.39.1/file/vscode.yaml-1.39.1.vsix",
     "vscode-editorconfig": "https://open-vsx.org/api/EditorConfig/EditorConfig/0.14.4/file/EditorConfig.EditorConfig-0.14.4.vsix",
-    "vscode-clangd": "https://open-vsx.org/api/llvm-vs-code-extensions/vscode-clangd/0.0.21/file/llvm-vs-code-extensions.vscode-clangd-0.0.21.vsix"
+    "vscode-clangd": "https://open-vsx.org/api/llvm-vs-code-extensions/vscode-clangd/0.0.21/file/llvm-vs-code-extensions.vscode-clangd-0.0.21.vsix",
+    "cdt-gdb-vscode": "https://open-vsx.org/api/eclipse-cdt/cdt-gdb-vscode/0.0.91/file/eclipse-cdt.cdt-gdb-vscode-0.0.91.vsix"
   }
 }
