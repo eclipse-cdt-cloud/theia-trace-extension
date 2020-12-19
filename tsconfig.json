@@ -1,0 +1,17 @@
+{
+    "include": [],
+    "compilerOptions": {
+        "composite": true
+    },
+    "references": [
+        {
+            "path": "packages/base"
+        },
+        {
+            "path": "packages/react-components"
+        },
+        {
+            "path": "theia-extensions/viewer-prototype"
+        }
+    ]
+}

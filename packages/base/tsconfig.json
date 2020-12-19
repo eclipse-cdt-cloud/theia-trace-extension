@@ -1,16 +1,19 @@
 {
     "compilerOptions": {
+        "composite": true,
         "strict": true,
         "sourceMap": true,
         "esModuleInterop": true,
         "allowSyntheticDefaultImports": true,
         "module": "commonjs",
         "target": "ES2020",
+        "rootDir": "src",
         "outDir": "lib",
         "declaration": true,
         "skipLibCheck": true
     },
     "include": [
         "src"
-    ]
+    ],
+    "references": []
 }

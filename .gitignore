@@ -6,8 +6,9 @@ TraceCompassTutorialTraces
 trace-compass-server
 trace-compass-server.tar.gz
 TraceCompassTutorialTraces.tgz
-*-app/*
-!*-app/package.json
-!*-app/electron-builder.yml
-!*-app/resources/
-!*-app/scripts
+examples/*
+!examples/*/package.json
+!examples/*/electron-builder.yml
+!examples/*/resources/
+!examples/*/scripts
+*.tsbuildinfo
