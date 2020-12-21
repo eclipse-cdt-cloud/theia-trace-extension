@@ -58,7 +58,7 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
         this.horizontalContainer = React.createRef();
         const providers: TimeGraphChartProviders = {
             dataProvider: async (range: TimelineChart.TimeGraphRange, resolution: number) => this.fetchTimegraphData(range, resolution),
-            rowElementStyleProvider: (model: TimelineChart.TimeGraphRowElementModel) => this.getElementStyle(model),
+            rowElementStyleProvider: (model: TimelineChart.TimeGraphState) => this.getElementStyle(model),
             rowStyleProvider: (row: TimelineChart.TimeGraphRowModel) => ({
                 backgroundColor: 0x979797,// 0xaaaaff,
                 backgroundOpacity: row.selected ? 0.1 : 0,
@@ -247,7 +247,7 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
         };
     }
 
-    private getElementStyle(element: TimelineChart.TimeGraphRowElementModel) {
+    private getElementStyle(element: TimelineChart.TimeGraphState) {
         const styleModel = this.state.styleModel;
         if (styleModel) {
             const metadata = element.data;
@@ -279,7 +279,7 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
         return parseInt(hexString.replace(/^#/, ''), 16);
     }
 
-    private getDefaultElementStyle(element: TimelineChart.TimeGraphRowElementModel) {
+    private getDefaultElementStyle(element: TimelineChart.TimeGraphState) {
         const styleProvider = new StyleProvider(this.props.outputDescriptor.id, this.props.traceId, this.props.tspClient);
         const styles = styleProvider.getStylesTmp();
         const backupStyles: TimeGraphRowElementStyle[] = [
