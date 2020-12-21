@@ -101,27 +101,39 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
     async componentDidUpdate(_prevProps: TimegraphOutputProps, _prevState: TimegraphOutputState): Promise<void> {
         if (this.state.outputStatus !== ResponseStatus.COMPLETED || !this.state.timegraphTree.length) {
             const treeParameters = QueryHelper.timeQuery([0, 1]);
-            const treeResponse = (await this.props.tspClient.fetchTimeGraphTree(this.props.traceId,
-                this.props.outputDescriptor.id, treeParameters)).getModel();
-            const nbEntries = treeResponse.model.entries.length;
-            this.totalHeight = nbEntries * this.props.style.rowHeight;
-            this.rowController.totalHeight = this.totalHeight;
-            const columns: ColumnHeader[] = [];
-            if (treeResponse.model.headers && treeResponse.model.headers.length > 0) {
-                treeResponse.model.headers.forEach(header => {
-                    columns.push({title: header.name, sortable: true, tooltip: header.tooltip});
-                });
-            } else {
-                columns.push({title: 'Name', sortable: true});
-            }
+            const tspClientResponse = await this.props.tspClient.fetchTimeGraphTree(this.props.traceId,
+                this.props.outputDescriptor.id, treeParameters);
+            const treeResponse = tspClientResponse.getModel();
             // TODO Style should not be retreive in the "initialization" part or at least async
-            const styleResponse = (await this.props.tspClient.fetchStyles(this.props.traceId, this.props.outputDescriptor.id, QueryHelper.query())).getModel();
-            this.setState({
-                // outputStatus: ResponseStatus.COMPLETED,
-                timegraphTree: treeResponse.model.entries,
-                styleModel: styleResponse.model,
-                columns
-            });
+            if (tspClientResponse.isOk() && treeResponse) {
+                const nbEntries = treeResponse.model.entries.length;
+                this.totalHeight = nbEntries * this.props.style.rowHeight;
+                this.rowController.totalHeight = this.totalHeight;
+                const columns: ColumnHeader[] = [];
+                if (treeResponse.model.headers && treeResponse.model.headers.length > 0) {
+                    treeResponse.model.headers.forEach(header => {
+                        columns.push({title: header.name, sortable: true, tooltip: header.tooltip});
+                    });
+                } else {
+                    columns.push({title: 'Name', sortable: true});
+                }
+                const tspClientResponse2 = await this.props.tspClient.fetchStyles(this.props.traceId, this.props.outputDescriptor.id, QueryHelper.query());
+                const styleResponse = tspClientResponse2.getModel();
+                if (tspClientResponse2.isOk() && styleResponse) {
+                    this.setState({
+                        // outputStatus: ResponseStatus.COMPLETED,
+                        timegraphTree: treeResponse.model.entries,
+                        styleModel: styleResponse.model,
+                        columns
+                    });
+                } else {
+                    this.setState({
+                        // outputStatus: ResponseStatus.COMPLETED,
+                        timegraphTree: treeResponse.model.entries,
+                        columns
+                    });
+                }
+            }
             this.chartLayer.updateChart();
         }
 

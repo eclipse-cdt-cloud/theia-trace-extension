@@ -29,9 +29,10 @@ export class ExperimentManager {
     async getOpenedExperiments(): Promise<Experiment[]> {
         const openedExperiments: Array<Experiment> = [];
         // Look on the server for opened experiments
-        const experimentResponse = await this.fTspClient.fetchExperiments();
-        if (experimentResponse.isOk()) {
-            openedExperiments.push(...experimentResponse.getModel());
+        const experimentsResponse = await this.fTspClient.fetchExperiments();
+        const experiments = experimentsResponse.getModel();
+        if (experimentsResponse.isOk() && experiments) {
+            openedExperiments.push(...experiments);
         }
         return openedExperiments;
     }
@@ -94,8 +95,8 @@ export class ExperimentManager {
             experimentResponse = await tryCreate(this.fTspClient, tryNb);
             tryNb++;
         }
-        if (experimentResponse.isOk()) {
-            const experiment = experimentResponse.getModel();
+        const experiment = experimentResponse.getModel();
+        if (experimentResponse.isOk() && experiment) {
             this.addExperiment(experiment);
             signalManager().emit(Signals.EXPERIMENT_OPENED, {experiment: experiment});
             return experiment;

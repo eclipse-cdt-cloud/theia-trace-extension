@@ -85,11 +85,15 @@ export class StyleProvider {
      */
     public async getStyles(forceUpdate?: boolean): Promise<{ [key: string]: OutputElementStyle }> {
         if (!this.styles || forceUpdate) {
-            const styleResponse = await this.tspClient.fetchStyles(this.traceId, this.outputId, QueryHelper.query());
-            const styleModel = styleResponse.getModel().model;
-            const styles = styleModel.styles;
-            this.styles = styles;
-            return styles;
+            const tspClientResponse = await this.tspClient.fetchStyles(this.traceId, this.outputId, QueryHelper.query());
+            const styleResponse = tspClientResponse.getModel();
+            if (tspClientResponse.isOk() && styleResponse) {
+                const styleModel = styleResponse.model;
+                const styles = styleModel.styles;
+                this.styles = styles;
+                return styles;
+            }
+            this.styles = {};
         }
         return this.styles;
     }

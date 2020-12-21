@@ -45,11 +45,14 @@ export class TspDataProvider {
             const end = viewRange.end + this.timeGraphEntries[0].start;
             statesParameters = QueryHelper.selectionTimeQuery(QueryHelper.splitRangeIntoEqualParts(Math.trunc(start), Math.trunc(end), resolution), ids);
         }
-        const stateResponse = (await this.client.fetchTimeGraphStates(this.traceUUID,
-            this.outputId, statesParameters)).getModel();
-
-        this.timeGraphRows = stateResponse.model.rows;
-        this.timeGraphRowsOrdering(ids);
+        const tspClientResponse = await this.client.fetchTimeGraphStates(this.traceUUID, this.outputId, statesParameters);
+        const stateResponse = tspClientResponse.getModel();
+        if (tspClientResponse.isOk() && stateResponse) {
+            this.timeGraphRows = stateResponse.model.rows;
+            this.timeGraphRowsOrdering(ids);
+        } else {
+            this.timeGraphRows = [];
+        }
 
         // the start time which is normalized to logical 0 in timeline chart.
         const chartStart = this.timeGraphEntries[0].start;
