@@ -222,10 +222,13 @@ export class XYOutputComponent extends AbstractTreeOutputComponent<AbstractOutpu
         // TODO Remove cpus parameters at some point. This is very specific to Trace Compass server
         const xyTreeParameters = QueryHelper.selectionTimeQuery(
             QueryHelper.splitRangeIntoEqualParts(this.props.range.getstart(), this.props.range.getEnd(), 1120), []); // , [], { 'cpus': [] }
-        const xyTreeResponse = (await this.props.tspClient.fetchXYTree(this.props.traceId, this.props.outputDescriptor.id, xyTreeParameters)).getModel();
-        const treeModel = xyTreeResponse.model;
-        if (treeModel) {
-            this.buildTreeNodes(treeModel);
+        const tspClientResponse = await this.props.tspClient.fetchXYTree(this.props.traceId, this.props.outputDescriptor.id, xyTreeParameters);
+        const xyTreeResponse = tspClientResponse.getModel();
+        if (tspClientResponse.isOk() && xyTreeResponse) {
+            const treeModel = xyTreeResponse.model;
+            if (treeModel) {
+                this.buildTreeNodes(treeModel);
+            }
         }
     }
 
@@ -241,8 +244,11 @@ export class XYOutputComponent extends AbstractTreeOutputComponent<AbstractOutpu
         const xyDataParameters = QueryHelper.selectionTimeQuery(
             QueryHelper.splitRangeIntoEqualParts(Math.trunc(start), Math.trunc(end), this.props.style.chartWidth), this.state.checkedSeries);
 
-        const xyDataResponse = (await this.props.tspClient.fetchXY(this.props.traceId, this.props.outputDescriptor.id, xyDataParameters)).getModel();
-        this.buildXYData(xyDataResponse.model.series);
+        const tspClientResponse = await this.props.tspClient.fetchXY(this.props.traceId, this.props.outputDescriptor.id, xyDataParameters);
+        const xyDataResponse = tspClientResponse.getModel();
+        if (tspClientResponse.isOk() && xyDataResponse) {
+            this.buildXYData(xyDataResponse.model.series);
+        }
     }
 
     private buildXYData(seriesObj: XYSeries[]) {

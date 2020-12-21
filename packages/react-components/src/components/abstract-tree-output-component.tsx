@@ -38,13 +38,17 @@ export abstract class AbstractTreeOutputComponent<P extends AbstractOutputProps,
         // TODO Use the output descriptor to find out if the analysis is completed
         const xyTreeParameters = QueryHelper.selectionTimeQuery(
             QueryHelper.splitRangeIntoEqualParts(this.props.range.getstart(), this.props.range.getEnd(), 1120), []);
-        let xyTreeResponse = (await tspClient.fetchXYTree(traceUUID, outPutId, xyTreeParameters)).getModel();
-        while (xyTreeResponse.status === ResponseStatus.RUNNING) {
-            xyTreeResponse = (await tspClient.fetchXYTree(traceUUID, outPutId, xyTreeParameters)).getModel();
+        let tspClientResponse = await tspClient.fetchXYTree(traceUUID, outPutId, xyTreeParameters);
+        let xyTreeResponse = tspClientResponse.getModel();
+        while (tspClientResponse.isOk() && xyTreeResponse && xyTreeResponse.status === ResponseStatus.RUNNING) {
+            tspClientResponse = await tspClient.fetchXYTree(traceUUID, outPutId, xyTreeParameters);
+            xyTreeResponse = tspClientResponse.getModel();
         }
-        this.setState({
-            outputStatus: xyTreeResponse.status
-        });
+        if (tspClientResponse.isOk() && xyTreeResponse) {
+            this.setState({
+                outputStatus: xyTreeResponse.status
+            });
+        }
     }
 
     componentWillUnmount(): void {

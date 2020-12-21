@@ -74,10 +74,14 @@ export class TableOutputComponent extends AbstractOutputComponent<TableOutputPro
         const tspClient = this.props.tspClient;
         const outPutId = this.props.outputDescriptor.id;
 
-        const lineResponse = (await tspClient.fetchTableLines(traceUUID, outPutId, QueryHelper.tableQuery(this.columnIds, fetchIndex, linesToFetch))).getModel();
+        const tspClientResponse = await tspClient.fetchTableLines(traceUUID, outPutId, QueryHelper.tableQuery(this.columnIds, fetchIndex, linesToFetch));
+        const lineResponse = tspClientResponse.getModel();
+        const linesArray = new Array<any>();
+        if (!tspClientResponse.isOk() || !lineResponse) {
+            return linesArray;
+        }
         const model = lineResponse.model;
         const lines = model.lines;
-        const linesArray = new Array<any>();
         lines.forEach(line => {
             const obj: any = {};
             const cells = line.cells;
@@ -127,8 +131,8 @@ export class TableOutputComponent extends AbstractOutputComponent<TableOutputPro
         const outPutId = this.props.outputDescriptor.id;
 
         // Fetch columns
-        const columnsResponse = (await tspClient.fetchTableColumns(traceUUID, outPutId, QueryHelper.timeQuery([0, 1]))).getModel();
-        const columnEntries = columnsResponse.model;
+        const tspClientResponse = await tspClient.fetchTableColumns(traceUUID, outPutId, QueryHelper.timeQuery([0, 1]));
+        const columnsResponse = tspClientResponse.getModel();
         const colIds: Array<number> = [];
         const columnsArray = new Array<any>();
 
@@ -142,16 +146,19 @@ export class TableOutputComponent extends AbstractOutputComponent<TableOutputPro
             colIds.push(0);
         }
 
-        columnEntries.forEach(columnHeader => {
-            const id = this.showIndexColumn ? ++columnHeader.id : columnHeader.id;
-            colIds.push(id);
-            columnsArray.push({
-                headerName: columnHeader.name,
-                field: columnHeader.id.toString(),
-                width: this.props.columnWidth
+        if (tspClientResponse.isOk() && columnsResponse) {
+            const columnEntries = columnsResponse.model;
+            columnEntries.forEach(columnHeader => {
+                const id = this.showIndexColumn ? ++columnHeader.id : columnHeader.id;
+                colIds.push(id);
+                columnsArray.push({
+                    headerName: columnHeader.name,
+                    field: columnHeader.id.toString(),
+                    width: this.props.columnWidth
 
+                });
             });
-        });
+            }
 
         if (!this.showIndexColumn) {
             columnsArray[0].cellRenderer = 'loadingRenderer';

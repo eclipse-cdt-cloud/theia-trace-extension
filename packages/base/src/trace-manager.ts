@@ -25,8 +25,9 @@ export class TraceManager {
         const openedTraces: Array<Trace> = [];
         // Look on the server for opened trace
         const tracesResponse = await this.fTspClient.fetchTraces();
-        if (tracesResponse.isOk()) {
-            openedTraces.push(...tracesResponse.getModel());
+        const traces = tracesResponse.getModel();
+        if (tracesResponse.isOk() && traces) {
+            openedTraces.push(...traces);
         }
         return openedTraces;
     }
@@ -84,8 +85,8 @@ export class TraceManager {
             traceResponse = await tryOpen(this.fTspClient, tryNb);
             tryNb++;
         }
-        if (traceResponse.isOk()) {
-            const trace = traceResponse.getModel();
+        const trace = traceResponse.getModel();
+        if (traceResponse.isOk() && trace) {
             this.addTrace(trace);
             signalManager().emit(Signals.TRACE_OPENED, {trace: trace});
             return trace;

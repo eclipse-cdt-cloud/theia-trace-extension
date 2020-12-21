@@ -137,24 +137,28 @@ export class TraceContextComponent extends React.Component<TraceContextProps, Tr
 
     private async updateTrace() {
         if (this.state.traceIndexing) {
-            let updatedExperiment = (await this.props.tspClient.fetchExperiment(this.props.experiment.UUID)).getModel();
-            let isIndexing = updatedExperiment.indexingStatus === this.INDEXING_RUNNING_STATUS;
+            let isIndexing = true;
             while (isIndexing) {
-                updatedExperiment = (await this.props.tspClient.fetchExperiment(this.props.experiment.UUID)).getModel();
-                isIndexing = updatedExperiment.indexingStatus === this.INDEXING_RUNNING_STATUS;
-                this.setState({
-                    timeOffset: updatedExperiment.start,
-                    experiment: updatedExperiment,
-                    traceIndexing: isIndexing,
-                    currentRange: new TimeRange(updatedExperiment.start - updatedExperiment.start, updatedExperiment.end - updatedExperiment.start, updatedExperiment.start)
-                });
+                const tspClientResponse = await this.props.tspClient.fetchExperiment(this.props.experiment.UUID);
+                const updatedExperiment = tspClientResponse.getModel();
+                if (tspClientResponse.isOk() && updatedExperiment) {
+                    isIndexing = updatedExperiment.indexingStatus === this.INDEXING_RUNNING_STATUS;
+                    this.setState({
+                        timeOffset: updatedExperiment.start,
+                        experiment: updatedExperiment,
+                        traceIndexing: isIndexing,
+                        currentRange: new TimeRange(updatedExperiment.start - updatedExperiment.start, updatedExperiment.end - updatedExperiment.start, updatedExperiment.start)
+                    });
 
-                // Update status bar
-                this.props.messageManager.addStatusMessage(this.INDEXING_STATUS_BAR_KEY, {
-                    text: `Indexing ${this.props.experiment.name}: ${this.state.experiment.nbEvents}`,
-                    category: Messages.MessageCategory.SERVER_MESSAGE
-                });
-                await this.sleep(500);
+                    // Update status bar
+                    this.props.messageManager.addStatusMessage(this.INDEXING_STATUS_BAR_KEY, {
+                        text: `Indexing ${this.props.experiment.name}: ${this.state.experiment.nbEvents}`,
+                        category: Messages.MessageCategory.SERVER_MESSAGE
+                    });
+                    await this.sleep(500);
+                } else {
+                    break;
+                }
             }
         }
         this.props.messageManager.removeStatusMessage(this.INDEXING_STATUS_BAR_KEY);
