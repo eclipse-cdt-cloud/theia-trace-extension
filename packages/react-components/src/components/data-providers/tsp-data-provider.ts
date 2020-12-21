@@ -108,7 +108,8 @@ export class TspDataProvider {
         } else {
             gapStyle = entry.style;
         }
-        const states: TimelineChart.TimeGraphRowElementModel[] = [];
+        const states: TimelineChart.TimeGraphState[] = [];
+        const annotations: TimelineChart.TimeGraphAnnotation[] = [];
         let prevPossibleState = entry.start;
         let nextPossibleState = entry.end;
         row.states.forEach((state: TimeGraphState, idx: number) => {
@@ -161,6 +162,7 @@ export class TspDataProvider {
                 end: entry.end - chartStart
             },
             states,
+            annotations,
             prevPossibleState,
             nextPossibleState
         };
