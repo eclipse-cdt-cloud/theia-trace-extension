@@ -1,7 +1,12 @@
 .no-output-placeholder {
     color: var(--theia-ui-font-color3);
     font-size: 24px;
-    transform: translate(30%, 500%);
+    text-align: center;
+    position: relative;
+    transform: translate(0, -50%);
+    top: 50%;
+    width: 90%;
+    align-self: center;
 }
 
 .react-grid-item.react-grid-placeholder {
