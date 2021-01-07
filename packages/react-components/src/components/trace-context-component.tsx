@@ -265,7 +265,9 @@ export class TraceContextComponent extends React.Component<TraceContextProps, Tr
 
     private renderPlaceHolder() {
         return <div className='no-output-placeholder'>
-            {'Add outputs by clicking on an analysis in the trace explorer view'}
+            {'Trace loaded successfully.'}
+            <br />
+            {'To see available analyses, open the Trace Explorer view.'}
         </div>;
     }
 
