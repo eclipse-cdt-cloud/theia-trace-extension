@@ -377,23 +377,24 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
             if (metadata && metadata.style) {
                 const elementStyle: OutputElementStyle = metadata.style;
                 const modelStyle = styleModel.styles[elementStyle.parentKey];
+                let currentStyle = Object.assign({}, elementStyle.values);
                 if (modelStyle) {
-                    const currentStyle = Object.assign({}, modelStyle.values, elementStyle.values);
-                    if (currentStyle) {
-                        let color = 0;
-                        if (currentStyle['color']) {
-                            color = this.hexStringToNumber(currentStyle['color']);
-                        }
-                        let symbolSize = this.props.style.rowHeight * 0.8 / 2;
-                        if (currentStyle['height']) {
-                            symbolSize = currentStyle['height'] * symbolSize;
-                        }
-                        return {
-                            symbol: currentStyle['symbol-type'],
-                            size: symbolSize,
-                            color: color
-                        };
+                    currentStyle = Object.assign({}, modelStyle.values, elementStyle.values);
+                }
+                if (currentStyle) {
+                    let color = 0;
+                    if (currentStyle['color']) {
+                        color = this.hexStringToNumber(currentStyle['color']);
                     }
+                    let symbolSize = this.props.style.rowHeight * 0.8 / 2;
+                    if (currentStyle['height']) {
+                        symbolSize = currentStyle['height'] * symbolSize;
+                    }
+                    return {
+                        symbol: currentStyle['symbol-type'],
+                        size: symbolSize,
+                        color: color
+                    };
                 }
             }
         }
