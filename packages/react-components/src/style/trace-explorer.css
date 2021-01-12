@@ -1,36 +1,21 @@
+:root {
+    --trace-extension-list-line-height: 16px;
+}
+
+#trace-explorer-analysis-widget,
+#trace-explorer-opened-traces-widget {
+    height: 100%;
+}
+
 .trace-explorer-tab-icon {
     -webkit-mask: url('chart-line-solid.svg');
     mask: url('chart-line-solid.svg');
 }
 
-/* Main container */
-.trace-explorer-container {
-    display: grid;
-    grid-template-columns: 100%;
-    grid-template-rows: 1fr 1fr; /*1fr*/
-    grid-row-gap: 10px;
-    color: var(--theia-ui-font-color0);
-}
-
-.trace-explorer-opened {
-    grid-row-start: 1;
-    display: grid;
-    grid-template-columns: 100%;
-    grid-template-rows: 25px 1fr;
-}
-
-/* .trace-explorer-files {
-    grid-row-start: 2;
-    display: grid;
-    grid-template-columns: 100%;
-    grid-template-rows: 25px 1fr;
-} */
-
-.trace-explorer-analysis {
-    grid-row-start: 2;
-    display: grid;
-    grid-template-columns: 100%;
-    grid-template-rows: 25px 1fr;
+.trace-explorer-opened,
+.trace-explorer-analysis,
+.trace-explorer-tooltip {
+    margin: 0 2px;
 }
 
 .trace-explorer-panel-title {
@@ -46,7 +31,6 @@
     grid-row-start: 2;
     border: 1px solid var(--theia-layout-color4);
     /* color: white; */
-    padding-inline-start: 5px;
     white-space: nowrap;
 }
 
@@ -61,18 +45,27 @@
     white-space: nowrap;
 }
 
+.trace-list-container:hover,
+.outputs-list-container:hover {
+    background-color: var(--theia-list-hoverBackground);
+    cursor: pointer;
+}
+
+.trace-list-container.theia-mod-selected,
 .outputs-list-container.theia-mod-selected {
     background-color: var(--theia-selection-background);
 }
 
-.trace-element-container {
+/* Share options have been commented out, grid is disabled to optimize horizontal space */
+/* .trace-element-container {
     display: grid;
     grid-template-columns: minmax(0, 1fr) 50px;
     grid-template-rows: auto;
-}
+} */
 
-.trace-element-container.theia-mod-selected {
-    background-color: var(--theia-selection-background);
+/* Remove focus outline on grid when selected */
+.ReactVirtualized__Grid {
+    outline: none;
 }
 
 .trace-element-info {
@@ -82,12 +75,20 @@
 
 .trace-element-name, .outputs-element-name {
     font-weight: bold;
+    margin: unset;
+    height: var(--trace-extension-list-line-height);
 }
 
-.trace-element-path, .outputs-element-description {
+.trace-element-path-container, .outputs-element-description {
+    margin: unset;
     color: var(--theia-ui-font-color2);
     /* color: rgb(160, 160, 160); */
     white-space: pre;
+    font-size: .95em;
+}
+
+.child-element {
+    height: var(--trace-extension-list-line-height);
 }
 
 .trace-element-options {

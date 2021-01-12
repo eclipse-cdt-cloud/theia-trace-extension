@@ -25,7 +25,7 @@ export class SignalManager extends EventEmitter implements SignalManager {
         this.emit(Signals.TOOLTIP_UPDATED, { tooltip });
     }
 
-    fireThemeChangedSignal(theme: string) {
+    fireThemeChangedSignal(theme: string): void {
         this.emit(Signals.THEME_CHANGED, theme);
     }
 
@@ -37,7 +37,7 @@ export class SignalManager extends EventEmitter implements SignalManager {
 
 let instance: SignalManager = new SignalManager();
 
-export const setSignalManagerInstance = (sm: SignalManager) => {
+export const setSignalManagerInstance = (sm: SignalManager): void => {
     instance = sm;
 };
 
