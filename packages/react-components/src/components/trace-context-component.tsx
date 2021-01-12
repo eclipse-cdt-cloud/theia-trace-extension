@@ -113,7 +113,7 @@ export class TraceContextComponent extends React.Component<TraceContextProps, Tr
         signalManager().on(Signals.THEME_CHANGED, (theme: string) => this.updateBackgroundTheme(theme));
     }
 
-    public updateBackgroundTheme(theme: string) {
+    public updateBackgroundTheme(theme: string): void {
         this.setState({
             style: {
                 width: this.DEFAULT_COMPONENT_WIDTH,
