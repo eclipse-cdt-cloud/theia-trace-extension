@@ -12,6 +12,7 @@ export interface AbstractOutputProps {
     tspClient: TspClient;
     traceId: string;
     range: TimeRange;
+    nbEvents: number;
     viewRange: TimeRange;
     selectionRange: TimeRange | undefined;
     resolution?: number;

@@ -236,6 +236,7 @@ export class TraceContextComponent extends React.Component<TraceContextProps, Tr
                         traceId: this.state.experiment.UUID,
                         outputDescriptor: output,
                         range: this.state.currentRange,
+                        nbEvents: this.state.experiment.nbEvents,
                         viewRange: this.state.currentViewRange,
                         selectionRange: this.state.currentTimeSelection,
                         style: this.state.style,
