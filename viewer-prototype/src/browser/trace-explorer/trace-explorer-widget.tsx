@@ -74,6 +74,7 @@ export class TraceExplorerWidget extends ReactWidget {
         this.title.label = TRACE_EXPLORER_LABEL;
         this.title.caption = TRACE_EXPLORER_LABEL;
         this.title.iconClass = 'trace-explorer-tab-icon';
+        this.title.closable = true;
         this.experimentManager = this.tspClientProvider.getExperimentManager();
         signalManager().on(Signals.EXPERIMENT_OPENED, ({ experiment }) => this.onExperimentOpened(experiment));
         signalManager().on(Signals.EXPERIMENT_CLOSED, ({ experiment }) => this.onExperimentClosed(experiment));
