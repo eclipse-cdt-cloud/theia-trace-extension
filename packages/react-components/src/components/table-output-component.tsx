@@ -2,10 +2,11 @@
 import { AbstractOutputComponent, AbstractOutputProps, AbstractOutputState } from './abstract-output-component';
 import * as React from 'react';
 import { AgGridReact } from 'ag-grid-react';
-import { ColDef, IDatasource, GridReadyEvent, CellClickedEvent } from 'ag-grid-community';
+import { ColDef, IDatasource, GridReadyEvent, CellClickedEvent, GridApi } from 'ag-grid-community';
 import { QueryHelper } from 'tsp-typescript-client/lib/models/query/query-helper';
 import { cloneDeep } from 'lodash';
 import { signalManager } from '@trace-viewer/base/lib/signal-manager';
+import { TimelineChart } from 'timeline-chart/lib/time-graph-model';
 
 type TableOuputState = AbstractOutputState & {
     tableColumns: ColDef[];
@@ -27,6 +28,9 @@ export class TableOutputComponent extends AbstractOutputComponent<TableOutputPro
     private columnArray = new Array<any>();
     private showIndexColumn = false;
     private components: any;
+    private gridApi: GridApi | undefined = undefined;
+    private pendingIndex: number | undefined = undefined;
+    private lastIndex = { timestamp: Number.MIN_VALUE, index: 0 };
 
     static defaultProps: Partial<TableOutputProps> = {
         cacheBlockSize: 200,
@@ -49,6 +53,10 @@ export class TableOutputComponent extends AbstractOutputComponent<TableOutputPro
                 }
             }
         };
+
+        this.props.unitController.onSelectionRangeChange(range => { this.handleTimeSelectionChange(range); });
+        this.onEventClick = this.onEventClick.bind(this);
+        this.onModelUpdated = this.onModelUpdated.bind(this);
     }
 
     renderMainArea(): React.ReactNode {
@@ -67,29 +75,43 @@ export class TableOutputComponent extends AbstractOutputComponent<TableOutputPro
                 enableColResize={true}
                 onCellClicked={this.onEventClick}
                 rowSelection='single'
+                onModelUpdated={this.onModelUpdated}
             >
             </AgGridReact>
         </div>;
+    }
+
+    componentDidMount() {
+        this.props.unitController.onSelectionRangeChange(range => { this.handleTimeSelectionChange(range); });
+    }
+
+    componentWillUnmount() {
+        // TODO: replace with removing the handler from unit controller
+        // See timeline-chart issue #98
+        // In the meantime, replace the handler with a noop on unmount
+        this.handleTimeSelectionChange = () => Promise.resolve();
     }
 
     private onEventClick(event: CellClickedEvent) {
         const columns = event.columnApi.getAllColumns();
         const timestampHeader = columns.find(column => column.getColDef().headerName === 'Timestamp ns');
         if (timestampHeader) {
-            const timestamp = timestampHeader.getColDef().field;
-            const payload = {
-                'timestamp': (timestamp ? event.data[timestamp] : '')
-            };
-            signalManager().fireSelectionChangedSignal(payload);
+            const timestampCol = timestampHeader.getColDef().field;
+            if (timestampCol) {
+                const timestamp = event.data[timestampCol];
+                const payload = { 'timestamp': timestamp };
+                this.lastIndex = { timestamp: Math.trunc(Number(timestamp)), index: event.rowIndex };
+                signalManager().fireSelectionChangedSignal(payload);
+            }
         }
     }
 
     private async fetchTableLines(fetchIndex: number, linesToFetch: number) {
         const traceUUID = this.props.traceId;
         const tspClient = this.props.tspClient;
-        const outPutId = this.props.outputDescriptor.id;
+        const outputId = this.props.outputDescriptor.id;
 
-        const tspClientResponse = await tspClient.fetchTableLines(traceUUID, outPutId, QueryHelper.tableQuery(this.columnIds, fetchIndex, linesToFetch));
+        const tspClientResponse = await tspClient.fetchTableLines(traceUUID, outputId, QueryHelper.tableQuery(this.columnIds, fetchIndex, linesToFetch));
         const lineResponse = tspClientResponse.getModel();
         const linesArray = new Array<any>();
         if (!tspClientResponse.isOk() || !lineResponse) {
@@ -117,6 +139,7 @@ export class TableOutputComponent extends AbstractOutputComponent<TableOutputPro
     }
 
     private onGridReady = async (event: GridReadyEvent) => {
+        this.gridApi = event.api;
         const dataSource: IDatasource = {
             getRows: async params => {
                 if (this.fetchColumns) {
@@ -130,11 +153,7 @@ export class TableOutputComponent extends AbstractOutputComponent<TableOutputPro
                     rowsThisPage[i] = itemCopy;
                 }
 
-                if (this.props.cacheBlockSize && (rowsThisPage.length < this.props.cacheBlockSize)) {
-                    params.successCallback(rowsThisPage, params.startRow + rowsThisPage.length);
-                } else {
-                    params.successCallback(rowsThisPage);
-                }
+                params.successCallback(rowsThisPage, this.props.nbEvents);
             }
         };
         event.api.setDatasource(dataSource);
@@ -143,10 +162,10 @@ export class TableOutputComponent extends AbstractOutputComponent<TableOutputPro
     private async init() {
         const traceUUID = this.props.traceId;
         const tspClient = this.props.tspClient;
-        const outPutId = this.props.outputDescriptor.id;
+        const outputId = this.props.outputDescriptor.id;
 
         // Fetch columns
-        const tspClientResponse = await tspClient.fetchTableColumns(traceUUID, outPutId, QueryHelper.timeQuery([0, 1]));
+        const tspClientResponse = await tspClient.fetchTableColumns(traceUUID, outputId, QueryHelper.timeQuery([0, 1]));
         const columnsResponse = tspClientResponse.getModel();
         const colIds: Array<number> = [];
         const columnsArray = new Array<any>();
@@ -186,4 +205,50 @@ export class TableOutputComponent extends AbstractOutputComponent<TableOutputPro
             tableColumns: this.columnArray
         });
     }
+
+    private async handleTimeSelectionChange(range: TimelineChart.TimeGraphRange) {
+        const start = Math.trunc(this.props.range.getstart() + range.start);
+        if (this.lastIndex.timestamp === start) {
+            return;
+        }
+        const index = await this.fetchTableIndex(start);
+        if (index && this.gridApi) {
+            this.lastIndex = { timestamp: start, index: index };
+            this.gridApi.deselectAll();
+            this.gridApi.ensureIndexVisible(index);
+            const node = this.gridApi.getDisplayedRowAtIndex(index);
+            if (node.id) {
+                node.setSelected(true);
+            } else {
+                this.pendingIndex = index;
+            }
+        }
+    }
+
+    private async fetchTableIndex(timestamp: number) {
+        const traceUUID = this.props.traceId;
+        const tspClient = this.props.tspClient;
+        const outputId = this.props.outputDescriptor.id;
+        const tspClientResponse = await tspClient.fetchTableLines(traceUUID, outputId,
+            QueryHelper.timeQuery([timestamp], {[QueryHelper.REQUESTED_TABLE_COUNT_KEY]: 1}));
+        const lineResponse = tspClientResponse.getModel();
+        if (!tspClientResponse.isOk() || !lineResponse) {
+            return undefined;
+        }
+        const model = lineResponse.model;
+        const lines = model.lines;
+        if (lines.length === 0) {
+            return undefined;
+        }
+        return lines[0].index;
+    }
+
+    private onModelUpdated = async () => {
+         if (this.pendingIndex && this.gridApi) {
+            if (this.gridApi.getSelectedNodes().length === 0) {
+                this.gridApi.getDisplayedRowAtIndex(this.pendingIndex).setSelected(true);
+            }
+            this.pendingIndex = undefined;
+         }
+    };
 }
