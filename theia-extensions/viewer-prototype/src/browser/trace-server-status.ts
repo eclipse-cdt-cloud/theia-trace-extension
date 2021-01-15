@@ -16,6 +16,8 @@ import { PreferenceService } from '@theia/core/lib/browser';
 import { TRACE_PATH, TRACE_PORT } from './trace-server-preference';
 import { Deferred } from '@theia/core/lib/common/promise-util';
 import { MessageService } from '@theia/core';
+import { TspClientResponse } from 'tsp-typescript-client/lib/protocol/tsp-client-response';
+import { HealthStatus } from 'tsp-typescript-client/lib/models/health';
 
 @injectable()
 export class TraceServerConnectionStatusService extends AbstractConnectionStatusService {
@@ -41,8 +43,8 @@ export class TraceServerConnectionStatusService extends AbstractConnectionStatus
             this.lastPing.reject();
             this.lastPing = new Deferred();
             try {
-                await Promise.race([this.tspClient.fetchExperiments(), this.lastPing.promise]);
-                this.updateStatus(true);
+                const healthResponse = await Promise.race([this.tspClient.checkHealth(), this.lastPing.promise]);
+                this.updateStatus((healthResponse as TspClientResponse<HealthStatus>).getModel()?.status === 'UP');
             } catch (e) {
                 this.updateStatus(false);
                 this.logger.trace(e);
