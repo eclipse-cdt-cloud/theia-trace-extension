@@ -30,7 +30,8 @@
     "eslint-plugin-no-null": "^1.0.2",
     "eslint-plugin-react": "^7.20.0",
     "rimraf": "latest",
-    "typescript": "latest"
+    "typescript": "latest",
+    "tree-kill": "latest"
   },
   "scripts": {
     "build": "tsc",

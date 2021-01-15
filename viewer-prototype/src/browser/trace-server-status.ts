@@ -11,7 +11,7 @@ import { StatusBar, StatusBarAlignment, StatusBarEntry } from '@theia/core/lib/b
 import { ConnectionStatus, AbstractConnectionStatusService } from '@theia/core/lib/browser/connection-status-service';
 import { TspClient } from 'tsp-typescript-client/lib/protocol/tsp-client';
 import { TspClientProvider } from './tsp-client-provider';
-import { TraceServerConfigService } from '../common/trace-server-config';
+import { PortBusy, TraceServerConfigService } from '../common/trace-server-config';
 import { PreferenceService } from '@theia/core/lib/browser';
 import { TRACE_PATH, TRACE_PORT } from './trace-server-preference';
 import { Deferred } from '@theia/core/lib/common/promise-util';
@@ -20,7 +20,7 @@ import { MessageService } from '@theia/core';
 @injectable()
 export class TraceServerConnectionStatusService extends AbstractConnectionStatusService {
 
-    private scheduledPing: number | undefined;
+    private lastPing = new Deferred();
     private tspClient: TspClient;
 
     private constructor(
@@ -37,20 +37,20 @@ export class TraceServerConnectionStatusService extends AbstractConnectionStatus
     }
 
     protected schedulePing(): void {
-        if (this.scheduledPing) {
-            this.clearTimeout(this.scheduledPing);
-        }
-        this.scheduledPing = this.setTimeout(async () => {
+        const ping = async () => {
+            this.lastPing.reject();
+            this.lastPing = new Deferred();
             try {
-                const pingTimeout = new Promise((_, reject) => { setTimeout(reject, this.options.offlineTimeout); });
-                await Promise.race([this.tspClient.fetchExperiments(), pingTimeout]);
+                await Promise.race([this.tspClient.fetchExperiments(), this.lastPing.promise]);
                 this.updateStatus(true);
             } catch (e) {
                 this.updateStatus(false);
                 this.logger.trace(e);
             }
-            this.schedulePing();
-        }, this.options.offlineTimeout * 0.8);
+        };
+
+        ping();
+        setInterval(ping, this.options.offlineTimeout);
     }
 }
 
@@ -110,8 +110,14 @@ export class TraceServerConnectionStatusContribution extends DefaultFrontendAppl
 
         try {
             await this.withTimeout(this.traceServerConfigService.startTraceServer(this.path, this.port));
-        } catch {
-            this.messageService.error('Failed to start trace server.');
+        } catch (err) {
+            if (PortBusy.is(err)) {
+                this.messageService.error(
+                    `Error opening serial port ${this.port}. (Port busy)`);
+            } else {
+                this.messageService.error(
+                    'Failed to start the trace server: no such file or directory. Please make sure that the path is correct in Trace Viewer settings and retry');
+            }
             this.handleOffline();
         }
     }
@@ -120,9 +126,9 @@ export class TraceServerConnectionStatusContribution extends DefaultFrontendAppl
         this.updateStatusBar({ text: '$(sync~spin) Trace server stopping' });
 
         try {
-            await this.withTimeout(this.traceServerConfigService.stopTraceServer(this.port));
-        } catch {
-            this.messageService.error('Failed to terminate trace server.');
+            await this.withTimeout(this.traceServerConfigService.stopTraceServer());
+        } catch (err) {
+            this.messageService.error(`Failed to stop the trace server on port: ${this.port}.`);
             this.handleOnline();
         }
     }
@@ -158,7 +164,7 @@ export class TraceServerConnectionStatusContribution extends DefaultFrontendAppl
 
     protected withTimeout<T = void>(serverAction: Promise<T>): Promise<[T, void]> {
         this.serverPending = new Deferred();
-        setTimeout(this.serverPending.reject, 10000);
+        setTimeout(this.serverPending.reject, 12000);
         return Promise.all([serverAction, this.serverPending.promise]);
     }
 }
