@@ -138,7 +138,5 @@ export class TraceServerConnectionStatusContribution extends DefaultFrontendAppl
         });
 
         this.toDisposeOnOnline.push(Disposable.create(() => this.statusBar.removeElement(this.statusbarId)));
-        document.body.classList.add('traceserver-mod-offline');
-        this.toDisposeOnOnline.push(Disposable.create(() => document.body.classList.remove('traceserver-mod-offline')));
     }
 }
