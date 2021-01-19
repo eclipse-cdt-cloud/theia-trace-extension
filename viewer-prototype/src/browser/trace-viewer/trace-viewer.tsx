@@ -85,20 +85,20 @@ export class TraceViewerWidget extends ReactWidget {
          * TODO: use backend service to find traces
          */
 
-         const isCancelled = { value: false };
+        const isCancelled = { value: false };
 
         // This will show a progress dialog with "Cancel" option
         this.messageService.showProgress({
             text: 'Open traces'
         },
-        () => {
-            isCancelled.value = true;
-        })
-        .then(async progress => {
-            try {
-                const tracesArray = new Array<Path>();
-                const fileStat = await this.fileSystem.getFileStat(this.uri.toString());
-                progress.report({message: 'Finding traces ', work: {done: 10, total: 100}});
+            () => {
+                isCancelled.value = true;
+            })
+            .then(async progress => {
+                try {
+                    const tracesArray = new Array<Path>();
+                    const fileStat = await this.fileSystem.getFileStat(this.uri.toString());
+                    progress.report({ message: 'Finding traces ', work: { done: 10, total: 100 } });
                     if (fileStat) {
                         if (fileStat.isDirectory) {
                             // Find recursivly CTF traces
@@ -109,14 +109,24 @@ export class TraceViewerWidget extends ReactWidget {
                         }
                     }
 
-                    const traces = new Array<Trace>();
-                    if (isCancelled.value) {
-                        progress.report({message: 'Complete', work: {done: 100, total: 100}});
+                    // Check if the folder is empty.
+                    if (tracesArray.length === 0) {
+                        progress.report({ message: 'Complete', work: { done: 100, total: 100 } });
+                        progress.cancel();
+                        this.messageService.error('No valid traces found in the selected directory: ' + this.uri);
                         this.dispose();
                         return;
                     }
 
-                    progress.report({message: 'Opening traces', work: {done: 30, total: 100}});
+                    const traces = new Array<Trace>();
+                    if (isCancelled.value) {
+                        progress.report({ message: 'Complete', work: { done: 100, total: 100 } });
+                        this.dispose();
+                        return;
+                    }
+
+                    progress.report({ message: 'Opening traces', work: { done: 30, total: 100 } });
+                    const invalidTraces = new Array<string>();
                     for (let i = 0; i < tracesArray.length; i++) {
                         if (isCancelled.value) {
                             break;
@@ -124,39 +134,51 @@ export class TraceViewerWidget extends ReactWidget {
                         const trace = await this.traceManager.openTrace(tracesArray[i].toString(), tracesArray[i].name + tracesArray[i].ext);
                         if (trace) {
                             traces.push(trace);
+                        } else {
+                            invalidTraces.push(tracesArray[i].name.concat(tracesArray[i].ext));
                         }
                     }
 
                     if (isCancelled.value) {
                         // Rollback traces
-                        progress.report({message: 'Rolling back traces', work: {done: 50, total: 100}});
+                        progress.report({ message: 'Rolling back traces', work: { done: 50, total: 100 } });
                         for (let i = 0; i < traces.length; i++) {
                             await this.traceManager.closeTrace(traces[i].UUID);
                         }
-                        progress.report({message: 'Complete', work: {done: 100, total: 100}});
+                        progress.report({ message: 'Complete', work: { done: 100, total: 100 } });
                         this.dispose();
                         return;
                     }
-                    progress.report({message: 'Merging traces', work: {done: 70, total: 100}});
-                    const experiment = await this.experimentManager.openExperiment(this.uri.name + this.uri.ext, traces);
-                    if (experiment) {
-                        this.openedExperiment = experiment;
-                        this.title.label = 'Trace: ' + experiment.name;
-                        this.id = experiment.UUID;
+                    progress.report({ message: 'Merging traces', work: { done: 70, total: 100 } });
 
-                        if (this.isVisible) {
-                            TraceViewerWidget.widgetActivatedEmitter.fire(experiment);
+                    if (traces === undefined || traces.length === 0) {
+                        // All the traces are invalid. Display the error message and exit.
+                        this.messageService.error('Invalid trace(s): ' + invalidTraces.toString());
+                        this.dispose();
+                    } else {
+                        const experiment = await this.experimentManager.openExperiment(this.uri.name + this.uri.ext, traces);
+                        if (experiment) {
+                            this.openedExperiment = experiment;
+                            this.title.label = 'Trace: ' + experiment.name;
+                            this.id = experiment.UUID;
+
+                            if (this.isVisible) {
+                                TraceViewerWidget.widgetActivatedEmitter.fire(experiment);
+                            }
+                        }
+                        // Check if there are any invalid traces and display the warning message with the names of the invalid traces if any.
+                        if (Array.isArray(invalidTraces) && invalidTraces.length) {
+                            this.messageService.warn('Invalid trace(s): ' + invalidTraces.toString());
                         }
                     }
 
                     this.update();
                 } catch (e) {
-                    console.log(e);
                     this.dispose();
                 }
-            progress.report({message: 'Complete', work: {done: 100, total: 100}});
-            progress.cancel();
-        });
+                progress.report({ message: 'Complete', work: { done: 100, total: 100 } });
+                progress.cancel();
+            });
     }
 
     onCloseRequest(msg: Message): void {
