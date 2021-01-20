@@ -38,8 +38,9 @@ export class TraceViewerContribution extends WidgetOpenHandler<TraceViewerWidget
     public async openDialog(): Promise<void> {
         const props: OpenFileDialogProps = {
             title: 'Open Trace',
+            // Only support selecting folders, both folders and file doesn't work in Electron (issue #227)
             canSelectFolders: true,
-            canSelectFiles: true,
+            canSelectFiles: false
         };
         const root = this.workspaceService.tryGetRoots()[0];
         const fileURI = await this.fileDialogService.showOpenDialog(props, root);
