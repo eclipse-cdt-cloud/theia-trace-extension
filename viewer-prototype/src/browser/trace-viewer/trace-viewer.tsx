@@ -121,7 +121,7 @@ export class TraceViewerWidget extends ReactWidget {
                         if (isCancelled.value) {
                             break;
                         }
-                        const trace = await this.traceManager.openTrace(tracesArray[i].toString(), tracesArray[i].name);
+                        const trace = await this.traceManager.openTrace(tracesArray[i].toString(), tracesArray[i].name + tracesArray[i].ext);
                         if (trace) {
                             traces.push(trace);
                         }
@@ -138,7 +138,7 @@ export class TraceViewerWidget extends ReactWidget {
                         return;
                     }
                     progress.report({message: 'Merging traces', work: {done: 70, total: 100}});
-                    const experiment = await this.experimentManager.openExperiment(this.uri.name, traces);
+                    const experiment = await this.experimentManager.openExperiment(this.uri.name + this.uri.ext, traces);
                     if (experiment) {
                         this.openedExperiment = experiment;
                         this.title.label = 'Trace: ' + experiment.name;
