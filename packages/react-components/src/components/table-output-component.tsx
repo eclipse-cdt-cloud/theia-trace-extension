@@ -2,7 +2,7 @@
 import { AbstractOutputComponent, AbstractOutputProps, AbstractOutputState } from './abstract-output-component';
 import * as React from 'react';
 import { AgGridReact } from 'ag-grid-react';
-import { ColDef, IDatasource, GridReadyEvent, CellClickedEvent, GridApi } from 'ag-grid-community';
+import { ColDef, IDatasource, GridReadyEvent, CellClickedEvent, GridApi, ColumnApi } from 'ag-grid-community';
 import { QueryHelper } from 'tsp-typescript-client/lib/models/query/query-helper';
 import { cloneDeep } from 'lodash';
 import { signalManager } from '@trace-viewer/base/lib/signal-manager';
@@ -29,8 +29,10 @@ export class TableOutputComponent extends AbstractOutputComponent<TableOutputPro
     private showIndexColumn = false;
     private components: any;
     private gridApi: GridApi | undefined = undefined;
+    private columnApi: ColumnApi | undefined = undefined;
     private pendingIndex: number | undefined = undefined;
     private lastIndex = { timestamp: Number.MIN_VALUE, index: 0 };
+    private columnsPacked = false;
 
     static defaultProps: Partial<TableOutputProps> = {
         cacheBlockSize: 200,
@@ -54,7 +56,6 @@ export class TableOutputComponent extends AbstractOutputComponent<TableOutputPro
             }
         };
 
-        this.props.unitController.onSelectionRangeChange(range => { this.handleTimeSelectionChange(range); });
         this.onEventClick = this.onEventClick.bind(this);
         this.onModelUpdated = this.onModelUpdated.bind(this);
     }
@@ -140,6 +141,7 @@ export class TableOutputComponent extends AbstractOutputComponent<TableOutputPro
 
     private onGridReady = async (event: GridReadyEvent) => {
         this.gridApi = event.api;
+        this.columnApi = event.columnApi;
         const dataSource: IDatasource = {
             getRows: async params => {
                 if (this.fetchColumns) {
@@ -244,11 +246,15 @@ export class TableOutputComponent extends AbstractOutputComponent<TableOutputPro
     }
 
     private onModelUpdated = async () => {
-         if (this.pendingIndex && this.gridApi) {
+        if (this.pendingIndex && this.gridApi) {
             if (this.gridApi.getSelectedNodes().length === 0) {
                 this.gridApi.getDisplayedRowAtIndex(this.pendingIndex).setSelected(true);
             }
             this.pendingIndex = undefined;
-         }
+        }
+        if (this.columnArray.length > 0 && !this.columnsPacked && this.columnApi) {
+            this.columnApi.autoSizeAllColumns();
+            this.columnsPacked = true;
+        }
     };
 }

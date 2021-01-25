@@ -1,22 +1,11 @@
 import { injectable, inject } from 'inversify';
-import { Command, CommandRegistry, CommandContribution } from '@theia/core';
+import { CommandRegistry, CommandContribution } from '@theia/core';
 import { WidgetOpenHandler } from '@theia/core/lib/browser';
 import URI from '@theia/core/lib/common/uri';
 import { TraceViewerWidget, TraceViewerWidgetOptions } from './trace-viewer';
 import { FileDialogService, OpenFileDialogProps } from '@theia/filesystem/lib/browser';
 import { WorkspaceService } from '@theia/workspace/lib/browser/workspace-service';
-
-export namespace TraceViewerCommands {
-    export const OPEN: Command = {
-        id: 'trace:open',
-        label: 'Open Trace'
-    };
-}
-
-const OpenTraceCommand: Command = {
-    id: 'open-trace',
-    label: 'Open Trace'
-};
+import { OpenTraceCommand } from './trace-viewer-commands';
 
 @injectable()
 export class TraceViewerContribution extends WidgetOpenHandler<TraceViewerWidget> implements CommandContribution {
@@ -27,7 +16,7 @@ export class TraceViewerContribution extends WidgetOpenHandler<TraceViewerWidget
     protected readonly workspaceService!: WorkspaceService;
 
     readonly id = TraceViewerWidget.ID;
-    readonly label = TraceViewerCommands.OPEN.label;
+    readonly label = 'Trace Viewer';
 
     protected createWidgetOptions(uri: URI): TraceViewerWidgetOptions {
         return {
@@ -49,7 +38,6 @@ export class TraceViewerContribution extends WidgetOpenHandler<TraceViewerWidget
     }
 
     registerCommands(registry: CommandRegistry): void {
-        registry.registerCommand(TraceViewerCommands.OPEN);
         registry.registerCommand(OpenTraceCommand, {
             execute: () => {
                 this.openDialog();

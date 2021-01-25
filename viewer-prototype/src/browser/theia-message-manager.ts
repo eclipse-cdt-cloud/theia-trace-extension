@@ -2,6 +2,8 @@ import * as Messages from '@trace-viewer/base/lib/message-manager';
 import { inject, injectable } from 'inversify';
 import { StatusBar, StatusBarAlignment } from '@theia/core/lib/browser';
 
+/* eslint-disable @typescript-eslint/no-unused-vars */
+
 @injectable()
 export class TheiaMessageManager implements Messages.MessageManager {
 

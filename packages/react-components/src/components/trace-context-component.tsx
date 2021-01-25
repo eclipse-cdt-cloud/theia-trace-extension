@@ -3,7 +3,6 @@ import '../style/trace-viewer.css';
 import '../style/trace-context-style.css';
 import '../style/output-components-style.css';
 import '../style/trace-explorer.css';
-import '../style/status-bar.css';
 import { Layout, Responsive, WidthProvider } from 'react-grid-layout';
 import { TimelineChart } from 'timeline-chart/lib/time-graph-model';
 import { TimeGraphUnitController } from 'timeline-chart/lib/time-graph-unit-controller';
@@ -113,7 +112,7 @@ export class TraceContextComponent extends React.Component<TraceContextProps, Tr
         signalManager().on(Signals.THEME_CHANGED, (theme: string) => this.updateBackgroundTheme(theme));
     }
 
-    public updateBackgroundTheme(theme: string) {
+    public updateBackgroundTheme(theme: string): void {
         this.setState({
             style: {
                 width: this.DEFAULT_COMPONENT_WIDTH,

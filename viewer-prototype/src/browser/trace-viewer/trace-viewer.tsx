@@ -1,23 +1,23 @@
-import { MessageService, Path } from '@theia/core';
+import { DisposableCollection, MessageService, Path } from '@theia/core';
 import { FileSystem, FileStat } from '@theia/filesystem/lib/common/filesystem';
-import { ApplicationShell, Message, StatusBar } from '@theia/core/lib/browser';
+import { ApplicationShell, Message, StatusBar, WidgetManager } from '@theia/core/lib/browser';
 import { ReactWidget } from '@theia/core/lib/browser/widgets/react-widget';
-import { inject, injectable } from 'inversify';
+import { inject, injectable, postConstruct } from 'inversify';
 import * as React from 'react';
 import { OutputDescriptor } from 'tsp-typescript-client/lib/models/output-descriptor';
 import { Trace } from 'tsp-typescript-client/lib/models/trace';
 import { TspClient } from 'tsp-typescript-client/lib/protocol/tsp-client';
 import { TspClientProvider } from '../tsp-client-provider';
 import { TraceManager } from '@trace-viewer/base/lib/trace-manager';
-import { Emitter } from '@theia/core';
 import { ExperimentManager } from '@trace-viewer/base/lib/experiment-manager';
-import { OutputAddedSignalPayload, TraceExplorerWidget } from '../trace-explorer/trace-explorer-widget';
 import { TraceContextComponent } from '@trace-viewer/react-components/lib/components/trace-context-component';
 import { Experiment } from 'tsp-typescript-client/lib/models/experiment';
 import URI from '@theia/core/lib/common/uri';
 import { TheiaMessageManager } from '../theia-message-manager';
 import { ThemeService } from '@theia/core/lib/browser/theming';
 import { signalManager } from '@trace-viewer/base/lib/signal-manager';
+import { OutputAddedSignalPayload } from '../trace-explorer/output-added-signal-payload';
+import { TraceExplorerWidget } from '../trace-explorer/trace-explorer-widget';
 
 export const TraceViewerWidgetOptions = Symbol('TraceViewerWidgetOptions');
 export interface TraceViewerWidgetOptions {
@@ -29,39 +29,37 @@ export class TraceViewerWidget extends ReactWidget {
     static ID = 'trace-viewer';
     static LABEL = 'Trace Viewer';
 
-    protected readonly uri: Path;
-    private openedExperiment: Experiment | undefined;
-    private outputDescriptors: OutputDescriptor[] = [];
-    private tspClient: TspClient;
-    private traceManager: TraceManager;
-    private experimentManager: ExperimentManager;
-    private backgroundTheme: string;
+    protected uri: Path;
+    protected openedExperiment: Experiment | undefined;
+    protected outputDescriptors: OutputDescriptor[] = [];
+    protected tspClient: TspClient;
+    protected traceManager: TraceManager;
+    protected experimentManager: ExperimentManager;
+    protected backgroundTheme: string;
 
-    private resizeHandlers: (() => void)[] = [];
-    private readonly addResizeHandler = (h: () => void) => {
+    protected resizeHandlers: (() => void)[] = [];
+    protected readonly addResizeHandler = (h: () => void): void => {
         this.resizeHandlers.push(h);
     };
 
-    private static widgetActivatedEmitter = new Emitter<Experiment>();
-    public static widgetActivatedSignal = TraceViewerWidget.widgetActivatedEmitter.event;
+    protected explorerWidget: TraceExplorerWidget;
 
-    constructor(
-        @inject(TraceViewerWidgetOptions) protected readonly options: TraceViewerWidgetOptions,
-        @inject(TspClientProvider) private tspClientProvider: TspClientProvider,
-        @inject(StatusBar) private statusBar: StatusBar,
-        @inject(FileSystem) private readonly fileSystem: FileSystem,
-        @inject(ApplicationShell) protected readonly shell: ApplicationShell,
-        @inject(TheiaMessageManager) private readonly _signalHandler: TheiaMessageManager,
-        @inject(MessageService) protected readonly messageService: MessageService
-    ) {
-        super();
+    @inject(WidgetManager) protected readonly widgetManager: WidgetManager;
+    @inject(TraceViewerWidgetOptions) protected readonly options: TraceViewerWidgetOptions;
+    @inject(TspClientProvider) protected tspClientProvider: TspClientProvider;
+    @inject(StatusBar) protected statusBar: StatusBar;
+    @inject(FileSystem) protected readonly fileSystem: FileSystem;
+    @inject(ApplicationShell) protected readonly shell: ApplicationShell;
+    @inject(TheiaMessageManager) protected readonly _signalHandler: TheiaMessageManager;
+    @inject(MessageService) protected readonly messageService: MessageService;
+
+    @postConstruct()
+    async init(): Promise<void> {
         this.uri = new Path(this.options.traceURI);
         this.id = 'theia-traceOpen';
         this.title.label = 'Trace: ' + this.uri.base;
         this.title.closable = true;
         this.addClass('theia-trace-open');
-        this.toDispose.push(TraceExplorerWidget.outputAddedSignal(output => this.onOutputAdded(output)));
-        this.toDispose.push(TraceExplorerWidget.experimentSelectedSignal(experiment => this.onExperimentSelected(experiment)));
         this.backgroundTheme = ThemeService.get().getCurrentTheme().type;
         ThemeService.get().onThemeChange(() => this.updateBackgroundTheme());
         this.initialize();
@@ -73,9 +71,28 @@ export class TraceViewerWidget extends ReactWidget {
             this.traceManager = this.tspClientProvider.getTraceManager();
             this.experimentManager = this.experimentManager = this.tspClientProvider.getExperimentManager();
         });
+        this.toDispose.push(this.widgetManager.onDidCreateWidget(({ widget }) => {
+            if (widget instanceof TraceExplorerWidget) {
+                this.explorerWidget = widget;
+                this.subscribeToExplorerEvents();
+            }
+        }));
+        this.explorerWidget = await this.widgetManager.getOrCreateWidget(TraceExplorerWidget.ID);
+        this.subscribeToExplorerEvents();
+        this.toDispose.push(this.toDisposeOnNewExplorer);
+        // Make node focusable so it can achieve focus on activate (avoid warning);
+        this.node.tabIndex = 0;
     }
 
-    private updateBackgroundTheme() {
+    protected readonly toDisposeOnNewExplorer = new DisposableCollection();
+
+    protected subscribeToExplorerEvents(): void {
+        this.toDisposeOnNewExplorer.dispose();
+        this.toDisposeOnNewExplorer.push(this.explorerWidget.outputAddedSignal(output => this.onOutputAdded(output)));
+        this.toDisposeOnNewExplorer.push(this.explorerWidget.experimentSelectedSignal(experiment => this.onExperimentSelected(experiment)));
+    }
+
+    protected updateBackgroundTheme(): void {
         const currentThemeType = ThemeService.get().getCurrentTheme().type;
         signalManager().fireThemeChangedSignal(currentThemeType);
     }
@@ -163,7 +180,7 @@ export class TraceViewerWidget extends ReactWidget {
                             this.id = experiment.UUID;
 
                             if (this.isVisible) {
-                                TraceViewerWidget.widgetActivatedEmitter.fire(experiment);
+                                this.explorerWidget.onOpenedTracesWidgetActivated(experiment);
                             }
                         }
                         // Check if there are any invalid traces and display the warning message with the names of the invalid traces if any.
@@ -171,7 +188,6 @@ export class TraceViewerWidget extends ReactWidget {
                             this.messageService.warn('Invalid trace(s): ' + invalidTraces.toString());
                         }
                     }
-
                     this.update();
                 } catch (e) {
                     this.dispose();
@@ -193,15 +209,16 @@ export class TraceViewerWidget extends ReactWidget {
     onAfterShow(msg: Message): void {
         super.onAfterShow(msg);
         if (this.openedExperiment) {
-            TraceViewerWidget.widgetActivatedEmitter.fire(this.openedExperiment);
+            this.explorerWidget.onOpenedTracesWidgetActivated(this.openedExperiment);
         }
     }
 
     onActivateRequest(msg: Message): void {
         super.onActivateRequest(msg);
         if (this.openedExperiment) {
-            TraceViewerWidget.widgetActivatedEmitter.fire(this.openedExperiment);
+            this.explorerWidget.onOpenedTracesWidgetActivated(this.openedExperiment);
         }
+        this.node.focus();
     }
 
     protected onResize(): void {
@@ -221,7 +238,7 @@ export class TraceViewerWidget extends ReactWidget {
         </div>;
     }
 
-    private onOutputAdded(payload: OutputAddedSignalPayload) {
+    protected onOutputAdded(payload: OutputAddedSignalPayload): void {
         if (this.openedExperiment && payload.getExperiment().UUID === this.openedExperiment.UUID) {
             const exist = this.outputDescriptors.find(output => output.id === payload.getOutputDescriptor().id);
             if (!exist) {
@@ -231,13 +248,13 @@ export class TraceViewerWidget extends ReactWidget {
         }
     }
 
-    private onOutputRemoved(outputId: string) {
+    protected onOutputRemoved(outputId: string): void {
         const outputToKeep = this.outputDescriptors.filter(output => output.id !== outputId);
         this.outputDescriptors = outputToKeep;
         this.update();
     }
 
-    private onExperimentSelected(experiment: Experiment) {
+    protected onExperimentSelected(experiment: Experiment): void {
         if (this.openedExperiment && this.openedExperiment.UUID === experiment.UUID) {
             this.shell.activateWidget(this.openedExperiment.UUID);
         }
@@ -246,7 +263,7 @@ export class TraceViewerWidget extends ReactWidget {
     /*
      * TODO: use backend service to find traces
      */
-    private async findTraces(rootStat: FileStat | undefined, traces: Array<Path>, isCancelled: { value: boolean; }) {
+    protected async findTraces(rootStat: FileStat | undefined, traces: Array<Path>, isCancelled: { value: boolean; }): Promise<void> {
         /**
          * If single file selection then return single trace in traces, if directory then find
          * recoursivly CTF traces in starting from root directory.
@@ -274,7 +291,7 @@ export class TraceViewerWidget extends ReactWidget {
             }
         }
     }
-    private isCtf(stat: FileStat): boolean {
+    protected isCtf(stat: FileStat): boolean {
         if (stat.children) {
             for (let i = 0; i < stat.children.length; i++) {
                 const path = new Path(stat.children[i].uri);
