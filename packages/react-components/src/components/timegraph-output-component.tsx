@@ -109,9 +109,7 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
             const treeResponse = tspClientResponse.getModel();
             // TODO Style should not be retreive in the "initialization" part or at least async
             if (tspClientResponse.isOk() && treeResponse) {
-                const nbEntries = treeResponse.model.entries.length;
-                this.totalHeight = nbEntries * this.props.style.rowHeight;
-                this.rowController.totalHeight = this.totalHeight;
+                this.setState({ timegraphTree: treeResponse.model.entries }, this.updateTotalHeight);
                 const columns: ColumnHeader[] = [];
                 if (treeResponse.model.headers && treeResponse.model.headers.length > 0) {
                     treeResponse.model.headers.forEach(header => {
@@ -120,21 +118,11 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
                 } else {
                     columns.push({title: 'Name', sortable: true});
                 }
+                this.setState({ columns });
                 const tspClientResponse2 = await this.props.tspClient.fetchStyles(this.props.traceId, this.props.outputDescriptor.id, QueryHelper.query());
                 const styleResponse = tspClientResponse2.getModel();
                 if (tspClientResponse2.isOk() && styleResponse) {
-                    this.setState({
-                        // outputStatus: ResponseStatus.COMPLETED,
-                        timegraphTree: treeResponse.model.entries,
-                        styleModel: styleResponse.model,
-                        columns
-                    });
-                } else {
-                    this.setState({
-                        // outputStatus: ResponseStatus.COMPLETED,
-                        timegraphTree: treeResponse.model.entries,
-                        columns
-                    });
+                    this.setState({ styleModel: styleResponse.model });
                 }
             }
             this.chartLayer.updateChart();
@@ -153,7 +141,25 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
         } else {
             newList = newList.concat(id);
         }
-        this.setState({ collapsedNodes: newList });
+        this.setState({ collapsedNodes: newList }, this.updateTotalHeight);
+    }
+
+    private updateTotalHeight() {
+        const visibleEntries = [...this.state.timegraphTree].filter(entry => this.isVisible(entry));
+        this.totalHeight = visibleEntries.length * this.props.style.rowHeight;
+        this.rowController.totalHeight = this.totalHeight;
+    }
+
+    private isVisible(entry: TimeGraphEntry): boolean {
+        let parentId = entry.parentId;
+        while (parentId !== undefined && parentId !== -1) {
+            if (this.state.collapsedNodes.includes(parentId)) {
+                return false;
+            }
+            const parent = this.state.timegraphTree.find(e => e.id === parentId);
+            parentId = parent ? parent.parentId : undefined;
+        }
+        return true;
     }
 
     private onSelectionChanged(payload: { [key: string]: number }) {
