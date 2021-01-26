@@ -268,7 +268,7 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
         const length = range.end - range.start;
         const overlap = ((length * 5) - length) / 2;
         const start = range.start - overlap > 0 ? range.start - overlap : 0;
-        const end = range.end + overlap < this.props.unitController.absoluteRange ? range.end + overlap : this.props.unitController.absoluteRange;
+        const end = range.end + overlap;
         const newRange: TimelineChart.TimeGraphRange = { start, end };
         const newResolution: number = resolution * 0.8;
         const timeGraphData: TimelineChart.TimeGraphModel = await this.tspDataProvider.getData(orderedTreeIds, this.state.timegraphTree, newRange, this.props.style.chartWidth);
