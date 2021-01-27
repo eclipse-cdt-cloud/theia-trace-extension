@@ -51,11 +51,12 @@
     "jest": "^26.1.0",
     "react-test-renderer": "^16.13.1",
     "rimraf": "latest",
+    "shx": "^0.3.3",
     "ts-jest": "^26.3.0",
     "typescript": "latest"
   },
   "scripts": {
-    "assets": "mkdir -p ./lib/style && cp -r ./src/style/* ./lib/style",
+    "assets": "shx mkdir -p ./lib/style && shx cp -r ./src/style/* ./lib/style",
     "build": "tsc && yarn run assets",
     "clean": "rimraf lib",
     "lint": "eslint .",
