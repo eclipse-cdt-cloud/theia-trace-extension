@@ -10,7 +10,7 @@ import { Experiment } from 'tsp-typescript-client/lib/models/experiment';
 
 @injectable()
 export class TraceExplorerWidget extends BaseWidget {
-    static LABEL = 'Trace Explorer';
+    static LABEL = 'Trace Viewer';
     static ID = 'trace-explorer';
     protected traceViewsContainer!: ViewContainer;
     @inject(TraceExplorerAnalysisWidget) protected readonly analysisWidget!: TraceExplorerAnalysisWidget;

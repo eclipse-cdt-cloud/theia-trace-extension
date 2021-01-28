@@ -17,7 +17,7 @@ Prerequisites: A GitHub account (for logging into Gitpod)
 ![gitpod-service-ready-notification](https://raw.githubusercontent.com/theia-ide/theia-trace-extension/master/doc/images/gitpod-service-ready-notification.PNG)
 * After opening the tool via the notification, the interface loads in a few seconds.
 * Now you're ready to try the trace viewer!
-    * Head to the trace explorer tab in the left side menu to get started.
+    * Head to the trace viewer tab in the left side menu to get started.
     * The tool is already loaded with example traces from a set of [Trace Visualisation Labs](https://github.com/tuxology/tracevizlab), so no need to hunt for your own.
 
 ![gitpod-live-demo-setup](https://raw.githubusercontent.com/theia-ide/theia-trace-extension/master/doc/images/gitpod-live-demo-setup.gif)
@@ -111,12 +111,12 @@ If the selection is a directory, then the tool will look for traces in **Common 
 
 The example Trace Compass trace server above supports LTTng Kernel and UST traces. Example LTTng traces can be retrieved from the [Trace Compass Tutorials](https://github.com/tuxology/tracevizlab). Just download the archive [TraceCompassTutorialTraces](https://github.com/tuxology/tracevizlab/blob/master/labs/TraceCompassTutorialTraces.tgz), extract them into a local directory on your computer. They can also be automatically downloaded by running `yarn download:sample-traces` from the repository's root.
 
-### Open the Trace Explorer
-To open the **Trace Explorer**, select menu **View** from the top-level menu and then select **Trace Explorer** in the list of views. Then the **Trace Explorer** icon will be added on the right side below the **File Explorer** Icon. 
+### Open the Trace Viewer
+To open the **Trace Viewer**, select menu **View** from the top-level menu and then select **Trace Viewer** in the list of views. Then the **Trace Viewer** icon will be added on the left navbar, below the **File Explorer** Icon.
 
-Select the **Trace Explorer** icon to switch to the trace explorer.
+Select the **Trace Viewer** icon to switch to the trace viewer.
 
-![Trace Explorer](https://raw.githubusercontent.com/theia-ide/theia-trace-extension/master/doc/images/theia-trace-extension-trace-explorer-0.0.2.png)
+![Trace Viewer](https://raw.githubusercontent.com/theia-ide/theia-trace-extension/master/doc/images/theia-trace-extension-trace-explorer-0.0.2.png)
 
 Now, you will see 3 sections: **Opened Traces**, **Available Analyses** and **Time Graph Tooltip**. Select the trace that you opened and the available analyses will be populated. Now you can select different analysis and the graphs will be added into a single container view for that trace.
 
