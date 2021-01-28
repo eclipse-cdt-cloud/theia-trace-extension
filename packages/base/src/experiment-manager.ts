@@ -19,7 +19,7 @@ export class ExperimentManager {
     ) {
         this.fTspClient = tspClient;
         this.fTraceManager = traceManager;
-        signalManager().on(Signals.EXPERIMENT_CLOSED, ({experiment}) => this.onExperimentClosed(experiment));
+        signalManager().on(Signals.EXPERIMENT_CLOSED, ({ experiment }) => this.onExperimentClosed(experiment));
     }
 
     /**
@@ -98,7 +98,7 @@ export class ExperimentManager {
         const experiment = experimentResponse.getModel();
         if (experimentResponse.isOk() && experiment) {
             this.addExperiment(experiment);
-            signalManager().emit(Signals.EXPERIMENT_OPENED, {experiment: experiment});
+            signalManager().emit(Signals.EXPERIMENT_OPENED, { experiment: experiment });
             return experiment;
         }
         // TODO Handle any other experiment open errors
@@ -134,7 +134,7 @@ export class ExperimentManager {
             await this.fTspClient.deleteExperiment(experimentUUID);
             const deletedExperiment = this.removeExperiment(experimentUUID);
             if (deletedExperiment) {
-                signalManager().emit(Signals.EXPERIMENT_CLOSED, {experiment: deletedExperiment});
+                signalManager().emit(Signals.EXPERIMENT_CLOSED, { experiment: deletedExperiment });
             }
         }
     }
@@ -150,8 +150,11 @@ export class ExperimentManager {
         }
     }
 
-    private addExperiment(experiment: Experiment) {
+    public addExperiment(experiment: Experiment): void {
         this.fOpenExperiments.set(experiment.UUID, experiment);
+        experiment.traces.forEach(trace => {
+            this.fTraceManager.addTrace(trace);
+        });
     }
 
     private removeExperiment(experimentUUID: string): Experiment | undefined {
@@ -160,4 +163,3 @@ export class ExperimentManager {
         return deletedExperiment;
     }
 }
-

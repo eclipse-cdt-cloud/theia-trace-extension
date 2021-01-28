@@ -5,13 +5,16 @@ import { List, ListRowProps, Index, AutoSizer } from 'react-virtualized';
 import { Experiment } from 'tsp-typescript-client/lib/models/experiment';
 import { ExperimentManager } from '@trace-viewer/base/lib/experiment-manager';
 import { OutputDescriptor } from 'tsp-typescript-client/lib/models/output-descriptor';
-import { Emitter } from '@theia/core';
+import { Emitter, CommandService } from '@theia/core';
 import { TspClientProvider } from '../../tsp-client-provider';
 import { signalManager, Signals } from '@trace-viewer/base/lib/signal-manager';
 import { TraceExplorerTooltipWidget } from './trace-explorer-tooltip-widget';
 import ReactModal from 'react-modal';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCopy } from '@fortawesome/free-solid-svg-icons';
+import { ContextMenuRenderer } from '@theia/core/lib/browser';
+import { TraceExplorerMenus } from '../trace-explorer-commands';
+import { TraceViewerCommand } from '../../trace-viewer/trace-viewer-commands';
 
 @injectable()
 export class TraceExplorerOpenedTracesWidget extends ReactWidget {
@@ -30,6 +33,8 @@ export class TraceExplorerOpenedTracesWidget extends ReactWidget {
 
     @inject(TspClientProvider) protected readonly tspClientProvider!: TspClientProvider;
     @inject(TraceExplorerTooltipWidget) protected readonly tooltipWidget!: TraceExplorerTooltipWidget;
+    @inject(ContextMenuRenderer) protected readonly contextMenuRenderer!: ContextMenuRenderer;
+    @inject(CommandService) protected readonly commandService!: CommandService;
 
     protected readonly updateRequestEmitter = new Emitter<void>();
     widgetWasUpdated = this.updateRequestEmitter.event;
@@ -97,6 +102,34 @@ export class TraceExplorerOpenedTracesWidget extends ReactWidget {
         await this.updateAvailableAnalysis(undefined);
     }
 
+    protected doHandleContextMenuEvent(event: React.MouseEvent<HTMLDivElement>, traceUUID: string): void {
+        this.doHandleOnExperimentSelected(event);
+        this.contextMenuRenderer.render({
+            menuPath: TraceExplorerMenus.PREFERENCE_EDITOR_CONTEXT_MENU,
+            anchor: { x: event.clientX, y: event.clientY },
+            args: [traceUUID]
+        });
+        event.preventDefault();
+        event.stopPropagation();
+    }
+
+    public openExperiment(traceUUID: string): void {
+        this.commandService.executeCommand(TraceViewerCommand.id, { traceUUID });
+    }
+
+    public closeExperiment(traceUUID: string): void {
+        signalManager().fireCloseTraceViewerTabSignal(traceUUID);
+    }
+
+    public deleteExperiment(traceUUID: string): void {
+        this.experimentManager.closeExperiment(traceUUID);
+        this.closeExperiment(traceUUID);
+    }
+
+    public getExperiment(traceUUID: string): Experiment | undefined {
+        return this._openedExperiments.find(experiment => experiment.UUID === traceUUID);
+    }
+
     render(): React.ReactNode {
         const totalHeight = this.getTotalHeight();
         this.forceUpdateKey = !this.forceUpdateKey;
@@ -136,6 +169,8 @@ export class TraceExplorerOpenedTracesWidget extends ReactWidget {
     protected doRenderExperimentRow(props: ListRowProps): React.ReactNode {
         const traceName = this._openedExperiments.length && props.index < this._openedExperiments.length
             ? this._openedExperiments[props.index].name : '';
+        const traceUUID = this._openedExperiments.length && props.index < this._openedExperiments.length
+            ? this._openedExperiments[props.index].UUID : '';
         let traceContainerClassName = 'trace-list-container';
         if (props.index === this._selectedExperimentIndex) {
             traceContainerClassName = traceContainerClassName + ' theia-mod-selected';
@@ -145,6 +180,7 @@ export class TraceExplorerOpenedTracesWidget extends ReactWidget {
             key={props.key}
             style={props.style}
             onClick={this.handleOnExperimentSelected}
+            onContextMenu={event => { this.handleContextMenuEvent(event, traceUUID); }}
             data-id={`${props.index}`}>
             <div className='trace-element-container'>
                 <div className='trace-element-info' >
@@ -223,6 +259,9 @@ export class TraceExplorerOpenedTracesWidget extends ReactWidget {
 
     protected async doUpdateOpenedExperiments(): Promise<void> {
         this._openedExperiments = await this.experimentManager.getOpenedExperiments();
+        this._openedExperiments.forEach(experiment => {
+            this.experimentManager.addExperiment(experiment);
+        });
         const selectedIndex = this._openedExperiments.findIndex(experiment => this.selectedExperiment &&
             experiment.UUID === this.selectedExperiment.UUID);
         this._selectedExperimentIndex = selectedIndex !== -1 ? selectedIndex : 0;
@@ -239,6 +278,7 @@ export class TraceExplorerOpenedTracesWidget extends ReactWidget {
     }
 
     protected handleOnExperimentSelected = (e: React.MouseEvent<HTMLDivElement>): void => this.doHandleOnExperimentSelected(e);
+    protected handleContextMenuEvent = (e: React.MouseEvent<HTMLDivElement>, traceUUID: string): void => this.doHandleContextMenuEvent(e, traceUUID);
 
     protected doHandleOnExperimentSelected(e: React.MouseEvent<HTMLDivElement>): void {
         const index = Number(e.currentTarget.getAttribute('data-id'));
@@ -249,6 +289,7 @@ export class TraceExplorerOpenedTracesWidget extends ReactWidget {
     protected selectExperiment(index: number): void {
         if (index >= 0 && index !== this._selectedExperimentIndex) {
             this._selectedExperimentIndex = index;
+            this.selectedExperiment = this._openedExperiments[index];
             this.lastSelectedOutputIndex = -1;
             this.updateAvailableAnalysis(this._openedExperiments[index]);
         }

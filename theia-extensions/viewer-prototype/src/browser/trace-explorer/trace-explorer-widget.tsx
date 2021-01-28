@@ -27,8 +27,24 @@ export class TraceExplorerWidget extends BaseWidget {
         return this.openedTracesWidget.experimentSelectedSignal;
     }
 
+    openExperiment(traceUUID: string): void {
+        return this.openedTracesWidget.openExperiment(traceUUID);
+    }
+
+    closeExperiment(traceUUID: string): void {
+        return this.openedTracesWidget.closeExperiment(traceUUID);
+    }
+
+    deleteExperiment(traceUUID: string): void {
+        return this.openedTracesWidget.deleteExperiment(traceUUID);
+    }
+
     onOpenedTracesWidgetActivated(experiment: Experiment): void {
         return this.openedTracesWidget.onWidgetActivated(experiment);
+    }
+
+    getExperiment(traceUUID: string): Experiment | undefined {
+        return this.openedTracesWidget.getExperiment(traceUUID);
     }
 
     static createWidget(parent: interfaces.Container): TraceExplorerWidget {
