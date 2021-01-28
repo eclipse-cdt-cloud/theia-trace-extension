@@ -9,7 +9,7 @@ import { OutputAddedSignalPayload } from '../output-added-signal-payload';
 @injectable()
 export class TraceExplorerAnalysisWidget extends ReactWidget {
     static ID = 'trace-explorer-analysis-widget';
-    static LABEL = 'Available Analysis';
+    static LABEL = 'Available Analyses';
     static LIST_MARGIN = 2;
     static LINE_HEIGHT = 16;
     static ROW_HEIGHT = (2 * TraceExplorerAnalysisWidget.LINE_HEIGHT) + TraceExplorerAnalysisWidget.LIST_MARGIN;
