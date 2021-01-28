@@ -15,13 +15,14 @@ import { Experiment } from 'tsp-typescript-client/lib/models/experiment';
 import URI from '@theia/core/lib/common/uri';
 import { TheiaMessageManager } from '../theia-message-manager';
 import { ThemeService } from '@theia/core/lib/browser/theming';
-import { signalManager } from '@trace-viewer/base/lib/signal-manager';
+import { signalManager, Signals } from '@trace-viewer/base/lib/signal-manager';
 import { OutputAddedSignalPayload } from '../trace-explorer/output-added-signal-payload';
 import { TraceExplorerWidget } from '../trace-explorer/trace-explorer-widget';
 
 export const TraceViewerWidgetOptions = Symbol('TraceViewerWidgetOptions');
 export interface TraceViewerWidgetOptions {
     traceURI: string;
+    traceUUID?: string;
 }
 
 @injectable()
@@ -62,14 +63,16 @@ export class TraceViewerWidget extends ReactWidget {
         this.addClass('theia-trace-open');
         this.backgroundTheme = ThemeService.get().getCurrentTheme().type;
         ThemeService.get().onThemeChange(() => this.updateBackgroundTheme());
-        this.initialize();
+        if (!this.options.traceUUID) {
+            this.initialize();
+        }
         this.tspClient = this.tspClientProvider.getTspClient();
         this.traceManager = this.tspClientProvider.getTraceManager();
-        this.experimentManager = this.experimentManager = this.tspClientProvider.getExperimentManager();
+        this.experimentManager = this.tspClientProvider.getExperimentManager();
         this.tspClientProvider.addTspClientChangeListener(tspClient => {
             this.tspClient = tspClient;
             this.traceManager = this.tspClientProvider.getTraceManager();
-            this.experimentManager = this.experimentManager = this.tspClientProvider.getExperimentManager();
+            this.experimentManager = this.tspClientProvider.getExperimentManager();
         });
         this.toDispose.push(this.widgetManager.onDidCreateWidget(({ widget }) => {
             if (widget instanceof TraceExplorerWidget) {
@@ -78,6 +81,20 @@ export class TraceViewerWidget extends ReactWidget {
             }
         }));
         this.explorerWidget = await this.widgetManager.getOrCreateWidget(TraceExplorerWidget.ID);
+        if (this.options.traceUUID) {
+            const experiment = this.explorerWidget.getExperiment(this.options.traceUUID);
+            if (experiment) {
+                this.openedExperiment = experiment;
+                this.title.label = 'Trace: ' + experiment.name;
+                this.id = experiment.UUID;
+                this.experimentManager.addExperiment(experiment);
+                signalManager().emit(Signals.EXPERIMENT_OPENED, {experiment: experiment});
+                if (this.isVisible) {
+                    this.explorerWidget.onOpenedTracesWidgetActivated(experiment);
+                }
+            }
+            this.update();
+        }
         this.subscribeToExplorerEvents();
         this.toDispose.push(this.toDisposeOnNewExplorer);
         // Make node focusable so it can achieve focus on activate (avoid warning);
@@ -90,11 +107,17 @@ export class TraceViewerWidget extends ReactWidget {
         this.toDisposeOnNewExplorer.dispose();
         this.toDisposeOnNewExplorer.push(this.explorerWidget.outputAddedSignal(output => this.onOutputAdded(output)));
         this.toDisposeOnNewExplorer.push(this.explorerWidget.experimentSelectedSignal(experiment => this.onExperimentSelected(experiment)));
+        signalManager().on(Signals.TRACEVIEWER_CLOSED, (UUID: string) => this.onCloseExperiment(UUID));
     }
 
     protected updateBackgroundTheme(): void {
         const currentThemeType = ThemeService.get().getCurrentTheme().type;
         signalManager().fireThemeChangedSignal(currentThemeType);
+    }
+
+    dispose(): void {
+        super.dispose();
+        signalManager().off(Signals.TRACEVIEWER_CLOSED, (UUID: string) => this.onCloseExperiment(UUID));
     }
 
     async initialize(): Promise<void> {
@@ -106,10 +129,7 @@ export class TraceViewerWidget extends ReactWidget {
 
         // This will show a progress dialog with "Cancel" option
         this.messageService.showProgress({
-            text: 'Open traces',
-            options: {
-                cancelable: true
-            }
+            text: 'Open traces'
         },
             () => {
                 isCancelled.value = true;
@@ -201,10 +221,6 @@ export class TraceViewerWidget extends ReactWidget {
     }
 
     onCloseRequest(msg: Message): void {
-        if (this.openedExperiment) {
-            // Close experiment
-            this.experimentManager.closeExperiment(this.openedExperiment.UUID);
-        }
         this.statusBar.removeElement('time-selection-range');
         super.onCloseRequest(msg);
     }
@@ -226,6 +242,10 @@ export class TraceViewerWidget extends ReactWidget {
 
     protected onResize(): void {
         this.resizeHandlers.forEach(h => h());
+    }
+
+    protected onCloseExperiment(UUID: string): void {
+        this.shell.closeWidget(UUID);
     }
 
     protected render(): React.ReactNode {

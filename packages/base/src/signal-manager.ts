@@ -5,6 +5,7 @@ export declare interface SignalManager {
     fireTooltipSignal(tooltip: { [key: string]: string }): void;
     fireThemeChangedSignal(theme: string): void;
     fireSelectionChangedSignal(payload: { [key: string]: string }): void;
+    fireCloseTraceViewerTabSignal(traceUUID: string): void;
 
 }
 
@@ -16,7 +17,8 @@ export const Signals = {
     EXPERIMENT_SELECTED: 'experiment selected',
     TOOLTIP_UPDATED: 'tooltip updated',
     THEME_CHANGED: 'theme changed',
-    SELECTION_CHANGED: 'selection changed'
+    SELECTION_CHANGED: 'selection changed',
+    TRACEVIEWER_CLOSED: 'tab closed'
 };
 
 export class SignalManager extends EventEmitter implements SignalManager {
@@ -31,6 +33,10 @@ export class SignalManager extends EventEmitter implements SignalManager {
 
     fireSelectionChangedSignal(payload: { [key: string]: string; }): void {
         this.emit(Signals.SELECTION_CHANGED, { payload });
+    }
+
+    fireCloseTraceViewerTabSignal(traceUUID: string): void {
+        this.emit(Signals.TRACEVIEWER_CLOSED, traceUUID);
     }
 
 }
