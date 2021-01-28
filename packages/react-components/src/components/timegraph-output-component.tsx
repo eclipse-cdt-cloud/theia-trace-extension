@@ -109,7 +109,6 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
             const treeResponse = tspClientResponse.getModel();
             // TODO Style should not be retreive in the "initialization" part or at least async
             if (tspClientResponse.isOk() && treeResponse) {
-                this.setState({ timegraphTree: treeResponse.model.entries }, this.updateTotalHeight);
                 const columns: ColumnHeader[] = [];
                 if (treeResponse.model.headers && treeResponse.model.headers.length > 0) {
                     treeResponse.model.headers.forEach(header => {
@@ -118,12 +117,18 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
                 } else {
                     columns.push({title: 'Name', sortable: true});
                 }
-                this.setState({ columns });
                 const tspClientResponse2 = await this.props.tspClient.fetchStyles(this.props.traceId, this.props.outputDescriptor.id, QueryHelper.query());
                 const styleResponse = tspClientResponse2.getModel();
+                let styleModel = undefined;
                 if (tspClientResponse2.isOk() && styleResponse) {
-                    this.setState({ styleModel: styleResponse.model });
+                    styleModel = styleResponse.model;
                 }
+                this.setState({
+                    outputStatus: treeResponse.status,
+                    timegraphTree: treeResponse.model.entries,
+                    columns: columns,
+                    styleModel: styleModel
+                }, this.updateTotalHeight);
             }
             this.chartLayer.updateChart();
         }
