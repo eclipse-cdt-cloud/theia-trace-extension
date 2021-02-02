@@ -20,7 +20,8 @@
     "@trace-viewer/react-components": "0.0.0",
     "@theia/core": "latest",
     "@theia/editor": "latest",
-    "@theia/filesystem": "latest"
+    "@theia/filesystem": "latest",
+    "tree-kill": "latest"
   },
   "devDependencies": {
     "@typescript-eslint/eslint-plugin": "^3.4.0",
@@ -30,8 +31,7 @@
     "eslint-plugin-no-null": "^1.0.2",
     "eslint-plugin-react": "^7.20.0",
     "rimraf": "latest",
-    "typescript": "latest",
-    "tree-kill": "latest"
+    "typescript": "latest"
   },
   "scripts": {
     "build": "tsc -b",
