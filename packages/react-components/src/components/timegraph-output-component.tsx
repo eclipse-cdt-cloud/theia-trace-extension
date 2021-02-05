@@ -41,6 +41,7 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
     private horizontalContainer: React.RefObject<HTMLDivElement>;
 
     private tspDataProvider: TspDataProvider;
+    private styleProvider: StyleProvider;
     private styleMap = new Map<string, TimeGraphRowElementStyle>();
 
     private selectedElement: TimeGraphRowElement | undefined;
@@ -55,6 +56,7 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
         };
         this.onToggleCollapse = this.onToggleCollapse.bind(this);
         this.tspDataProvider = new TspDataProvider(this.props.tspClient, this.props.traceId, this.props.outputDescriptor.id);
+        this.styleProvider = new StyleProvider(this.props.outputDescriptor.id, this.props.traceId, this.props.tspClient);
         this.rowController = new TimeGraphRowController(this.props.style.rowHeight, this.totalHeight);
         this.horizontalContainer = React.createRef();
         const providers: TimeGraphChartProviders = {
@@ -98,6 +100,9 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
     }
 
     async componentDidMount(): Promise<void> {
+        this.setState({
+            styleModel: await this.styleProvider.getStyleModel()
+        });
         this.waitAnalysisCompletion();
     }
 
@@ -117,17 +122,10 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
                 } else {
                     columns.push({title: 'Name', sortable: true});
                 }
-                const tspClientResponse2 = await this.props.tspClient.fetchStyles(this.props.traceId, this.props.outputDescriptor.id, QueryHelper.query());
-                const styleResponse = tspClientResponse2.getModel();
-                let styleModel = undefined;
-                if (tspClientResponse2.isOk() && styleResponse) {
-                    styleModel = styleResponse.model;
-                }
                 this.setState({
                     outputStatus: treeResponse.status,
                     timegraphTree: treeResponse.model.entries,
                     columns: columns,
-                    styleModel: styleModel
                 }, this.updateTotalHeight);
             }
             this.chartLayer.updateChart();

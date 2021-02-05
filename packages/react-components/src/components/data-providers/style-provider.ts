@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { TspClient } from 'tsp-typescript-client/lib/protocol/tsp-client';
 import { QueryHelper } from 'tsp-typescript-client/lib/models/query/query-helper';
-import { OutputElementStyle } from 'tsp-typescript-client/lib/models/styles';
+import { OutputStyleModel } from 'tsp-typescript-client/lib/models/styles';
 
 export class StyleProvider {
     private tspClient: TspClient;
@@ -10,7 +10,7 @@ export class StyleProvider {
 
     private tmpStyleObject: { [key: string]: { [key: string]: { [key: string]: any } } };
 
-    private styles: { [key: string]: OutputElementStyle } | undefined;
+    private styleModel: OutputStyleModel | undefined;
 
     constructor(outputId: string, traceId: string, tspClient: TspClient) {
         this.outputId = outputId;
@@ -80,22 +80,18 @@ export class StyleProvider {
     }
 
     /**
-     * Get the style for a specific output
-     * @param forceUpdate Force the update of the current cached styles from the server
+     * Get the style model for a specific output
+     * @param forceUpdate Force the update of the current cached style model from the server
      */
-    public async getStyles(forceUpdate?: boolean): Promise<{ [key: string]: OutputElementStyle }> {
-        if (!this.styles || forceUpdate) {
+    public async getStyleModel(forceUpdate?: boolean): Promise<OutputStyleModel | undefined> {
+        if (!this.styleModel || forceUpdate) {
             const tspClientResponse = await this.tspClient.fetchStyles(this.traceId, this.outputId, QueryHelper.query());
             const styleResponse = tspClientResponse.getModel();
             if (tspClientResponse.isOk() && styleResponse) {
-                const styleModel = styleResponse.model;
-                const styles = styleModel.styles;
-                this.styles = styles;
-                return styles;
+                this.styleModel = styleResponse.model;
             }
-            this.styles = {};
         }
-        return this.styles;
+        return this.styleModel;
     }
 
     public getStylesTmp(_forceUpdate?: boolean): { [key: string]: { [key: string]: any } } {
