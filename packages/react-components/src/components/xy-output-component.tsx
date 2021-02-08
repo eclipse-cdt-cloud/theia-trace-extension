@@ -4,7 +4,7 @@ import { AbstractTreeOutputComponent } from './abstract-tree-output-component';
 import * as React from 'react';
 import { Line } from 'react-chartjs-2';
 import { QueryHelper } from 'tsp-typescript-client/lib/models/query/query-helper';
-import { Entry, EntryModel } from 'tsp-typescript-client/lib/models/entry';
+import { Entry } from 'tsp-typescript-client/lib/models/entry';
 import { ResponseStatus } from 'tsp-typescript-client/lib/models/response/responses';
 import { XYSeries } from 'tsp-typescript-client/lib/models/xy';
 import Chart = require('chart.js');
@@ -15,12 +15,12 @@ import ColumnHeader from './utils/filtrer-tree/column-header';
 
 type XYOuputState = AbstractOutputState & {
     selectedSeriesId: number[];
-    XYTree: Entry[];
+    xyTree: Entry[];
     checkedSeries: number[];
     collapsedNodes: number[];
     orderedNodes: number[];
     // FIXME Type this properly
-    XYData: any;
+    xyData: any;
     columns: ColumnHeader[];
 };
 
@@ -35,11 +35,11 @@ export class XYOutputComponent extends AbstractTreeOutputComponent<AbstractOutpu
         this.state = {
             outputStatus: ResponseStatus.RUNNING,
             selectedSeriesId: [],
-            XYTree: [],
+            xyTree: [],
             checkedSeries: [],
             collapsedNodes: [],
             orderedNodes: [],
-            XYData: {},
+            xyData: {},
             columns: [{title: 'Name', sortable: true}]
         };
 
@@ -56,16 +56,40 @@ export class XYOutputComponent extends AbstractTreeOutputComponent<AbstractOutpu
         this.waitAnalysisCompletion();
     }
 
+    async fetchTree(): Promise<ResponseStatus> {
+        const parameters = QueryHelper.timeQuery([this.props.range.getstart(), this.props.range.getEnd()]);
+        const tspClientResponse = await this.props.tspClient.fetchXYTree(this.props.traceId, this.props.outputDescriptor.id, parameters);
+        const treeResponse = tspClientResponse.getModel();
+        if (tspClientResponse.isOk() && treeResponse) {
+            if (treeResponse.model) {
+                const headers = treeResponse.model.headers;
+                const columns = [];
+                if (headers && headers.length > 0) {
+                    headers.forEach(header => {
+                        columns.push({title: header.name, sortable: true, tooltip: header.tooltip});
+                    });
+                } else {
+                    columns.push({title: 'Name', sortable: true});
+                }
+                columns.push({title: 'Legend', sortable: false});
+                this.setState({
+                    outputStatus: treeResponse.status,
+                    xyTree: treeResponse.model.entries,
+                    columns
+                });
+            }
+            return treeResponse.status;
+        }
+        return ResponseStatus.FAILED;
+    }
+
     componentDidUpdate(prevProps: AbstractOutputProps, prevState: XYOuputState): void {
         const viewRangeChanged = this.props.viewRange !== prevProps.viewRange;
         const checkedSeriesChanged = this.state.checkedSeries !== prevState.checkedSeries;
         const collapsedNodesChanged = this.state.collapsedNodes !== prevState.collapsedNodes;
-        const needToUpdate = viewRangeChanged || checkedSeriesChanged || !this.state.XYData || !this.state.XYTree.length || collapsedNodesChanged;
-        if (needToUpdate && this.state.outputStatus === ResponseStatus.COMPLETED) {
-            this.updateTree();
-            this.updateXY();
-        }
-        if (prevProps.style.chartWidth !== this.props.style.chartWidth) {
+        const chartWidthChanged = this.props.style.chartWidth !== prevProps.style.chartWidth;
+        const needToUpdate = viewRangeChanged || checkedSeriesChanged || collapsedNodesChanged || chartWidthChanged;
+        if (needToUpdate || prevState.outputStatus === ResponseStatus.RUNNING) {
             this.updateXY();
         }
         if (this.lineChartRef.current) {
@@ -79,9 +103,9 @@ export class XYOutputComponent extends AbstractTreeOutputComponent<AbstractOutpu
         this.onToggleCheck = this.onToggleCheck.bind(this);
         this.onToggleCollapse = this.onToggleCollapse.bind(this);
         this.onOrderChange = this.onOrderChange.bind(this);
-        return this.state.XYTree.length
+        return this.state.xyTree.length
             ? <EntryTree
-                entries={this.state.XYTree}
+                entries={this.state.xyTree}
                 showCheckboxes={true}
                 collapsedNodes={this.state.collapsedNodes}
                 checkedSeries={this.state.checkedSeries}
@@ -120,7 +144,7 @@ export class XYOutputComponent extends AbstractTreeOutputComponent<AbstractOutpu
         // width={this.props.style.chartWidth}
         return <React.Fragment>
             {this.state.outputStatus === ResponseStatus.COMPLETED ?
-                <Line data={this.state.XYData} height={parseInt(this.props.style.height.toString())} options={lineOptions} ref={this.lineChartRef}></Line> :
+                <Line data={this.state.xyData} height={parseInt(this.props.style.height.toString())} options={lineOptions} ref={this.lineChartRef}></Line> :
                 'Analysis running...'}
         </React.Fragment>;
     }
@@ -201,37 +225,6 @@ export class XYOutputComponent extends AbstractTreeOutputComponent<AbstractOutpu
         this.setState({orderedNodes: ids});
     }
 
-    // private async waitAnalysisCompletion() {
-    //     const traceUUID = this.props.traceId;
-    //     const tspClient = this.props.tspClient;
-    //     const outPutId = this.props.outputDescriptor.id;
-
-    //     // TODO Use the output descriptor to find out if the analysis is completed
-    //     const xyTreeParameters = QueryHelper.selectionTimeQuery(
-    //         QueryHelper.splitRangeIntoEqualParts(this.props.range.getstart(), this.props.range.getEnd(), 1120), []); // , [], { 'cpus': [] }
-    //     let xyTreeResponse = (await tspClient.fetchXYTree<Entry, EntryHeader>(traceUUID, outPutId, xyTreeParameters)).getModel();
-    //     while (xyTreeResponse.status === ResponseStatus.RUNNING) {
-    //         xyTreeResponse = (await tspClient.fetchXYTree<Entry, EntryHeader>(traceUUID, outPutId, xyTreeParameters)).getModel();
-    //     }
-    //     this.setState({
-    //         outputStatus: xyTreeResponse.status
-    //     });
-    // }
-
-    private async updateTree() {
-        // TODO Remove cpus parameters at some point. This is very specific to Trace Compass server
-        const xyTreeParameters = QueryHelper.selectionTimeQuery(
-            QueryHelper.splitRangeIntoEqualParts(this.props.range.getstart(), this.props.range.getEnd(), 1120), []); // , [], { 'cpus': [] }
-        const tspClientResponse = await this.props.tspClient.fetchXYTree(this.props.traceId, this.props.outputDescriptor.id, xyTreeParameters);
-        const xyTreeResponse = tspClientResponse.getModel();
-        if (tspClientResponse.isOk() && xyTreeResponse) {
-            const treeModel = xyTreeResponse.model;
-            if (treeModel) {
-                this.buildTreeNodes(treeModel);
-            }
-        }
-    }
-
     private async updateXY() {
         let start = 1332170682440133097;
         let end = 1332170682540133097;
@@ -271,25 +264,7 @@ export class XYOutputComponent extends AbstractTreeOutputComponent<AbstractOutpu
         };
 
         this.setState({
-            XYData: lineData
-        });
-    }
-
-    private buildTreeNodes(entryModel: EntryModel<Entry>) {
-        const tree: Entry[] = entryModel.entries;
-        const headers = entryModel.headers;
-        const columns: ColumnHeader[] = [];
-        if (headers && headers.length > 0) {
-            headers.forEach(header => {
-                columns.push({title: header.name, sortable: true, tooltip: header.tooltip});
-            });
-        } else {
-            columns.push({title: 'Name', sortable: true});
-        }
-        columns.push({title: 'Legend', sortable: false});
-        this.setState({
-            XYTree: tree,
-            columns
+            xyData: lineData
         });
     }
 
