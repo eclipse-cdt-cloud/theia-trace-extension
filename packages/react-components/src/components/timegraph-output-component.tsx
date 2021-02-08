@@ -106,17 +106,16 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
         this.waitAnalysisCompletion();
     }
 
-    async componentDidUpdate(_prevProps: TimegraphOutputProps, _prevState: TimegraphOutputState): Promise<void> {
-        if (this.state.outputStatus !== ResponseStatus.COMPLETED || !this.state.timegraphTree.length) {
-            const treeParameters = QueryHelper.timeQuery([0, 1]);
-            const tspClientResponse = await this.props.tspClient.fetchTimeGraphTree(this.props.traceId,
-                this.props.outputDescriptor.id, treeParameters);
-            const treeResponse = tspClientResponse.getModel();
-            // TODO Style should not be retreive in the "initialization" part or at least async
-            if (tspClientResponse.isOk() && treeResponse) {
-                const columns: ColumnHeader[] = [];
-                if (treeResponse.model.headers && treeResponse.model.headers.length > 0) {
-                    treeResponse.model.headers.forEach(header => {
+    async fetchTree(): Promise<ResponseStatus> {
+        const parameters = QueryHelper.timeQuery([this.props.range.getstart(), this.props.range.getEnd()]);
+        const tspClientResponse = await this.props.tspClient.fetchTimeGraphTree(this.props.traceId, this.props.outputDescriptor.id, parameters);
+        const treeResponse = tspClientResponse.getModel();
+        if (tspClientResponse.isOk() && treeResponse) {
+            if (treeResponse.model) {
+                const headers = treeResponse.model.headers;
+                const columns = [];
+                if (headers && headers.length > 0) {
+                    headers.forEach(header => {
                         columns.push({title: header.name, sortable: true, tooltip: header.tooltip});
                     });
                 } else {
@@ -125,13 +124,17 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
                 this.setState({
                     outputStatus: treeResponse.status,
                     timegraphTree: treeResponse.model.entries,
-                    columns: columns,
+                    columns,
                 }, this.updateTotalHeight);
             }
-            this.chartLayer.updateChart();
+            return treeResponse.status;
         }
+        return ResponseStatus.FAILED;
+    }
 
-        if (this.state.collapsedNodes !== _prevState.collapsedNodes) {
+    async componentDidUpdate(prevProps: TimegraphOutputProps, prevState: TimegraphOutputState): Promise<void> {
+        if (prevState.outputStatus === ResponseStatus.RUNNING ||
+            this.state.collapsedNodes !== prevState.collapsedNodes) {
             this.chartLayer.updateChart();
         }
     }

@@ -1,6 +1,5 @@
 import { AbstractOutputComponent, AbstractOutputProps, AbstractOutputState } from './abstract-output-component';
 import * as React from 'react';
-import { QueryHelper } from 'tsp-typescript-client/lib/models/query/query-helper';
 import { ResponseStatus } from 'tsp-typescript-client/lib/models/response/responses';
 
 export abstract class AbstractTreeOutputComponent<P extends AbstractOutputProps, S extends AbstractOutputState> extends AbstractOutputComponent<P, S> {
@@ -30,24 +29,14 @@ export abstract class AbstractTreeOutputComponent<P extends AbstractOutputProps,
 
     abstract synchronizeTreeScroll(): void;
 
-    protected async waitAnalysisCompletion(): Promise<void> {
-        const traceUUID = this.props.traceId;
-        const tspClient = this.props.tspClient;
-        const outPutId = this.props.outputDescriptor.id;
+    abstract fetchTree(): Promise<ResponseStatus>;
 
-        // TODO Use the output descriptor to find out if the analysis is completed
-        const xyTreeParameters = QueryHelper.selectionTimeQuery(
-            QueryHelper.splitRangeIntoEqualParts(this.props.range.getstart(), this.props.range.getEnd(), 1120), []);
-        let tspClientResponse = await tspClient.fetchXYTree(traceUUID, outPutId, xyTreeParameters);
-        let xyTreeResponse = tspClientResponse.getModel();
-        while (tspClientResponse.isOk() && xyTreeResponse && xyTreeResponse.status === ResponseStatus.RUNNING) {
-            tspClientResponse = await tspClient.fetchXYTree(traceUUID, outPutId, xyTreeParameters);
-            xyTreeResponse = tspClientResponse.getModel();
-        }
-        if (tspClientResponse.isOk() && xyTreeResponse) {
-            this.setState({
-                outputStatus: xyTreeResponse.status
-            });
+    protected async waitAnalysisCompletion(): Promise<void> {
+        let outputStatus = this.state.outputStatus;
+        const timeout = 500;
+        while (this.state && outputStatus === ResponseStatus.RUNNING) {
+            outputStatus = await this.fetchTree();
+            await new Promise(resolve => setTimeout(resolve, timeout));
         }
     }
 
