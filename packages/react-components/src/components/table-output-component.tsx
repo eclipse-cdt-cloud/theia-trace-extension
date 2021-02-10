@@ -82,15 +82,21 @@ export class TableOutputComponent extends AbstractOutputComponent<TableOutputPro
         </div>;
     }
 
-    componentDidMount() {
+    componentDidMount(): void {
         this.props.unitController.onSelectionRangeChange(range => { this.handleTimeSelectionChange(range); });
     }
 
-    componentWillUnmount() {
+    componentWillUnmount(): void {
         // TODO: replace with removing the handler from unit controller
         // See timeline-chart issue #98
         // In the meantime, replace the handler with a noop on unmount
         this.handleTimeSelectionChange = () => Promise.resolve();
+    }
+
+    async componentDidUpdate(prevProps: TableOutputProps, prevState: TableOuputState): Promise<void> {
+        if (this.props.nbEvents !== prevProps.nbEvents) {
+            this.gridApi?.setInfiniteRowCount(this.props.nbEvents);
+        }
     }
 
     private onEventClick(event: CellClickedEvent) {
