@@ -15535,9 +15535,9 @@ tslib@^1.10.0, tslib@^1.8.1, tslib@^1.9.0:
   integrity sha512-Xni35NKzjgMrwevysHTCArtLDpPvye8zV/0E4EyYn43P7/7qvQwPh9BGkHewbMulVntbigmcT7rdX3BNo9wRJg==
 
 tsp-typescript-client@next:
-  version "0.2.0-next.c51bd05"
-  resolved "https://registry.yarnpkg.com/tsp-typescript-client/-/tsp-typescript-client-0.2.0-next.c51bd05.tgz#cf4d0ad5c26091b27f6d6cebf943fd5560075095"
-  integrity sha512-cyVEENtEyKJ62Jdd7vlgDRAus/CX6XOK0Y5O1FYSLvbmlFuPx6wd8AHbIyq+7GqonvPFvMJFRG8C7YzO/swuRg==
+  version "0.2.0-next.799187d"
+  resolved "https://registry.yarnpkg.com/tsp-typescript-client/-/tsp-typescript-client-0.2.0-next.799187d.tgz#3e2073014b942f6b7d130dccaa8091493856b9d2"
+  integrity sha512-TXPzObPEWLzJgqgrPrrOCA8ri3lHOuzZLDEyniPDUfHbMK06et6ivBsXIYaRwXllw3IHGgtE5Rzf3CTrmOL94Q==
   dependencies:
     node-fetch "^2.5.0"
 
