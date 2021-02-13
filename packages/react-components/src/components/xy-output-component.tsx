@@ -29,6 +29,25 @@ export class XYOutputComponent extends AbstractTreeOutputComponent<AbstractOutpu
     private colorMap: Map<string, number> = new Map();
 
     private lineChartRef: any;
+    private mouseIsDown = false;
+    private posPixelSelect = 0;
+
+    private updateSelection = (event: MouseEvent) => {
+        if (this.mouseIsDown && this.props.unitController.selectionRange) {
+            const xStartPos = this.props.unitController.selectionRange.start;
+            const scale = this.props.viewRange.getEnd() - this.props.viewRange.getstart();
+            this.props.unitController.selectionRange = {
+                start: xStartPos,
+                end: xStartPos + ((event.screenX - this.posPixelSelect) / this.lineChartRef.current.chartInstance.width) * scale
+            };
+        }
+    };
+
+    private endSelection = () => {
+        this.mouseIsDown = false;
+        document.removeEventListener('mousemove', this.updateSelection);
+        document.removeEventListener('mouseup', this.endSelection);
+    };
 
     constructor(props: AbstractOutputProps) {
         super(props);
@@ -140,11 +159,19 @@ export class XYOutputComponent extends AbstractTreeOutputComponent<AbstractOutpu
                 yAxes: [{ display: false }]
             },
             animation: { duration: 0 },
+            events: [ 'mousedown' ],
         };
         // width={this.props.style.chartWidth}
         return <React.Fragment>
             {this.state.outputStatus === ResponseStatus.COMPLETED ?
-                <Line data={this.state.xyData} height={parseInt(this.props.style.height.toString())} options={lineOptions} ref={this.lineChartRef}></Line> :
+                <div onMouseDown={event => this.beginSelection(event)}>
+                    <Line
+                        data={this.state.xyData}
+                        height={parseInt(this.props.style.height.toString())}
+                        options={lineOptions}
+                        ref={this.lineChartRef}>
+                    </Line>
+                </div> :
                 'Analysis running...'}
         </React.Fragment>;
     }
@@ -223,6 +250,21 @@ export class XYOutputComponent extends AbstractTreeOutputComponent<AbstractOutpu
 
     private onOrderChange(ids: number[]) {
         this.setState({orderedNodes: ids});
+    }
+
+    private beginSelection(event: React.MouseEvent<HTMLDivElement, MouseEvent>) {
+        this.mouseIsDown = true;
+        this.posPixelSelect = event.nativeEvent.screenX;
+        const offset = this.props.viewRange.getOffset() ?? 0;
+        const scale = this.props.viewRange.getEnd() - this.props.viewRange.getstart();
+        const xPos = this.props.viewRange.getstart() - offset +
+            (event.nativeEvent.offsetX / this.lineChartRef.current.chartInstance.width) * scale;
+        this.props.unitController.selectionRange = {
+            start: xPos,
+            end: xPos
+        };
+        document.addEventListener('mousemove', this.updateSelection);
+        document.addEventListener('mouseup', this.endSelection);
     }
 
     private async updateXY() {
