@@ -181,28 +181,41 @@ export class XYOutputComponent extends AbstractTreeOutputComponent<AbstractOutpu
         const xScale = (chart as any).scales['time-axis'];
         const ticks: number[] = xScale.ticks;
         if (ctx && this.props.selectionRange) {
-            const valueStart = this.findNearestValue(this.props.selectionRange.getstart(), ticks);
-            const valueEnd = this.findNearestValue(this.props.selectionRange.getEnd(), ticks);
-            const pixelStart = xScale.getPixelForValue(this.props.selectionRange.getstart(), valueStart);
-            const pixelEnd = xScale.getPixelForValue(this.props.selectionRange.getEnd(), valueEnd);
+            const min = Math.min(this.props.selectionRange.getstart(), this.props.selectionRange.getEnd());
+            const max = Math.max(this.props.selectionRange.getstart(), this.props.selectionRange.getEnd());
+            // If the selection is out of range
+            if (min > this.props.viewRange.getEnd() || max < this.props.viewRange.getstart()) {
+                return;
+            }
+            const minValue = this.findNearestValue(min, ticks);
+            const minPixel = xScale.getPixelForValue(min, minValue);
+            const maxValue = this.findNearestValue(max, ticks);
+            let maxPixel = xScale.getPixelForValue(max, maxValue);
+            // In the case the selection is going out of bounds, the pixelValue needs to be in the displayed range.
+            if (maxPixel === 0) {
+                maxPixel = chart.chartArea.right;
+            }
             ctx.save();
 
             ctx.lineWidth = 1;
             ctx.strokeStyle = '#259fd8';
-
-            ctx.beginPath();
-            ctx.moveTo(pixelStart, 0);
-            ctx.lineTo(pixelStart, chart.chartArea.bottom);
-            ctx.stroke();
-
-            ctx.beginPath();
-            ctx.moveTo(pixelEnd, 0);
-            ctx.lineTo(pixelEnd, chart.chartArea.bottom);
-            ctx.stroke();
-
+            // Selection borders
+            if (min > this.props.viewRange.getstart()) {
+                ctx.beginPath();
+                ctx.moveTo(minPixel, 0);
+                ctx.lineTo(minPixel, chart.chartArea.bottom);
+                ctx.stroke();
+            }
+            if (max < this.props.viewRange.getEnd()) {
+                ctx.beginPath();
+                ctx.moveTo(maxPixel, 0);
+                ctx.lineTo(maxPixel, chart.chartArea.bottom);
+                ctx.stroke();
+            }
+            // Selection fill
             ctx.globalAlpha = 0.2;
             ctx.fillStyle = '#259fd8';
-            ctx.fillRect(pixelStart, 0, pixelEnd - pixelStart, chart.chartArea.bottom);
+            ctx.fillRect(minPixel, 0, maxPixel - minPixel, chart.chartArea.bottom);
 
             ctx.restore();
         }
