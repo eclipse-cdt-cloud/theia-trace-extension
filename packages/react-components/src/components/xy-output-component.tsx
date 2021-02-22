@@ -31,7 +31,9 @@ export class XYOutputComponent extends AbstractTreeOutputComponent<AbstractOutpu
     private lineChartRef: any;
     private mouseIsDown = false;
     private posPixelSelect = 0;
-
+    private plugin = {
+        afterDraw: (chartInstance: Chart, _easing: Chart.Easing, _options?: any) => { this.afterChartDraw(chartInstance); }
+    };
     private updateSelection = (event: MouseEvent) => {
         if (this.mouseIsDown && this.props.unitController.selectionRange) {
             const xStartPos = this.props.unitController.selectionRange.start;
@@ -63,11 +65,6 @@ export class XYOutputComponent extends AbstractTreeOutputComponent<AbstractOutpu
         };
 
         this.afterChartDraw = this.afterChartDraw.bind(this);
-        Chart.pluginService.register({
-            afterDraw: (chart, _easing) => {
-                this.afterChartDraw(chart);
-            }
-        });
         this.lineChartRef = React.createRef();
     }
 
@@ -169,7 +166,8 @@ export class XYOutputComponent extends AbstractTreeOutputComponent<AbstractOutpu
                         data={this.state.xyData}
                         height={parseInt(this.props.style.height.toString())}
                         options={lineOptions}
-                        ref={this.lineChartRef}>
+                        ref={this.lineChartRef}
+                        plugins={[this.plugin]}>
                     </Line>
                 </div> :
                 'Analysis running...'}
