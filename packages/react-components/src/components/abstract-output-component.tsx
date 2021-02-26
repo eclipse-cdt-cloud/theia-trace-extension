@@ -43,7 +43,7 @@ export interface AbstractOutputState {
 export abstract class AbstractOutputComponent<P extends AbstractOutputProps, S extends AbstractOutputState> extends React.Component<P, S> {
 
     private mainAreaContainer: React.RefObject<HTMLDivElement>;
-    private readonly HANDLE_WIDTH = 30;
+    private readonly HANDLE_HEIGHT = 20;
 
     constructor(props: P) {
         super(props);
@@ -62,11 +62,11 @@ export abstract class AbstractOutputComponent<P extends AbstractOutputProps, S e
             onTouchStart={this.props.onTouchStart}
             onTouchEnd={this.props.onTouchEnd}
            >
-            <div className='widget-handle' style={{ width: this.HANDLE_WIDTH, height:this.props.style.height }}>
+            <div className='widget-handle' style={{ width: '100%', height: this.getHandleHeight()}}>
                 {this.renderTitleBar()}
             </div>
             <div className='main-output-container' ref={this.mainAreaContainer}
-            style={{ width: this.props.widthWPBugWorkaround - this.HANDLE_WIDTH, height:this.props.style.height }}>
+            style={{ width: this.props.widthWPBugWorkaround, height: parseInt(this.props.style.height.toString()) - this.getHandleHeight() }}>
                 {this.renderMainArea()}
             </div>
             {this.props.children}
@@ -76,12 +76,15 @@ export abstract class AbstractOutputComponent<P extends AbstractOutputProps, S e
     private renderTitleBar(): React.ReactNode {
         const outputName = this.props.outputDescriptor.name;
         return <React.Fragment>
-            <button className='remove-component-button' onClick={this.closeComponent}>
-                <FontAwesomeIcon icon={faTimes} />
-            </button>
             <div className='title-bar-label'>
                 {outputName}
             </div>
+            <div className='remove-button-panel'>
+                <button className='remove-component-button' onClick={this.closeComponent}>
+                    <FontAwesomeIcon icon={faTimes} />
+                </button>
+            </div>
+
         </React.Fragment>;
     }
 
@@ -96,8 +99,8 @@ export abstract class AbstractOutputComponent<P extends AbstractOutputProps, S e
         return 1000;
     }
 
-    public getHandleWidth(): number {
-        return this.HANDLE_WIDTH;
+    public getHandleHeight(): number {
+        return this.HANDLE_HEIGHT;
     }
 
     abstract renderMainArea(): React.ReactNode;

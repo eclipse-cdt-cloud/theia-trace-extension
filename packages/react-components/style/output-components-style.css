@@ -1,25 +1,24 @@
 /* Output component styling */
 /* Main container*/
 .output-container {
-    display: flex;
     color: var(--theia-ui-font-color0)
 }
 
 .widget-handle {
     background-color: var(--theia-layout-color4);
-    display: grid;
+    display: flex;
     grid-template-rows: 25px 1fr;
 }
 .title-bar-label {
-    text-align: center;
-    writing-mode: vertical-rl;
-    height: 50%;
-    min-height: 150px;
-    transform: rotate(180deg);
+    text-align: left;
     user-select: none;
     align-self: center;
     justify-self: center;
     cursor: move;
+    flex: 1;
+    font-weight: bold;
+    padding-bottom: 5px;
+    color: white;
 }
 .remove-component-button {
     background: none;
@@ -27,7 +26,11 @@
     padding: 2px 8px;
     align-self: center;
     justify-self: center;
-    color: var(--theia-ui-font-color0)
+    color: var(--theia-ui-font-color0);
+}
+.remove-button-panel {
+    flex: 1;
+    text-align: right;
 }
 
 .main-output-container {

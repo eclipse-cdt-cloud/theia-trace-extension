@@ -116,10 +116,10 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
                 const columns = [];
                 if (headers && headers.length > 0) {
                     headers.forEach(header => {
-                        columns.push({title: header.name, sortable: true, tooltip: header.tooltip});
+                        columns.push({ title: header.name, sortable: true, tooltip: header.tooltip });
                     });
                 } else {
-                    columns.push({title: 'Name', sortable: true});
+                    columns.push({ title: 'Name', sortable: true });
                 }
                 this.setState({
                     outputStatus: treeResponse.status,
@@ -197,7 +197,8 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
     renderChart(): React.ReactNode {
         return <React.Fragment>
             {this.state.outputStatus === ResponseStatus.COMPLETED ?
-                <div id='timegraph-main' className='ps__child--consume' onWheel={ev => { ev.preventDefault(); ev.stopPropagation(); }} style={{ height: this.props.style.height }} >
+                <div id='timegraph-main' className='ps__child--consume' onWheel={ev => { ev.preventDefault(); ev.stopPropagation(); }}
+                    style={{ height: parseInt(this.props.style.height.toString()) - this.getHandleHeight() }} >
                     {this.renderTimeGraphContent()}
                 </div> :
                 'Analysis running...'}
@@ -205,7 +206,7 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
     }
 
     private renderTimeGraphContent() {
-        return <div id='main-timegraph-content' ref={this.horizontalContainer} style={{ height: this.props.style.height }} >
+        return <div id='main-timegraph-content' ref={this.horizontalContainer} style={{ height: parseInt(this.props.style.height.toString()) - this.getHandleHeight() }} >
             {this.getChartContainer()}
         </div>;
     }
@@ -217,7 +218,7 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
             options={
                 {
                     id: 'timegraph-chart',
-                    height: parseInt(this.props.style.height.toString()),
+                    height: parseInt(this.props.style.height.toString()) - this.getHandleHeight(),
                     width: this.props.style.chartWidth, // this.props.style.mainWidth,
                     backgroundColor: this.props.style.chartBackgroundColor,
                     classNames: 'horizontal-canvas'
@@ -239,7 +240,7 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
             options={{
                 id: 'vscroll',
                 width: 10,
-                height: parseInt(this.props.style.height.toString()),
+                height: parseInt(this.props.style.height.toString()) - this.getHandleHeight(),
                 backgroundColor: this.props.style.naviBackgroundColor
             }}
             onWidgetResize={this.props.addWidgetResizeHandler}

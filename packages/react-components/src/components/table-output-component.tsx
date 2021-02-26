@@ -63,7 +63,7 @@ export class TableOutputComponent extends AbstractOutputComponent<TableOutputPro
     renderMainArea(): React.ReactNode {
         return <div id='events-table'
             className={this.props.backgroundTheme === 'light' ? 'ag-theme-balham' : 'ag-theme-balham-dark'}
-            style={{ height: this.props.style.height, width: this.props.widthWPBugWorkaround }}>
+            style={{ height: parseInt(this.props.style.height.toString()) - this.getHandleHeight(), width: this.props.widthWPBugWorkaround }}>
             <AgGridReact
                 columnDefs={this.columnArray}
                 rowModelType='infinite'
@@ -200,7 +200,7 @@ export class TableOutputComponent extends AbstractOutputComponent<TableOutputPro
 
                 });
             });
-            }
+        }
 
         if (!this.showIndexColumn) {
             columnsArray[0].cellRenderer = 'loadingRenderer';
@@ -238,7 +238,7 @@ export class TableOutputComponent extends AbstractOutputComponent<TableOutputPro
         const tspClient = this.props.tspClient;
         const outputId = this.props.outputDescriptor.id;
         const tspClientResponse = await tspClient.fetchTableLines(traceUUID, outputId,
-            QueryHelper.timeQuery([timestamp], {[QueryHelper.REQUESTED_TABLE_COUNT_KEY]: 1}));
+            QueryHelper.timeQuery([timestamp], { [QueryHelper.REQUESTED_TABLE_COUNT_KEY]: 1 }));
         const lineResponse = tspClientResponse.getModel();
         if (!tspClientResponse.isOk() || !lineResponse) {
             return undefined;

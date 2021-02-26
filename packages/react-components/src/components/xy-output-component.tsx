@@ -61,7 +61,7 @@ export class XYOutputComponent extends AbstractTreeOutputComponent<AbstractOutpu
             collapsedNodes: [],
             orderedNodes: [],
             xyData: {},
-            columns: [{title: 'Name', sortable: true}]
+            columns: [{ title: 'Name', sortable: true }]
         };
 
         this.afterChartDraw = this.afterChartDraw.bind(this);
@@ -82,12 +82,12 @@ export class XYOutputComponent extends AbstractTreeOutputComponent<AbstractOutpu
                 const columns = [];
                 if (headers && headers.length > 0) {
                     headers.forEach(header => {
-                        columns.push({title: header.name, sortable: true, tooltip: header.tooltip});
+                        columns.push({ title: header.name, sortable: true, tooltip: header.tooltip });
                     });
                 } else {
-                    columns.push({title: 'Name', sortable: true});
+                    columns.push({ title: 'Name', sortable: true });
                 }
-                columns.push({title: 'Legend', sortable: false});
+                columns.push({ title: 'Legend', sortable: false });
                 this.setState({
                     outputStatus: treeResponse.status,
                     xyTree: treeResponse.model.entries,
@@ -156,7 +156,7 @@ export class XYOutputComponent extends AbstractTreeOutputComponent<AbstractOutpu
                 yAxes: [{ display: false }]
             },
             animation: { duration: 0 },
-            events: [ 'mousedown' ],
+            events: ['mousedown'],
         };
         // width={this.props.style.chartWidth}
         return <React.Fragment>
@@ -164,7 +164,7 @@ export class XYOutputComponent extends AbstractTreeOutputComponent<AbstractOutpu
                 <div onMouseDown={event => this.beginSelection(event)}>
                     <Line
                         data={this.state.xyData}
-                        height={parseInt(this.props.style.height.toString())}
+                        height={parseInt(this.props.style.height.toString()) - this.getHandleHeight()}
                         options={lineOptions}
                         ref={this.lineChartRef}
                         plugins={[this.plugin]}>
@@ -242,7 +242,7 @@ export class XYOutputComponent extends AbstractTreeOutputComponent<AbstractOutpu
                 newList = newList.concat(id);
             }
         });
-        this.setState({checkedSeries: newList});
+        this.setState({ checkedSeries: newList });
     }
 
     private onToggleCollapse(id: number, nodes: TreeNode[]) {
@@ -256,11 +256,11 @@ export class XYOutputComponent extends AbstractTreeOutputComponent<AbstractOutpu
             newList = newList.concat(id);
         }
         const orderedIds = getAllExpandedNodeIds(nodes, newList);
-        this.setState({collapsedNodes: newList, orderedNodes: orderedIds});
+        this.setState({ collapsedNodes: newList, orderedNodes: orderedIds });
     }
 
     private onOrderChange(ids: number[]) {
-        this.setState({orderedNodes: ids});
+        this.setState({ orderedNodes: ids });
     }
 
     private beginSelection(event: React.MouseEvent<HTMLDivElement, MouseEvent>) {

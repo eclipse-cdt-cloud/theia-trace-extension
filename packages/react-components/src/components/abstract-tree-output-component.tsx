@@ -4,16 +4,17 @@ import { ResponseStatus } from 'tsp-typescript-client/lib/models/response/respon
 
 export abstract class AbstractTreeOutputComponent<P extends AbstractOutputProps, S extends AbstractOutputState> extends AbstractOutputComponent<P, S> {
     renderMainArea(): React.ReactNode {
-        const treeWidth = this.props.widthWPBugWorkaround - this.getHandleWidth() - this.props.style.chartWidth;
+        const treeWidth = this.props.widthWPBugWorkaround - this.props.style.chartWidth;
+        const componentHeight = parseInt(this.props.style.height.toString()) - this.getHandleHeight();
         return <React.Fragment>
             <div ref={this.treeRef} className='output-component-tree'
                 onScroll={_ev => { this.synchronizeTreeScroll(); }}
-                style={{ width: treeWidth, height: this.props.style.height }}
+                style={{ width: treeWidth, height: componentHeight }}
             >
                 {this.renderTree()}
             </div>
             <div className='output-component-chart' style={{
-                width: this.props.style.chartWidth, height: this.props.style.height,
+                width: this.props.style.chartWidth, height: componentHeight,
                 backgroundColor: '#' + this.props.style.chartBackgroundColor.toString(16)
             }}>
                 {this.renderChart()}
