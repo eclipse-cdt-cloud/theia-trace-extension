@@ -415,10 +415,15 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
                     if (currentStyle['height']) {
                         symbolSize = currentStyle['height'] * symbolSize;
                     }
+                    let vAlign = 'center';
+                    if (currentStyle['vertical-align']) {
+                        vAlign = currentStyle['vertical-align'];
+                    }
                     return {
                         symbol: currentStyle['symbol-type'],
                         size: symbolSize,
-                        color: color
+                        color: color,
+                        verticalAlign: vAlign
                     };
                 }
             }
