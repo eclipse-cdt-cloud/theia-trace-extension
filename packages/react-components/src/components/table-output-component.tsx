@@ -77,6 +77,7 @@ export class TableOutputComponent extends AbstractOutputComponent<TableOutputPro
                 onCellClicked={this.onEventClick}
                 rowSelection='single'
                 onModelUpdated={this.onModelUpdated}
+                enableCellTextSelection={true}
             >
             </AgGridReact>
         </div>;
