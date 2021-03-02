@@ -45,6 +45,8 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
     private styleMap = new Map<string, TimeGraphRowElementStyle>();
 
     private selectedElement: TimeGraphRowElement | undefined;
+    private tooltipElement: TimeGraphRowElement | undefined;
+    private tooltipInfo: {[key: string]: string} | undefined;
 
     constructor(props: TimegraphOutputProps) {
         super(props);
@@ -89,6 +91,14 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
                 this.selectedElement = undefined;
             }
             this.onElementSelected(this.selectedElement);
+        });
+        this.chartLayer.registerRowElementMouseInteractions({
+            mouseover: el => {
+                this.props.tooltipComponent?.setElement(el, () => this.fetchTooltip(el));
+            },
+            mouseout: () => {
+                this.props.tooltipComponent?.setElement(undefined);
+            }
         });
         signalManager().on(Signals.SELECTION_CHANGED, ({ payload }) => this.onSelectionChanged(payload));
     }
@@ -202,6 +212,29 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
                 </div> :
                 'Analysis running...'}
         </React.Fragment>;
+    }
+
+    private async fetchTooltip(element: TimeGraphRowElement): Promise<{ [key: string]: string } | undefined> {
+        const elementRange = element.model.range;
+        const offset = this.props.viewRange.getOffset();
+        let start: string | undefined;
+        let end: string | undefined;
+        if (this.props.unitController.numberTranslator) {
+            start = this.props.unitController.numberTranslator(elementRange.start);
+            end = this.props.unitController.numberTranslator(elementRange.end);
+        }
+        start = start ? start : (elementRange.start + (offset ? offset : 0)).toString();
+        end = end ? end : (elementRange.end + (offset ? offset : 0)).toString();
+        const time = Math.round(elementRange.start + (offset ? offset : 0));
+        const tooltipResponse = await this.props.tspClient.fetchTimeGraphToolTip(
+            this.props.traceId, this.props.outputDescriptor.id, time, element.row.model.id.toString());
+        return {
+            'Label': element.model.label,
+            'Start time': start,
+            'End time': end,
+            'Row': element.row.model.name,
+            ...tooltipResponse.getModel()?.model
+        };
     }
 
     private renderTimeGraphContent() {

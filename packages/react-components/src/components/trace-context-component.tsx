@@ -21,6 +21,8 @@ import { NullOutputComponent } from './null-output-component';
 import { AbstractOutputProps } from './abstract-output-component';
 import * as Messages from '@trace-viewer/base/lib/message-manager';
 import { signalManager, Signals } from '@trace-viewer/base/lib/signal-manager';
+import ReactTooltip from 'react-tooltip';
+import { TooltipComponent } from './tooltip-component';
 
 const ResponsiveGridLayout = WidthProvider(Responsive);
 
@@ -58,7 +60,7 @@ export class TraceContextComponent extends React.Component<TraceContextProps, Tr
     private readonly SCROLLBAR_PADDING: number = 12;
 
     private unitController: TimeGraphUnitController;
-
+    private tooltipComponent: React.RefObject<TooltipComponent>;
     private traceContextContainer: React.RefObject<HTMLDivElement>;
 
     protected widgetResizeHandlers: (() => void)[] = [];
@@ -108,6 +110,7 @@ export class TraceContextComponent extends React.Component<TraceContextProps, Tr
         };
         this.unitController.onSelectionRangeChange(range => { this.handleTimeSelectionChange(range); });
         this.unitController.onViewRangeChanged(viewRangeParam => { this.handleViewRangeChange(viewRangeParam); });
+        this.tooltipComponent = React.createRef();
         this.traceContextContainer = React.createRef();
         this.initialize();
         signalManager().on(Signals.THEME_CHANGED, (theme: string) => this.updateBackgroundTheme(theme));
@@ -180,6 +183,11 @@ export class TraceContextComponent extends React.Component<TraceContextProps, Tr
         this.props.messageManager.removeStatusMessage(this.TIME_SELECTION_STATUS_BAR_KEY);
     }
 
+    async componentDidUpdate(): Promise<void> {
+        // Rebuild enables tooltip on newly added output component
+        ReactTooltip.rebuild();
+    }
+
     private onResize() {
         const newWidth = this.traceContextContainer.current ? this.traceContextContainer.current.clientWidth - this.SCROLLBAR_PADDING : this.DEFAULT_COMPONENT_WIDTH;
         this.setState(prevState => ({ style: { ...prevState.style, width: newWidth, chartWidth: this.getChartWidth(newWidth) } }));
@@ -211,6 +219,7 @@ export class TraceContextComponent extends React.Component<TraceContextProps, Tr
 
     render(): JSX.Element {
         return <div className='trace-context-container' ref={this.traceContextContainer}>
+            <TooltipComponent ref={this.tooltipComponent} />
             {this.props.outputs.length ? this.renderOutputs() : this.renderPlaceHolder()}
         </div>;
     }
@@ -233,6 +242,7 @@ export class TraceContextComponent extends React.Component<TraceContextProps, Tr
                     const responseType = output.type;
                     const outputProps: AbstractOutputProps = {
                         tspClient: this.props.tspClient,
+                        tooltipComponent: this.tooltipComponent.current,
                         traceId: this.state.experiment.UUID,
                         outputDescriptor: output,
                         range: this.state.currentRange,

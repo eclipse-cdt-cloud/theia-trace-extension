@@ -7,9 +7,11 @@ import { TimeGraphUnitController } from 'timeline-chart/lib/time-graph-unit-cont
 import { TimeRange } from '@trace-viewer/base/lib/utils/time-range';
 import { OutputComponentStyle } from './utils/output-component-style';
 import { OutputStyleModel } from 'tsp-typescript-client/lib/models/styles';
+import { TooltipComponent } from './tooltip-component';
 
 export interface AbstractOutputProps {
     tspClient: TspClient;
+    tooltipComponent: TooltipComponent | null;
     traceId: string;
     range: TimeRange;
     nbEvents: number;
@@ -61,12 +63,13 @@ export abstract class AbstractOutputComponent<P extends AbstractOutputProps, S e
             onMouseDown={this.props.onMouseDown}
             onTouchStart={this.props.onTouchStart}
             onTouchEnd={this.props.onTouchEnd}
-           >
+            data-tip=''
+            data-for="tooltip-component">
             <div className='widget-handle' style={{ width: this.HANDLE_WIDTH, height:this.props.style.height }}>
                 {this.renderTitleBar()}
             </div>
             <div className='main-output-container' ref={this.mainAreaContainer}
-            style={{ width: this.props.widthWPBugWorkaround - this.HANDLE_WIDTH, height:this.props.style.height }}>
+                style={{ width: this.props.widthWPBugWorkaround - this.HANDLE_WIDTH, height:this.props.style.height }}>
                 {this.renderMainArea()}
             </div>
             {this.props.children}
