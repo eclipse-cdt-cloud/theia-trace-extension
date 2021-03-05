@@ -26,7 +26,7 @@ export class TraceExplorerContribution extends AbstractViewContribution<TraceExp
         super.registerMenus(menus);
         menus.registerMenuAction(TraceExplorerMenus.PREFERENCE_EDITOR_CONTEXT_MENU, {
             commandId: TraceExplorerCommands.OPEN_TRACE.id,
-            label: TraceExplorerCommands.OPEN_TRACE.label,
+            label: 'Open Trace',
             order: 'a'
         });
 
