@@ -1,5 +1,5 @@
 import { TspClient } from 'tsp-typescript-client/lib/protocol/tsp-client';
-import { TimeGraphEntry, TimeGraphRow, TimeGraphState } from 'tsp-typescript-client/lib/models/timegraph';
+import { TimeGraphArrow, TimeGraphEntry, TimeGraphRow, TimeGraphState } from 'tsp-typescript-client/lib/models/timegraph';
 import { TimelineChart } from 'timeline-chart/lib/time-graph-model';
 import { QueryHelper } from 'tsp-typescript-client/lib/models/query/query-helper';
 import { OutputElementStyle } from 'tsp-typescript-client/lib/models/styles';
@@ -15,12 +15,14 @@ export class TspDataProvider {
     private traceUUID: string;
     private timeGraphEntries: TimeGraphEntry[];
     private timeGraphRows: TimeGraphRow[];
+    private timeGraphArrows: TimeGraphArrow[];
 
     public totalRange: number;
 
     constructor(client: TspClient, traceUUID: string, outputId: string, canvasDisplayWidth?: number) {
         this.timeGraphEntries = [];
         this.timeGraphRows = [];
+        this.timeGraphArrows = [];
         this.canvasDisplayWidth = canvasDisplayWidth;
         this.client = client;
         this.outputId = outputId;
@@ -91,15 +93,42 @@ export class TspDataProvider {
                 row.annotations = entryArray;
             }
         }
+        const arrows = await this.getArrows(ids, viewRange, resolution);
         return {
             id: 'model',
             totalLength: this.totalRange,
             rows,
-            arrows: [],
+            arrows,
             data: {
                 originalStart: chartStart
             }
         };
+    }
+
+    async getArrows(ids: number[], viewRange?: TimelineChart.TimeGraphRange, resolution?: number): Promise<TimelineChart.TimeGraphArrow[]> {
+        if (viewRange && resolution) {
+            const start = viewRange.start + this.timeGraphEntries[0].start;
+            const end = viewRange.end + this.timeGraphEntries[0].start;
+            const fetchParameters = QueryHelper.selectionTimeQuery(QueryHelper.splitRangeIntoEqualParts(
+                Math.trunc(start), Math.trunc(end), resolution), ids);
+            const tspClientResponseArrows = await this.client.fetchTimeGraphArrows(this.traceUUID, this.outputId, fetchParameters);
+            const stateResponseArrows = tspClientResponseArrows.getModel();
+            if (tspClientResponseArrows.isOk() && stateResponseArrows) {
+                this.timeGraphArrows = stateResponseArrows.model;
+            }
+        }
+        const offset = this.timeGraphEntries[0].start;
+        this.timeGraphArrows.filter(arrow => ids.find(
+            id => id === arrow.sourceId) || ids.find(id => id === arrow.targetId));
+        const arrows = this.timeGraphArrows.map(arrow => ({
+            sourceId: ids.indexOf(arrow.sourceId),
+            destinationId: ids.indexOf(arrow.targetId),
+            range: {
+                start: arrow.start - offset,
+                end: arrow.end - offset
+            } as TimelineChart.TimeGraphRange
+        } as TimelineChart.TimeGraphArrow));
+        return arrows;
     }
 
     private timeGraphRowsOrdering(orderedIds: number[]) {
