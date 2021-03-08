@@ -3,9 +3,10 @@ import { TraceServerUrlProvider } from '../common/trace-server-url-provider';
 import { TspClient } from 'tsp-typescript-client/lib/protocol/tsp-client';
 import { ExperimentManager } from '@trace-viewer/base/lib/experiment-manager';
 import { TraceManager } from '@trace-viewer/base/lib/trace-manager';
+import { ITspClientProvider } from '@trace-viewer/base/lib/tsp-client-provider';
 
 @injectable()
-export class TspClientProvider {
+export class TspClientProvider implements ITspClientProvider {
 
     private _tspClient: TspClient;
     private _traceManager: TraceManager;
