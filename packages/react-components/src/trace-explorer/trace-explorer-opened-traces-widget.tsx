@@ -7,7 +7,7 @@ import { signalManager, Signals } from '@trace-viewer/base/lib/signals/signal-ma
 import ReactModal from 'react-modal';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCopy } from '@fortawesome/free-solid-svg-icons';
-import { AvailableAnalysesChangedSignalPayload } from '@trace-viewer/base/lib/signals/available-analyses-changed-signal-payload';
+import { AvailableViewsChangedSignalPayload } from '@trace-viewer/base/lib/signals/available-views-changed-signal-payload';
 import { OpenedTracesUpdatedSignalPayload } from '@trace-viewer/base/lib/signals/opened-traces-updated-signal-payload';
 import { ITspClientProvider } from '@trace-viewer/base/lib/tsp-client-provider';
 
@@ -295,7 +295,7 @@ export class ReactOpenTracesWidget extends React.Component<ReactOpenTracesWidget
             }
         }
         if (outputs !== undefined && signalExperiment !== undefined) {
-            signalManager().fireAvailableOutputsChangedSignal(new AvailableAnalysesChangedSignalPayload(outputs, signalExperiment));
+            signalManager().fireAvailableOutputsChangedSignal(new AvailableViewsChangedSignalPayload(outputs, signalExperiment));
         }
     }
 
