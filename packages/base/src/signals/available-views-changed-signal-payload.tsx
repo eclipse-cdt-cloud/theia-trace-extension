@@ -1,7 +1,7 @@
 import { OutputDescriptor } from 'tsp-typescript-client/lib/models/output-descriptor';
 import { Experiment } from 'tsp-typescript-client/lib/models/experiment';
 
-export class AvailableAnalysesChangedSignalPayload {
+export class AvailableViewsChangedSignalPayload {
     private _availableOutputDescriptors: OutputDescriptor[];
     private _experiment: Experiment;
 
