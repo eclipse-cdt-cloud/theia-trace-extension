@@ -2,10 +2,12 @@ import { inject, injectable, postConstruct } from 'inversify';
 import { ReactWidget, Widget, Message } from '@theia/core/lib/browser';
 import * as React from 'react';
 import { List, ListRowProps, AutoSizer } from 'react-virtualized';
-import { TraceExplorerOpenedTracesWidget } from './trace-explorer-opened-traces-widget';
-import { Emitter } from '@theia/core';
-import { OutputAddedSignalPayload } from '../output-added-signal-payload';
-import { signalManager } from '@trace-viewer/base/lib/signal-manager';
+import { OutputAddedSignalPayload } from '@trace-viewer/base/lib/signals/output-added-signal-payload';
+import { signalManager, Signals } from '@trace-viewer/base/lib/signals/signal-manager';
+import { OutputDescriptor } from 'tsp-typescript-client/lib/models/output-descriptor';
+import { TspClientProvider } from '../../tsp-client-provider';
+import { Experiment } from 'tsp-typescript-client/lib/models/experiment';
+import { AvailableAnalysesChangedSignalPayload } from '@trace-viewer/base/lib/signals/available-analyses-changed-signal-payload';
 
 @injectable()
 export class TraceExplorerViewsWidget extends ReactWidget {
@@ -15,30 +17,33 @@ export class TraceExplorerViewsWidget extends ReactWidget {
     static LINE_HEIGHT = 16;
     static ROW_HEIGHT = (2 * TraceExplorerViewsWidget.LINE_HEIGHT) + TraceExplorerViewsWidget.LIST_MARGIN;
 
+    @inject(TspClientProvider) protected readonly tspClientProvider!: TspClientProvider;
     protected forceUpdateKey = false;
+    protected lastSelectedOutputIndex = -1;
 
-    protected outputAddedEmitter = new Emitter<OutputAddedSignalPayload>();
-    outputAddedSignal = this.outputAddedEmitter.event;
+    protected selectedExperiment: Experiment | undefined;
+    protected availableOutputDescriptors: OutputDescriptor[] | undefined;
 
-    @inject(TraceExplorerOpenedTracesWidget) protected readonly openedTracesWidget!: TraceExplorerOpenedTracesWidget;
+    private onAvailableAnalysesChanged = (payload: AvailableAnalysesChangedSignalPayload): void => this.doHandleAvailableAnalysesChangedSignal(payload);
 
     @postConstruct()
     init(): void {
         this.id = TraceExplorerViewsWidget.ID;
         this.title.label = TraceExplorerViewsWidget.LABEL;
-        this.toDispose.push(this.openedTracesWidget.availableOutputDescriptorsDidChange(() => {
-            this.update();
-        }));
-        this.toDispose.push(this.outputAddedEmitter);
+        signalManager().on(Signals.AVAILABLE_OUTPUTS_CHANGED, this.onAvailableAnalysesChanged);
         this.update();
+    }
+
+    dispose(): void {
+        super.dispose();
+        signalManager().off(Signals.AVAILABLE_OUTPUTS_CHANGED, this.onAvailableAnalysesChanged);
     }
 
     render(): React.ReactNode {
         this.forceUpdateKey = !this.forceUpdateKey;
         const key = Number(this.forceUpdateKey);
-        const { openedExperiments, availableOutputDescriptors, selectedExperimentIndex } = this.openedTracesWidget;
         let outputsRowCount = 0;
-        const outputs = availableOutputDescriptors.get(openedExperiments[selectedExperimentIndex]?.UUID);
+        const outputs = this.availableOutputDescriptors;
         if (outputs) {
             outputsRowCount = outputs.length;
         }
@@ -68,17 +73,13 @@ export class TraceExplorerViewsWidget extends ReactWidget {
     private doRenderRowOutputs(props: ListRowProps): React.ReactNode {
         let outputName = '';
         let outputDescription = '';
-        const { openedExperiments, availableOutputDescriptors, selectedExperimentIndex, lastSelectedOutputIndex } = this.openedTracesWidget;
-        const selectedTrace = openedExperiments[selectedExperimentIndex];
-        if (selectedTrace) {
-            const outputDescriptors = availableOutputDescriptors.get(selectedTrace.UUID);
-            if (outputDescriptors && outputDescriptors.length && props.index < outputDescriptors.length) {
-                outputName = outputDescriptors[props.index].name;
-                outputDescription = outputDescriptors[props.index].description;
-            }
+        const outputDescriptors = this.availableOutputDescriptors;
+        if (outputDescriptors && outputDescriptors.length && props.index < outputDescriptors.length) {
+            outputName = outputDescriptors[props.index].name;
+            outputDescription = outputDescriptors[props.index].description;
         }
         let traceContainerClassName = 'outputs-list-container';
-        if (props.index === lastSelectedOutputIndex) {
+        if (props.index === this.lastSelectedOutputIndex) {
             traceContainerClassName = traceContainerClassName + ' theia-mod-selected';
         }
         return <div className={traceContainerClassName}
@@ -99,12 +100,8 @@ export class TraceExplorerViewsWidget extends ReactWidget {
 
     protected getTotalHeight(): number {
         let totalHeight = 0;
-        const { openedExperiments, availableOutputDescriptors, selectedExperimentIndex } = this.openedTracesWidget;
-        const selectedTrace = openedExperiments[selectedExperimentIndex];
-        if (selectedTrace) {
-            const outputDescriptors = availableOutputDescriptors.get(selectedTrace.UUID);
-            outputDescriptors?.forEach(() => totalHeight += TraceExplorerViewsWidget.ROW_HEIGHT);
-        }
+        const outputDescriptors = this.availableOutputDescriptors;
+        outputDescriptors?.forEach(() => totalHeight += TraceExplorerViewsWidget.ROW_HEIGHT);
         return totalHeight;
     }
 
@@ -112,13 +109,11 @@ export class TraceExplorerViewsWidget extends ReactWidget {
 
     private doHandleOutputClicked(e: React.MouseEvent<HTMLDivElement>) {
         const index = Number(e.currentTarget.getAttribute('data-id'));
-        const { openedExperiments, selectedExperimentIndex, availableOutputDescriptors } = this.openedTracesWidget;
-        this.openedTracesWidget.lastSelectedOutputIndex = index;
-        const trace = openedExperiments[selectedExperimentIndex];
-        const outputs = availableOutputDescriptors.get(trace.UUID);
-        signalManager().fireExperimentSelectedSignal(trace);
-        if (outputs) {
-            this.outputAddedEmitter.fire(new OutputAddedSignalPayload(outputs[index], trace));
+        this.lastSelectedOutputIndex = index;
+        const outputs = this.availableOutputDescriptors;
+        if (outputs && this.selectedExperiment) {
+            signalManager().fireExperimentSelectedSignal(this.selectedExperiment);
+            signalManager().fireOutputAddedSignal(new OutputAddedSignalPayload(outputs[index], this.selectedExperiment));
         }
         this.update();
     }
@@ -130,6 +125,12 @@ export class TraceExplorerViewsWidget extends ReactWidget {
 
     protected onAfterShow(msg: Message): void {
         super.onAfterShow(msg);
+        this.update();
+    }
+
+    protected doHandleAvailableAnalysesChangedSignal(payload: AvailableAnalysesChangedSignalPayload): void {
+        this.availableOutputDescriptors = payload.getAvailableOutputDescriptors();
+        this.selectedExperiment = payload.getExperiment();
         this.update();
     }
 }

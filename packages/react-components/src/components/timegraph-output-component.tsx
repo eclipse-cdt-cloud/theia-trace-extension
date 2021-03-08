@@ -10,7 +10,7 @@ import { TimeGraphRowController } from 'timeline-chart/lib/time-graph-row-contro
 import { QueryHelper } from 'tsp-typescript-client/lib/models/query/query-helper';
 import { ResponseStatus } from 'tsp-typescript-client/lib/models/response/responses';
 import { TimeGraphEntry } from 'tsp-typescript-client/lib/models/timegraph';
-import { signalManager, Signals } from '@trace-viewer/base/lib/signal-manager';
+import { signalManager, Signals } from '@trace-viewer/base/lib/signals/signal-manager';
 import { AbstractOutputProps, AbstractOutputState } from './abstract-output-component';
 import { AbstractTreeOutputComponent } from './abstract-tree-output-component';
 import { StyleProvider } from './data-providers/style-provider';
@@ -47,6 +47,8 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
     private selectedElement: TimeGraphRowElement | undefined;
     private tooltipElement: TimeGraphRowElement | undefined;
     private tooltipInfo: {[key: string]: string} | undefined;
+
+    private onSelectionChanged = ( payload: { [key: string]: string; } ) => this.doHandleSelectionChangedSigna(payload);
 
     constructor(props: TimegraphOutputProps) {
         super(props);
@@ -100,7 +102,7 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
                 this.props.tooltipComponent?.setElement(undefined);
             }
         });
-        signalManager().on(Signals.SELECTION_CHANGED, ({ payload }) => this.onSelectionChanged(payload));
+        signalManager().on(Signals.SELECTION_CHANGED, this.onSelectionChanged);
     }
 
     synchronizeTreeScroll(): void {
@@ -114,6 +116,11 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
             styleModel: await this.styleProvider.getStyleModel()
         });
         this.waitAnalysisCompletion();
+    }
+
+    componentWillUnmount(): void {
+        super.componentWillUnmount();
+        signalManager().off(Signals.SELECTION_CHANGED, this.onSelectionChanged);
     }
 
     async fetchTree(): Promise<ResponseStatus> {
@@ -178,7 +185,7 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
         return true;
     }
 
-    private onSelectionChanged(payload: { [key: string]: number }) {
+    private doHandleSelectionChangedSigna(payload: { [key: string]: string }) {
         const offset = this.props.viewRange.getOffset() || 0;
         const timestamp = Number(payload['timestamp']);
         if (!isNaN(timestamp)) {

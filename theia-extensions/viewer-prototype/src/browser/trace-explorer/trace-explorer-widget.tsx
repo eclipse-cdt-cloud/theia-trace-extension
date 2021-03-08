@@ -4,9 +4,7 @@ import { ViewContainer, BaseWidget, Message, PanelLayout } from '@theia/core/lib
 import { TraceExplorerTooltipWidget } from './trace-explorer-sub-widgets/trace-explorer-tooltip-widget';
 import { TraceExplorerOpenedTracesWidget } from './trace-explorer-sub-widgets/trace-explorer-opened-traces-widget';
 import { TraceExplorerPlaceholderWidget } from './trace-explorer-sub-widgets/trace-explorer-placeholder-widget';
-import { OutputAddedSignalPayload } from './output-added-signal-payload';
-import { Event } from '@theia/core';
-import { Experiment } from 'tsp-typescript-client/lib/models/experiment';
+import { signalManager, Signals } from '@trace-viewer/base/lib/signals/signal-manager';
 
 @injectable()
 export class TraceExplorerWidget extends BaseWidget {
@@ -19,10 +17,6 @@ export class TraceExplorerWidget extends BaseWidget {
     @inject(TraceExplorerPlaceholderWidget) protected readonly placeholderWidget!: TraceExplorerPlaceholderWidget;
     @inject(ViewContainer.Factory) protected readonly viewContainerFactory!: ViewContainer.Factory;
 
-    get outputAddedSignal(): Event<OutputAddedSignalPayload> {
-        return this.viewsWidget.outputAddedSignal;
-    }
-
     openExperiment(traceUUID: string): void {
         return this.openedTracesWidget.openExperiment(traceUUID);
     }
@@ -33,14 +27,6 @@ export class TraceExplorerWidget extends BaseWidget {
 
     deleteExperiment(traceUUID: string): void {
         return this.openedTracesWidget.deleteExperiment(traceUUID);
-    }
-
-    onOpenedTracesWidgetActivated(experiment: Experiment): void {
-        return this.openedTracesWidget.onWidgetActivated(experiment);
-    }
-
-    getExperiment(traceUUID: string): Experiment | undefined {
-        return this.openedTracesWidget.getExperiment(traceUUID);
     }
 
     static createWidget(parent: interfaces.Container): TraceExplorerWidget {
@@ -65,7 +51,6 @@ export class TraceExplorerWidget extends BaseWidget {
         this.title.caption = TraceExplorerWidget.LABEL;
         this.title.iconClass = 'trace-explorer-tab-icon';
         this.title.closable = true;
-        this.toDispose.push(this.openedTracesWidget.widgetWasUpdated(() => this.update()));
         this.traceViewsContainer = this.viewContainerFactory({
             id: this.id
         });
@@ -77,8 +62,16 @@ export class TraceExplorerWidget extends BaseWidget {
         layout.addWidget(this.placeholderWidget);
         layout.addWidget(this.traceViewsContainer);
         this.node.tabIndex = 0;
+        signalManager().on(Signals.OPENED_TRACES_UPDATED, this.onUpdateSignal);
         this.update();
     }
+
+    dispose(): void {
+        super.dispose();
+        signalManager().off(Signals.OPENED_TRACES_UPDATED, this.onUpdateSignal);
+    }
+
+    protected onUpdateSignal = (): void => this.update();
 
     protected onUpdateRequest(msg: Message): void {
         super.onUpdateRequest(msg);
@@ -96,4 +89,5 @@ export class TraceExplorerWidget extends BaseWidget {
         super.onActivateRequest(msg);
         this.node.focus();
     }
+
 }

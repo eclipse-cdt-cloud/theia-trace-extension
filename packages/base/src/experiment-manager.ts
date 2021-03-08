@@ -5,7 +5,7 @@ import { OutputDescriptor } from 'tsp-typescript-client/lib/models/output-descri
 import { Experiment } from 'tsp-typescript-client/lib/models/experiment';
 import { TraceManager } from './trace-manager';
 import { TspClientResponse } from 'tsp-typescript-client/lib/protocol/tsp-client-response';
-import { signalManager, Signals } from './signal-manager';
+import { signalManager, Signals } from './signals/signal-manager';
 
 export class ExperimentManager {
 
@@ -19,7 +19,7 @@ export class ExperimentManager {
     ) {
         this.fTspClient = tspClient;
         this.fTraceManager = traceManager;
-        signalManager().on(Signals.EXPERIMENT_CLOSED, ({ experiment }) => this.onExperimentClosed(experiment));
+        signalManager().on(Signals.EXPERIMENT_CLOSED, (experiment: Experiment) => this.onExperimentClosed(experiment));
     }
 
     /**
@@ -60,10 +60,8 @@ export class ExperimentManager {
      * @param experimentUUID experiment UUID
      */
     async getAvailableOutputs(experimentUUID: string): Promise<OutputDescriptor[] | undefined> {
-        // Check if the experiment is opened
-        const experiment = this.fOpenExperiments.get(experimentUUID);
-        if (experiment) {
-            const outputsResponse = await this.fTspClient.experimentOutputs(experiment.UUID);
+        const outputsResponse = await this.fTspClient.experimentOutputs(experimentUUID);
+        if (outputsResponse && outputsResponse.getStatusCode() === 200) {
             return outputsResponse.getModel();
         }
         return undefined;
@@ -98,7 +96,7 @@ export class ExperimentManager {
         const experiment = experimentResponse.getModel();
         if (experimentResponse.isOk() && experiment) {
             this.addExperiment(experiment);
-            signalManager().emit(Signals.EXPERIMENT_OPENED, { experiment: experiment });
+            signalManager().fireExperimentOpenedSignal(experiment);
             return experiment;
         }
         // TODO Handle any other experiment open errors
@@ -134,7 +132,7 @@ export class ExperimentManager {
             await this.fTspClient.deleteExperiment(experimentUUID);
             const deletedExperiment = this.removeExperiment(experimentUUID);
             if (deletedExperiment) {
-                signalManager().emit(Signals.EXPERIMENT_CLOSED, { experiment: deletedExperiment });
+                signalManager().fireExperimentClosedSignal(deletedExperiment);
             }
         }
     }

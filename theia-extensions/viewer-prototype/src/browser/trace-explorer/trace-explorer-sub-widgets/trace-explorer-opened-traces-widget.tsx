@@ -5,9 +5,9 @@ import { List, ListRowProps, Index, AutoSizer } from 'react-virtualized';
 import { Experiment } from 'tsp-typescript-client/lib/models/experiment';
 import { ExperimentManager } from '@trace-viewer/base/lib/experiment-manager';
 import { OutputDescriptor } from 'tsp-typescript-client/lib/models/output-descriptor';
-import { Emitter, CommandService } from '@theia/core';
+import { CommandService } from '@theia/core';
 import { TspClientProvider } from '../../tsp-client-provider';
-import { signalManager, Signals } from '@trace-viewer/base/lib/signal-manager';
+import { signalManager, Signals } from '@trace-viewer/base/lib/signals/signal-manager';
 import { TraceExplorerTooltipWidget } from './trace-explorer-tooltip-widget';
 import ReactModal from 'react-modal';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -15,6 +15,7 @@ import { faCopy } from '@fortawesome/free-solid-svg-icons';
 import { ContextMenuRenderer } from '@theia/core/lib/browser';
 import { TraceExplorerMenus } from '../trace-explorer-commands';
 import { TraceViewerCommand } from '../../trace-viewer/trace-viewer-commands';
+import { AvailableAnalysesChangedSignalPayload } from '@trace-viewer/base/lib/signals/available-analyses-changed-signal-payload';
 
 @injectable()
 export class TraceExplorerOpenedTracesWidget extends ReactWidget {
@@ -25,20 +26,13 @@ export class TraceExplorerOpenedTracesWidget extends ReactWidget {
 
     protected forceUpdateKey = false;
 
-    protected availableOutputDescriptorsEmitter = new Emitter<Map<string, OutputDescriptor[]>>();
-    availableOutputDescriptorsDidChange = this.availableOutputDescriptorsEmitter.event;
-
     @inject(TspClientProvider) protected readonly tspClientProvider!: TspClientProvider;
     @inject(TraceExplorerTooltipWidget) protected readonly tooltipWidget!: TraceExplorerTooltipWidget;
     @inject(ContextMenuRenderer) protected readonly contextMenuRenderer!: ContextMenuRenderer;
     @inject(CommandService) protected readonly commandService!: CommandService;
 
-    protected readonly updateRequestEmitter = new Emitter<void>();
-    widgetWasUpdated = this.updateRequestEmitter.event;
-
     sharingLink = '';
     showShareDialog = false;
-    lastSelectedOutputIndex = -1;
 
     protected _openedExperiments: Array<Experiment> = [];
     get openedExperiments(): Array<Experiment> {
@@ -46,24 +40,23 @@ export class TraceExplorerOpenedTracesWidget extends ReactWidget {
     }
 
     protected _selectedExperimentIndex = 0;
-    get selectedExperimentIndex(): number {
-        return this._selectedExperimentIndex;
-    }
     protected _availableOutputDescriptors: Map<string, OutputDescriptor[]> = new Map();
-    get availableOutputDescriptors(): Map<string, OutputDescriptor[]> {
-        return this._availableOutputDescriptors;
-    }
     protected experimentManager!: ExperimentManager;
     protected selectedExperiment: Experiment | undefined;
+
+    private onExperimentOpened = (openedExperiment: Experiment): Promise<void> => this.doHandleExperimentOpenedSignal(openedExperiment);
+    private onExperimentClosed = (closedExperiment: Experiment): Promise<void> => this.doHandleExperimentClosedSignal(closedExperiment);
+    private onOpenedTracesWidgetActivated = (experiment: Experiment): void => this.doHandleTracesWidgetActivatedSignal(experiment);
 
     @postConstruct()
     async init(): Promise<void> {
         this.id = TraceExplorerOpenedTracesWidget.ID;
         this.title.label = TraceExplorerOpenedTracesWidget.LABEL;
 
-        signalManager().on(Signals.EXPERIMENT_OPENED, ({ experiment }) => this.onExperimentOpened(experiment));
-        signalManager().on(Signals.EXPERIMENT_CLOSED, ({ experiment }) => this.onExperimentClosed(experiment));
-        signalManager().on(Signals.EXPERIMENT_SELECTED, (experiment: Experiment) => this.onWidgetActivated(experiment));
+        signalManager().on(Signals.EXPERIMENT_OPENED, this.onExperimentOpened);
+        signalManager().on(Signals.EXPERIMENT_CLOSED, this.onExperimentClosed);
+        signalManager().on(Signals.EXPERIMENT_SELECTED, this.onOpenedTracesWidgetActivated);
+        signalManager().on(Signals.TRACEVIEWERTAB_ACTIVATED, this.onOpenedTracesWidgetActivated);
 
         this.experimentManager = this.tspClientProvider.getExperimentManager();
         this.tspClientProvider.addTspClientChangeListener(() => {
@@ -76,9 +69,10 @@ export class TraceExplorerOpenedTracesWidget extends ReactWidget {
 
     dispose(): void {
         super.dispose();
-        signalManager().off(Signals.EXPERIMENT_OPENED, ({ experiment }) => this.onExperimentOpened(experiment));
-        signalManager().off(Signals.EXPERIMENT_CLOSED, ({ experiment }) => this.onExperimentClosed(experiment));
-        signalManager().off(Signals.EXPERIMENT_SELECTED, (experiment: Experiment) => this.onWidgetActivated(experiment));
+        signalManager().off(Signals.EXPERIMENT_OPENED, this.onExperimentOpened);
+        signalManager().off(Signals.EXPERIMENT_CLOSED, this.onExperimentClosed);
+        signalManager().off(Signals.EXPERIMENT_SELECTED, this.onOpenedTracesWidgetActivated);
+        signalManager().off(Signals.TRACEVIEWERTAB_ACTIVATED, this.onOpenedTracesWidgetActivated);
     }
 
     async initialize(): Promise<void> {
@@ -86,15 +80,21 @@ export class TraceExplorerOpenedTracesWidget extends ReactWidget {
         await this.updateAvailableViews(undefined);
     }
 
-    protected async onExperimentOpened(openedExperiment: Experiment): Promise<void> {
+    protected async doHandleExperimentOpenedSignal(openedExperiment: Experiment): Promise<void> {
         await this.updateOpenedExperiments();
         await this.updateAvailableViews(openedExperiment);
     }
 
-    protected async onExperimentClosed(_closedExperiment: Experiment): Promise<void> {
+    protected async doHandleExperimentClosedSignal(_closedExperiment: Experiment): Promise<void> {
         this.tooltipWidget.tooltip = {};
         await this.updateOpenedExperiments();
         await this.updateAvailableViews(undefined);
+    }
+
+    protected doHandleTracesWidgetActivatedSignal(experiment: Experiment): void {
+        this.selectedExperiment = experiment;
+        const selectedIndex = this._openedExperiments.findIndex(openedExperiment => openedExperiment.UUID === experiment.UUID);
+        this.selectExperiment(selectedIndex);
     }
 
     protected doHandleContextMenuEvent(event: React.MouseEvent<HTMLDivElement>, traceUUID: string): void {
@@ -123,10 +123,6 @@ export class TraceExplorerOpenedTracesWidget extends ReactWidget {
     public deleteExperiment(traceUUID: string): void {
         this.experimentManager.closeExperiment(traceUUID);
         this.closeExperiment(traceUUID);
-    }
-
-    public getExperiment(traceUUID: string): Experiment | undefined {
-        return this._openedExperiments.find(experiment => experiment.UUID === traceUUID);
     }
 
     render(): React.ReactNode {
@@ -291,24 +287,28 @@ export class TraceExplorerOpenedTracesWidget extends ReactWidget {
         if (index >= 0 && index !== this._selectedExperimentIndex) {
             this._selectedExperimentIndex = index;
             this.selectedExperiment = this._openedExperiments[index];
-            this.lastSelectedOutputIndex = -1;
-            this.updateAvailableViews(this._openedExperiments[index]);
+            this.updateAvailableViews(this.selectedExperiment);
         }
     }
 
     protected updateAvailableViews = async (experiment: Experiment | undefined): Promise<void> => this.doUpdateAvailableViews(experiment);
 
     protected async doUpdateAvailableViews(experiment: Experiment | undefined): Promise<void> {
-        if (experiment) {
-            const outputs = await this.getOutputDescriptors(experiment);
-            this._availableOutputDescriptors.set(experiment.UUID, outputs);
+        let outputs: OutputDescriptor[] | undefined;
+        let signalExperiment: Experiment | undefined = experiment;
+        if (signalExperiment) {
+            outputs = await this.getOutputDescriptors(signalExperiment);
+            this._availableOutputDescriptors.set(signalExperiment.UUID, outputs);
         } else {
             if (this._openedExperiments.length) {
-                const outputs = await this.getOutputDescriptors(this._openedExperiments[0]);
-                this._availableOutputDescriptors.set(this._openedExperiments[0].UUID, outputs);
+                signalExperiment = this._openedExperiments[0];
+                outputs = await this.getOutputDescriptors(signalExperiment);
+                this._availableOutputDescriptors.set(signalExperiment.UUID, outputs);
             }
         }
-        this.availableOutputDescriptorsEmitter.fire(this._availableOutputDescriptors);
+        if (outputs !== undefined && signalExperiment !== undefined) {
+            signalManager().fireAvailableOutputsChangedSignal(new AvailableAnalysesChangedSignalPayload(outputs, signalExperiment));
+        }
         this.update();
     }
 
@@ -319,12 +319,6 @@ export class TraceExplorerOpenedTracesWidget extends ReactWidget {
             outputDescriptors.push(...descriptors);
         }
         return outputDescriptors;
-    }
-
-    onWidgetActivated(experiment: Experiment): void {
-        this.selectedExperiment = experiment;
-        const selectedIndex = this._openedExperiments.findIndex(openedExperiment => openedExperiment.UUID === experiment.UUID);
-        this.selectExperiment(selectedIndex);
     }
 
     protected handleShareModalClose = (): void => this.doHandleShareModalClose();
@@ -342,7 +336,7 @@ export class TraceExplorerOpenedTracesWidget extends ReactWidget {
 
     protected onUpdateRequest(msg: Message): void {
         super.onUpdateRequest(msg);
-        this.updateRequestEmitter.fire();
+        signalManager().fireOpenedTracesChangedSignal();
     }
 
     protected async onAfterShow(msg: Message): Promise<void> {

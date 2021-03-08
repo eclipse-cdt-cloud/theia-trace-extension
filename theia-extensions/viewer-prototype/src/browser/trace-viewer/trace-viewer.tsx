@@ -1,6 +1,6 @@
 import { DisposableCollection, MessageService, Path } from '@theia/core';
 import { FileSystem, FileStat } from '@theia/filesystem/lib/common/filesystem';
-import { ApplicationShell, Message, StatusBar, WidgetManager } from '@theia/core/lib/browser';
+import { ApplicationShell, Message, StatusBar } from '@theia/core/lib/browser';
 import { ReactWidget } from '@theia/core/lib/browser/widgets/react-widget';
 import { inject, injectable, postConstruct } from 'inversify';
 import * as React from 'react';
@@ -15,8 +15,8 @@ import { Experiment } from 'tsp-typescript-client/lib/models/experiment';
 import URI from '@theia/core/lib/common/uri';
 import { TheiaMessageManager } from '../theia-message-manager';
 import { ThemeService } from '@theia/core/lib/browser/theming';
-import { signalManager, Signals } from '@trace-viewer/base/lib/signal-manager';
-import { OutputAddedSignalPayload } from '../trace-explorer/output-added-signal-payload';
+import { signalManager, Signals } from '@trace-viewer/base/lib/signals/signal-manager';
+import { OutputAddedSignalPayload } from '@trace-viewer/base/lib/signals/output-added-signal-payload';
 import { TraceExplorerWidget } from '../trace-explorer/trace-explorer-widget';
 import { TraceExplorerContribution } from '../trace-explorer/trace-explorer-contribution';
 
@@ -46,7 +46,10 @@ export class TraceViewerWidget extends ReactWidget {
 
     protected explorerWidget: TraceExplorerWidget;
 
-    @inject(WidgetManager) protected readonly widgetManager: WidgetManager;
+    private onOutputAdded = (payload: OutputAddedSignalPayload): void => this.doHandleOutputAddedSignal(payload);
+    private onExperimentSelected = (experiment: Experiment): void => this.doHandleExperimentSelectedSignal(experiment);
+    private onCloseExperiment = (UUID: string): void => this.doHandleCloseExperimentSignal(UUID);
+
     @inject(TraceViewerWidgetOptions) protected readonly options: TraceViewerWidgetOptions;
     @inject(TspClientProvider) protected tspClientProvider: TspClientProvider;
     @inject(StatusBar) protected statusBar: StatusBar;
@@ -76,23 +79,16 @@ export class TraceViewerWidget extends ReactWidget {
             this.traceManager = this.tspClientProvider.getTraceManager();
             this.experimentManager = this.tspClientProvider.getExperimentManager();
         });
-        this.toDispose.push(this.widgetManager.onDidCreateWidget(({ widget }) => {
-            if (widget instanceof TraceExplorerWidget) {
-                this.explorerWidget = widget;
-                this.subscribeToExplorerEvents();
-            }
-        }));
-        this.explorerWidget = await this.widgetManager.getOrCreateWidget(TraceExplorerWidget.ID);
         if (this.options.traceUUID) {
-            const experiment = this.explorerWidget.getExperiment(this.options.traceUUID);
+            const experiment = await this.experimentManager.getExperiment(this.options.traceUUID);
             if (experiment) {
                 this.openedExperiment = experiment;
                 this.title.label = 'Trace: ' + experiment.name;
                 this.id = experiment.UUID;
                 this.experimentManager.addExperiment(experiment);
-                signalManager().emit(Signals.EXPERIMENT_OPENED, { experiment: experiment });
+                signalManager().fireExperimentOpenedSignal(experiment);
                 if (this.isVisible) {
-                    this.explorerWidget.onOpenedTracesWidgetActivated(experiment);
+                    signalManager().fireTraceViewerTabActivatedSignal(experiment);
                 }
             }
             this.update();
@@ -107,9 +103,9 @@ export class TraceViewerWidget extends ReactWidget {
 
     protected subscribeToExplorerEvents(): void {
         this.toDisposeOnNewExplorer.dispose();
-        this.toDisposeOnNewExplorer.push(this.explorerWidget.outputAddedSignal(output => this.onOutputAdded(output)));
-        signalManager().on(Signals.EXPERIMENT_SELECTED, (experiment: Experiment) => this.onExperimentSelected(experiment));
-        signalManager().on(Signals.TRACEVIEWER_CLOSED, (UUID: string) => this.onCloseExperiment(UUID));
+        signalManager().on(Signals.OUTPUT_ADDED, this.onOutputAdded);
+        signalManager().on(Signals.EXPERIMENT_SELECTED, this.onExperimentSelected);
+        signalManager().on(Signals.CLOSE_TRACEVIEWERTAB, this.onCloseExperiment);
     }
 
     protected updateBackgroundTheme(): void {
@@ -119,8 +115,9 @@ export class TraceViewerWidget extends ReactWidget {
 
     dispose(): void {
         super.dispose();
-        signalManager().off(Signals.EXPERIMENT_SELECTED, (experiment: Experiment) => this.onExperimentSelected(experiment));
-        signalManager().off(Signals.TRACEVIEWER_CLOSED, (UUID: string) => this.onCloseExperiment(UUID));
+        signalManager().off(Signals.OUTPUT_ADDED, this.onOutputAdded);
+        signalManager().off(Signals.EXPERIMENT_SELECTED, this.onExperimentSelected);
+        signalManager().off(Signals.CLOSE_TRACEVIEWERTAB, this.onCloseExperiment);
     }
 
     async initialize(): Promise<void> {
@@ -209,7 +206,7 @@ export class TraceViewerWidget extends ReactWidget {
                             this.id = experiment.UUID;
 
                             if (this.isVisible) {
-                                this.explorerWidget.onOpenedTracesWidgetActivated(experiment);
+                                signalManager().fireTraceViewerTabActivatedSignal(experiment);
                             }
                             this.traceExplorerContribution.openView({
                                 activate: true
@@ -237,14 +234,14 @@ export class TraceViewerWidget extends ReactWidget {
     onAfterShow(msg: Message): void {
         super.onAfterShow(msg);
         if (this.openedExperiment) {
-            this.explorerWidget.onOpenedTracesWidgetActivated(this.openedExperiment);
+            signalManager().fireTraceViewerTabActivatedSignal(this.openedExperiment);
         }
     }
 
     onActivateRequest(msg: Message): void {
         super.onActivateRequest(msg);
         if (this.openedExperiment) {
-            this.explorerWidget.onOpenedTracesWidgetActivated(this.openedExperiment);
+            signalManager().fireTraceViewerTabActivatedSignal(this.openedExperiment);
         }
         this.node.focus();
     }
@@ -253,7 +250,7 @@ export class TraceViewerWidget extends ReactWidget {
         this.resizeHandlers.forEach(h => h());
     }
 
-    protected onCloseExperiment(UUID: string): void {
+    protected doHandleCloseExperimentSignal(UUID: string): void {
         this.shell.closeWidget(UUID);
     }
 
@@ -270,7 +267,7 @@ export class TraceViewerWidget extends ReactWidget {
         </div>;
     }
 
-    protected onOutputAdded(payload: OutputAddedSignalPayload): void {
+    protected doHandleOutputAddedSignal(payload: OutputAddedSignalPayload): void {
         if (this.openedExperiment && payload.getExperiment().UUID === this.openedExperiment.UUID) {
             const exist = this.outputDescriptors.find(output => output.id === payload.getOutputDescriptor().id);
             if (!exist) {
@@ -286,7 +283,7 @@ export class TraceViewerWidget extends ReactWidget {
         this.update();
     }
 
-    protected onExperimentSelected(experiment: Experiment): void {
+    protected doHandleExperimentSelectedSignal(experiment: Experiment): void {
         if (this.openedExperiment && this.openedExperiment.UUID === experiment.UUID) {
             this.shell.activateWidget(this.openedExperiment.UUID);
         }

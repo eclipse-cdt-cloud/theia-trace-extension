@@ -4,7 +4,7 @@ import { TspClient } from 'tsp-typescript-client/lib/protocol/tsp-client';
 import { Query } from 'tsp-typescript-client/lib/models/query/query';
 import { OutputDescriptor } from 'tsp-typescript-client/lib/models/output-descriptor';
 import { TspClientResponse } from 'tsp-typescript-client/lib/protocol/tsp-client-response';
-import { signalManager, Signals } from './signal-manager';
+import { signalManager, Signals } from './signals/signal-manager';
 
 export class TraceManager {
 
@@ -88,7 +88,7 @@ export class TraceManager {
         const trace = traceResponse.getModel();
         if (traceResponse.isOk() && trace) {
             this.addTrace(trace);
-            signalManager().emit(Signals.TRACE_OPENED, {trace: trace});
+            signalManager().fireTraceOpenedSignal(trace);
             return trace;
         }
         // TODO Handle trace open errors
@@ -125,7 +125,7 @@ export class TraceManager {
             if (deleteResponse.getStatusCode() !== 409) {
                 const deletedTrace = this.removeTrace(traceUUID);
                 if (deletedTrace) {
-                    signalManager().emit(Signals.TRACE_CLOSED, {trace: deletedTrace});
+                    signalManager().fireTraceClosedSignal(deletedTrace);
                 }
             }
         }

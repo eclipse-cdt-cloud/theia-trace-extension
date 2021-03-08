@@ -5,7 +5,7 @@ import { AgGridReact } from 'ag-grid-react';
 import { ColDef, IDatasource, GridReadyEvent, CellClickedEvent, GridApi, ColumnApi } from 'ag-grid-community';
 import { QueryHelper } from 'tsp-typescript-client/lib/models/query/query-helper';
 import { cloneDeep } from 'lodash';
-import { signalManager } from '@trace-viewer/base/lib/signal-manager';
+import { signalManager } from '@trace-viewer/base/lib/signals/signal-manager';
 import { TimelineChart } from 'timeline-chart/lib/time-graph-model';
 
 type TableOuputState = AbstractOutputState & {

@@ -3,7 +3,7 @@ import { ReactWidget, Message } from '@theia/core/lib/browser';
 import * as React from 'react';
 import { EditorOpenerOptions, EditorManager } from '@theia/editor/lib/browser';
 import URI from '@theia/core/lib/common/uri';
-import { Signals, signalManager } from '@trace-viewer/base/lib/signal-manager';
+import { Signals, signalManager } from '@trace-viewer/base/lib/signals/signal-manager';
 
 @injectable()
 export class TraceExplorerTooltipWidget extends ReactWidget {
@@ -14,17 +14,19 @@ export class TraceExplorerTooltipWidget extends ReactWidget {
 
     tooltip?: { [key: string]: string } = undefined;
 
+    private onTooltip = (tooltip?: { [key: string]: string }): void => this.doHandleTooltipSignal(tooltip);
+
     @postConstruct()
     init(): void {
         this.id = TraceExplorerTooltipWidget.ID;
         this.title.label = TraceExplorerTooltipWidget.LABEL;
-        signalManager().on(Signals.TOOLTIP_UPDATED, ({ tooltip }) => this.onTooltip(tooltip));
+        signalManager().on(Signals.TOOLTIP_UPDATED, this.onTooltip);
         this.update();
     }
 
     dispose(): void {
         super.dispose();
-        signalManager().off(Signals.TOOLTIP_UPDATED, ({ tooltip }) => this.onTooltip(tooltip));
+        signalManager().off(Signals.TOOLTIP_UPDATED, this.onTooltip);
     }
 
     private renderTooltip() {
@@ -112,7 +114,7 @@ export class TraceExplorerTooltipWidget extends ReactWidget {
         );
     }
 
-    private onTooltip(tooltip?: { [key: string]: string }) {
+    private doHandleTooltipSignal(tooltip?: { [key: string]: string }) {
         this.tooltip = tooltip;
         this.update();
     }
