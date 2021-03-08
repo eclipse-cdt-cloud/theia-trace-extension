@@ -5,12 +5,14 @@ import { TraceExplorerTooltipWidget } from './trace-explorer-sub-widgets/trace-e
 import { TraceExplorerOpenedTracesWidget } from './trace-explorer-sub-widgets/trace-explorer-opened-traces-widget';
 import { TraceExplorerPlaceholderWidget } from './trace-explorer-sub-widgets/trace-explorer-placeholder-widget';
 import { signalManager, Signals } from '@trace-viewer/base/lib/signals/signal-manager';
+import { OpenedTracesUpdatedSignalPayload } from '@trace-viewer/base/src/signals/opened-traces-updated-signal-payload';
 
 @injectable()
 export class TraceExplorerWidget extends BaseWidget {
     static LABEL = 'Trace Viewer';
     static ID = 'trace-explorer';
     protected traceViewsContainer!: ViewContainer;
+    private _numberOfOpenedTraces = 0;
     @inject(TraceExplorerViewsWidget) protected readonly viewsWidget!: TraceExplorerViewsWidget;
     @inject(TraceExplorerOpenedTracesWidget) protected readonly openedTracesWidget!: TraceExplorerOpenedTracesWidget;
     @inject(TraceExplorerTooltipWidget) protected readonly tooltipWidget!: TraceExplorerTooltipWidget;
@@ -71,12 +73,15 @@ export class TraceExplorerWidget extends BaseWidget {
         signalManager().off(Signals.OPENED_TRACES_UPDATED, this.onUpdateSignal);
     }
 
-    protected onUpdateSignal = (): void => this.update();
+    protected onUpdateSignal = (payload: OpenedTracesUpdatedSignalPayload): void => this.doHandleOpenedTracesChanged(payload);
+    protected doHandleOpenedTracesChanged(payload: OpenedTracesUpdatedSignalPayload): void {
+        this._numberOfOpenedTraces = payload.getNumberOfOpenedTraces();
+        this.update();
+    }
 
     protected onUpdateRequest(msg: Message): void {
         super.onUpdateRequest(msg);
-        const { openedExperiments } = this.openedTracesWidget;
-        if (openedExperiments.length) {
+        if (this._numberOfOpenedTraces > 0) {
             this.traceViewsContainer.show();
             this.placeholderWidget.hide();
         } else {

@@ -5,7 +5,7 @@ import { List, ListRowProps, AutoSizer } from 'react-virtualized';
 import { OutputAddedSignalPayload } from '@trace-viewer/base/lib/signals/output-added-signal-payload';
 import { signalManager, Signals } from '@trace-viewer/base/lib/signals/signal-manager';
 import { OutputDescriptor } from 'tsp-typescript-client/lib/models/output-descriptor';
-import { TspClientProvider } from '../../tsp-client-provider';
+import { TspClientProvider } from '../../tsp-client-provider-impl';
 import { Experiment } from 'tsp-typescript-client/lib/models/experiment';
 import { AvailableAnalysesChangedSignalPayload } from '@trace-viewer/base/lib/signals/available-analyses-changed-signal-payload';
 

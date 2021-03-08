@@ -10,7 +10,7 @@ import { PortBusy, TraceServerConfigService } from '../../common/trace-server-co
 import { PreferenceService } from '@theia/core/lib/browser';
 import { TRACE_PATH, TRACE_PORT } from '../trace-server-preference';
 import { TspClient } from 'tsp-typescript-client/lib/protocol/tsp-client';
-import { TspClientProvider } from '../tsp-client-provider';
+import { TspClientProvider } from '../tsp-client-provider-impl';
 import { TspClientResponse } from 'tsp-typescript-client/lib/protocol/tsp-client-response';
 import { HealthStatus } from 'tsp-typescript-client/lib/models/health';
 

@@ -2,6 +2,7 @@ import { EventEmitter } from 'events';
 import { Experiment } from 'tsp-typescript-client/lib/models/experiment';
 import { Trace } from 'tsp-typescript-client/lib/models/trace';
 import { AvailableAnalysesChangedSignalPayload } from './available-analyses-changed-signal-payload';
+import { OpenedTracesUpdatedSignalPayload } from './opened-traces-updated-signal-payload';
 import { OutputAddedSignalPayload } from './output-added-signal-payload';
 
 export declare interface SignalManager {
@@ -10,7 +11,7 @@ export declare interface SignalManager {
     fireExperimentExperimentSignal(experiment: Experiment): void;
     fireExperimentClosedSignal(experiment: Experiment): void;
     fireExperimentSelectedSignal(experiment: Experiment): void;
-    fireOpenedTracesChangedSignal(): void;
+    fireOpenedTracesChangedSignal(payload: OpenedTracesUpdatedSignalPayload): void;
     fireAvailableOutputsChangedSignal(payload: AvailableAnalysesChangedSignalPayload): void;
     fireOutputAddedSignal(payload: OutputAddedSignalPayload): void;
     fireTooltipSignal(tooltip?: { [key: string]: string }): void;
@@ -52,8 +53,8 @@ export class SignalManager extends EventEmitter implements SignalManager {
     fireExperimentSelectedSignal(experiment: Experiment): void {
         this.emit(Signals.EXPERIMENT_SELECTED, experiment);
     }
-    fireOpenedTracesChangedSignal(): void {
-        this.emit(Signals.OPENED_TRACES_UPDATED);
+    fireOpenedTracesChangedSignal(payload: OpenedTracesUpdatedSignalPayload): void {
+        this.emit(Signals.OPENED_TRACES_UPDATED, payload);
     }
     fireAvailableOutputsChangedSignal(payload: AvailableAnalysesChangedSignalPayload): void {
         this.emit(Signals.AVAILABLE_OUTPUTS_CHANGED, payload);

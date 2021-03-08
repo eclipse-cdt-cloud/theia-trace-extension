@@ -12,7 +12,7 @@ import 'react-grid-layout/css/styles.css';
 import 'react-resizable/css/styles.css';
 import { TraceExplorerContribution } from '../trace-explorer/trace-explorer-contribution';
 import { TraceExplorerWidget } from '../trace-explorer/trace-explorer-widget';
-import { TspClientProvider } from '../tsp-client-provider';
+import { TspClientProvider } from '../tsp-client-provider-impl';
 import { TheiaMessageManager } from '../theia-message-manager';
 import { TraceServerUrlProviderImpl } from '../trace-server-url-provider-frontend-impl';
 import { bindTraceServerPreferences } from '../trace-server-bindings';

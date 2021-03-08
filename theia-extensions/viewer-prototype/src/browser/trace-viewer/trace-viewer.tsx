@@ -7,7 +7,7 @@ import * as React from 'react';
 import { OutputDescriptor } from 'tsp-typescript-client/lib/models/output-descriptor';
 import { Trace } from 'tsp-typescript-client/lib/models/trace';
 import { TspClient } from 'tsp-typescript-client/lib/protocol/tsp-client';
-import { TspClientProvider } from '../tsp-client-provider';
+import { TspClientProvider } from '../tsp-client-provider-impl';
 import { TraceManager } from '@trace-viewer/base/lib/trace-manager';
 import { ExperimentManager } from '@trace-viewer/base/lib/experiment-manager';
 import { TraceContextComponent } from '@trace-viewer/react-components/lib/components/trace-context-component';
