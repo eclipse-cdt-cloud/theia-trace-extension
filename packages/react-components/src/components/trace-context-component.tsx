@@ -20,7 +20,7 @@ import { XYOutputComponent } from './xy-output-component';
 import { NullOutputComponent } from './null-output-component';
 import { AbstractOutputProps } from './abstract-output-component';
 import * as Messages from '@trace-viewer/base/lib/message-manager';
-import { signalManager, Signals } from '@trace-viewer/base/lib/signal-manager';
+import { signalManager, Signals } from '@trace-viewer/base/lib/signals/signal-manager';
 import ReactTooltip from 'react-tooltip';
 import { TooltipComponent } from './tooltip-component';
 
@@ -62,6 +62,8 @@ export class TraceContextComponent extends React.Component<TraceContextProps, Tr
     private unitController: TimeGraphUnitController;
     private tooltipComponent: React.RefObject<TooltipComponent>;
     private traceContextContainer: React.RefObject<HTMLDivElement>;
+
+    private onBackgroundThemeUpdated = (theme: string): void => this.updateBackgroundTheme(theme);
 
     protected widgetResizeHandlers: (() => void)[] = [];
     protected readonly addWidgetResizeHandler = (h: () => void): void => {
@@ -113,10 +115,10 @@ export class TraceContextComponent extends React.Component<TraceContextProps, Tr
         this.tooltipComponent = React.createRef();
         this.traceContextContainer = React.createRef();
         this.initialize();
-        signalManager().on(Signals.THEME_CHANGED, (theme: string) => this.updateBackgroundTheme(theme));
+        signalManager().on(Signals.THEME_CHANGED, this.onBackgroundThemeUpdated);
     }
 
-    public updateBackgroundTheme(theme: string): void {
+    private updateBackgroundTheme(theme: string): void {
         this.setState({
             style: {
                 width: this.DEFAULT_COMPONENT_WIDTH,
@@ -178,7 +180,7 @@ export class TraceContextComponent extends React.Component<TraceContextProps, Tr
     }
 
     componentWillUnmount(): void {
-        signalManager().off(Signals.THEME_CHANGED, (theme: string) => this.updateBackgroundTheme(theme));
+        signalManager().off(Signals.THEME_CHANGED, this.onBackgroundThemeUpdated);
         this.props.messageManager.removeStatusMessage(this.INDEXING_STATUS_BAR_KEY);
         this.props.messageManager.removeStatusMessage(this.TIME_SELECTION_STATUS_BAR_KEY);
     }
