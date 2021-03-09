@@ -4,14 +4,14 @@ import { OutputAddedSignalPayload } from '@trace-viewer/base/lib/signals/output-
 import { signalManager, Signals } from '@trace-viewer/base/lib/signals/signal-manager';
 import { OutputDescriptor } from 'tsp-typescript-client/lib/models/output-descriptor';
 import { Experiment } from 'tsp-typescript-client/lib/models/experiment';
-import { AvailableViewsChangedSignalPayload } from '@trace-viewer/base/lib/signals/available-views-changed-signal-payload';
-// import { ExperimentManager } from '@trace-viewer/base/src/experiment-manager';
+import { ITspClientProvider } from '@trace-viewer/base/lib/tsp-client-provider';
+import { ExperimentManager } from '@trace-viewer/base/lib/experiment-manager';
 
 export interface ReactAvailableViewsProps {
     id: string,
     title: string,
-    // experimentManager: ExperimentManager,
-    contextMenuRenderer?: (anchor: {x: number, y: number}, output: OutputDescriptor) => void,
+    tspClientProvider: ITspClientProvider,
+    contextMenuRenderer?: (event: React.MouseEvent<HTMLDivElement>, output: OutputDescriptor) => void,
 }
 
 export interface ReactAvailableViewsState {
@@ -23,26 +23,30 @@ export class ReactAvailableViewsWidget extends React.Component<ReactAvailableVie
     static LINE_HEIGHT = 16;
     static ROW_HEIGHT = (2 * ReactAvailableViewsWidget.LINE_HEIGHT) + ReactAvailableViewsWidget.LIST_MARGIN;
 
-    protected forceUpdateKey = false;
-    protected lastSelectedOutputIndex = -1;
+    private _forceUpdateKey = false;
+    private _lastSelectedOutputIndex = -1;
+    private _selectedExperiment: Experiment | undefined;
+    private _experimentManager: ExperimentManager;
 
-    protected selectedExperiment: Experiment | undefined;
-
-    protected onHandleAvailableViewsChanged = (payload: AvailableViewsChangedSignalPayload): void => this.doHandleAvailableViewsChanged(payload);
+    protected doHandleExperimentSelectedSignal = (experiment: Experiment): void => this.doExperimentSelected(experiment);
 
     constructor(props: ReactAvailableViewsProps) {
         super(props);
-        signalManager().on(Signals.AVAILABLE_OUTPUTS_CHANGED, this.onHandleAvailableViewsChanged);
+        this._experimentManager = this.props.tspClientProvider.getExperimentManager();
+        this.props.tspClientProvider.addTspClientChangeListener(() => {
+            this._experimentManager = this.props.tspClientProvider.getExperimentManager();
+        });
+        signalManager().on(Signals.EXPERIMENT_SELECTED, this.doHandleExperimentSelectedSignal);
         this.state = { availableOutputDescriptors: [] };
     }
 
     componentWillUnmount(): void {
-        signalManager().off(Signals.AVAILABLE_OUTPUTS_CHANGED, this.onHandleAvailableViewsChanged);
+        signalManager().off(Signals.EXPERIMENT_SELECTED, this.doHandleExperimentSelectedSignal);
     }
 
     render(): React.ReactNode {
-        this.forceUpdateKey = !this.forceUpdateKey;
-        const key = Number(this.forceUpdateKey);
+        this._forceUpdateKey = !this._forceUpdateKey;
+        const key = Number(this._forceUpdateKey);
         let outputsRowCount = 0;
         const outputs = this.state.availableOutputDescriptors;
         if (outputs) {
@@ -82,7 +86,7 @@ export class ReactAvailableViewsWidget extends React.Component<ReactAvailableVie
             outputDescription = output.description;
         }
         let traceContainerClassName = 'outputs-list-container';
-        if (props.index === this.lastSelectedOutputIndex) {
+        if (props.index === this._lastSelectedOutputIndex) {
             traceContainerClassName = traceContainerClassName + ' theia-mod-selected';
         }
         return <div className={traceContainerClassName}
@@ -114,24 +118,46 @@ export class ReactAvailableViewsWidget extends React.Component<ReactAvailableVie
 
     private doHandleOutputClicked(e: React.MouseEvent<HTMLDivElement>) {
         const index = Number(e.currentTarget.getAttribute('data-id'));
-        this.lastSelectedOutputIndex = index;
+        this._lastSelectedOutputIndex = index;
         const outputs = this.state.availableOutputDescriptors;
-        if (outputs && this.selectedExperiment) {
-            signalManager().fireExperimentSelectedSignal(this.selectedExperiment);
-            signalManager().fireOutputAddedSignal(new OutputAddedSignalPayload(outputs[index], this.selectedExperiment));
+        if (outputs && this._selectedExperiment) {
+            signalManager().fireExperimentSelectedSignal(this._selectedExperiment);
+            signalManager().fireOutputAddedSignal(new OutputAddedSignalPayload(outputs[index], this._selectedExperiment));
         }
     }
 
     protected doHandleContextMenuEvent(event: React.MouseEvent<HTMLDivElement>, output: OutputDescriptor | undefined): void {
         if (this.props.contextMenuRenderer && output) {
-            this.props.contextMenuRenderer({ x: event.clientX, y: event.clientY }, output);
+            this.props.contextMenuRenderer(event, output);
         }
         event.preventDefault();
         event.stopPropagation();
     }
 
-    protected doHandleAvailableViewsChanged(payload: AvailableViewsChangedSignalPayload): void {
-        this.setState({ availableOutputDescriptors: payload.getAvailableOutputDescriptors()} );
-        this.selectedExperiment = payload.getExperiment();
+    protected doExperimentSelected(experiment: Experiment | undefined): void {
+        this._selectedExperiment = experiment;
+        this.updateAvailableViews();
+    }
+
+    protected updateAvailableViews = async (): Promise<void> => this.doUpdateAvailableViews();
+
+    protected async doUpdateAvailableViews(): Promise<void> {
+        let outputs: OutputDescriptor[] | undefined;
+        const signalExperiment: Experiment | undefined = this._selectedExperiment;
+        if (signalExperiment) {
+            outputs = await this.getOutputDescriptors(signalExperiment);
+            this.setState({ availableOutputDescriptors: outputs });
+        } else {
+            this.setState({ availableOutputDescriptors: [] });
+        }
+    }
+
+    protected async getOutputDescriptors(experiment: Experiment): Promise<OutputDescriptor[]> {
+        const outputDescriptors: OutputDescriptor[] = [];
+        const descriptors = await this._experimentManager.getAvailableOutputs(experiment.UUID);
+        if (descriptors && descriptors.length) {
+            outputDescriptors.push(...descriptors);
+        }
+        return outputDescriptors;
     }
 }

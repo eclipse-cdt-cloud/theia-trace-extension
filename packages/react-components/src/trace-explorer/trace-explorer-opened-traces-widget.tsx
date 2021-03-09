@@ -2,12 +2,10 @@ import * as React from 'react';
 import { List, ListRowProps, Index, AutoSizer } from 'react-virtualized';
 import { Experiment } from 'tsp-typescript-client/lib/models/experiment';
 import { ExperimentManager } from '@trace-viewer/base/lib/experiment-manager';
-import { OutputDescriptor } from 'tsp-typescript-client/lib/models/output-descriptor';
 import { signalManager, Signals } from '@trace-viewer/base/lib/signals/signal-manager';
 import ReactModal from 'react-modal';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCopy } from '@fortawesome/free-solid-svg-icons';
-import { AvailableViewsChangedSignalPayload } from '@trace-viewer/base/lib/signals/available-views-changed-signal-payload';
 import { OpenedTracesUpdatedSignalPayload } from '@trace-viewer/base/lib/signals/opened-traces-updated-signal-payload';
 import { ITspClientProvider } from '@trace-viewer/base/lib/tsp-client-provider';
 
@@ -20,21 +18,19 @@ export interface ReactOpenTracesWidgetProps {
 }
 
 export interface ReactOpenTracesWidgetState {
-    openedExperiments: Array<Experiment>
+    openedExperiments: Array<Experiment>,
+    selectedExperimentIndex: number;
 }
 
 export class ReactOpenTracesWidget extends React.Component<ReactOpenTracesWidgetProps, ReactOpenTracesWidgetState> {
     static LIST_MARGIN = 2;
     static LINE_HEIGHT = 16;
 
-    protected forceUpdateKey = false;
+    private _forceUpdateKey = false;
 
-    sharingLink = '';
-    showShareDialog = false;
-    lastSelectedOutputIndex = -1;
+    private _sharingLink = '';
+    private _showShareDialog = false;
 
-    private _selectedExperimentIndex = 0;
-    private _availableOutputDescriptors: Map<string, OutputDescriptor[]> = new Map();
     private _selectedExperiment: Experiment | undefined;
     private _experimentManager: ExperimentManager;
 
@@ -52,7 +48,7 @@ export class ReactOpenTracesWidget extends React.Component<ReactOpenTracesWidget
         this.props.tspClientProvider.addTspClientChangeListener(() => {
             this._experimentManager = this.props.tspClientProvider.getExperimentManager();
         });
-        this.state = { openedExperiments: [] };
+        this.state = { openedExperiments: [], selectedExperimentIndex: 0 };
     }
 
     componentDidMount(): void {
@@ -67,17 +63,17 @@ export class ReactOpenTracesWidget extends React.Component<ReactOpenTracesWidget
 
     async initialize(): Promise<void> {
         await this.updateOpenedExperiments();
-        await this.updateAvailableAnalysis(undefined);
+        this.updateSelectedExperiment();
     }
 
-    public async doHandleExperimentOpenedSignal(openedExperiment: Experiment): Promise<void> {
+    public async doHandleExperimentOpenedSignal(_openedExperiment: Experiment): Promise<void> {
         await this.updateOpenedExperiments();
-        await this.updateAvailableAnalysis(openedExperiment);
+        this.updateSelectedExperiment();
     }
 
     public async doHandleExperimentClosedSignal(_closedExperiment: Experiment): Promise<void> {
         await this.updateOpenedExperiments();
-        await this.updateAvailableAnalysis(undefined);
+        this.updateSelectedExperiment();
     }
 
     protected doHandleTracesWidgetActivatedSignal(experiment: Experiment): void {
@@ -106,17 +102,17 @@ export class ReactOpenTracesWidget extends React.Component<ReactOpenTracesWidget
         event.stopPropagation();
     }
 
-    public getExperiment(traceUUID: string): Experiment | undefined {
+    private getExperiment(traceUUID: string): Experiment | undefined {
         return this.state.openedExperiments.find(experiment => experiment.UUID === traceUUID);
     }
 
     render(): React.ReactNode {
         const totalHeight = this.getTotalHeight();
-        this.forceUpdateKey = !this.forceUpdateKey;
-        const key = Number(this.forceUpdateKey);
+        this._forceUpdateKey = !this._forceUpdateKey;
+        const key = Number(this._forceUpdateKey);
         return (
             <>
-                <ReactModal isOpen={this.showShareDialog} onRequestClose={this.handleShareModalClose}
+                <ReactModal isOpen={this._showShareDialog} onRequestClose={this.handleShareModalClose}
                     ariaHideApp={false} className='sharing-modal' overlayClassName='sharing-overlay'>
                     {this.renderSharingModal()}
                 </ReactModal>
@@ -152,7 +148,7 @@ export class ReactOpenTracesWidget extends React.Component<ReactOpenTracesWidget
         const traceUUID = this.state.openedExperiments.length && props.index < this.state.openedExperiments.length
             ? this.state.openedExperiments[props.index].UUID : '';
         let traceContainerClassName = 'trace-list-container';
-        if (props.index === this._selectedExperimentIndex) {
+        if (props.index === this.state.selectedExperimentIndex) {
             traceContainerClassName = traceContainerClassName + ' theia-mod-selected';
         }
         return <div className={traceContainerClassName}
@@ -214,14 +210,14 @@ export class ReactOpenTracesWidget extends React.Component<ReactOpenTracesWidget
     }
 
     protected renderSharingModal(): React.ReactNode {
-        if (this.sharingLink.length) {
+        if (this._sharingLink.length) {
             return <div className='sharing-container'>
                 <div className='sharing-description'>
                     {'Copy URL to share your trace context'}
                 </div>
                 <div className='sharing-link-info'>
                     <div className='sharing-link'>
-                        <textarea rows={1} cols={this.sharingLink.length} readOnly={true} value={this.sharingLink} />
+                        <textarea rows={1} cols={this._sharingLink.length} readOnly={true} value={this._sharingLink} />
                     </div>
                     <div className='sharing-link-copy'>
                         <button className='copy-link-button'>
@@ -245,8 +241,7 @@ export class ReactOpenTracesWidget extends React.Component<ReactOpenTracesWidget
         });
         const selectedIndex = remoteExperiments.findIndex(experiment => this._selectedExperiment &&
             experiment.UUID === this._selectedExperiment.UUID);
-        this._selectedExperimentIndex = selectedIndex !== -1 ? selectedIndex : 0;
-        this.setState({ openedExperiments: remoteExperiments });
+        this.setState({ openedExperiments: remoteExperiments, selectedExperimentIndex: selectedIndex !== -1 ? selectedIndex : 0 });
         signalManager().fireOpenedTracesChangedSignal(new OpenedTracesUpdatedSignalPayload(remoteExperiments ? remoteExperiments.length : 0));
     }
 
@@ -254,8 +249,8 @@ export class ReactOpenTracesWidget extends React.Component<ReactOpenTracesWidget
 
     protected doHandleShareButtonClick(index: number): void {
         const traceToShare = this.state.openedExperiments[index];
-        this.sharingLink = 'https://localhost:3000/share/trace?' + traceToShare.UUID;
-        this.showShareDialog = true;
+        this._sharingLink = 'https://localhost:3000/share/trace?' + traceToShare.UUID;
+        this._showShareDialog = true;
         signalManager().fireOpenedTracesChangedSignal(new OpenedTracesUpdatedSignalPayload(this.state.openedExperiments ? this.state.openedExperiments.length : 0));
     }
 
@@ -265,50 +260,25 @@ export class ReactOpenTracesWidget extends React.Component<ReactOpenTracesWidget
 
     protected doHandleOnExperimentSelected(e: React.MouseEvent<HTMLDivElement>): void {
         const index = Number(e.currentTarget.getAttribute('data-id'));
-        const exp = this.state.openedExperiments[index];
-        signalManager().fireExperimentSelectedSignal(exp);
         this.selectExperiment(index);
     }
 
-    protected selectExperiment(index: number): void {
-        if (index >= 0 && index !== this._selectedExperimentIndex) {
-            this._selectedExperimentIndex = index;
+    private selectExperiment(index: number): void {
+        if (index >= 0 && index !== this.state.selectedExperimentIndex) {
+            this.setState({ selectedExperimentIndex: index });
             this._selectedExperiment = this.state.openedExperiments[index];
-            this.lastSelectedOutputIndex = -1;
-            this.updateAvailableAnalysis(this.state.openedExperiments[index]);
+            signalManager().fireExperimentSelectedSignal(this._selectedExperiment);
         }
     }
 
-    protected updateAvailableAnalysis = async (experiment: Experiment | undefined): Promise<void> => this.doUpdateAvailableAnalysis(experiment);
-
-    protected async doUpdateAvailableAnalysis(experiment: Experiment | undefined): Promise<void> {
-        let outputs: OutputDescriptor[] | undefined;
-        let signalExperiment: Experiment | undefined = experiment;
-        if (signalExperiment) {
-            outputs = await this.getOutputDescriptors(signalExperiment);
-            this._availableOutputDescriptors.set(signalExperiment.UUID, outputs);
-        } else {
-            if (this.state.openedExperiments.length) {
-                signalExperiment = this.state.openedExperiments[0];
-                outputs = await this.getOutputDescriptors(signalExperiment);
-                this._availableOutputDescriptors.set(signalExperiment.UUID, outputs);
-            }
-        }
-        if (outputs !== undefined && signalExperiment !== undefined) {
-            signalManager().fireAvailableOutputsChangedSignal(new AvailableViewsChangedSignalPayload(outputs, signalExperiment));
+    private updateSelectedExperiment(): void {
+        if (this.state.openedExperiments && this.state.selectedExperimentIndex >= 0 && this.state.selectedExperimentIndex < this.state.openedExperiments.length) {
+            this._selectedExperiment = this.state.openedExperiments[this.state.selectedExperimentIndex];
+            signalManager().fireExperimentSelectedSignal(this._selectedExperiment);
         }
     }
 
-    protected async getOutputDescriptors(experiment: Experiment): Promise<OutputDescriptor[]> {
-        const outputDescriptors: OutputDescriptor[] = [];
-        const descriptors = await this._experimentManager.getAvailableOutputs(experiment.UUID);
-        if (descriptors && descriptors.length) {
-            outputDescriptors.push(...descriptors);
-        }
-        return outputDescriptors;
-    }
-
-    onWidgetActivated(experiment: Experiment): void {
+    protected onWidgetActivated(experiment: Experiment): void {
         if (experiment) {
             this._selectedExperiment = experiment;
             const selectedIndex = this.state.openedExperiments.findIndex(openedExperiment => openedExperiment.UUID === experiment.UUID);
@@ -319,8 +289,8 @@ export class ReactOpenTracesWidget extends React.Component<ReactOpenTracesWidget
     protected handleShareModalClose = (): void => this.doHandleShareModalClose();
 
     protected doHandleShareModalClose(): void {
-        this.showShareDialog = false;
-        this.sharingLink = '';
+        this._showShareDialog = false;
+        this._sharingLink = '';
         signalManager().fireOpenedTracesChangedSignal(new OpenedTracesUpdatedSignalPayload(this.state.openedExperiments ? this.state.openedExperiments.length : 0));
     }
 }
