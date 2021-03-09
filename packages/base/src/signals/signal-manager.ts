@@ -1,7 +1,6 @@
 import { EventEmitter } from 'events';
 import { Experiment } from 'tsp-typescript-client/lib/models/experiment';
 import { Trace } from 'tsp-typescript-client/lib/models/trace';
-import { AvailableViewsChangedSignalPayload } from './available-views-changed-signal-payload';
 import { OpenedTracesUpdatedSignalPayload } from './opened-traces-updated-signal-payload';
 import { OutputAddedSignalPayload } from './output-added-signal-payload';
 
@@ -10,9 +9,8 @@ export declare interface SignalManager {
     fireTraceClosedSignal(trace: Trace): void;
     fireExperimentExperimentSignal(experiment: Experiment): void;
     fireExperimentClosedSignal(experiment: Experiment): void;
-    fireExperimentSelectedSignal(experiment: Experiment): void;
+    fireExperimentSelectedSignal(experiment: Experiment | undefined): void;
     fireOpenedTracesChangedSignal(payload: OpenedTracesUpdatedSignalPayload): void;
-    fireAvailableOutputsChangedSignal(payload: AvailableViewsChangedSignalPayload): void;
     fireOutputAddedSignal(payload: OutputAddedSignalPayload): void;
     fireTooltipSignal(tooltip?: { [key: string]: string }): void;
     fireThemeChangedSignal(theme: string): void;
@@ -50,14 +48,11 @@ export class SignalManager extends EventEmitter implements SignalManager {
     fireExperimentClosedSignal(experiment: Experiment): void {
         this.emit(Signals.EXPERIMENT_CLOSED, experiment);
     }
-    fireExperimentSelectedSignal(experiment: Experiment): void {
+    fireExperimentSelectedSignal(experiment: Experiment | undefined): void {
         this.emit(Signals.EXPERIMENT_SELECTED, experiment);
     }
     fireOpenedTracesChangedSignal(payload: OpenedTracesUpdatedSignalPayload): void {
         this.emit(Signals.OPENED_TRACES_UPDATED, payload);
-    }
-    fireAvailableOutputsChangedSignal(payload: AvailableViewsChangedSignalPayload): void {
-        this.emit(Signals.AVAILABLE_OUTPUTS_CHANGED, payload);
     }
     fireOutputAddedSignal(payload: OutputAddedSignalPayload): void {
         this.emit(Signals.OUTPUT_ADDED, payload);
