@@ -8,12 +8,12 @@ import { OutputAddedSignalPayload } from '../output-added-signal-payload';
 import { signalManager } from '@trace-viewer/base/lib/signal-manager';
 
 @injectable()
-export class TraceExplorerAnalysisWidget extends ReactWidget {
-    static ID = 'trace-explorer-analysis-widget';
-    static LABEL = 'Available Analyses';
+export class TraceExplorerViewsWidget extends ReactWidget {
+    static ID = 'trace-explorer-views-widget';
+    static LABEL = 'Available Views';
     static LIST_MARGIN = 2;
     static LINE_HEIGHT = 16;
-    static ROW_HEIGHT = (2 * TraceExplorerAnalysisWidget.LINE_HEIGHT) + TraceExplorerAnalysisWidget.LIST_MARGIN;
+    static ROW_HEIGHT = (2 * TraceExplorerViewsWidget.LINE_HEIGHT) + TraceExplorerViewsWidget.LIST_MARGIN;
 
     protected forceUpdateKey = false;
 
@@ -24,8 +24,8 @@ export class TraceExplorerAnalysisWidget extends ReactWidget {
 
     @postConstruct()
     init(): void {
-        this.id = TraceExplorerAnalysisWidget.ID;
-        this.title.label = TraceExplorerAnalysisWidget.LABEL;
+        this.id = TraceExplorerViewsWidget.ID;
+        this.title.label = TraceExplorerViewsWidget.LABEL;
         this.toDispose.push(this.openedTracesWidget.availableOutputDescriptorsDidChange(() => {
             this.update();
         }));
@@ -44,7 +44,7 @@ export class TraceExplorerAnalysisWidget extends ReactWidget {
         }
         const totalHeight = this.getTotalHeight();
         return (
-            <div className='trace-explorer-analysis'>
+            <div className='trace-explorer-views'>
                 <div className='trace-explorer-panel-content'>
                     <AutoSizer>
                         {({ width }) =>
@@ -53,7 +53,7 @@ export class TraceExplorerAnalysisWidget extends ReactWidget {
                                 height={totalHeight}
                                 width={width}
                                 rowCount={outputsRowCount}
-                                rowHeight={TraceExplorerAnalysisWidget.ROW_HEIGHT}
+                                rowHeight={TraceExplorerViewsWidget.ROW_HEIGHT}
                                 rowRenderer={this.renderRowOutputs}
                             />
                         }
@@ -103,7 +103,7 @@ export class TraceExplorerAnalysisWidget extends ReactWidget {
         const selectedTrace = openedExperiments[selectedExperimentIndex];
         if (selectedTrace) {
             const outputDescriptors = availableOutputDescriptors.get(selectedTrace.UUID);
-            outputDescriptors?.forEach(() => totalHeight += TraceExplorerAnalysisWidget.ROW_HEIGHT);
+            outputDescriptors?.forEach(() => totalHeight += TraceExplorerViewsWidget.ROW_HEIGHT);
         }
         return totalHeight;
     }

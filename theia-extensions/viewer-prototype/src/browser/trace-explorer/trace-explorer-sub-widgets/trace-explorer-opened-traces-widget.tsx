@@ -83,18 +83,18 @@ export class TraceExplorerOpenedTracesWidget extends ReactWidget {
 
     async initialize(): Promise<void> {
         await this.updateOpenedExperiments();
-        await this.updateAvailableAnalysis(undefined);
+        await this.updateAvailableViews(undefined);
     }
 
     protected async onExperimentOpened(openedExperiment: Experiment): Promise<void> {
         await this.updateOpenedExperiments();
-        await this.updateAvailableAnalysis(openedExperiment);
+        await this.updateAvailableViews(openedExperiment);
     }
 
     protected async onExperimentClosed(_closedExperiment: Experiment): Promise<void> {
         this.tooltipWidget.tooltip = {};
         await this.updateOpenedExperiments();
-        await this.updateAvailableAnalysis(undefined);
+        await this.updateAvailableViews(undefined);
     }
 
     protected doHandleContextMenuEvent(event: React.MouseEvent<HTMLDivElement>, traceUUID: string): void {
@@ -292,13 +292,13 @@ export class TraceExplorerOpenedTracesWidget extends ReactWidget {
             this._selectedExperimentIndex = index;
             this.selectedExperiment = this._openedExperiments[index];
             this.lastSelectedOutputIndex = -1;
-            this.updateAvailableAnalysis(this._openedExperiments[index]);
+            this.updateAvailableViews(this._openedExperiments[index]);
         }
     }
 
-    protected updateAvailableAnalysis = async (experiment: Experiment | undefined): Promise<void> => this.doUpdateAvailableAnalysis(experiment);
+    protected updateAvailableViews = async (experiment: Experiment | undefined): Promise<void> => this.doUpdateAvailableViews(experiment);
 
-    protected async doUpdateAvailableAnalysis(experiment: Experiment | undefined): Promise<void> {
+    protected async doUpdateAvailableViews(experiment: Experiment | undefined): Promise<void> {
         if (experiment) {
             const outputs = await this.getOutputDescriptors(experiment);
             this._availableOutputDescriptors.set(experiment.UUID, outputs);
