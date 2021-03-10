@@ -14,7 +14,6 @@ import { TraceExplorerContribution } from '../trace-explorer/trace-explorer-cont
 import { TraceExplorerWidget } from '../trace-explorer/trace-explorer-widget';
 import { TspClientProvider } from '../tsp-client-provider';
 import { TheiaMessageManager } from '../theia-message-manager';
-import { TraceServerConnectionStatusService, TraceServerConnectionStatusContribution } from '../../browser/trace-server-status';
 import { TraceServerUrlProviderImpl } from '../trace-server-url-provider-frontend-impl';
 import { bindTraceServerPreferences } from '../trace-server-bindings';
 import { TraceServerConfigService, traceServerPath } from '../../common/trace-server-config';
@@ -54,10 +53,6 @@ export default new ContainerModule(bind => {
         const connection = ctx.container.get(WebSocketConnectionProvider);
         return connection.createProxy<TraceServerConfigService>(traceServerPath);
     }).inSingletonScope();
-    bind(TraceServerConnectionStatusService).toSelf().inSingletonScope();
-    bind(FrontendApplicationContribution).toService(TraceServerConnectionStatusService);
-    bind(TraceServerConnectionStatusContribution).toSelf().inSingletonScope();
-    bind(FrontendApplicationContribution).toService(TraceServerConnectionStatusContribution);
     bindTraceServerPreferences(bind);
     // bindViewContribution(bind, TracePropertiesContribution);
     // bind(TracePropertiesWidget).toSelf();

@@ -3,6 +3,8 @@ import { EnvVariablesServer } from '@theia/core/lib/common/env-variables';
 import { TRACE_SERVER_DEFAULT_URL, TRACE_SERVER_DEFAULT_PORT } from './trace-server-url-provider';
 import { PreferenceService } from '@theia/core/lib/browser';
 import { TRACE_PORT } from '../browser/trace-server-preference';
+import { TraceServerConfigService } from './trace-server-config';
+import { MessageService } from '@theia/core';
 
 @injectable()
 export class TraceViewerEnvironment {
@@ -10,11 +12,19 @@ export class TraceViewerEnvironment {
 
     constructor(
         @inject(EnvVariablesServer) protected readonly environments: EnvVariablesServer,
-        @inject(PreferenceService) protected readonly preferenceService: PreferenceService) {
+        @inject(PreferenceService) protected readonly preferenceService: PreferenceService,
+        @inject(TraceServerConfigService) protected readonly traceServerConfigService: TraceServerConfigService,
+        @inject(MessageService) protected readonly messageService: MessageService) {
 
         this.port = this.preferenceService.get(TRACE_PORT);
-        this.preferenceService.onPreferenceChanged(event => {
+        this.preferenceService.onPreferenceChanged(async event => {
             if (event.preferenceName === TRACE_PORT) {
+                try {
+                    await this.traceServerConfigService.stopTraceServer();
+                    this.messageService.info(`Trace server disconnected on port: ${this.port}.`);
+                } catch (e){
+                    // Do not show the error incase the user tries to modify the port before starting a server
+                }
                 this.port = event.newValue;
                 this._traceServerUrl = TRACE_SERVER_DEFAULT_URL.replace(/{}/g, this.port ? this.port : TRACE_SERVER_DEFAULT_PORT);
             }
