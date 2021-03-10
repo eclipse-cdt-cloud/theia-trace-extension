@@ -2,7 +2,7 @@
     --trace-extension-list-line-height: 16px;
 }
 
-#trace-explorer-analysis-widget,
+#trace-explorer-views-widget,
 #trace-explorer-opened-traces-widget {
     height: 100%;
 }
@@ -13,7 +13,7 @@
 }
 
 .trace-explorer-opened,
-.trace-explorer-analysis,
+.trace-explorer-views,
 .trace-explorer-tooltip {
     margin: 0 2px;
 }

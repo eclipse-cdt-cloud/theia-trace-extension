@@ -135,7 +135,7 @@ Select the **Trace Viewer** icon to switch to the trace viewer.
 
 ![Trace Viewer](https://raw.githubusercontent.com/theia-ide/theia-trace-extension/master/doc/images/theia-trace-extension-trace-explorer-0.0.2.png)
 
-Now, you will see 3 sections: **Opened Traces**, **Available Analyses** and **Time Graph Tooltip**. Select the trace that you opened and the available analyses will be populated. Now you can select different analysis and the graphs will be added into a single container view for that trace.
+Now, you will see 3 sections: **Opened Traces**, **Available Views** and **Time Graph Tooltip**. Select the trace that you opened and the available views will be populated. Now you can select different views and they will be added into a single container view for that trace.
 
 ### Navigation and zooming
 There is only a limited number of such operations and they are only implemented in the Time Graph views (the ones looking like Gantt charts). For Zoom-in/out use CTRL+mouse wheel. Or use left mouse drag on time axis on top. Navigating the trace you can use the scrollbar at the bottom of the trace timeline container.

@@ -1,5 +1,5 @@
 import { injectable, inject, postConstruct, interfaces, Container } from 'inversify';
-import { TraceExplorerAnalysisWidget } from './trace-explorer-sub-widgets/trace-explorer-analysis-widget';
+import { TraceExplorerViewsWidget } from './trace-explorer-sub-widgets/trace-explorer-views-widget';
 import { ViewContainer, BaseWidget, Message, PanelLayout } from '@theia/core/lib/browser';
 import { TraceExplorerTooltipWidget } from './trace-explorer-sub-widgets/trace-explorer-tooltip-widget';
 import { TraceExplorerOpenedTracesWidget } from './trace-explorer-sub-widgets/trace-explorer-opened-traces-widget';
@@ -13,14 +13,14 @@ export class TraceExplorerWidget extends BaseWidget {
     static LABEL = 'Trace Viewer';
     static ID = 'trace-explorer';
     protected traceViewsContainer!: ViewContainer;
-    @inject(TraceExplorerAnalysisWidget) protected readonly analysisWidget!: TraceExplorerAnalysisWidget;
+    @inject(TraceExplorerViewsWidget) protected readonly viewsWidget!: TraceExplorerViewsWidget;
     @inject(TraceExplorerOpenedTracesWidget) protected readonly openedTracesWidget!: TraceExplorerOpenedTracesWidget;
     @inject(TraceExplorerTooltipWidget) protected readonly tooltipWidget!: TraceExplorerTooltipWidget;
     @inject(TraceExplorerPlaceholderWidget) protected readonly placeholderWidget!: TraceExplorerPlaceholderWidget;
     @inject(ViewContainer.Factory) protected readonly viewContainerFactory!: ViewContainer.Factory;
 
     get outputAddedSignal(): Event<OutputAddedSignalPayload> {
-        return this.analysisWidget.outputAddedSignal;
+        return this.viewsWidget.outputAddedSignal;
     }
 
     openExperiment(traceUUID: string): void {
@@ -50,7 +50,7 @@ export class TraceExplorerWidget extends BaseWidget {
     static createContainer(parent: interfaces.Container): Container {
         const child = new Container({ defaultScope: 'Singleton' });
         child.parent = parent;
-        child.bind(TraceExplorerAnalysisWidget).toSelf();
+        child.bind(TraceExplorerViewsWidget).toSelf();
         child.bind(TraceExplorerOpenedTracesWidget).toSelf();
         child.bind(TraceExplorerPlaceholderWidget).toSelf();
         child.bind(TraceExplorerTooltipWidget).toSelf();
@@ -70,7 +70,7 @@ export class TraceExplorerWidget extends BaseWidget {
             id: this.id
         });
         this.traceViewsContainer.addWidget(this.openedTracesWidget);
-        this.traceViewsContainer.addWidget(this.analysisWidget);
+        this.traceViewsContainer.addWidget(this.viewsWidget);
         this.traceViewsContainer.addWidget(this.tooltipWidget);
         this.toDispose.push(this.traceViewsContainer);
         const layout = this.layout = new PanelLayout();
