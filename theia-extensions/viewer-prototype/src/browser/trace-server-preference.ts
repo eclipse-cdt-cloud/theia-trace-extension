@@ -14,7 +14,7 @@ export const ServerSchema: PreferenceSchema = {
         [TRACE_PORT]: {
             'type': 'number',
             'default': '',
-            'description': 'Specify the port on which you want to execute the server.',
+            'description': 'Specify the port on which you want to execute the server. This change will take effect the next time you open a trace',
         }
 
     },
