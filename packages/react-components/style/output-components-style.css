@@ -95,3 +95,17 @@ canvas {
     width: 180px;
     color: var(--theia-input-placeholder-foreground)
 }
+
+.ag-theme-balham{
+    font-family: var(--theia-ui-font-family) !important;
+    font-size: var(--theia-content-font-size) !important;
+}
+
+.ag-theme-balham-dark{
+    font-family: var(--theia-ui-font-family) !important;
+    font-size: var(--theia-content-font-size) !important;
+}
+
+.ag-theme-balham-dark .ag-row-selected {
+    background-color: var(--theia-selection-background) !important;
+}
