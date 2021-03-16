@@ -73,7 +73,6 @@ export class TableOutputComponent extends AbstractOutputComponent<TableOutputPro
                 debug={this.debugMode}
                 onGridReady={this.onGridReady}
                 components={this.components}
-                enableColResize={true}
                 onCellClicked={this.onEventClick}
                 rowSelection='single'
                 onModelUpdated={this.onModelUpdated}
@@ -197,8 +196,8 @@ export class TableOutputComponent extends AbstractOutputComponent<TableOutputPro
                 columnsArray.push({
                     headerName: columnHeader.name,
                     field: columnHeader.id.toString(),
-                    width: this.props.columnWidth
-
+                    width: this.props.columnWidth,
+                    resizable: true
                 });
             });
             }
