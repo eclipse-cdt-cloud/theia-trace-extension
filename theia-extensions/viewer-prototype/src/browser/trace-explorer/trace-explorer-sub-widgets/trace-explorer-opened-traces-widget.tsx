@@ -113,6 +113,10 @@ export class TraceExplorerOpenedTracesWidget extends ReactWidget {
         event.stopPropagation();
     }
 
+    protected doHandleDoubleClickEvent(event: React.MouseEvent<HTMLDivElement>, traceUUID: string): void {
+        this.openExperiment(traceUUID);
+    }
+
     public openExperiment(traceUUID: string): void {
         this.commandService.executeCommand(TraceViewerCommand.id, { traceUUID });
     }
@@ -181,6 +185,7 @@ export class TraceExplorerOpenedTracesWidget extends ReactWidget {
             style={props.style}
             onClick={this.handleOnExperimentSelected}
             onContextMenu={event => { this.handleContextMenuEvent(event, traceUUID); }}
+            onDoubleClick={event => { this.handleDoubleClickEvent(event, traceUUID); }}
             data-id={`${props.index}`}>
             <div className='trace-element-container'>
                 <div className='trace-element-info' >
@@ -279,6 +284,7 @@ export class TraceExplorerOpenedTracesWidget extends ReactWidget {
 
     protected handleOnExperimentSelected = (e: React.MouseEvent<HTMLDivElement>): void => this.doHandleOnExperimentSelected(e);
     protected handleContextMenuEvent = (e: React.MouseEvent<HTMLDivElement>, traceUUID: string): void => this.doHandleContextMenuEvent(e, traceUUID);
+    protected handleDoubleClickEvent = (e: React.MouseEvent<HTMLDivElement>, traceUUID: string): void => this.doHandleDoubleClickEvent(e, traceUUID);
 
     protected doHandleOnExperimentSelected(e: React.MouseEvent<HTMLDivElement>): void {
         const index = Number(e.currentTarget.getAttribute('data-id'));
