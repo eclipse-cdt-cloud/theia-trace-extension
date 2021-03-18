@@ -4,6 +4,7 @@ import { TimelineChart } from 'timeline-chart/lib/time-graph-model';
 import { QueryHelper } from 'tsp-typescript-client/lib/models/query/query-helper';
 import { OutputElementStyle } from 'tsp-typescript-client/lib/models/styles';
 import { Annotation, Type } from 'tsp-typescript-client/lib/models/annotation';
+import { TimeRange } from '@trace-viewer/base/lib/utils/time-range';
 
 export class TspDataProvider {
 
@@ -27,7 +28,8 @@ export class TspDataProvider {
         this.totalRange = 0;
     }
 
-    async getData(ids: number[], entries: TimeGraphEntry[], viewRange?: TimelineChart.TimeGraphRange, resolution?: number): Promise<TimelineChart.TimeGraphModel> {
+    async getData(ids: number[], entries: TimeGraphEntry[], totalTimeRange: TimeRange,
+            viewRange?: TimelineChart.TimeGraphRange, resolution?: number): Promise<TimelineChart.TimeGraphModel> {
         this.timeGraphEntries = [...entries];
         if (!this.timeGraphEntries.length) {
             return {
@@ -39,11 +41,11 @@ export class TspDataProvider {
             };
         }
 
-        this.totalRange = this.timeGraphEntries[0].end - this.timeGraphEntries[0].start; // 1332170682540133097 - starttime
+        this.totalRange = totalTimeRange.getEnd() - totalTimeRange.getstart();
         let fetchParameters = QueryHelper.selectionTimeQuery(QueryHelper.splitRangeIntoEqualParts(1332170682440133097, 1332170682540133097, 1120), ids);
         if (viewRange && resolution) {
-            const start = viewRange.start + this.timeGraphEntries[0].start;
-            const end = viewRange.end + this.timeGraphEntries[0].start;
+            const start = totalTimeRange.getstart() + viewRange.start;
+            const end = totalTimeRange.getstart() + viewRange.end;
             fetchParameters = QueryHelper.selectionTimeQuery(QueryHelper.splitRangeIntoEqualParts(Math.trunc(start), Math.trunc(end), resolution), ids);
         }
         const tspClientResponse = await this.client.fetchTimeGraphStates(this.traceUUID, this.outputId, fetchParameters);
@@ -56,7 +58,7 @@ export class TspDataProvider {
         }
 
         // the start time which is normalized to logical 0 in timeline chart.
-        const chartStart = this.timeGraphEntries[0].start;
+        const chartStart = totalTimeRange.getstart();
         const rows: TimelineChart.TimeGraphRowModel[] = [];
         this.timeGraphRows.forEach((row: TimeGraphRow) => {
             const rowId: number = row.entryId;
