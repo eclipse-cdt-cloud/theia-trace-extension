@@ -1,4 +1,5 @@
 import { EventEmitter } from 'events';
+import { Experiment } from 'tsp-typescript-client/lib/models/experiment';
 
 export declare interface SignalManager {
 
@@ -6,6 +7,7 @@ export declare interface SignalManager {
     fireThemeChangedSignal(theme: string): void;
     fireSelectionChangedSignal(payload: { [key: string]: string }): void;
     fireCloseTraceViewerTabSignal(traceUUID: string): void;
+    fireExperimentSelectedSignal(experiment: Experiment | undefined): void;
 
 }
 
@@ -37,6 +39,10 @@ export class SignalManager extends EventEmitter implements SignalManager {
 
     fireCloseTraceViewerTabSignal(traceUUID: string): void {
         this.emit(Signals.TRACEVIEWER_CLOSED, traceUUID);
+    }
+
+    fireExperimentSelectedSignal(experiment: Experiment | undefined): void {
+        this.emit(Signals.EXPERIMENT_SELECTED, experiment);
     }
 
 }

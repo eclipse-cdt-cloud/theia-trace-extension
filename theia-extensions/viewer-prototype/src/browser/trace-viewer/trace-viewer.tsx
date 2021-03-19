@@ -88,7 +88,7 @@ export class TraceViewerWidget extends ReactWidget {
                 this.title.label = 'Trace: ' + experiment.name;
                 this.id = experiment.UUID;
                 this.experimentManager.addExperiment(experiment);
-                signalManager().emit(Signals.EXPERIMENT_OPENED, {experiment: experiment});
+                signalManager().emit(Signals.EXPERIMENT_OPENED, { experiment: experiment });
                 if (this.isVisible) {
                     this.explorerWidget.onOpenedTracesWidgetActivated(experiment);
                 }
@@ -106,7 +106,7 @@ export class TraceViewerWidget extends ReactWidget {
     protected subscribeToExplorerEvents(): void {
         this.toDisposeOnNewExplorer.dispose();
         this.toDisposeOnNewExplorer.push(this.explorerWidget.outputAddedSignal(output => this.onOutputAdded(output)));
-        this.toDisposeOnNewExplorer.push(this.explorerWidget.experimentSelectedSignal(experiment => this.onExperimentSelected(experiment)));
+        signalManager().on(Signals.EXPERIMENT_SELECTED, (experiment: Experiment) => this.onExperimentSelected(experiment));
         signalManager().on(Signals.TRACEVIEWER_CLOSED, (UUID: string) => this.onCloseExperiment(UUID));
     }
 
@@ -117,6 +117,7 @@ export class TraceViewerWidget extends ReactWidget {
 
     dispose(): void {
         super.dispose();
+        signalManager().off(Signals.EXPERIMENT_SELECTED, (experiment: Experiment) => this.onExperimentSelected(experiment));
         signalManager().off(Signals.TRACEVIEWER_CLOSED, (UUID: string) => this.onCloseExperiment(UUID));
     }
 
