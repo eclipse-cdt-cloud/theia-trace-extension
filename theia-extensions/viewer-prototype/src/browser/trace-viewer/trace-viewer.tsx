@@ -131,7 +131,10 @@ export class TraceViewerWidget extends ReactWidget {
 
         // This will show a progress dialog with "Cancel" option
         this.messageService.showProgress({
-            text: 'Open traces'
+            text: 'Open traces',
+            options: {
+                cancelable: true
+            }
         },
             () => {
                 isCancelled.value = true;
