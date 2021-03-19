@@ -18,6 +18,7 @@ import { ThemeService } from '@theia/core/lib/browser/theming';
 import { signalManager, Signals } from '@trace-viewer/base/lib/signal-manager';
 import { OutputAddedSignalPayload } from '../trace-explorer/output-added-signal-payload';
 import { TraceExplorerWidget } from '../trace-explorer/trace-explorer-widget';
+import { TraceExplorerContribution } from '../trace-explorer/trace-explorer-contribution';
 
 export const TraceViewerWidgetOptions = Symbol('TraceViewerWidgetOptions');
 export interface TraceViewerWidgetOptions {
@@ -53,6 +54,7 @@ export class TraceViewerWidget extends ReactWidget {
     @inject(ApplicationShell) protected readonly shell: ApplicationShell;
     @inject(TheiaMessageManager) protected readonly _signalHandler: TheiaMessageManager;
     @inject(MessageService) protected readonly messageService: MessageService;
+    @inject(TraceExplorerContribution) protected readonly traceExplorerContribution: TraceExplorerContribution;
 
     @postConstruct()
     async init(): Promise<void> {
@@ -88,7 +90,7 @@ export class TraceViewerWidget extends ReactWidget {
                 this.title.label = 'Trace: ' + experiment.name;
                 this.id = experiment.UUID;
                 this.experimentManager.addExperiment(experiment);
-                signalManager().emit(Signals.EXPERIMENT_OPENED, {experiment: experiment});
+                signalManager().emit(Signals.EXPERIMENT_OPENED, { experiment: experiment });
                 if (this.isVisible) {
                     this.explorerWidget.onOpenedTracesWidgetActivated(experiment);
                 }
@@ -205,6 +207,10 @@ export class TraceViewerWidget extends ReactWidget {
                             if (this.isVisible) {
                                 this.explorerWidget.onOpenedTracesWidgetActivated(experiment);
                             }
+                            this.traceExplorerContribution.openView({
+                                toggle: true,
+                                activate: true
+                            });
                         }
                         // Check if there are any invalid traces and display the warning message with the names of the invalid traces if any.
                         if (Array.isArray(invalidTraces) && invalidTraces.length) {
