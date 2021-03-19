@@ -25,9 +25,6 @@ export class TraceExplorerOpenedTracesWidget extends ReactWidget {
 
     protected forceUpdateKey = false;
 
-    protected experimentSelectedEmitter = new Emitter<Experiment>();
-    experimentSelectedSignal = this.experimentSelectedEmitter.event;
-
     protected availableOutputDescriptorsEmitter = new Emitter<Map<string, OutputDescriptor[]>>();
     availableOutputDescriptorsDidChange = this.availableOutputDescriptorsEmitter.event;
 
@@ -66,14 +63,12 @@ export class TraceExplorerOpenedTracesWidget extends ReactWidget {
 
         signalManager().on(Signals.EXPERIMENT_OPENED, ({ experiment }) => this.onExperimentOpened(experiment));
         signalManager().on(Signals.EXPERIMENT_CLOSED, ({ experiment }) => this.onExperimentClosed(experiment));
-        signalManager().on(Signals.EXPERIMENT_SELECTED, ({ experiment }) => this.onWidgetActivated(experiment));
+        signalManager().on(Signals.EXPERIMENT_SELECTED, (experiment: Experiment) => this.onWidgetActivated(experiment));
 
         this.experimentManager = this.tspClientProvider.getExperimentManager();
         this.tspClientProvider.addTspClientChangeListener(() => {
             this.experimentManager = this.tspClientProvider.getExperimentManager();
         });
-
-        this.toDispose.pushAll([this.experimentSelectedEmitter, this.availableOutputDescriptorsEmitter]);
 
         await this.initialize();
         this.update();
@@ -83,7 +78,7 @@ export class TraceExplorerOpenedTracesWidget extends ReactWidget {
         super.dispose();
         signalManager().off(Signals.EXPERIMENT_OPENED, ({ experiment }) => this.onExperimentOpened(experiment));
         signalManager().off(Signals.EXPERIMENT_CLOSED, ({ experiment }) => this.onExperimentClosed(experiment));
-        signalManager().off(Signals.EXPERIMENT_SELECTED, ({ experiment }) => this.onWidgetActivated(experiment));
+        signalManager().off(Signals.EXPERIMENT_SELECTED, (experiment: Experiment) => this.onWidgetActivated(experiment));
     }
 
     async initialize(): Promise<void> {
@@ -282,7 +277,7 @@ export class TraceExplorerOpenedTracesWidget extends ReactWidget {
 
     protected doHandleOnExperimentSelected(e: React.MouseEvent<HTMLDivElement>): void {
         const index = Number(e.currentTarget.getAttribute('data-id'));
-        this.experimentSelectedEmitter.fire(this._openedExperiments[index]);
+        signalManager().fireExperimentSelectedSignal(this._openedExperiments[index]);
         this.selectExperiment(index);
     }
 

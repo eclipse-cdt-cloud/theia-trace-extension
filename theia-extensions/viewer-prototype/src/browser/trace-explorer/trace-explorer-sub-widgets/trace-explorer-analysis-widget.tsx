@@ -5,6 +5,7 @@ import { List, ListRowProps, AutoSizer } from 'react-virtualized';
 import { TraceExplorerOpenedTracesWidget } from './trace-explorer-opened-traces-widget';
 import { Emitter } from '@theia/core';
 import { OutputAddedSignalPayload } from '../output-added-signal-payload';
+import { signalManager } from '@trace-viewer/base/lib/signal-manager';
 
 @injectable()
 export class TraceExplorerAnalysisWidget extends ReactWidget {
@@ -115,6 +116,7 @@ export class TraceExplorerAnalysisWidget extends ReactWidget {
         this.openedTracesWidget.lastSelectedOutputIndex = index;
         const trace = openedExperiments[selectedExperimentIndex];
         const outputs = availableOutputDescriptors.get(trace.UUID);
+        signalManager().fireExperimentSelectedSignal(trace);
         if (outputs) {
             this.outputAddedEmitter.fire(new OutputAddedSignalPayload(outputs[index], trace));
         }

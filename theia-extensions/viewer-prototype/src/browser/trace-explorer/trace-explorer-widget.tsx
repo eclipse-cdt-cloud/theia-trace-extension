@@ -23,10 +23,6 @@ export class TraceExplorerWidget extends BaseWidget {
         return this.analysisWidget.outputAddedSignal;
     }
 
-    get experimentSelectedSignal(): Event<Experiment> {
-        return this.openedTracesWidget.experimentSelectedSignal;
-    }
-
     openExperiment(traceUUID: string): void {
         return this.openedTracesWidget.openExperiment(traceUUID);
     }
