@@ -49,6 +49,11 @@
     display: flex;
 }
 
+#xy-main {
+    width: 100%;
+    display: flex;
+}
+
 #main {
     border: 1px solid;
     margin: 10px 0;

@@ -161,7 +161,7 @@ export class XYOutputComponent extends AbstractTreeOutputComponent<AbstractOutpu
         // width={this.props.style.chartWidth}
         return <React.Fragment>
             {this.state.outputStatus === ResponseStatus.COMPLETED ?
-                <div onMouseDown={event => this.beginSelection(event)}>
+                <div id='xy-main' onMouseDown={event => this.beginSelection(event)} style={{ height: this.props.style.height }} >
                     <Line
                         data={this.state.xyData}
                         height={parseInt(this.props.style.height.toString())}
