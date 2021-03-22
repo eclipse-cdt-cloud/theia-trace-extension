@@ -4,10 +4,10 @@ import * as React from 'react';
 import { QueryHelper } from 'tsp-typescript-client/lib/models/query/query-helper';
 import { Entry } from 'tsp-typescript-client/lib/models/entry';
 import { ResponseStatus } from 'tsp-typescript-client/lib/models/response/responses';
-import { EntryTree } from './utils/filtrer-tree/entry-tree';
-import { getAllExpandedNodeIds } from './utils/filtrer-tree/utils';
-import { TreeNode } from './utils/filtrer-tree/tree-node';
-import ColumnHeader from './utils/filtrer-tree/column-header';
+import { EntryTree } from './utils/filter-tree/entry-tree';
+import { getAllExpandedNodeIds } from './utils/filter-tree/utils';
+import { TreeNode } from './utils/filter-tree/tree-node';
+import ColumnHeader from './utils/filter-tree/column-header';
 
 type DataTreeOutputProps = AbstractOutputProps & {
 };

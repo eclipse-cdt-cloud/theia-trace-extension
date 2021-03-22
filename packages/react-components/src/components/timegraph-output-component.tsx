@@ -21,10 +21,10 @@ import { StyleProvider } from './data-providers/style-provider';
 import { TspDataProvider } from './data-providers/tsp-data-provider';
 import { ReactTimeGraphContainer } from './utils/timegraph-container-component';
 import { OutputElementStyle } from 'tsp-typescript-client/lib/models/styles';
-import { EntryTree } from './utils/filtrer-tree/entry-tree';
-import { listToTree, getAllExpandedNodeIds } from './utils/filtrer-tree/utils';
+import { EntryTree } from './utils/filter-tree/entry-tree';
+import { listToTree, getAllExpandedNodeIds } from './utils/filter-tree/utils';
 import hash from 'traceviewer-base/lib/utils/value-hash';
-import ColumnHeader from './utils/filtrer-tree/column-header';
+import ColumnHeader from './utils/filter-tree/column-header';
 import { TimeGraphAnnotationComponent } from 'timeline-chart/lib/components/time-graph-annotation';
 import { Entry } from 'tsp-typescript-client';
 
