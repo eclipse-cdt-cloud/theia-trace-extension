@@ -225,7 +225,8 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
         }
         start = start ? start : (elementRange.start + (offset ? offset : 0)).toString();
         end = end ? end : (elementRange.end + (offset ? offset : 0)).toString();
-        const time = Math.round(elementRange.start + (offset ? offset : 0));
+        // use middle of state for fetching tooltip since hover time is not available
+        const time = Math.round(elementRange.start + (elementRange.end - elementRange.start) / 2 + (offset ? offset : 0));
         const tooltipResponse = await this.props.tspClient.fetchTimeGraphToolTip(
             this.props.traceId, this.props.outputDescriptor.id, time, element.row.model.id.toString());
         return {
@@ -282,23 +283,11 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
     }
 
     private async onElementSelected(element: TimeGraphRowElement | undefined) {
+        let tooltipObject = undefined;
         if (element && this.props.viewRange) {
-            const elementRange = element.model.range;
-            const offset = this.props.viewRange.getOffset();
-            const time = Math.round((elementRange.start + ((elementRange.end - elementRange.start) / 2)) + (offset ? offset : 0));
-            const tooltipResponse = await this.props.tspClient.fetchTimeGraphToolTip(this.props.traceId, this.props.outputDescriptor.id, time, element.row.model.id.toString());
-            const responseModel = tooltipResponse.getModel();
-            if (responseModel) {
-                const tooltipObject = {
-                    'Label': element.model.label,
-                    'Start time': (elementRange.start + (offset ? offset : 0)).toString(),
-                    'End time': (elementRange.end + (offset ? offset : 0)).toString(),
-                    ...responseModel.model,
-                    'Row': element.row.model.name
-                };
-                signalManager().fireTooltipSignal(tooltipObject);
-            }
+            tooltipObject = await this.fetchTooltip(element);
         }
+        signalManager().fireTooltipSignal(tooltipObject);
     }
 
     private async fetchTimegraphData(range: TimelineChart.TimeGraphRange, resolution: number) {
