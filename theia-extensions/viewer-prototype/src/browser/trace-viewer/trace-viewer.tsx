@@ -212,7 +212,6 @@ export class TraceViewerWidget extends ReactWidget {
                                 this.explorerWidget.onOpenedTracesWidgetActivated(experiment);
                             }
                             this.traceExplorerContribution.openView({
-                                toggle: true,
                                 activate: true
                             });
                         }
