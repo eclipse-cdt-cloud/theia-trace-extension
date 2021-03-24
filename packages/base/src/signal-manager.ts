@@ -3,7 +3,7 @@ import { Experiment } from 'tsp-typescript-client/lib/models/experiment';
 
 export declare interface SignalManager {
 
-    fireTooltipSignal(tooltip: { [key: string]: string }): void;
+    fireTooltipSignal(tooltip?: { [key: string]: string }): void;
     fireThemeChangedSignal(theme: string): void;
     fireSelectionChangedSignal(payload: { [key: string]: string }): void;
     fireCloseTraceViewerTabSignal(traceUUID: string): void;
@@ -25,7 +25,7 @@ export const Signals = {
 
 export class SignalManager extends EventEmitter implements SignalManager {
 
-    fireTooltipSignal(tooltip: { [key: string]: string; }): void {
+    fireTooltipSignal(tooltip?: { [key: string]: string; }): void {
         this.emit(Signals.TOOLTIP_UPDATED, { tooltip });
     }
 

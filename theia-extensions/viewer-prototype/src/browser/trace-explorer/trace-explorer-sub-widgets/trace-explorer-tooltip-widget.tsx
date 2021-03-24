@@ -8,11 +8,11 @@ import { Signals, signalManager } from '@trace-viewer/base/lib/signal-manager';
 @injectable()
 export class TraceExplorerTooltipWidget extends ReactWidget {
     static ID = 'trace-explorer-tooltip-widget';
-    static LABEL = 'Time Graph Tooltip';
+    static LABEL = 'Item Properties';
 
     @inject(EditorManager) protected readonly editorManager!: EditorManager;
 
-    tooltip: { [key: string]: string } = {};
+    tooltip?: { [key: string]: string } = undefined;
 
     @postConstruct()
     init(): void {
@@ -30,10 +30,9 @@ export class TraceExplorerTooltipWidget extends ReactWidget {
     private renderTooltip() {
         const tooltipArray: JSX.Element[] = [];
         if (this.tooltip) {
-            const keys = Object.keys(this.tooltip);
-            keys.forEach(key => {
+            Object.entries(this.tooltip).forEach(([key, value]) => {
                 if (key === 'Source') {
-                    const sourceCodeInfo = this.tooltip[key];
+                    const sourceCodeInfo = value;
                     const matches = sourceCodeInfo.match('(.*):(\\d+)');
                     let fileLocation;
                     let line;
@@ -47,9 +46,11 @@ export class TraceExplorerTooltipWidget extends ReactWidget {
                         data-id={JSON.stringify({ fileLocation, line })}
                     >{key + ': ' + sourceCodeInfo}</p>);
                 } else {
-                    tooltipArray.push(<p key={key}>{key + ': ' + this.tooltip[key]}</p>);
+                    tooltipArray.push(<p key={key}>{key + ': ' + value}</p>);
                 }
             });
+        } else {
+            tooltipArray.push(<p><i>Select item to view properties</i></p>);
         }
 
         return (
@@ -111,7 +112,7 @@ export class TraceExplorerTooltipWidget extends ReactWidget {
         );
     }
 
-    private onTooltip(tooltip: { [key: string]: string }) {
+    private onTooltip(tooltip?: { [key: string]: string }) {
         this.tooltip = tooltip;
         this.update();
     }
