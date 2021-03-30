@@ -217,7 +217,18 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
                 <div id='timegraph-main' className='ps__child--consume' onWheel={ev => { ev.preventDefault(); ev.stopPropagation(); }} style={{ height: this.props.style.height }} >
                     {this.renderTimeGraphContent()}
                 </div> :
-                'Analysis running...'}
+                <div className='analysis-running'>
+                    {(
+                        <i
+                            className='fa fa-refresh fa-spin'
+                            style={{ marginRight: '5px' }}
+                        />
+                    )}
+                    {
+                    'Analysis running'
+                    }
+                </div>
+    }
         </React.Fragment>;
     }
 
