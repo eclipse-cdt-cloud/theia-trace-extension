@@ -68,6 +68,16 @@ canvas {
     width: 100%;
 }
 
+.analysis-running {
+    font-size: 24px;
+    text-align: center;
+    position: relative;
+    transform: translate(0, -50%);
+    top: 50%;
+    width: 90%;
+    align-self: center;
+}
+
 .table-tree>tbody>tr:nth-child(1)>th {
     background-color: var(--theia-editor-background);
     position: sticky;

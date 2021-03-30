@@ -170,7 +170,17 @@ export class XYOutputComponent extends AbstractTreeOutputComponent<AbstractOutpu
                         plugins={[this.plugin]}>
                     </Line>
                 </div> :
-                'Analysis running...'}
+                <div className='analysis-running'>
+                {(
+                        <i
+                            className='fa fa-refresh fa-spin'
+                            style={{ marginRight: '5px' }}
+                        />
+                    )}
+                    {
+                    'Analysis running'
+                    }
+                </div>}
         </React.Fragment>;
     }
 
