@@ -291,15 +291,18 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
     }
 
     private async fetchTimegraphData(range: TimelineChart.TimeGraphRange, resolution: number) {
-        const treeNodes = listToTree(this.state.timegraphTree, this.state.columns);
-        const orderedTreeIds = getAllExpandedNodeIds(treeNodes, this.state.collapsedNodes);
+        let visibleEntries = this.chartLayer.getVisibleEntries();
+        if (visibleEntries.length === 0) {
+            const treeNodes = listToTree(this.state.timegraphTree, this.state.columns);
+            visibleEntries = getAllExpandedNodeIds(treeNodes, this.state.collapsedNodes);
+        }
         const length = range.end - range.start;
         const overlap = ((length * 5) - length) / 2;
         const start = range.start - overlap > 0 ? range.start - overlap : 0;
         const end = range.end + overlap < this.props.unitController.absoluteRange ? range.end + overlap : this.props.unitController.absoluteRange;
         const newRange: TimelineChart.TimeGraphRange = { start, end };
         const newResolution: number = resolution * 0.8;
-        const timeGraphData: TimelineChart.TimeGraphModel = await this.tspDataProvider.getData(orderedTreeIds, this.state.timegraphTree,
+        const timeGraphData: TimelineChart.TimeGraphModel = await this.tspDataProvider.getData(visibleEntries, this.state.timegraphTree,
             this.props.range, newRange, this.props.style.chartWidth);
         return {
             rows: timeGraphData ? timeGraphData.rows : [],
