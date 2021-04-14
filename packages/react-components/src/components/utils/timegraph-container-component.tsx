@@ -28,6 +28,12 @@ export class ReactTimeGraphContainer extends React.Component<ReactTimeGraphConta
         });
     }
 
+    componentWillUnmount(): void {
+        if (this.container) {
+            this.container.destroy();
+        }
+    }
+
     shouldComponentUpdate(nextProps: ReactTimeGraphContainer.Props): boolean {
         return nextProps.options.height !== this.props.options.height
             || nextProps.options.width !== this.props.options.width;
