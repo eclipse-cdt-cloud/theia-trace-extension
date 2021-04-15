@@ -50,9 +50,9 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
 
     private selectedElement: TimeGraphStateComponent | undefined;
     private tooltipElement: TimeGraphStateComponent | undefined;
-    private tooltipInfo: {[key: string]: string} | undefined;
+    private tooltipInfo: { [key: string]: string } | undefined;
 
-    private onSelectionChanged = ( payload: { [key: string]: string; } ) => this.doHandleSelectionChangedSigna(payload);
+    private onSelectionChanged = (payload: { [key: string]: string; }) => this.doHandleSelectionChangedSignal(payload);
 
     constructor(props: TimegraphOutputProps) {
         super(props);
@@ -138,10 +138,10 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
                 const columns = [];
                 if (headers && headers.length > 0) {
                     headers.forEach(header => {
-                        columns.push({title: header.name, sortable: true, tooltip: header.tooltip});
+                        columns.push({ title: header.name, sortable: true, tooltip: header.tooltip });
                     });
                 } else {
-                    columns.push({title: 'Name', sortable: true});
+                    columns.push({ title: 'Name', sortable: true });
                 }
                 this.setState({
                     outputStatus: treeResponse.status,
@@ -191,14 +191,16 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
         return true;
     }
 
-    private doHandleSelectionChangedSigna(payload: { [key: string]: string }) {
+    private doHandleSelectionChangedSignal(payload: { [key: string]: string }) {
         const offset = this.props.viewRange.getOffset() || 0;
-        const timestamp = Number(payload['timestamp']);
-        if (!isNaN(timestamp)) {
-            const selectionRangeStart = timestamp - offset;
+        const startTimestamp = Number(payload['startTimestamp']);
+        const endTimestamp = Number(payload['endTimestamp']);
+        if (!isNaN(startTimestamp) && !isNaN(endTimestamp)) {
+            const selectionRangeStart = startTimestamp - offset;
+            const selectionRangeEnd = endTimestamp - offset;
             this.props.unitController.selectionRange = {
                 start: selectionRangeStart,
-                end: selectionRangeStart
+                end: selectionRangeEnd
             };
             this.chartCursors.maybeCenterCursor();
         }
@@ -231,10 +233,10 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
                         />
                     )}
                     {
-                    'Analysis running'
+                        'Analysis running'
                     }
                 </div>
-    }
+            }
         </React.Fragment>;
     }
 
