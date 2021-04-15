@@ -2,11 +2,12 @@
 import { AbstractOutputComponent, AbstractOutputProps, AbstractOutputState } from './abstract-output-component';
 import * as React from 'react';
 import { AgGridReact } from 'ag-grid-react';
-import { ColDef, IDatasource, GridReadyEvent, CellClickedEvent, GridApi, ColumnApi } from 'ag-grid-community';
+import { ColDef, IDatasource, GridReadyEvent, CellClickedEvent, GridApi, ColumnApi, Column, RowNode } from 'ag-grid-community';
 import { QueryHelper } from 'tsp-typescript-client/lib/models/query/query-helper';
 import { cloneDeep } from 'lodash';
 import { signalManager } from '@trace-viewer/base/lib/signals/signal-manager';
 import { TimelineChart } from 'timeline-chart/lib/time-graph-model';
+import { CellKeyDownEvent } from 'ag-grid-community/dist/lib/events';
 
 type TableOuputState = AbstractOutputState & {
     tableColumns: ColDef[];
@@ -30,9 +31,16 @@ export class TableOutputComponent extends AbstractOutputComponent<TableOutputPro
     private components: any;
     private gridApi: GridApi | undefined = undefined;
     private columnApi: ColumnApi | undefined = undefined;
-    private pendingIndex: number | undefined = undefined;
-    private lastIndex = { timestamp: Number.MIN_VALUE, index: 0 };
+    private prevStartTimestamp: number = Number.MIN_VALUE;
+    private startTimestamp: number = Number.MAX_VALUE;
+    private endTimestamp: number = Number.MIN_VALUE;
+    private isIndexChanged = false;
     private columnsPacked = false;
+    private timestampCol: string | undefined = undefined;
+    private eventSignal = false;
+    private enableIndexSelection = true;
+    private selectStartIndex = -1;
+    private selectEndIndex = -1;
 
     static defaultProps: Partial<TableOutputProps> = {
         cacheBlockSize: 200,
@@ -58,6 +66,7 @@ export class TableOutputComponent extends AbstractOutputComponent<TableOutputPro
 
         this.onEventClick = this.onEventClick.bind(this);
         this.onModelUpdated = this.onModelUpdated.bind(this);
+        this.onKeyDown = this.onKeyDown.bind(this);
     }
 
     renderMainArea(): React.ReactNode {
@@ -74,9 +83,9 @@ export class TableOutputComponent extends AbstractOutputComponent<TableOutputPro
                 onGridReady={this.onGridReady}
                 components={this.components}
                 onCellClicked={this.onEventClick}
-                rowSelection='single'
+                rowSelection='multiple'
                 onModelUpdated={this.onModelUpdated}
-                enableCellTextSelection={true}
+                onCellKeyDown={this.onKeyDown}
             >
             </AgGridReact>
         </div>;
@@ -101,23 +110,140 @@ export class TableOutputComponent extends AbstractOutputComponent<TableOutputPro
 
     private onEventClick(event: CellClickedEvent) {
         const columns = event.columnApi.getAllColumns();
-        const tooltipObj: { [key: string]: string } = {};
+        const data = event.data;
+        const mouseEvent = event.event as MouseEvent;
+        const gridApi = event.api;
+        const rowIndex = event.rowIndex;
+        const itemPropsObj = this.fetchItemProperties(columns, data);
+        signalManager().fireTooltipSignal(itemPropsObj);
+
+        const currTimestamp = (this.timestampCol && data) ? data[this.timestampCol] : undefined;
+        this.enableIndexSelection = true;
+        if (mouseEvent.shiftKey) {
+            if (this.selectStartIndex === -1) {
+                this.selectStartIndex = rowIndex;
+                if (currTimestamp) {
+                    this.startTimestamp = Number(currTimestamp);
+                }
+            }
+            this.selectEndIndex = rowIndex;
+            if (currTimestamp) {
+                this.endTimestamp = Number(currTimestamp);
+            }
+            this.selectRows();
+        } else {
+            if (mouseEvent.ctrlKey || mouseEvent.metaKey) {
+                gridApi.deselectAll();
+                const rowNode = gridApi.getRowNode(String(rowIndex));
+                if (rowNode && rowNode.id) {
+                    rowNode.setSelected(true);
+                }
+            }
+            this.selectStartIndex = this.selectEndIndex = rowIndex;
+            if (currTimestamp) {
+                this.startTimestamp = this.endTimestamp = Number(currTimestamp);
+            }
+        }
+        this.handleRowSelectionChange();
+    }
+
+    private fetchItemProperties(columns: Column[], data: any) {
+        const itemPropsObj: { [key: string]: string } = {};
         columns.forEach(column => {
             const headerName = column.getColDef().headerName;
             const colField = column.getColDef().field;
-            if (headerName && colField && event.data[colField]) {
-                tooltipObj[headerName] = event.data[colField];
+            if (headerName && colField && data && data[colField]) {
+                itemPropsObj[headerName] = data[colField];
             }
         });
-        signalManager().fireTooltipSignal(tooltipObj);
-        const timestampHeader = columns.find(column => column.getColDef().headerName === 'Timestamp ns');
-        if (timestampHeader) {
-            const timestampCol = timestampHeader.getColDef().field;
-            if (timestampCol) {
-                const timestamp = event.data[timestampCol];
-                const payload = { 'timestamp': timestamp };
-                this.lastIndex = { timestamp: Math.trunc(Number(timestamp)), index: event.rowIndex };
-                signalManager().fireSelectionChangedSignal(payload);
+        return itemPropsObj;
+    }
+
+    private onKeyDown(event: CellKeyDownEvent) {
+        const gridApi = event.api;
+        const keyEvent = event.event as KeyboardEvent;
+        const rowIndex = event.rowIndex;
+        this.enableIndexSelection = true;
+        const currTimestamp = (this.timestampCol && event.data) ? event.data[this.timestampCol] : undefined;
+
+        if (gridApi) {
+            const currentRow = gridApi.getRowNode(String(rowIndex));
+
+            let isContiguous = true;
+            if (keyEvent.shiftKey) {
+                if (keyEvent.code === 'ArrowDown') {
+                    if (!currentRow.isSelected()) {
+                        gridApi.deselectAll();
+                        isContiguous = false;
+                    }
+
+                    const nextRow = gridApi.getRowNode(String(rowIndex + 1));
+                    if (isContiguous === false) {
+                        if (this.timestampCol && nextRow.data) {
+                            this.startTimestamp = this.endTimestamp = Number(nextRow.data[this.timestampCol]);
+                        }
+                        this.selectStartIndex = this.selectEndIndex = nextRow.rowIndex;
+                    } else {
+                        if (this.selectEndIndex < this.selectStartIndex) {
+                            if (currentRow && currentRow.id) {
+                                currentRow.setSelected(false);
+                            }
+                        } else {
+                            if (nextRow && nextRow.id) {
+                                nextRow.setSelected(true);
+                            }
+                        }
+                        this.selectEndIndex += 1;
+                        if (this.timestampCol && nextRow.data) {
+                            this.endTimestamp = Number(nextRow.data[this.timestampCol]);
+                        }
+                    }
+                    this.handleRowSelectionChange();
+                } else if (keyEvent.code === 'ArrowUp') {
+                    if (!currentRow.isSelected()) {
+                        gridApi.deselectAll();
+                        isContiguous = false;
+                    }
+                    const nextRow = gridApi.getRowNode(String(rowIndex - 1));
+
+                    if (isContiguous === false) {
+                        if (this.timestampCol && nextRow.data) {
+                            this.startTimestamp = this.endTimestamp = Number(nextRow.data[this.timestampCol]);
+                        }
+                        this.selectStartIndex = this.selectEndIndex = nextRow.rowIndex;
+                    } else {
+                        if (this.selectStartIndex < this.selectEndIndex) {
+                            if (currentRow && currentRow.id) {
+                                currentRow.setSelected(false);
+                            }
+                        } else {
+                            if (nextRow && nextRow.id) {
+                                nextRow.setSelected(true);
+                            }
+                        }
+                        this.selectEndIndex -= 1;
+                        if (this.timestampCol && nextRow.data) {
+                            this.endTimestamp = Number(nextRow.data[this.timestampCol]);
+                        }
+                    }
+                    this.handleRowSelectionChange();
+
+                } else if (keyEvent.code === 'Space') {
+                    this.selectEndIndex = rowIndex;
+                    if (currTimestamp) {
+                        this.endTimestamp = Number(currTimestamp);
+                    }
+                    this.selectRows();
+                    this.handleRowSelectionChange();
+                }
+            } else if (keyEvent.code === 'Space') {
+                gridApi.deselectAll();
+                if (currentRow && currentRow.id) {
+                    currentRow.setSelected(true);
+                }
+                this.selectStartIndex = this.selectEndIndex = rowIndex;
+                this.startTimestamp = this.endTimestamp = Number(currTimestamp);
+                this.handleRowSelectionChange();
             }
         }
     }
@@ -169,7 +295,6 @@ export class TableOutputComponent extends AbstractOutputComponent<TableOutputPro
                     const itemCopy = cloneDeep(item);
                     rowsThisPage[i] = itemCopy;
                 }
-
                 params.successCallback(rowsThisPage, this.props.nbEvents);
             }
         };
@@ -221,25 +346,58 @@ export class TableOutputComponent extends AbstractOutputComponent<TableOutputPro
         this.setState({
             tableColumns: this.columnArray
         });
+
+        if (this.columnApi) {
+            const columns = this.columnApi.getAllColumns();
+            const timestampHeader = columns.find(column => column.getColDef().headerName === 'Timestamp ns');
+            if (timestampHeader) {
+                this.timestampCol = timestampHeader.getColDef().field;
+            }
+        }
+    }
+
+    private handleRowSelectionChange() {
+        if (this.timestampCol) {
+            const startTimestamp = String(this.startTimestamp);
+            const endTimestamp = String(this.endTimestamp);
+            const payload = { startTimestamp, endTimestamp };
+            this.prevStartTimestamp = Number(startTimestamp);
+            this.eventSignal = true;
+            signalManager().fireSelectionChangedSignal(payload);
+        }
     }
 
     private async handleTimeSelectionChange(range?: TimelineChart.TimeGraphRange) {
         if (range) {
-            const start = Math.trunc(this.props.range.getstart() + range.start);
-            if (this.lastIndex.timestamp === start) {
+            if (this.eventSignal) {
+                this.eventSignal = false;
                 return;
             }
-            const index = await this.fetchTableIndex(start);
-            if (index && this.gridApi) {
-                this.lastIndex = { timestamp: start, index: index };
+
+            this.startTimestamp = Math.trunc(this.props.range.getstart() + range.start);
+            this.endTimestamp = Math.trunc(this.props.range.getstart() + range.end);
+
+            if (this.startTimestamp === this.endTimestamp || !this.timestampCol) {
+                this.enableIndexSelection = true;
+            } else {
+                this.enableIndexSelection = false;
+            }
+
+            if (this.gridApi && this.startTimestamp !== this.prevStartTimestamp) {
+                this.prevStartTimestamp = this.startTimestamp;
+                this.selectStartIndex = this.selectEndIndex = -1;
                 this.gridApi.deselectAll();
-                this.gridApi.ensureIndexVisible(index);
-                const node = this.gridApi.getDisplayedRowAtIndex(index);
-                if (node.id) {
-                    node.setSelected(true);
-                } else {
-                    this.pendingIndex = index;
+
+                const index = await this.fetchTableIndex(this.startTimestamp > this.endTimestamp ? this.startTimestamp+1 : this.startTimestamp);
+                if (index) {
+                    const startIndex = this.startTimestamp > this.endTimestamp ? index-1 : index;
+                    this.selectStartIndex = this.selectStartIndex === -1 ? startIndex : this.selectStartIndex;
+                    this.selectEndIndex = (this.enableIndexSelection && this.selectEndIndex === -1) ? startIndex : this.selectEndIndex;
+                    this.gridApi.ensureIndexVisible(this.selectStartIndex);
+                    this.selectRows();
                 }
+            } else {
+                this.selectRows();
             }
         }
     }
@@ -263,15 +421,31 @@ export class TableOutputComponent extends AbstractOutputComponent<TableOutputPro
     }
 
     private onModelUpdated = async () => {
-        if (this.pendingIndex && this.gridApi) {
-            if (this.gridApi.getSelectedNodes().length === 0) {
-                this.gridApi.getDisplayedRowAtIndex(this.pendingIndex).setSelected(true);
-            }
-            this.pendingIndex = undefined;
-        }
+        this.selectRows();
+
         if (this.columnArray.length > 0 && !this.columnsPacked && this.columnApi) {
             this.columnApi.autoSizeAllColumns();
             this.columnsPacked = true;
         }
     };
+
+    private isValidRowSelection(rowNode: RowNode): boolean {
+        if ((this.enableIndexSelection && this.selectStartIndex !== -1 && this.selectEndIndex !== -1 && rowNode.rowIndex >= Math.min(this.selectStartIndex, this.selectEndIndex)
+            && rowNode.rowIndex <= Math.max(this.selectStartIndex, this.selectEndIndex)) || (!this.enableIndexSelection
+                && this.timestampCol && rowNode.data[this.timestampCol] >= Math.min(this.startTimestamp, this.endTimestamp)
+                && rowNode.data[this.timestampCol] <= Math.max(this.startTimestamp, this.endTimestamp))) {
+            return true;
+        }
+        return false;
+    }
+
+    private selectRows(): void {
+        if (this.gridApi) {
+            this.gridApi.forEachNode(rowNode => {
+                if (rowNode.id) {
+                    rowNode.setSelected(this.isValidRowSelection(rowNode));
+                }
+            });
+        }
+    }
 }
