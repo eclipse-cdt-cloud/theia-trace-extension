@@ -14,6 +14,7 @@ import { TimeGraphEntry } from 'tsp-typescript-client/lib/models/timegraph';
 import { signalManager, Signals } from '@trace-viewer/base/lib/signals/signal-manager';
 import { AbstractOutputProps, AbstractOutputState } from './abstract-output-component';
 import { AbstractTreeOutputComponent } from './abstract-tree-output-component';
+import { StyleProperties } from './data-providers/style-properties';
 import { StyleProvider } from './data-providers/style-provider';
 import { TspDataProvider } from './data-providers/tsp-data-provider';
 import { ReactTimeGraphContainer } from './utils/timegraph-container-component';
@@ -340,29 +341,35 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
             const metadata = state.data;
             if (metadata && metadata.style) {
                 const elementStyle: OutputElementStyle = metadata.style;
-                const modelStyle = styleModel.styles[elementStyle.parentKey];
-                if (modelStyle) {
-                    const currentStyle = Object.assign({}, modelStyle.values, elementStyle.values);
-                    if (currentStyle) {
-                        const color = this.hexStringToNumber(currentStyle['background-color']);
-                        let height = this.props.style.rowHeight * 0.8;
-                        if (currentStyle['height']) {
-                            height = currentStyle['height'] * height;
-                        }
-                        return {
-                            color: color,
-                            height: height,
-                            borderWidth: state.selected ? 2 : 0,
-                            borderColor: 0xeef20c
-                        };
+                const backgroundColor = this.styleProvider.getColorStyle(elementStyle, StyleProperties.BACKGROUND_COLOR);
+                const heightFactor = this.styleProvider.getNumberStyle(elementStyle, StyleProperties.HEIGHT);
+                let height = this.props.style.rowHeight * 0.8;
+                if (heightFactor) {
+                    height = heightFactor * height;
+                }
+                const borderStyle = this.styleProvider.getStyle(elementStyle, StyleProperties.BORDER_STYLE);
+                let borderColor = undefined;
+                let borderWidth = undefined;
+                if (borderStyle && borderStyle !== 'none') {
+                    borderColor = this.styleProvider.getColorStyle(elementStyle, StyleProperties.BORDER_COLOR);
+                    if (borderColor === undefined) {
+                        borderColor = { color: 0x000000, alpha: 1 };
+                    }
+                    borderWidth = this.styleProvider.getNumberStyle(elementStyle, StyleProperties.BORDER_WIDTH);
+                    if (borderWidth === undefined) {
+                        borderWidth = 1;
                     }
                 }
+                return {
+                    color: backgroundColor ? backgroundColor.color : 0x000000,
+                    alpha: backgroundColor ? backgroundColor.alpha : 1.0,
+                    height: height,
+                    borderWidth: state.selected ? 2 : (borderWidth ? borderWidth : 0),
+                    borderColor: state.selected ? 0xeef20c : (borderColor ? borderColor.color : 0x000000)
+                };
             }
         }
         return this.getDefaultStateStyle(state);
-    }
-    private hexStringToNumber(hexString: string): number {
-        return parseInt(hexString.replace(/^#/, ''), 16);
     }
 
     private getDefaultStateStyle(state: TimelineChart.TimeGraphState) {
@@ -450,31 +457,21 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
             const metadata = annotation.data;
             if (metadata && metadata.style) {
                 const elementStyle: OutputElementStyle = metadata.style;
-                const modelStyle = styleModel.styles[elementStyle.parentKey];
-                let currentStyle = Object.assign({}, elementStyle.values);
-                if (modelStyle) {
-                    currentStyle = Object.assign({}, modelStyle.values, elementStyle.values);
+                const symbolType = this.styleProvider.getStyle(elementStyle, StyleProperties.SYMBOL_TYPE);
+                const color = this.styleProvider.getColorStyle(elementStyle, StyleProperties.COLOR);
+                const heightFactor = this.styleProvider.getNumberStyle(elementStyle, StyleProperties.HEIGHT);
+                let symbolSize = this.props.style.rowHeight * 0.8 / 2;
+                if (heightFactor) {
+                    symbolSize = heightFactor * symbolSize;
                 }
-                if (currentStyle) {
-                    let color = 0;
-                    if (currentStyle['color']) {
-                        color = this.hexStringToNumber(currentStyle['color']);
-                    }
-                    let symbolSize = this.props.style.rowHeight * 0.8 / 2;
-                    if (currentStyle['height']) {
-                        symbolSize = currentStyle['height'] * symbolSize;
-                    }
-                    let vAlign = 'center';
-                    if (currentStyle['vertical-align']) {
-                        vAlign = currentStyle['vertical-align'];
-                    }
-                    return {
-                        symbol: currentStyle['symbol-type'],
-                        size: symbolSize,
-                        color: color,
-                        verticalAlign: vAlign
-                    };
-                }
+                const vAlign = this.styleProvider.getStyle(elementStyle, StyleProperties.VERTICAL_ALIGN);
+                return {
+                    symbol: symbolType ? symbolType : 'none',
+                    size: symbolSize,
+                    color: color ? color.color : 0x000000,
+                    alpha: color ? color.alpha : 1.0,
+                    verticalAlign: vAlign ? vAlign : 'middle'
+                };
             }
         }
         return undefined;
