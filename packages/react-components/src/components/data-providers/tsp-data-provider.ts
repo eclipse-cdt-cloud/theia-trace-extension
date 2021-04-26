@@ -118,8 +118,8 @@ export class TspDataProvider {
             }
         }
         const offset = this.timeGraphEntries[0].start;
-        this.timeGraphArrows.filter(arrow => ids.find(
-            id => id === arrow.sourceId) || ids.find(id => id === arrow.targetId));
+        this.timeGraphArrows = this.timeGraphArrows.filter(arrow => ids.find(
+            id => id === arrow.sourceId) && ids.find(id => id === arrow.targetId));
         const arrows = this.timeGraphArrows.map(arrow => ({
             sourceId: ids.indexOf(arrow.sourceId),
             destinationId: ids.indexOf(arrow.targetId),

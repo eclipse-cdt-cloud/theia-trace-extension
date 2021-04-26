@@ -15330,9 +15330,9 @@ timed-out@^4.0.0, timed-out@^4.0.1:
   integrity sha1-8y6srFoXW+ol1/q1Zas+2HQe9W8=
 
 timeline-chart@next:
-  version "0.2.0-next.b33a5cfb"
-  resolved "https://registry.yarnpkg.com/timeline-chart/-/timeline-chart-0.2.0-next.b33a5cfb.tgz#9a864bff76d3aa52cea2d8f6d1f7680f743feaa0"
-  integrity sha512-0txCF0aZmNRENmEZHX4spWIE8YAbXIfSXUfaNH08vLrhtNbqaMpPQ2OqenIUwrb9WtA0sgOozARknuBGdANw1w==
+  version "0.2.0-next.885dec8e"
+  resolved "https://registry.yarnpkg.com/timeline-chart/-/timeline-chart-0.2.0-next.885dec8e.tgz#ea69bf2ab823210207247cd8561a3239c53ccc1b"
+  integrity sha512-3TlYQ/qgxmtObz1JgbsH7NoEmoFvBOnofC52uKTNpVWk4MW9reTluih7xRx4/zV1iaF9mjMkwIGqzmlMMyDR8Q==
   dependencies:
     "@types/lodash.throttle" "^4.1.4"
     glob "^7.1.6"
@@ -15543,9 +15543,9 @@ tslib@^1.10.0, tslib@^1.8.1, tslib@^1.9.0:
   integrity sha512-Xni35NKzjgMrwevysHTCArtLDpPvye8zV/0E4EyYn43P7/7qvQwPh9BGkHewbMulVntbigmcT7rdX3BNo9wRJg==
 
 tsp-typescript-client@next:
-  version "0.2.0-next.5f4f154"
-  resolved "https://registry.yarnpkg.com/tsp-typescript-client/-/tsp-typescript-client-0.2.0-next.5f4f154.tgz#5ef1c569e4a3950f7a2da5705de32d7ebcb0f7dc"
-  integrity sha512-vJPuIPBuAzju8BRZ6SpSfkTUNiSNuDjcZ7rElZQUd6aEqerx1/M9qKhbVED2dPbpEJF1nd9zNZusrQNjvFyxxg==
+  version "0.2.0-next.b2470f2"
+  resolved "https://registry.yarnpkg.com/tsp-typescript-client/-/tsp-typescript-client-0.2.0-next.b2470f2.tgz#bbb0cfe8623441f73bc565322bf80099486acd25"
+  integrity sha512-1SUG7rVDjRLAMxXa4t+XczkvYPFCzAal9J6Qedd/ZrRVO4wVo/HkujuO0xZqEGj8HRHmCUFkD2GYQs9oxE++4g==
   dependencies:
     node-fetch "^2.5.0"
 
