@@ -210,17 +210,19 @@ export class TraceContextComponent extends React.Component<TraceContextProps, Tr
         return Math.floor(totalWidth * this.COMPONENT_WIDTH_PROPORTION);
     }
 
-    private handleTimeSelectionChange(range: TimelineChart.TimeGraphRange) {
-        const t1 = Math.trunc(range.start + this.state.timeOffset);
-        const t2 = Math.trunc(range.end + this.state.timeOffset);
+    private handleTimeSelectionChange(range?: TimelineChart.TimeGraphRange) {
+        if (range) {
+            const t1 = Math.trunc(range.start + this.state.timeOffset);
+            const t2 = Math.trunc(range.end + this.state.timeOffset);
 
-        this.props.messageManager.addStatusMessage(this.TIME_SELECTION_STATUS_BAR_KEY, {
-            text: `T1: ${t1} T2: ${t2} Delta: ${t2 - t1}`,
-            category: Messages.MessageCategory.TRACE_CONTEXT
-        });
-        this.setState(prevState => ({
-            currentTimeSelection: new TimeRange(range.start, range.end, prevState.timeOffset)
-        }));
+            this.props.messageManager.addStatusMessage(this.TIME_SELECTION_STATUS_BAR_KEY, {
+                text: `T1: ${t1} T2: ${t2} Delta: ${t2 - t1}`,
+                category: Messages.MessageCategory.TRACE_CONTEXT
+            });
+            this.setState(prevState => ({
+                currentTimeSelection: new TimeRange(range.start, range.end, prevState.timeOffset)
+            }));
+        }
     }
 
     private handleViewRangeChange(viewRange: TimelineChart.TimeGraphRange) {
