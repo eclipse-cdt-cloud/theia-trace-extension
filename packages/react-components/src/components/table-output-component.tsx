@@ -214,21 +214,23 @@ export class TableOutputComponent extends AbstractOutputComponent<TableOutputPro
         });
     }
 
-    private async handleTimeSelectionChange(range: TimelineChart.TimeGraphRange) {
-        const start = Math.trunc(this.props.range.getstart() + range.start);
-        if (this.lastIndex.timestamp === start) {
-            return;
-        }
-        const index = await this.fetchTableIndex(start);
-        if (index && this.gridApi) {
-            this.lastIndex = { timestamp: start, index: index };
-            this.gridApi.deselectAll();
-            this.gridApi.ensureIndexVisible(index);
-            const node = this.gridApi.getDisplayedRowAtIndex(index);
-            if (node.id) {
-                node.setSelected(true);
-            } else {
-                this.pendingIndex = index;
+    private async handleTimeSelectionChange(range?: TimelineChart.TimeGraphRange) {
+        if (range) {
+            const start = Math.trunc(this.props.range.getstart() + range.start);
+            if (this.lastIndex.timestamp === start) {
+                return;
+            }
+            const index = await this.fetchTableIndex(start);
+            if (index && this.gridApi) {
+                this.lastIndex = { timestamp: start, index: index };
+                this.gridApi.deselectAll();
+                this.gridApi.ensureIndexVisible(index);
+                const node = this.gridApi.getDisplayedRowAtIndex(index);
+                if (node.id) {
+                    node.setSelected(true);
+                } else {
+                    this.pendingIndex = index;
+                }
             }
         }
     }
