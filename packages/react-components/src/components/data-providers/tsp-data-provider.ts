@@ -29,13 +29,14 @@ export class TspDataProvider {
     }
 
     async getData(ids: number[], entries: TimeGraphEntry[], totalTimeRange: TimeRange,
-            viewRange?: TimelineChart.TimeGraphRange, resolution?: number): Promise<TimelineChart.TimeGraphModel> {
+        viewRange?: TimelineChart.TimeGraphRange, resolution?: number): Promise<TimelineChart.TimeGraphModel> {
         this.timeGraphEntries = [...entries];
         if (!this.timeGraphEntries.length) {
             return {
                 id: 'model',
                 totalLength: this.totalRange,
                 rows: [],
+                rangeEvents: [],
                 arrows: [],
                 data: {}
             };
@@ -71,16 +72,22 @@ export class TspDataProvider {
         const annotations: Map<number, TimelineChart.TimeGraphAnnotation[]> = new Map();
         const tspClientResponse2 = await this.client.fetchAnnotations(this.traceUUID, this.outputId, fetchParameters);
         const annotationsResponse = tspClientResponse2.getModel();
+        const rangeEvents: TimelineChart.TimeGraphAnnotation[] = [];
+
         if (tspClientResponse2.isOk() && annotationsResponse) {
             Object.values(annotationsResponse.model.annotations).forEach(categoryArray => {
                 categoryArray.forEach(annotation => {
                     if (annotation.type === Type.CHART) {
-                        let entryArray = annotations.get(annotation.entryId);
-                        if (entryArray === undefined) {
-                            entryArray = [];
-                            annotations.set(annotation.entryId, entryArray);
+                        if (annotation.entryId === -1) {
+                            rangeEvents.push(this.getAnnotation(annotation, rangeEvents.length, chartStart));
+                        } else {
+                            let entryArray = annotations.get(annotation.entryId);
+                            if (entryArray === undefined) {
+                                entryArray = [];
+                                annotations.set(annotation.entryId, entryArray);
+                            }
+                            entryArray.push(this.getAnnotation(annotation, entryArray.length, chartStart));
                         }
-                        entryArray.push(this.getAnnotation(annotation, entryArray.length, chartStart));
                     }
                 });
             });
@@ -92,11 +99,13 @@ export class TspDataProvider {
             }
         }
         const arrows = await this.getArrows(ids, viewRange, resolution);
+
         return {
             id: 'model',
             totalLength: this.totalRange,
             rows,
             arrows,
+            rangeEvents,
             data: {
                 originalStart: chartStart
             }
