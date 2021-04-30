@@ -9,7 +9,8 @@ export namespace ReactTimeGraphContainer {
         options: TimeGraphContainerOptions,
         unitController: TimeGraphUnitController,
         layer: TimeGraphLayer[],
-        onWidgetResize: (handler: () => void) => void
+        addWidgetResizeHandler: (handler: () => void) => void
+        removeWidgetResizeHandler: (handler: () => void) => void
     }
 }
 
@@ -17,20 +18,26 @@ export class ReactTimeGraphContainer extends React.Component<ReactTimeGraphConta
     protected ref: HTMLCanvasElement | undefined;
     protected container?: TimeGraphContainer;
 
+    private _resizeHandler: { (): void; (): void; (): void; } | undefined;
+
     componentDidMount(): void {
         this.container = new TimeGraphContainer(this.props.options, this.props.unitController, this.ref);
         this.props.layer.forEach(l => {
             if (this.container) { this.container.addLayer(l); }
         });
-
-        this.props.onWidgetResize(() => {
+        this._resizeHandler = () => {
             if (this.container) { this.container.reInitCanvasSize(this.props.options.width, this.props.options.height); }
-        });
+        };
+        this.props.addWidgetResizeHandler(this._resizeHandler);
     }
 
     componentWillUnmount(): void {
         if (this.container) {
             this.container.destroy();
+        }
+
+        if (this._resizeHandler) {
+            this.props.removeWidgetResizeHandler(this._resizeHandler);
         }
     }
 

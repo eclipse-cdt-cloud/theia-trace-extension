@@ -23,6 +23,7 @@ import * as Messages from '@trace-viewer/base/lib/message-manager';
 import { signalManager, Signals } from '@trace-viewer/base/lib/signals/signal-manager';
 import ReactTooltip from 'react-tooltip';
 import { TooltipComponent } from './tooltip-component';
+import { remove } from 'lodash';
 
 const ResponsiveGridLayout = WidthProvider(Responsive);
 
@@ -34,6 +35,7 @@ interface TraceContextProps {
     // Introduce dependency on Theia maybe it should be just a callback
     messageManager: Messages.MessageManager;
     addResizeHandler: (handler: () => void) => void;
+    removeResizeHandler: (handler: () => void) => void;
     backgroundTheme: string;
 }
 
@@ -68,6 +70,13 @@ export class TraceContextComponent extends React.Component<TraceContextProps, Tr
     protected widgetResizeHandlers: (() => void)[] = [];
     protected readonly addWidgetResizeHandler = (h: () => void): void => {
         this.widgetResizeHandlers.push(h);
+    };
+
+    protected readonly removeWidgetResizeHandler = (h: () => void): void => {
+        const index = this.widgetResizeHandlers.indexOf(h, 0);
+        if (index > -1) {
+            this.widgetResizeHandlers.splice(index, 1);
+        }
     };
 
     constructor(props: TraceContextProps) {
@@ -183,6 +192,7 @@ export class TraceContextComponent extends React.Component<TraceContextProps, Tr
         signalManager().off(Signals.THEME_CHANGED, this.onBackgroundThemeUpdated);
         this.props.messageManager.removeStatusMessage(this.INDEXING_STATUS_BAR_KEY);
         this.props.messageManager.removeStatusMessage(this.TIME_SELECTION_STATUS_BAR_KEY);
+        this.props.removeResizeHandler(this.onResize);
     }
 
     async componentDidUpdate(): Promise<void> {
@@ -231,7 +241,8 @@ export class TraceContextComponent extends React.Component<TraceContextProps, Tr
         const outputs = this.props.outputs;
         return <React.Fragment>
             <div style={{ marginLeft: this.state.style.width - this.state.style.chartWidth }}>
-                <TimeAxisComponent unitController={this.unitController} style={this.state.style} addWidgetResizeHandler={this.addWidgetResizeHandler} />
+                <TimeAxisComponent unitController={this.unitController} style={this.state.style}
+                    addWidgetResizeHandler={this.addWidgetResizeHandler} removeWidgetResizeHandler={this.removeWidgetResizeHandler}/>
             </div>
             {
                 // Syntax to use ReactGridLayout with Custom Components, while passing resized dimensions to children:
@@ -260,7 +271,7 @@ export class TraceContextComponent extends React.Component<TraceContextProps, Tr
                     switch (responseType) {
                         case 'TIME_GRAPH':
                             return <TimegraphOutputComponent key={output.id} {...outputProps}
-                                addWidgetResizeHandler={this.addWidgetResizeHandler} />;
+                                addWidgetResizeHandler={this.addWidgetResizeHandler} removeWidgetResizeHandler={this.removeWidgetResizeHandler}/>;
                         case 'TREE_TIME_XY':
                             return <XYOutputComponent key={output.id} {...outputProps} />;
                         case 'TABLE':
@@ -271,7 +282,8 @@ export class TraceContextComponent extends React.Component<TraceContextProps, Tr
                 })}
             </ResponsiveGridLayout>
             <div style={{ marginLeft: this.state.style.width - this.state.style.chartWidth }}>
-                <TimeNavigatorComponent unitController={this.unitController} style={this.state.style} addWidgetResizeHandler={this.addWidgetResizeHandler} />
+                <TimeNavigatorComponent unitController={this.unitController} style={this.state.style}
+                    addWidgetResizeHandler={this.addWidgetResizeHandler} removeWidgetResizeHandler={this.removeWidgetResizeHandler}/>
             </div>
         </React.Fragment>;
     }
