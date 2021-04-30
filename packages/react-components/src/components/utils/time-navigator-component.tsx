@@ -12,6 +12,7 @@ interface TimeNavigatorProps {
         lineColor: number
     };
     addWidgetResizeHandler: (handler: () => void) => void;
+    removeWidgetResizeHandler: (handler: () => void) => void;
 }
 
 export class TimeNavigatorComponent extends React.Component<TimeNavigatorProps> {
@@ -26,7 +27,8 @@ export class TimeNavigatorComponent extends React.Component<TimeNavigatorProps> 
                 backgroundColor: this.props.style.naviBackgroundColor,
                 classNames: 'horizontal-canvas'
             }}
-            onWidgetResize={this.props.addWidgetResizeHandler}
+            addWidgetResizeHandler={this.props.addWidgetResizeHandler}
+            removeWidgetResizeHandler={this.props.removeWidgetResizeHandler}
             unitController={this.props.unitController}
             layer={[navi]} />;
     }

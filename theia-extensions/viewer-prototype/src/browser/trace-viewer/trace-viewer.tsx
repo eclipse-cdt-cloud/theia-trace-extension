@@ -43,7 +43,12 @@ export class TraceViewerWidget extends ReactWidget {
     protected readonly addResizeHandler = (h: () => void): void => {
         this.resizeHandlers.push(h);
     };
-
+    protected readonly removeResizeHandler = (h: () => void): void => {
+        const index = this.resizeHandlers.indexOf(h, 0);
+        if (index > -1) {
+            this.resizeHandlers.splice(index, 1);
+        }
+    };
     protected explorerWidget: TraceExplorerWidget;
 
     private onOutputAdded = (payload: OutputAddedSignalPayload): void => this.doHandleOutputAddedSignal(payload);
@@ -262,6 +267,7 @@ export class TraceViewerWidget extends ReactWidget {
                 outputs={this.outputDescriptors}
                 onOutputRemove={this.onOutputRemoved}
                 addResizeHandler={this.addResizeHandler}
+                removeResizeHandler={this.removeResizeHandler}
                 backgroundTheme={this.backgroundTheme}
                 messageManager={this._signalHandler} /> : 'Trace is loading...'}
         </div>;

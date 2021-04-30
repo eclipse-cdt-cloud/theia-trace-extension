@@ -25,6 +25,7 @@ import ColumnHeader from './utils/filtrer-tree/column-header';
 
 type TimegraphOutputProps = AbstractOutputProps & {
     addWidgetResizeHandler: (handler: () => void) => void;
+    removeWidgetResizeHandler: (handler: () => void) => void;
 };
 
 type TimegraphOutputState = AbstractOutputState & {
@@ -279,7 +280,8 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
                     classNames: 'horizontal-canvas'
                 }
             }
-            onWidgetResize={this.props.addWidgetResizeHandler}
+            addWidgetResizeHandler={this.props.addWidgetResizeHandler}
+            removeWidgetResizeHandler={this.props.removeWidgetResizeHandler}
             unitController={this.props.unitController}
             id='timegraph-chart'
             layer={[
@@ -298,7 +300,8 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
                 height: parseInt(this.props.style.height.toString()),
                 backgroundColor: this.props.style.naviBackgroundColor
             }}
-            onWidgetResize={this.props.addWidgetResizeHandler}
+            addWidgetResizeHandler={this.props.addWidgetResizeHandler}
+            removeWidgetResizeHandler={this.props.removeWidgetResizeHandler}
             unitController={this.props.unitController}
             layer={[this.vscrollLayer]}
         ></ReactTimeGraphContainer>;

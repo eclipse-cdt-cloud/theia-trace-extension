@@ -13,6 +13,7 @@ interface TimeAxisProps {
         lineColor: number
     };
     addWidgetResizeHandler: (handler: () => void) => void;
+    removeWidgetResizeHandler: (handler: () => void) => void;
 }
 
 export class TimeAxisComponent extends React.Component<TimeAxisProps> {
@@ -26,7 +27,8 @@ export class TimeAxisComponent extends React.Component<TimeAxisProps> {
                 backgroundColor: 0xFFFFFF,
                 classNames: 'horizontal-canvas'
             }}
-            onWidgetResize={this.props.addWidgetResizeHandler}
+            addWidgetResizeHandler={this.props.addWidgetResizeHandler}
+            removeWidgetResizeHandler={this.props.removeWidgetResizeHandler}
             unitController={this.props.unitController}
             layer={[this.getAxisLayer(), this.getAxisCursors()]} />;
     }
