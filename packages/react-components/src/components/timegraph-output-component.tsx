@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { TimeGraphRowElement, TimeGraphRowElementStyle } from 'timeline-chart/lib/components/time-graph-row-element';
+import { TimeGraphStateComponent, TimeGraphStateStyle } from 'timeline-chart/lib/components/time-graph-state';
 import { TimeGraphChart, TimeGraphChartProviders } from 'timeline-chart/lib/layer/time-graph-chart';
 import { TimeGraphChartArrows } from 'timeline-chart/lib/layer/time-graph-chart-arrows';
 import { TimeGraphChartCursors } from 'timeline-chart/lib/layer/time-graph-chart-cursors';
@@ -46,10 +46,10 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
 
     private tspDataProvider: TspDataProvider;
     private styleProvider: StyleProvider;
-    private styleMap = new Map<string, TimeGraphRowElementStyle>();
+    private styleMap = new Map<string, TimeGraphStateStyle>();
 
-    private selectedElement: TimeGraphRowElement | undefined;
-    private tooltipElement: TimeGraphRowElement | undefined;
+    private selectedElement: TimeGraphStateComponent | undefined;
+    private tooltipElement: TimeGraphStateComponent | undefined;
     private tooltipInfo: {[key: string]: string} | undefined;
 
     private onSelectionChanged = ( payload: { [key: string]: string; } ) => this.doHandleSelectionChangedSigna(payload);
@@ -69,7 +69,7 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
         this.horizontalContainer = React.createRef();
         const providers: TimeGraphChartProviders = {
             dataProvider: async (range: TimelineChart.TimeGraphRange, resolution: number) => this.fetchTimegraphData(range, resolution),
-            rowElementStyleProvider: (state: TimelineChart.TimeGraphState) => this.getStateStyle(state),
+            stateStyleProvider: (state: TimelineChart.TimeGraphState) => this.getStateStyle(state),
             rowAnnotationStyleProvider: (annotation: TimelineChart.TimeGraphAnnotation) => this.getAnnotationStyle(annotation),
             rowStyleProvider: (row: TimelineChart.TimeGraphRowModel) => ({
                 backgroundColor: 0x979797,// 0xaaaaff,
@@ -88,7 +88,7 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
             }
         });
 
-        this.chartLayer.onSelectedRowElementChanged(model => {
+        this.chartLayer.onSelectedStateChanged(model => {
             if (model) {
                 const el = this.chartLayer.getElementById(model.id);
                 if (el) {
@@ -99,7 +99,7 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
             }
             this.onElementSelected(this.selectedElement);
         });
-        this.chartLayer.registerRowElementMouseInteractions({
+        this.chartLayer.registerStateMouseInteractions({
             mouseover: el => {
                 this.props.tooltipComponent?.setElement(el, () => this.fetchTooltip(el));
             },
@@ -238,7 +238,7 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
         </React.Fragment>;
     }
 
-    private async fetchTooltip(element: TimeGraphRowElement): Promise<{ [key: string]: string } | undefined> {
+    private async fetchTooltip(element: TimeGraphStateComponent): Promise<{ [key: string]: string } | undefined> {
         const elementRange = element.model.range;
         const offset = this.props.viewRange.getOffset();
         let start: string | undefined;
@@ -308,7 +308,7 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
         ></ReactTimeGraphContainer>;
     }
 
-    private async onElementSelected(element: TimeGraphRowElement | undefined) {
+    private async onElementSelected(element: TimeGraphStateComponent | undefined) {
         let tooltipObject = undefined;
         if (element && this.props.viewRange) {
             tooltipObject = await this.fetchTooltip(element);
@@ -375,7 +375,7 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
     private getDefaultStateStyle(state: TimelineChart.TimeGraphState) {
         const styleProvider = new StyleProvider(this.props.outputDescriptor.id, this.props.traceId, this.props.tspClient);
         const styles = styleProvider.getStylesTmp();
-        const backupStyles: TimeGraphRowElementStyle[] = [
+        const backupStyles: TimeGraphStateStyle[] = [
             {
                 color: 0x3891A6,
                 height: this.props.style.rowHeight * 0.8
@@ -400,7 +400,7 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
             },
         ];
 
-        let style: TimeGraphRowElementStyle | undefined = backupStyles[0];
+        let style: TimeGraphStateStyle | undefined = backupStyles[0];
         const val = state.label;
         const modelData = state.data;
         if (modelData) {
