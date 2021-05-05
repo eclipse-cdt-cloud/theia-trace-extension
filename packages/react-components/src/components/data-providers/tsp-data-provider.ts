@@ -15,14 +15,12 @@ export class TspDataProvider {
     private traceUUID: string;
     private timeGraphEntries: TimeGraphEntry[];
     private timeGraphRows: TimeGraphRow[];
-    private timeGraphArrows: TimeGraphArrow[];
 
     public totalRange: number;
 
     constructor(client: TspClient, traceUUID: string, outputId: string, canvasDisplayWidth?: number) {
         this.timeGraphEntries = [];
         this.timeGraphRows = [];
-        this.timeGraphArrows = [];
         this.canvasDisplayWidth = canvasDisplayWidth;
         this.client = client;
         this.outputId = outputId;
@@ -106,6 +104,7 @@ export class TspDataProvider {
     }
 
     async getArrows(ids: number[], viewRange?: TimelineChart.TimeGraphRange, resolution?: number): Promise<TimelineChart.TimeGraphArrow[]> {
+        let timeGraphArrows: TimeGraphArrow[] = [];
         if (viewRange && resolution) {
             const start = viewRange.start + this.timeGraphEntries[0].start;
             const end = viewRange.end + this.timeGraphEntries[0].start;
@@ -113,14 +112,14 @@ export class TspDataProvider {
                 Math.trunc(start), Math.trunc(end), resolution), ids);
             const tspClientResponseArrows = await this.client.fetchTimeGraphArrows(this.traceUUID, this.outputId, fetchParameters);
             const stateResponseArrows = tspClientResponseArrows.getModel();
-            if (tspClientResponseArrows.isOk() && stateResponseArrows) {
-                this.timeGraphArrows = stateResponseArrows.model;
+            if (tspClientResponseArrows.isOk() && stateResponseArrows && stateResponseArrows.model) {
+                timeGraphArrows = stateResponseArrows.model;
             }
         }
         const offset = this.timeGraphEntries[0].start;
-        this.timeGraphArrows = this.timeGraphArrows.filter(arrow => ids.find(
+        timeGraphArrows = timeGraphArrows.filter(arrow => ids.find(
             id => id === arrow.sourceId) && ids.find(id => id === arrow.targetId));
-        const arrows = this.timeGraphArrows.map(arrow => ({
+        const arrows = timeGraphArrows.map(arrow => ({
             sourceId: ids.indexOf(arrow.sourceId),
             destinationId: ids.indexOf(arrow.targetId),
             range: {
