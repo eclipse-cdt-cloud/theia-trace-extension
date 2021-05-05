@@ -150,7 +150,7 @@ export class TspDataProvider {
         return {
             parentKey: '',
             values: {
-                color: 0xCACACA,
+                'background-color': '#CACACA',
                 height: 1.0
             }
         };
