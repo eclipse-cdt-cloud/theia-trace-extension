@@ -10,6 +10,9 @@
     display: grid;
     grid-template-rows: 25px 1fr;
 }
+.widget-handle :hover {
+    background-color: var(--theia-list-hoverBackground); 
+}
 .title-bar-label {
     text-align: center;
     writing-mode: vertical-rl;
