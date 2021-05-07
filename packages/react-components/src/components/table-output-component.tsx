@@ -101,6 +101,15 @@ export class TableOutputComponent extends AbstractOutputComponent<TableOutputPro
 
     private onEventClick(event: CellClickedEvent) {
         const columns = event.columnApi.getAllColumns();
+        const tooltipObj: { [key: string]: string } = {};
+        columns.forEach(column => {
+            const headerName = column.getColDef().headerName;
+            const colField = column.getColDef().field;
+            if (headerName && colField && event.data[colField]) {
+                tooltipObj[headerName] = event.data[colField];
+            }
+        });
+        signalManager().fireTooltipSignal(tooltipObj);
         const timestampHeader = columns.find(column => column.getColDef().headerName === 'Timestamp ns');
         if (timestampHeader) {
             const timestampCol = timestampHeader.getColDef().field;
@@ -200,7 +209,7 @@ export class TableOutputComponent extends AbstractOutputComponent<TableOutputPro
                     resizable: true
                 });
             });
-            }
+        }
 
         if (!this.showIndexColumn) {
             columnsArray[0].cellRenderer = 'loadingRenderer';
@@ -240,7 +249,7 @@ export class TableOutputComponent extends AbstractOutputComponent<TableOutputPro
         const tspClient = this.props.tspClient;
         const outputId = this.props.outputDescriptor.id;
         const tspClientResponse = await tspClient.fetchTableLines(traceUUID, outputId,
-            QueryHelper.timeQuery([timestamp], {[QueryHelper.REQUESTED_TABLE_COUNT_KEY]: 1}));
+            QueryHelper.timeQuery([timestamp], { [QueryHelper.REQUESTED_TABLE_COUNT_KEY]: 1 }));
         const lineResponse = tspClientResponse.getModel();
         if (!tspClientResponse.isOk() || !lineResponse) {
             return undefined;
