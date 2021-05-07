@@ -14,7 +14,7 @@ export interface ReactOpenTracesWidgetProps {
     title: string,
     tspClientProvider: ITspClientProvider,
     contextMenuRenderer?: (event: React.MouseEvent<HTMLDivElement>, experiment: Experiment) => void,
-    onDoubleClick?: (event: React.MouseEvent<HTMLDivElement>, experiment: Experiment) => void
+    onClick?: (event: React.MouseEvent<HTMLDivElement>, experiment: Experiment) => void
 }
 
 export interface ReactOpenTracesWidgetState {
@@ -92,11 +92,11 @@ export class ReactOpenTracesWidget extends React.Component<ReactOpenTracesWidget
         event.stopPropagation();
     }
 
-    protected dohandleDoubleClickEvent(event: React.MouseEvent<HTMLDivElement>, traceUUID: string): void {
+    protected dohandleClickEvent(event: React.MouseEvent<HTMLDivElement>, traceUUID: string): void {
         this.doHandleOnExperimentSelected(event);
         const experiment = this.getExperiment(traceUUID);
-        if (experiment !== undefined && this.props.onDoubleClick) {
-            this.props.onDoubleClick(event, experiment);
+        if (experiment !== undefined && this.props.onClick) {
+            this.props.onClick(event, experiment);
         }
         event.preventDefault();
         event.stopPropagation();
@@ -155,9 +155,8 @@ export class ReactOpenTracesWidget extends React.Component<ReactOpenTracesWidget
             id={`${traceContainerClassName}-${props.index}`}
             key={props.key}
             style={props.style}
-            onClick={this.handleOnExperimentSelected}
+            onClick={event => { this.handleClickEvent(event, traceUUID); }}
             onContextMenu={event => { this.handleContextMenuEvent(event, traceUUID); }}
-            onDoubleClick={event => { this.handleDoubleClickEvent(event, traceUUID); }}
             data-id={`${props.index}`}>
             <div className='trace-element-container'>
                 <div className='trace-element-info' >
@@ -256,7 +255,7 @@ export class ReactOpenTracesWidget extends React.Component<ReactOpenTracesWidget
 
     protected handleOnExperimentSelected = (e: React.MouseEvent<HTMLDivElement>): void => this.doHandleOnExperimentSelected(e);
     protected handleContextMenuEvent = (e: React.MouseEvent<HTMLDivElement>, traceUUID: string): void => this.doHandleContextMenuEvent(e, traceUUID);
-    protected handleDoubleClickEvent = (e: React.MouseEvent<HTMLDivElement>, traceUUID: string): void => this.dohandleDoubleClickEvent(e, traceUUID);
+    protected handleClickEvent = (e: React.MouseEvent<HTMLDivElement>, traceUUID: string): void => this.dohandleClickEvent(e, traceUUID);
 
     protected doHandleOnExperimentSelected(e: React.MouseEvent<HTMLDivElement>): void {
         const index = Number(e.currentTarget.getAttribute('data-id'));
