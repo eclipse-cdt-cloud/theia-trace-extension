@@ -45,7 +45,7 @@ export class TraceExplorerOpenedTracesWidget extends ReactWidget {
         });
     }
 
-    protected doHandleDoubleClickEvent(event: React.MouseEvent<HTMLDivElement>, experiment: Experiment): void {
+    protected doHandleClickEvent(event: React.MouseEvent<HTMLDivElement>, experiment: Experiment): void {
         this.openExperiment(experiment.UUID);
     }
 
@@ -69,7 +69,7 @@ export class TraceExplorerOpenedTracesWidget extends ReactWidget {
                 title={this.title.label}
                 tspClientProvider={this.tspClientProvider}
                 contextMenuRenderer={(event, experiment) => this.doHandleContextMenuEvent(event, experiment) }
-                onDoubleClick={(event, experiment) => this.doHandleDoubleClickEvent(event, experiment) }
+                onClick={(event, experiment) => this.doHandleClickEvent(event, experiment) }
             ></ReactOpenTracesWidget>
             }
         </div>);
