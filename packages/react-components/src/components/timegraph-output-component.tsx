@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { TimeGraphComponent } from 'timeline-chart/lib/components/time-graph-component';
 import { TimeGraphStateComponent, TimeGraphStateStyle } from 'timeline-chart/lib/components/time-graph-state';
 import { TimeGraphChart, TimeGraphChartProviders } from 'timeline-chart/lib/layer/time-graph-chart';
 import { TimeGraphChartArrows } from 'timeline-chart/lib/layer/time-graph-chart-arrows';
@@ -24,6 +25,7 @@ import { EntryTree } from './utils/filtrer-tree/entry-tree';
 import { listToTree, getAllExpandedNodeIds } from './utils/filtrer-tree/utils';
 import hash from '@trace-viewer/base/lib/utils/value-hash';
 import ColumnHeader from './utils/filtrer-tree/column-header';
+import { TimeGraphAnnotationComponent } from 'timeline-chart/lib/components/time-graph-annotation';
 
 type TimegraphOutputProps = AbstractOutputProps & {
     addWidgetResizeHandler: (handler: () => void) => void;
@@ -102,7 +104,7 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
             }
             this.onElementSelected(this.selectedElement);
         });
-        this.chartLayer.registerStateMouseInteractions({
+        this.chartLayer.registerMouseInteractions({
             mouseover: el => {
                 this.props.tooltipComponent?.setElement(el, () => this.fetchTooltip(el));
             },
@@ -244,28 +246,59 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
         </React.Fragment>;
     }
 
-    private async fetchTooltip(element: TimeGraphStateComponent): Promise<{ [key: string]: string } | undefined> {
-        const elementRange = element.model.range;
-        const offset = this.props.viewRange.getOffset();
-        let start: string | undefined;
-        let end: string | undefined;
-        if (this.props.unitController.numberTranslator) {
-            start = this.props.unitController.numberTranslator(elementRange.start);
-            end = this.props.unitController.numberTranslator(elementRange.end);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    private async fetchTooltip(element: TimeGraphComponent<any>): Promise<{ [key: string]: string } | undefined> {
+        if (element instanceof TimeGraphStateComponent) {
+            const label = element.model.label ? element.model.label : '';
+            const elementRange = element.model.range;
+            const offset = this.props.viewRange.getOffset();
+            let start: string | undefined;
+            let end: string | undefined;
+            if (this.props.unitController.numberTranslator) {
+                start = this.props.unitController.numberTranslator(elementRange.start);
+                end = this.props.unitController.numberTranslator(elementRange.end);
+            }
+            start = start ? start : (elementRange.start + (offset ? offset : 0)).toString();
+            end = end ? end : (elementRange.end + (offset ? offset : 0)).toString();
+            const tooltip = await this.tspDataProvider.fetchStateTooltip(element, this.props.viewRange);
+            return {
+                'Label': label,
+                'Start time': start,
+                'End time': end,
+                'Row': element.row.model.name,
+                ...tooltip
+            };
+        } else if (element instanceof TimeGraphAnnotationComponent) {
+            const category = element.model.category ? element.model.category : 'Label';
+            const label = element.model.label ? element.model.label : '';
+            const elementRange = element.model.range;
+            const offset = this.props.viewRange.getOffset();
+            let start: string | undefined;
+            let end: string | undefined;
+            if (this.props.unitController.numberTranslator) {
+                start = this.props.unitController.numberTranslator(elementRange.start);
+                end = this.props.unitController.numberTranslator(elementRange.end);
+            }
+            start = start ? start : (elementRange.start + (offset ? offset : 0)).toString();
+            end = end ? end : (elementRange.end + (offset ? offset : 0)).toString();
+            const tooltip = await this.tspDataProvider.fetchAnnotationTooltip(element, this.props.viewRange);
+            if (start === end) {
+                return {
+                    [category]: label,
+                    'Timestamp': start,
+                    'Row': element.row.model.name,
+                    ...tooltip
+                };
+            } else {
+                return {
+                    [category]: label,
+                    'Start time': start,
+                    'End time': end,
+                    'Row': element.row.model.name,
+                    ...tooltip
+                };
+            }
         }
-        start = start ? start : (elementRange.start + (offset ? offset : 0)).toString();
-        end = end ? end : (elementRange.end + (offset ? offset : 0)).toString();
-        // use middle of state for fetching tooltip since hover time is not available
-        const time = Math.round(elementRange.start + (elementRange.end - elementRange.start) / 2 + (offset ? offset : 0));
-        const tooltipResponse = await this.props.tspClient.fetchTimeGraphToolTip(
-            this.props.traceId, this.props.outputDescriptor.id, time, element.row.model.id.toString());
-        return {
-            'Label': element.model.label,
-            'Start time': start,
-            'End time': end,
-            'Row': element.row.model.name,
-            ...tooltipResponse.getModel()?.model
-        };
     }
 
     private renderTimeGraphContent() {
