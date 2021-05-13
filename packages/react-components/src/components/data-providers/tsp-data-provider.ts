@@ -1,14 +1,19 @@
 import { TspClient } from 'tsp-typescript-client/lib/protocol/tsp-client';
 import { TimeGraphArrow, TimeGraphEntry, TimeGraphRow, TimeGraphState } from 'tsp-typescript-client/lib/models/timegraph';
+import { TimeGraphStateComponent } from 'timeline-chart/lib/components/time-graph-state';
+import { TimeGraphAnnotationComponent } from 'timeline-chart/lib/components/time-graph-annotation';
 import { TimelineChart } from 'timeline-chart/lib/time-graph-model';
 import { QueryHelper } from 'tsp-typescript-client/lib/models/query/query-helper';
 import { OutputElementStyle } from 'tsp-typescript-client/lib/models/styles';
 import { Annotation, Type } from 'tsp-typescript-client/lib/models/annotation';
 import { TimeRange } from '@trace-viewer/base/lib/utils/time-range';
 
-export class TspDataProvider {
+enum ElementType {
+    STATE = 'state',
+    ANNOTATION = 'annotation'
+}
 
-    protected canvasDisplayWidth: number | undefined;
+export class TspDataProvider {
 
     private client: TspClient;
     private outputId: string;
@@ -18,10 +23,9 @@ export class TspDataProvider {
 
     public totalRange: number;
 
-    constructor(client: TspClient, traceUUID: string, outputId: string, canvasDisplayWidth?: number) {
+    constructor(client: TspClient, traceUUID: string, outputId: string) {
         this.timeGraphEntries = [];
         this.timeGraphRows = [];
-        this.canvasDisplayWidth = canvasDisplayWidth;
         this.client = client;
         this.outputId = outputId;
         this.traceUUID = traceUUID;
@@ -75,18 +79,18 @@ export class TspDataProvider {
         const rangeEvents: TimelineChart.TimeGraphAnnotation[] = [];
 
         if (tspClientResponse2.isOk() && annotationsResponse) {
-            Object.values(annotationsResponse.model.annotations).forEach(categoryArray => {
+            Object.entries(annotationsResponse.model.annotations).forEach(([category, categoryArray]) => {
                 categoryArray.forEach(annotation => {
                     if (annotation.type === Type.CHART) {
                         if (annotation.entryId === -1) {
-                            rangeEvents.push(this.getAnnotation(annotation, rangeEvents.length, chartStart));
+                            rangeEvents.push(this.getAnnotation(category, annotation, rangeEvents.length, chartStart));
                         } else {
                             let entryArray = annotations.get(annotation.entryId);
                             if (entryArray === undefined) {
                                 entryArray = [];
                                 annotations.set(annotation.entryId, entryArray);
                             }
-                            entryArray.push(this.getAnnotation(annotation, entryArray.length, chartStart));
+                            entryArray.push(this.getAnnotation(category, annotation, entryArray.length, chartStart));
                         }
                     }
                 });
@@ -233,9 +237,10 @@ export class TspDataProvider {
         };
     }
 
-    private getAnnotation(annotation: Annotation, idx: number, chartStart: number) {
+    private getAnnotation(category: string, annotation: Annotation, idx: number, chartStart: number) {
         return {
             id: annotation.entryId + '-' + idx,
+            category: category,
             range: {
                 start: annotation.time - chartStart,
                 end: annotation.time + annotation.duration - chartStart
@@ -245,5 +250,39 @@ export class TspDataProvider {
                 style: annotation.style
             },
         };
+    }
+
+    async fetchStateTooltip(element: TimeGraphStateComponent, viewRange: TimeRange): Promise<{ [key: string]: string } | undefined> {
+        const elementRange = element.model.range;
+        const offset = viewRange.getOffset() ? viewRange.getOffset() : 0;
+        // use middle of state for fetching tooltip since hover time is not available
+        const time = Math.round(elementRange.start + (elementRange.end - elementRange.start) / 2 + (offset ? offset : 0));
+        const requestedElement = {
+            elementType: ElementType.STATE,
+            time: element.model.range.start + (offset ? offset : 0),
+            duration: element.model.range.end - element.model.range.start
+        };
+        const entryId = [element.row.model.id];
+        const parameters = QueryHelper.selectionTimeQuery([time], entryId, {[QueryHelper.REQUESTED_ELEMENT_KEY]: requestedElement});
+        const tooltipResponse = await this.client.fetchTimeGraphTooltip(
+            this.traceUUID, this.outputId, parameters);
+        return tooltipResponse.getModel()?.model;
+    }
+
+    async fetchAnnotationTooltip(element: TimeGraphAnnotationComponent, viewRange: TimeRange): Promise<{ [key: string]: string } | undefined> {
+        const elementRange = element.model.range;
+        const offset = viewRange.getOffset() ? viewRange.getOffset() : 0;
+        const time = Math.round(elementRange.start + (offset ? offset : 0));
+        const requestedElement = {
+            elementType: ElementType.ANNOTATION,
+            time: element.model.range.start + (offset ? offset : 0),
+            duration: element.model.range.end - element.model.range.start,
+            entryId: element.row.model.id
+        };
+        const entryId = [element.row.model.id];
+        const parameters = QueryHelper.selectionTimeQuery([time], entryId, {[QueryHelper.REQUESTED_ELEMENT_KEY]: requestedElement});
+        const tooltipResponse = await this.client.fetchTimeGraphTooltip(
+            this.traceUUID, this.outputId, parameters);
+        return tooltipResponse.getModel()?.model;
     }
 }
