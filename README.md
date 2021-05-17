@@ -14,13 +14,13 @@ Prerequisites: A GitHub account (for logging into Gitpod)
 * Click [here](https://gitpod.io/#https://github.com/theia-ide/theia-trace-extension) to open Gitpod.
 * After logging in, it takes around a minute for Gitpod to set up the in-browser IDE used to build the project.
 * When the workspace has loaded, the project builds automatically in about a minute. Then, the workspace pops a notification saying a service (i.e. the tool) is now available.
-![gitpod-service-ready-notification](https://raw.githubusercontent.com/theia-ide/theia-trace-extension/master/doc/images/gitpod-service-ready-notification.PNG)
+![gitpod-service-ready-notification](https://raw.githubusercontent.com/theia-ide/theia-trace-extension/master/doc/images/gitpod-service-ready-notification-0.0.2.PNG)
 * After opening the tool via the notification, the interface loads in a few seconds.
 * Now you're ready to try the trace viewer!
     * Head to the trace viewer tab in the left side menu to get started.
     * The tool is already loaded with example traces from a set of [Trace Visualisation Labs](https://github.com/tuxology/tracevizlab), so no need to hunt for your own.
 
-![gitpod-live-demo-setup](https://raw.githubusercontent.com/theia-ide/theia-trace-extension/master/doc/images/gitpod-live-demo-setup.gif)
+![gitpod-live-demo-setup](https://raw.githubusercontent.com/theia-ide/theia-trace-extension/master/doc/images/gitpod-live-demo-setup-0.0.2.gif)
 
 ## Consume the trace viewer extension from npm
 
