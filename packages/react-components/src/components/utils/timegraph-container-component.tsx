@@ -2,6 +2,7 @@ import * as React from 'react';
 import { TimeGraphContainer, TimeGraphContainerOptions } from 'timeline-chart/lib/time-graph-container';
 import { TimeGraphUnitController } from 'timeline-chart/lib/time-graph-unit-controller';
 import { TimeGraphLayer } from 'timeline-chart/lib/layer/time-graph-layer';
+import { debounce } from 'lodash';
 
 export namespace ReactTimeGraphContainer {
     export interface Props {
@@ -25,9 +26,7 @@ export class ReactTimeGraphContainer extends React.Component<ReactTimeGraphConta
         this.props.layer.forEach(l => {
             if (this.container) { this.container.addLayer(l); }
         });
-        this._resizeHandler = () => {
-            if (this.container) { this.container.reInitCanvasSize(this.props.options.width, this.props.options.height); }
-        };
+        this._resizeHandler = debounce(() => this.resize(), 500, {trailing: true, leading: false});
         this.props.addWidgetResizeHandler(this._resizeHandler);
     }
 
@@ -54,5 +53,9 @@ export class ReactTimeGraphContainer extends React.Component<ReactTimeGraphConta
 
     render(): JSX.Element {
         return <canvas ref={ ref => this.ref = ref || undefined } onWheel={ e => e.preventDefault() } tabIndex={ 1 }></canvas>;
+    }
+
+    private resize(): void {
+        if (this.container) { this.container.reInitCanvasSize(this.props.options.width, this.props.options.height); }
     }
 }
