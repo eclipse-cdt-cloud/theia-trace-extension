@@ -166,6 +166,10 @@ export class TableOutputComponent extends AbstractOutputComponent<TableOutputPro
         this.enableIndexSelection = true;
         const currTimestamp = (this.timestampCol && event.data) ? event.data[this.timestampCol] : undefined;
 
+        if (keyEvent.ctrlKey && keyEvent.code === 'KeyC') {
+            navigator.clipboard.writeText(event.value);
+        }
+
         if (gridApi) {
             const currentRow = gridApi.getRowNode(String(rowIndex));
 
