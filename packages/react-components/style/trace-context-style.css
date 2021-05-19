@@ -25,3 +25,8 @@
     overflow-y: scroll;
     overflow-x: hidden;
 }
+
+.react-grid-item > .react-resizable-handle {
+    width: 10px !important;
+    height: 10px !important;
+}
