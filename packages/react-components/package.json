@@ -38,7 +38,7 @@
     "@types/enzyme-adapter-react-16": "^1.0.6",
     "@types/jest": "^26.0.4",
     "@types/lodash": "^4.14.142",
-    "@types/react-grid-layout": "^0.16.7",
+    "@types/react-grid-layout": "^1.1.1",
     "@types/react-modal": "^3.8.2",
     "@types/react-test-renderer": "^16.9.2",
     "@types/react-virtualized": "^9.21.1",
