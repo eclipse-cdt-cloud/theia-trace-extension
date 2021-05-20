@@ -10,7 +10,7 @@
 }
 
 .react-grid-item.react-grid-placeholder {
-    background: var(--theia-accent-color3);
+    background: var(--theia-badge-background) !important;
 }
 
 .trace-context-container {
