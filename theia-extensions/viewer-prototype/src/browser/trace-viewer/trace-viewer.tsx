@@ -286,6 +286,12 @@ export class TraceViewerWidget extends ReactWidget {
     protected onOutputRemoved(outputId: string): void {
         const outputToKeep = this.outputDescriptors.filter(output => output.id !== outputId);
         this.outputDescriptors = outputToKeep;
+        // This is a temporary fix to not delete categories when the output is removed
+        // and hence commenting this code for now.
+
+        /* const payload: { [key: string]: {categoryName: string, toggleInd: boolean}[] } = {};
+        payload[outputId] = [];
+        signalManager().fireAnnotationsFetchedSignal(payload); */
         this.update();
     }
 
