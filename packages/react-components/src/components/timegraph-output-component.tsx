@@ -54,9 +54,11 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
 
     private selectedElement: TimeGraphStateComponent | undefined;
 
-    private onSelectionChanged = (payload: { [key: string]: string; }) => this.doHandleSelectionChangedSignal(payload);
     private onTimeGraphZoomed = (hasZoomedIn: boolean) => this.doHandleTimeGraphZoomedSignal(hasZoomedIn);
     private onTimeGraphReset = () => this.doHandleTimeGraphResetSignal();
+    private annotationMarkers: string[] | undefined = undefined;
+    private onSelectionChanged = ( payload: { [key: string]: string; } ) => this.doHandleSelectionChangedSignal(payload);
+    private onMarkerFilterChanged = ( annotationMarkers: string[]) => this.doHandleMarkerFilterChangedSignal(annotationMarkers);
 
     constructor(props: TimegraphOutputProps) {
         super(props);
@@ -65,6 +67,7 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
             timegraphTree: [],
             collapsedNodes: [],
             columns: []
+
         };
         this.onToggleCollapse = this.onToggleCollapse.bind(this);
         this.tspDataProvider = new TspDataProvider(this.props.tspClient, this.props.traceId, this.props.outputDescriptor.id);
@@ -115,6 +118,7 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
         signalManager().on(Signals.SELECTION_CHANGED, this.onSelectionChanged);
         signalManager().on(Signals.TIMEGRAPH_ZOOMED, this.onTimeGraphZoomed);
         signalManager().on(Signals.TIMEGRAPH_RESET, this.onTimeGraphReset);
+        signalManager().on(Signals.ANNOTATION_MARKERS_FILTERED, this.onMarkerFilterChanged);
     }
 
     synchronizeTreeScroll(): void {
@@ -219,9 +223,13 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
     private doHandleTimeGraphZoomedSignal(hasZoomedIn: boolean) {
         this.chartLayer.adjustZoom(undefined, hasZoomedIn);
     }
-
     private doHandleTimeGraphResetSignal() {
         this.props.unitController.viewRange = { start: 0, end: this.props.unitController.absoluteRange };
+    }
+    private doHandleMarkerFilterChangedSignal(annotationMarkers: string[]){
+        this.annotationMarkers = annotationMarkers;
+        this.chartLayer.updateChart();
+
     }
 
     renderTree(): React.ReactNode {
@@ -377,7 +385,7 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
         const newRange: TimelineChart.TimeGraphRange = { start, end };
         const newResolution: number = resolution * 0.8;
         const timeGraphData: TimelineChart.TimeGraphModel = await this.tspDataProvider.getData(orderedTreeIds, this.state.timegraphTree,
-            this.props.range, newRange, this.props.style.chartWidth);
+        this.props.range, newRange, this.props.style.chartWidth, this.annotationMarkers);
         this.arrowLayer.addArrows(timeGraphData.arrows);
         this.rangeEventsLayer.addRangeEvents(timeGraphData.rangeEvents);
 

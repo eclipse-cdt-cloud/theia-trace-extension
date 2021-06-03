@@ -32,8 +32,11 @@ export class TspDataProvider {
         this.totalRange = 0;
     }
 
-    async getData(ids: number[], entries: TimeGraphEntry[], totalTimeRange: TimeRange,
-        viewRange?: TimelineChart.TimeGraphRange, resolution?: number): Promise<TimelineChart.TimeGraphModel> {
+    async getData(ids: number[], entries: TimeGraphEntry[],
+        totalTimeRange: TimeRange,
+        viewRange?: TimelineChart.TimeGraphRange,
+        resolution?: number,
+        annotationMarkers?: string[]): Promise<TimelineChart.TimeGraphModel> {
         this.timeGraphEntries = [...entries];
         if (!this.timeGraphEntries.length) {
             return {
@@ -47,11 +50,13 @@ export class TspDataProvider {
         }
 
         this.totalRange = totalTimeRange.getEnd() - totalTimeRange.getstart();
-        let fetchParameters = QueryHelper.selectionTimeQuery(QueryHelper.splitRangeIntoEqualParts(1332170682440133097, 1332170682540133097, 1120), ids);
+        let fetchParameters = QueryHelper.selectionTimeQuery(QueryHelper.splitRangeIntoEqualParts(1332170682440133097, 1332170682540133097, 1120),
+            ids, annotationMarkers !== undefined ? { 'requested_marker_categories': annotationMarkers } : {});
         if (viewRange && resolution) {
             const start = totalTimeRange.getstart() + viewRange.start;
             const end = totalTimeRange.getstart() + viewRange.end;
-            fetchParameters = QueryHelper.selectionTimeQuery(QueryHelper.splitRangeIntoEqualParts(Math.trunc(start), Math.trunc(end), resolution), ids);
+            fetchParameters = QueryHelper.selectionTimeQuery(QueryHelper.splitRangeIntoEqualParts(Math.trunc(start), Math.trunc(end), resolution),
+                ids, annotationMarkers !== undefined ? { 'requested_marker_categories': annotationMarkers } : {});
         }
         const tspClientResponse = await this.client.fetchTimeGraphStates(this.traceUUID, this.outputId, fetchParameters);
         const stateResponse = tspClientResponse.getModel();
@@ -263,7 +268,7 @@ export class TspDataProvider {
             duration: element.model.range.end - element.model.range.start
         };
         const entryId = [element.row.model.id];
-        const parameters = QueryHelper.selectionTimeQuery([time], entryId, {[QueryHelper.REQUESTED_ELEMENT_KEY]: requestedElement});
+        const parameters = QueryHelper.selectionTimeQuery([time], entryId, { [QueryHelper.REQUESTED_ELEMENT_KEY]: requestedElement });
         const tooltipResponse = await this.client.fetchTimeGraphTooltip(
             this.traceUUID, this.outputId, parameters);
         return tooltipResponse.getModel()?.model;
@@ -280,7 +285,7 @@ export class TspDataProvider {
             entryId: element.row.model.id
         };
         const entryId = [element.row.model.id];
-        const parameters = QueryHelper.selectionTimeQuery([time], entryId, {[QueryHelper.REQUESTED_ELEMENT_KEY]: requestedElement});
+        const parameters = QueryHelper.selectionTimeQuery([time], entryId, { [QueryHelper.REQUESTED_ELEMENT_KEY]: requestedElement });
         const tooltipResponse = await this.client.fetchTimeGraphTooltip(
             this.traceUUID, this.outputId, parameters);
         return tooltipResponse.getModel()?.model;

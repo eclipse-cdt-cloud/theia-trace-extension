@@ -3,7 +3,6 @@ import { Experiment } from 'tsp-typescript-client/lib/models/experiment';
 import { Trace } from 'tsp-typescript-client/lib/models/trace';
 import { OpenedTracesUpdatedSignalPayload } from './opened-traces-updated-signal-payload';
 import { OutputAddedSignalPayload } from './output-added-signal-payload';
-
 export declare interface SignalManager {
     fireTraceOpenedSignal(trace: Trace): void;
     fireTraceClosedSignal(trace: Trace): void;
@@ -19,6 +18,8 @@ export declare interface SignalManager {
     fireTraceViewerTabActivatedSignal(experiment: Experiment): void;
     fireZoomTimeGraphSignal(hasZoomedIn: boolean): void;
     fireResetTimeGraphSignal(): void;
+    fireAnnotationFilterSignal(annotationMarkers?: string[]): void;
+    fireAnnotationsFetchedSignal(annotationCategories: string[]): void;
 }
 
 export const Signals = {
@@ -36,7 +37,9 @@ export const Signals = {
     CLOSE_TRACEVIEWERTAB: 'tab closed',
     TRACEVIEWERTAB_ACTIVATED: 'widget activated',
     TIMEGRAPH_ZOOMED: 'timegraph zoomed',
-    TIMEGRAPH_RESET: 'timegraph reset'
+    TIMEGRAPH_RESET: 'timegraph reset',
+    ANNOTATION_MARKERS_FILTERED: 'filter marker category',
+    ANNOTATIONS_FETCHED: 'annotations fetched'
 };
 
 export class SignalManager extends EventEmitter implements SignalManager {
@@ -62,7 +65,7 @@ export class SignalManager extends EventEmitter implements SignalManager {
         this.emit(Signals.OUTPUT_ADDED, payload);
     }
     fireTooltipSignal(tooltip?: { [key: string]: string; }): void {
-        this.emit(Signals.TOOLTIP_UPDATED, tooltip );
+        this.emit(Signals.TOOLTIP_UPDATED, tooltip);
     }
     fireThemeChangedSignal(theme: string): void {
         this.emit(Signals.THEME_CHANGED, theme);
@@ -82,6 +85,13 @@ export class SignalManager extends EventEmitter implements SignalManager {
     fireResetTimeGraphSignal(): void {
         this.emit(Signals.TIMEGRAPH_RESET);
     }
+    fireAnnotationFilterSignal(annotationMarkers?: string[]): void {
+        this.emit(Signals.ANNOTATION_MARKERS_FILTERED, annotationMarkers);
+    }
+    fireAnnotationsFetchedSignal(annotationCategories: []): void {
+        this.emit(Signals.ANNOTATIONS_FETCHED, annotationCategories);
+    }
+
 }
 
 let instance: SignalManager = new SignalManager();
@@ -91,3 +101,4 @@ export const setSignalManagerInstance = (sm: SignalManager): void => {
 };
 
 export const signalManager = (): SignalManager => instance;
+

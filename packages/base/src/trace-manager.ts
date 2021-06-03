@@ -4,7 +4,7 @@ import { TspClient } from 'tsp-typescript-client/lib/protocol/tsp-client';
 import { Query } from 'tsp-typescript-client/lib/models/query/query';
 import { OutputDescriptor } from 'tsp-typescript-client/lib/models/output-descriptor';
 import { TspClientResponse } from 'tsp-typescript-client/lib/protocol/tsp-client-response';
-import { signalManager, Signals } from './signals/signal-manager';
+import { signalManager} from './signals/signal-manager';
 
 export class TraceManager {
 
