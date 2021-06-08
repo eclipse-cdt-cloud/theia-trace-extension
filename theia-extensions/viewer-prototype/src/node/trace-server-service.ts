@@ -1,13 +1,23 @@
 import { spawn } from 'child_process';
+import { join } from 'path';
+import { existsSync } from 'fs';
 import { injectable } from 'inversify';
 import { PortBusy, TraceServerConfigService } from '../common/trace-server-config';
+import { FileOperationError, FileOperationResult } from '@theia/filesystem/lib/common/files';
 import treeKill = require('tree-kill');
 @injectable()
 export class TraceServerServiceImpl implements TraceServerConfigService {
     private processId: number;
 
     startTraceServer(path: string | undefined, port: number | undefined): Promise<string> {
-        const server = spawn(`${path}`, ['-vmargs', `-Dtraceserver.port=${port}`]);
+        if (typeof path === 'undefined') {
+            throw new FileOperationError('The Trace Viwer path is not defined.', FileOperationResult.FILE_INVALID_PATH);
+        }
+        const serverPath = join(__dirname, '../../../../', path);
+        if (existsSync(serverPath) === false) {
+            throw new FileOperationError(`The Trace Viewer path (${serverPath}) was not found.`, FileOperationResult.FILE_NOT_FOUND);
+        }
+        const server = spawn(`${serverPath}`, ['-vmargs', `-Dtraceserver.port=${port}`]);
         this.processId = server.pid;
         const timeouts: NodeJS.Timeout[] = [];
 

@@ -3,7 +3,10 @@
   "name": "electron-theia-trace-example-app",
   "main": "scripts/theia-trace-main.js",
   "build": {
-    "electronVersion": "9.1.2"
+    "electronVersion": "9.1.2",
+    "extraResources": [
+      { "from": "../../trace-compass-server", "to": "trace-compass-server"}
+    ]
   },
   "version": "0.0.1",
   "theia": {
@@ -18,7 +21,7 @@
         "applicationName": "Theia-Trace Example Application",
         "preferences": {
           "editor.autoSave": "on",
-          "trace-viewer.path" : "../../trace-compass-server/tracecompass-server",
+          "trace-viewer.path" : "../trace-compass-server/tracecompass-server",
           "trace-viewer.port" : 8080
         }
       }

@@ -9,7 +9,7 @@
         "applicationName": "Theia-Trace Example Application",
         "preferences": {
           "editor.autoSave": "on",
-          "trace-viewer.path" : "../../trace-compass-server/tracecompass-server",
+          "trace-viewer.path" : "trace-compass-server/tracecompass-server",
           "trace-viewer.port" : 8080
 
         }
