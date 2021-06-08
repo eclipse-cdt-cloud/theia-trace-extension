@@ -17,6 +17,8 @@ export declare interface SignalManager {
     fireSelectionChangedSignal(payload: { [key: string]: string }): void;
     fireCloseTraceViewerTabSignal(traceUUID: string): void;
     fireTraceViewerTabActivatedSignal(experiment: Experiment): void;
+    fireZoomTimeGraphSignal(hasZoomedIn: boolean): void;
+    fireResetTimeGraphSignal(): void;
 }
 
 export const Signals = {
@@ -32,7 +34,9 @@ export const Signals = {
     THEME_CHANGED: 'theme changed',
     SELECTION_CHANGED: 'selection changed',
     CLOSE_TRACEVIEWERTAB: 'tab closed',
-    TRACEVIEWERTAB_ACTIVATED: 'widget activated'
+    TRACEVIEWERTAB_ACTIVATED: 'widget activated',
+    TIMEGRAPH_ZOOMED: 'timegraph zoomed',
+    TIMEGRAPH_RESET: 'timegraph reset'
 };
 
 export class SignalManager extends EventEmitter implements SignalManager {
@@ -71,6 +75,12 @@ export class SignalManager extends EventEmitter implements SignalManager {
     }
     fireTraceViewerTabActivatedSignal(experiment: Experiment): void {
         this.emit(Signals.TRACEVIEWERTAB_ACTIVATED, experiment);
+    }
+    fireZoomTimeGraphSignal(hasZoomedIn: boolean): void {
+        this.emit(Signals.TIMEGRAPH_ZOOMED, hasZoomedIn);
+    }
+    fireResetTimeGraphSignal(): void {
+        this.emit(Signals.TIMEGRAPH_RESET);
     }
 }
 
