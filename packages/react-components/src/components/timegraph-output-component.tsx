@@ -53,10 +53,10 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
     private styleMap = new Map<string, TimeGraphStateStyle>();
 
     private selectedElement: TimeGraphStateComponent | undefined;
-    private tooltipElement: TimeGraphStateComponent | undefined;
-    private tooltipInfo: { [key: string]: string } | undefined;
 
     private onSelectionChanged = (payload: { [key: string]: string; }) => this.doHandleSelectionChangedSignal(payload);
+    private onTimeGraphZoomed = (hasZoomedIn: boolean) => this.doHandleTimeGraphZoomedSignal(hasZoomedIn);
+    private onTimeGraphReset = () => this.doHandleTimeGraphResetSignal();
 
     constructor(props: TimegraphOutputProps) {
         super(props);
@@ -113,6 +113,8 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
             }
         });
         signalManager().on(Signals.SELECTION_CHANGED, this.onSelectionChanged);
+        signalManager().on(Signals.TIMEGRAPH_ZOOMED, this.onTimeGraphZoomed);
+        signalManager().on(Signals.TIMEGRAPH_RESET, this.onTimeGraphReset);
     }
 
     synchronizeTreeScroll(): void {
@@ -131,6 +133,8 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
     componentWillUnmount(): void {
         super.componentWillUnmount();
         signalManager().off(Signals.SELECTION_CHANGED, this.onSelectionChanged);
+        signalManager().off(Signals.TIMEGRAPH_ZOOMED, this.onTimeGraphZoomed);
+        signalManager().off(Signals.TIMEGRAPH_RESET, this.onTimeGraphReset);
     }
 
     async fetchTree(): Promise<ResponseStatus> {
@@ -210,6 +214,14 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
             };
             this.chartCursors.maybeCenterCursor();
         }
+    }
+
+    private doHandleTimeGraphZoomedSignal(hasZoomedIn: boolean) {
+        this.chartLayer.adjustZoom(undefined, hasZoomedIn);
+    }
+
+    private doHandleTimeGraphResetSignal() {
+        this.props.unitController.viewRange = { start: 0, end: this.props.unitController.absoluteRange };
     }
 
     renderTree(): React.ReactNode {

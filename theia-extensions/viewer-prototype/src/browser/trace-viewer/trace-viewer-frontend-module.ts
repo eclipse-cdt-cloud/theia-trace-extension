@@ -17,6 +17,8 @@ import { TheiaMessageManager } from '../theia-message-manager';
 import { TraceServerUrlProviderImpl } from '../trace-server-url-provider-frontend-impl';
 import { bindTraceServerPreferences } from '../trace-server-bindings';
 import { TraceServerConfigService, traceServerPath } from '../../common/trace-server-config';
+import { TabBarToolbarContribution } from '@theia/core/lib/browser/shell/tab-bar-toolbar';
+import { TraceViewerToolbarContribution } from './trace-viewer-toolbar-contribution';
 
 export default new ContainerModule(bind => {
     bind(TraceViewerEnvironment).toSelf().inRequestScope();
@@ -25,6 +27,10 @@ export default new ContainerModule(bind => {
     bind(TraceServerUrlProvider).toService(TraceServerUrlProviderImpl);
     bind(TspClientProvider).toSelf().inSingletonScope();
     bind(TheiaMessageManager).toSelf().inSingletonScope();
+
+    bindViewContribution(bind, TraceViewerToolbarContribution);
+    bind(FrontendApplicationContribution).toService(TraceViewerToolbarContribution);
+    bind(TabBarToolbarContribution).toService(TraceViewerToolbarContribution);
 
     bind(TraceViewerWidget).toSelf();
     bind<WidgetFactory>(WidgetFactory).toDynamicValue(context => ({
