@@ -158,6 +158,6 @@ export class ReactAvailableViewsWidget extends React.Component<ReactAvailableVie
         if (descriptors && descriptors.length) {
             outputDescriptors.push(...descriptors);
         }
-        return outputDescriptors;
+        return outputDescriptors.filter(value => value.type !== 'DATA_TREE');
     }
 }
