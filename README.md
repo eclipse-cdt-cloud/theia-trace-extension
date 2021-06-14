@@ -5,6 +5,7 @@ Theia trace viewer extension using the tsp-typescript-client (https://github.com
 Prerequisites for running this extension are the same as those for [running the theia IDE](https://github.com/eclipse-theia/theia/blob/master/doc/Developing.md#prerequisites).
 
 **👋 Want to help?** Read our [new contributor guide](https://github.com/theia-ide/theia-trace-extension#new-contributors) and see [how to contribute code](https://github.com/theia-ide/theia-trace-extension#how-to-contribute-code).
+⚠️ Apart from the live demo, both the application itself and its development environment only work on Linux operating systems. 
 
 ## Try a live demo via Gitpod!
 Click the Gitpod button below to access a live demo of the trace viewer. In a couple clicks and around 2 minutes you'll be on your way.
@@ -20,9 +21,17 @@ Prerequisites: A GitHub account (for logging into Gitpod)
 * After opening the tool via the notification, the interface loads in a few seconds.
 * Now you're ready to try the trace viewer!
     * Head to the trace viewer tab in the left side menu to get started.
-    * The tool is already loaded with example traces from a set of [Trace Visualisation Labs](https://github.com/tuxology/tracevizlab), so no need to hunt for your own.
+    * The tool is loaded with the example traces from a set of [Trace Visualisation Labs](https://github.com/tuxology/tracevizlab). To analyse your own traces, [download the application](https://github.com/theia-ide/theia-trace-extension#download-the-application) for Linux.
 
 ![gitpod-live-demo-setup](https://raw.githubusercontent.com/theia-ide/theia-trace-extension/master/doc/images/gitpod-live-demo-setup-0.0.2.gif)
+
+## Download an external build of the application 
+If you'd like to explore your own traces, you can **[download a Theia IDE build with this trace viewer extension here](https://www.dorsal.polymtl.ca/files/other/electron-theia-trace-example-app-0.0.1.AppImage)!**
+
+* **Prerequisite: Java 11** (required since this tool reuses the [Eclipse Trace Compass server](https://download.eclipse.org/tracecompass.incubator/trace-server/rcp/?d) which runs on Java)
+   * If you get a confusing error "Error opening serial port ${this.port}. (Port busy)" when you try to run the app, it's likely that Java is missing.  
+* **No compilation or additional downloads necessary!** Just change the AppImage file's permissions to make it executable (command: `chmod +x <filename>`) and run it.
+* **For Linux systems only**
 
 ## Consume the trace viewer extension from npm
 
@@ -154,7 +163,7 @@ If the selection is a single file, then the tool will open the file directly as 
 
 If the selection is a directory, then the tool will look for traces in **Common Trace Format (CTF)** format, such as **Linux Tracing Toolkit traces (LTTng)** Kernel and UST (Userspace) traces, and open all found CTF traces together under the same timeline. The trace events of each CTF trace will be analyzed in chronological order. With this you're able to open e.g. LTTng Kernel and UST Traces at the same time.
 
-The example Trace Compass trace server above supports LTTng Kernel and UST traces. Example LTTng traces can be retrieved from the [Trace Compass Tutorials](https://github.com/tuxology/tracevizlab). Just download the archive [TraceCompassTutorialTraces](https://github.com/tuxology/tracevizlab/blob/master/labs/TraceCompassTutorialTraces.tgz), extract them into a local directory on your computer. They can also be automatically downloaded by running `yarn download:sample-traces` from the repository's root.
+The example Trace Compass trace server above supports LTTng Kernel and UST traces. Example LTTng traces can be retrieved from the [Trace Compass Tutorials](https://github.com/dorsal-lab/tracevizlab). Just download the archive [TraceCompassTutorialTraces](https://github.com/dorsal-lab/tracevizlab/blob/master/labs/TraceCompassTutorialTraces.tgz), extract them into a local directory on your computer. They can also be automatically downloaded by running `yarn download:sample-traces` from the repository's root.
 
 ### Open the Trace Viewer
 To open the **Trace Viewer**, select menu **View** from the top-level menu and then select **Trace Viewer** in the list of views. Then the **Trace Viewer** icon will be added on the left navbar, below the **File Explorer** Icon.
