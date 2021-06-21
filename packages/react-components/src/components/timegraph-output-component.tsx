@@ -403,7 +403,7 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
                 }
                 return {
                     color: backgroundColor ? backgroundColor.color : 0x000000,
-                    alpha: backgroundColor ? backgroundColor.alpha : 1.0,
+                    opacity: backgroundColor ? backgroundColor.alpha : 1.0,
                     height: height,
                     borderWidth: state.selected ? 2 : (borderWidth ? borderWidth : 0),
                     borderColor: state.selected ? 0xeef20c : (borderColor ? borderColor.color : 0x000000)
@@ -510,10 +510,8 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
                     symbol: symbolType ? symbolType : 'none',
                     size: symbolSize,
                     color: color ? color.color : 0x000000,
-                    alpha: color ? color.alpha : 1.0,
-                    verticalAlign: vAlign ? vAlign : 'middle',
-                    opacity: color ? color.alpha : 0.2
-
+                    opacity: color ? color.alpha : 1.0,
+                    verticalAlign: vAlign ? vAlign : 'middle'
                 };
             }
         }
