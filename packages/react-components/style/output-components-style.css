@@ -127,3 +127,17 @@ canvas {
 .ag-theme-balham-dark .ag-row-selected {
     background-color: var(--theia-selection-background) !important;
 }
+
+.ag-header-row:nth-child(2) > .ag-header-cell {
+    padding-left: 0px !important;
+    padding-right: 0px !important;
+}
+
+.ag-floating-filter-full-body:hover {
+    background-color: var(--theia-list-hoverBackground) !important;
+    cursor: pointer !important;
+}
+
+.hoverClass:hover {
+    border: 1px solid black;
+}
