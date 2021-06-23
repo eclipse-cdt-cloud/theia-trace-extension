@@ -4,6 +4,8 @@ Theia trace viewer extension using the tsp-typescript-client (https://github.com
 
 Prerequisites for running this extension are the same as those for [running the theia IDE](https://github.com/eclipse-theia/theia/blob/master/doc/Developing.md#prerequisites).
 
+**👋 Want to help?** See [how to contribute code](https://github.com/theia-ide/theia-trace-extension#how-to-contribute-code).
+
 ## Try a live demo via Gitpod!
 Click the Gitpod button below to access a live demo of the trace viewer. In a couple clicks and around 2 minutes you'll be on your way.
 
@@ -142,3 +144,17 @@ There is only a limited number of such operations and they are only implemented 
 
 ### Time Graph Tooltip
 Currently, the **Time Graph Tooltip** is populated when selecting a state in a Time Graph view.
+
+## How to contribute code
+**Changes to the project** are made by submitting code with a pull request (PR).
+
+* [How to write and submit changes](https://www.dataschool.io/how-to-contribute-on-github/)
+
+**Good commit messages** make it easier to review code and understand why the changes were made. Please include a:
+* _Title:_ Concise and complete title written in imperative (e.g. "Update Gitpod demo screenshots" or "Single-click to select or open trace")
+* _Problem:_ What is the situation that needs to be resolved? Why does the problem need fixing? Link to related issues (e.g. "Fixes [#317](https://github.com/theia-ide/theia-trace-extension/issues/317)").
+* _Solution:_ What changes were made to resolve the situation? Why are these changes the right fix?
+* _Impact:_ What impact do these changes have? (e.g. Numbers to show a performance improvement, screenshots or a video for a UI change)
+* [_Sign-off:_](https://git-scm.com/docs/git-commit#Documentation/git-commit.txt---signoff) Use your full name and a long-term email address. This certifies that you have written the code and that, from a licensing perspective, the code is appropriate for use in open-source.   
+* [How to format the message](https://tbaggery.com/2008/04/19/a-note-about-git-commit-messages.html)
+
