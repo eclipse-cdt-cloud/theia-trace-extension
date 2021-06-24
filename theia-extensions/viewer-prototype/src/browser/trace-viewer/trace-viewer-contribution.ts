@@ -1,4 +1,4 @@
-import { injectable, inject, postConstruct } from 'inversify';
+import { injectable, inject } from 'inversify';
 import { CommandRegistry, CommandContribution, MessageService } from '@theia/core';
 import { WidgetOpenerOptions, WidgetOpenHandler } from '@theia/core/lib/browser';
 import URI from '@theia/core/lib/common/uri';
@@ -22,8 +22,6 @@ interface TraceViewerWidgetOpenerOptions extends WidgetOpenerOptions {
 export class TraceViewerContribution extends WidgetOpenHandler<TraceViewerWidget> implements CommandContribution {
 
     private tspClient: TspClient;
-    protected path: string | undefined;
-    protected port: number | undefined;
 
     private constructor(
         @inject(TspClientProvider) private tspClientProvider: TspClientProvider
@@ -44,21 +42,12 @@ export class TraceViewerContribution extends WidgetOpenHandler<TraceViewerWidget
     readonly id = TraceViewerWidget.ID;
     readonly label = 'Trace Viewer';
 
-    @postConstruct()
-    init(): void {
+    protected get path(): string | undefined {
+        return this.preferenceService.get(TRACE_PATH);
+    }
 
-        this.preferenceService.onPreferenceChanged(event => {
-            if (event.preferenceName === TRACE_PORT) {
-                this.port = event.newValue;
-            }
-            if (event.preferenceName === TRACE_PATH) {
-                this.path = event.newValue;
-            }
-        });
-
-        this.path = this.preferenceService.get(TRACE_PATH);
-        this.port = this.preferenceService.get(TRACE_PORT);
-
+    protected get port(): number | undefined {
+        return this.preferenceService.get(TRACE_PORT);
     }
 
     protected createWidgetOptions(uri: URI, options?: TraceViewerWidgetOpenerOptions): TraceViewerWidgetOptions {
@@ -94,11 +83,12 @@ export class TraceViewerContribution extends WidgetOpenHandler<TraceViewerWidget
             this.messageService.showProgress({
                 text: ''
             }).then(async progress => {
+                const { path, port } = this;
                 progress.report({ message: 'Launching trace server... ', work: { done: 10, total: 100 } });
                 try {
-                    const resolve = await this.traceServerConfigService.startTraceServer(this.path, this.port);
+                    const resolve = await this.traceServerConfigService.startTraceServer(path, port);
                     if (resolve === 'success') {
-                        progress.report({ message: `Trace server started on port: ${this.port}.`, work: { done: 100, total: 100 } });
+                        progress.report({ message: `Trace server started on port: ${port}.`, work: { done: 100, total: 100 } });
                         progress.cancel();
                         const widget = super.open(traceURI, traceUUID);
                         return widget;
@@ -107,7 +97,7 @@ export class TraceViewerContribution extends WidgetOpenHandler<TraceViewerWidget
                 catch (err) {
                     if (PortBusy.is(err)) {
                         this.messageService.error(
-                            `Error opening serial port ${this.port}. (Port busy)`);
+                            `Error opening serial port ${port}. (Port busy)`);
                     } else {
                         this.messageService.error(
                             'Failed to start the trace server: no such file or directory. Please make sure that the path is correct in Trace Viewer settings and retry');
