@@ -30,6 +30,6 @@ export class TimeNavigatorComponent extends React.Component<TimeNavigatorProps> 
             addWidgetResizeHandler={this.props.addWidgetResizeHandler}
             removeWidgetResizeHandler={this.props.removeWidgetResizeHandler}
             unitController={this.props.unitController}
-            layer={[navi]} />;
+            layers={[navi]} />;
     }
 }
