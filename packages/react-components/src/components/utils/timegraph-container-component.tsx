@@ -9,7 +9,7 @@ export namespace ReactTimeGraphContainer {
         id: string,
         options: TimeGraphContainerOptions,
         unitController: TimeGraphUnitController,
-        layer: TimeGraphLayer[],
+        layers: TimeGraphLayer[],
         addWidgetResizeHandler: (handler: () => void) => void
         removeWidgetResizeHandler: (handler: () => void) => void
     }
@@ -23,10 +23,10 @@ export class ReactTimeGraphContainer extends React.Component<ReactTimeGraphConta
 
     componentDidMount(): void {
         this.container = new TimeGraphContainer(this.props.options, this.props.unitController, this.ref);
-        this.props.layer.forEach(l => {
-            if (this.container) { this.container.addLayer(l); }
-        });
-        this._resizeHandler = debounce(() => this.resize(), 500, {trailing: true, leading: false});
+        if (this.container) {
+            this.container.addLayers(this.props.layers);
+        }
+        this._resizeHandler = debounce(() => this.resize(), 500, { trailing: true, leading: false });
         this.props.addWidgetResizeHandler(this._resizeHandler);
     }
 
@@ -34,7 +34,6 @@ export class ReactTimeGraphContainer extends React.Component<ReactTimeGraphConta
         if (this.container) {
             this.container.destroy();
         }
-
         if (this._resizeHandler) {
             this.props.removeWidgetResizeHandler(this._resizeHandler);
         }
@@ -42,12 +41,15 @@ export class ReactTimeGraphContainer extends React.Component<ReactTimeGraphConta
 
     shouldComponentUpdate(nextProps: ReactTimeGraphContainer.Props): boolean {
         return nextProps.options.height !== this.props.options.height
-            || nextProps.options.width !== this.props.options.width;
+            || nextProps.options.width !== this.props.options.width
+            || nextProps.options.backgroundColor !== this.props.options.backgroundColor;
     }
 
     componentDidUpdate(prevProps: ReactTimeGraphContainer.Props): void {
-        if (prevProps.options.height !== this.props.options.height && this.container) {
-            this.container.reInitCanvasSize(this.props.options.width, this.props.options.height);
+        if ((prevProps.options.height !== this.props.options.height
+            || prevProps.options.backgroundColor !== this.props.options.backgroundColor)
+            && this.container) {
+            this.container.updateCanvas(this.props.options.width, this.props.options.height, this.props.options.backgroundColor, this.props.options.lineColor);
         }
     }
 
@@ -56,6 +58,6 @@ export class ReactTimeGraphContainer extends React.Component<ReactTimeGraphConta
     }
 
     private resize(): void {
-        if (this.container) { this.container.reInitCanvasSize(this.props.options.width, this.props.options.height); }
+        if (this.container) { this.container.updateCanvas(this.props.options.width, this.props.options.height); }
     }
 }

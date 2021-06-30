@@ -57,8 +57,8 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
     private onTimeGraphZoomed = (hasZoomedIn: boolean) => this.doHandleTimeGraphZoomedSignal(hasZoomedIn);
     private onTimeGraphReset = () => this.doHandleTimeGraphResetSignal();
     private annotationMarkers: string[] | undefined = undefined;
-    private onSelectionChanged = ( payload: { [key: string]: string; } ) => this.doHandleSelectionChangedSignal(payload);
-    private onMarkerFilterChanged = ( annotationMarkers: string[]) => this.doHandleMarkerFilterChangedSignal(annotationMarkers);
+    private onSelectionChanged = (payload: { [key: string]: string; }) => this.doHandleSelectionChangedSignal(payload);
+    private onMarkerFilterChanged = (annotationMarkers: string[]) => this.doHandleMarkerFilterChangedSignal(annotationMarkers);
 
     constructor(props: TimegraphOutputProps) {
         super(props);
@@ -226,7 +226,7 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
     private doHandleTimeGraphResetSignal() {
         this.props.unitController.viewRange = { start: 0, end: this.props.unitController.absoluteRange };
     }
-    private doHandleMarkerFilterChangedSignal(annotationMarkers: string[]){
+    private doHandleMarkerFilterChangedSignal(annotationMarkers: string[]) {
         this.annotationMarkers = annotationMarkers;
         this.chartLayer.updateChart();
 
@@ -337,6 +337,7 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
                     height: parseInt(this.props.style.height.toString()),
                     width: this.props.style.chartWidth, // this.props.style.mainWidth,
                     backgroundColor: this.props.style.chartBackgroundColor,
+                    lineColor: this.props.style.lineColor,
                     classNames: 'horizontal-canvas'
                 }
             }
@@ -344,7 +345,7 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
             removeWidgetResizeHandler={this.props.removeWidgetResizeHandler}
             unitController={this.props.unitController}
             id='timegraph-chart'
-            layer={[
+            layers={[
                 grid, this.chartLayer, selectionRange, this.chartCursors, this.arrowLayer, this.rangeEventsLayer
             ]}
         >
@@ -363,7 +364,7 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
             addWidgetResizeHandler={this.props.addWidgetResizeHandler}
             removeWidgetResizeHandler={this.props.removeWidgetResizeHandler}
             unitController={this.props.unitController}
-            layer={[this.vscrollLayer]}
+            layers={[this.vscrollLayer]}
         ></ReactTimeGraphContainer>;
     }
 
@@ -385,7 +386,7 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
         const newRange: TimelineChart.TimeGraphRange = { start, end };
         const newResolution: number = resolution * 0.8;
         const timeGraphData: TimelineChart.TimeGraphModel = await this.tspDataProvider.getData(orderedTreeIds, this.state.timegraphTree,
-        this.props.range, newRange, this.props.style.chartWidth, this.annotationMarkers);
+            this.props.range, newRange, this.props.style.chartWidth, this.annotationMarkers);
         this.arrowLayer.addArrows(timeGraphData.arrows);
         this.rangeEventsLayer.addRangeEvents(timeGraphData.rangeEvents);
 
