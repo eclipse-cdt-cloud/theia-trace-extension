@@ -476,7 +476,18 @@ export class TableOutputComponent extends AbstractOutputComponent<TableOutputPro
         } else {
             this.filterModel.set(colName, filterValue);
         }
-        this.gridApi?.setDatasource(this.dataSource);
+        if (this.gridApi) {
+            this.gridApi.forEachNode(rowNode => {
+                let isMatched = true;
+                this.filterModel.forEach((value, key) => {
+                    if (!rowNode.data[key].includes(value)) {
+                        isMatched = false;
+                    }
+                });
+                rowNode.data['isMatched'] = isMatched;
+            });
+            this.gridApi.redrawRows();
+        }
     }
 
     private async findNextMatchIndex(currRowIndex: number) {
