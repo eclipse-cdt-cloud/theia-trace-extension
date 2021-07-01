@@ -242,10 +242,12 @@ export class TraceContextComponent extends React.Component<TraceContextProps, Tr
         const layouts = this.generateGridLayout();
         const outputs = this.props.outputs;
         return <React.Fragment>
-            <div style={{ marginLeft: this.state.style.width - this.state.style.chartWidth }}>
-                <TimeAxisComponent unitController={this.unitController} style={this.state.style}
-                    addWidgetResizeHandler={this.addWidgetResizeHandler} removeWidgetResizeHandler={this.removeWidgetResizeHandler}/>
-            </div>
+            {(outputs.length > 1 || outputs[0].type !== 'TABLE') &&
+                <div style={{ marginLeft: this.state.style.width - this.state.style.chartWidth }}>
+                    <TimeAxisComponent unitController={this.unitController} style={this.state.style}
+                        addWidgetResizeHandler={this.addWidgetResizeHandler} removeWidgetResizeHandler={this.removeWidgetResizeHandler} />
+                </div>
+            }
             {
                 // Syntax to use ReactGridLayout with Custom Components, while passing resized dimensions to children:
                 // https://github.com/STRML/react-grid-layout/issues/299#issuecomment-524959229
@@ -273,7 +275,7 @@ export class TraceContextComponent extends React.Component<TraceContextProps, Tr
                     switch (responseType) {
                         case 'TIME_GRAPH':
                             return <TimegraphOutputComponent key={output.id} {...outputProps}
-                                addWidgetResizeHandler={this.addWidgetResizeHandler} removeWidgetResizeHandler={this.removeWidgetResizeHandler}/>;
+                                addWidgetResizeHandler={this.addWidgetResizeHandler} removeWidgetResizeHandler={this.removeWidgetResizeHandler} />;
                         case 'TREE_TIME_XY':
                             return <XYOutputComponent key={output.id} {...outputProps} />;
                         case 'TABLE':
@@ -283,10 +285,12 @@ export class TraceContextComponent extends React.Component<TraceContextProps, Tr
                     }
                 })}
             </ResponsiveGridLayout>
-            <div style={{ marginLeft: this.state.style.width - this.state.style.chartWidth }}>
-                <TimeNavigatorComponent unitController={this.unitController} style={this.state.style}
-                    addWidgetResizeHandler={this.addWidgetResizeHandler} removeWidgetResizeHandler={this.removeWidgetResizeHandler}/>
-            </div>
+            {(outputs.length > 1 || outputs[0].type !== 'TABLE') &&
+                <div style={{ marginLeft: this.state.style.width - this.state.style.chartWidth }}>
+                    <TimeNavigatorComponent unitController={this.unitController} style={this.state.style}
+                        addWidgetResizeHandler={this.addWidgetResizeHandler} removeWidgetResizeHandler={this.removeWidgetResizeHandler} />
+                </div>
+            }
         </React.Fragment>;
     }
 
