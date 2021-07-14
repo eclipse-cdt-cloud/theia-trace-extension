@@ -28,9 +28,10 @@ export default new ContainerModule(bind => {
     bind(TspClientProvider).toSelf().inSingletonScope();
     bind(TheiaMessageManager).toSelf().inSingletonScope();
 
-    bindViewContribution(bind, TraceViewerToolbarContribution);
+    bind(TraceViewerToolbarContribution).toSelf().inSingletonScope();
     bind(FrontendApplicationContribution).toService(TraceViewerToolbarContribution);
     bind(TabBarToolbarContribution).toService(TraceViewerToolbarContribution);
+    bind(CommandContribution).toService(TraceViewerToolbarContribution);
 
     bind(TraceViewerWidget).toSelf();
     bind<WidgetFactory>(WidgetFactory).toDynamicValue(context => ({
