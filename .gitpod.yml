@@ -12,6 +12,7 @@ ports:
   onOpen: ignore
 - port: 8080 # Trace Compass server
   onOpen: ignore
+  visibility: public
 tasks:
 - init: >
     yarn download:server
