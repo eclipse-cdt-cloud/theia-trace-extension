@@ -1,8 +1,8 @@
-import { injectable, inject } from 'inversify';
+import { injectable, inject, postConstruct } from 'inversify';
 import * as React from 'react';
-import { AbstractViewContribution, ApplicationShell, Widget } from '@theia/core/lib/browser';
+import { ApplicationShell, Widget } from '@theia/core/lib/browser';
 import { TabBarToolbarContribution, TabBarToolbarRegistry } from '@theia/core/lib/browser/shell/tab-bar-toolbar';
-import { CommandRegistry, DisposableCollection, Emitter, MenuModelRegistry } from '@theia/core';
+import { CommandContribution, CommandRegistry, DisposableCollection, Emitter, MenuModelRegistry } from '@theia/core';
 import { TraceViewerToolbarCommands, TraceViewerToolbarFilterMenus, TRACE_VIEWER_TOOLBAR_COMMAND_FILTER } from './trace-viewer-toolbar-commands';
 import { signalManager, Signals } from '@trace-viewer/base/lib/signals/signal-manager';
 import { TraceViewerWidget } from './trace-viewer';
@@ -10,7 +10,7 @@ import { TspClientProvider } from '../tsp-client-provider-impl';
 import { ContextMenuRenderer } from '@theia/core/lib/browser';
 
 @injectable()
-export class TraceViewerToolbarContribution extends AbstractViewContribution<Widget> implements TabBarToolbarContribution {
+export class TraceViewerToolbarContribution implements TabBarToolbarContribution, CommandContribution {
     @inject(ApplicationShell) protected readonly shell: ApplicationShell;
     @inject(ContextMenuRenderer) protected readonly contextMenuRenderer!: ContextMenuRenderer;
     @inject(TspClientProvider) protected readonly tspClientProvider!: TspClientProvider;
@@ -19,24 +19,15 @@ export class TraceViewerToolbarContribution extends AbstractViewContribution<Wid
 
     @inject(CommandRegistry)
     protected readonly commands: CommandRegistry;
+
     private annotationsMap: Map<string, boolean> = new Map<string, boolean>();
     private onAnnotationsFetchedSignal = (annotationsList: string[]) => this.doHandleAnnotationsFetchedSignal(annotationsList);
     protected readonly onAnnotationsChangedEmitter = new Emitter<void>();
     protected readonly onAnnotationsChangedEvent = this.onAnnotationsChangedEmitter.event;
 
-    constructor() {
-        super({
-            widgetId: TraceViewerWidget.ID,
-            widgetName: TraceViewerWidget.LABEL,
-            defaultWidgetOptions: {
-                area: 'main',
-            },
-        });
+    @postConstruct()
+    protected init(): void {
         signalManager().on(Signals.ANNOTATIONS_FETCHED, this.onAnnotationsFetchedSignal);
-    }
-
-    initializeLayout(): void {
-        this.openView({ activate: false });
     }
 
     private doHandleAnnotationsFetchedSignal(annotationsList: string[]) {
@@ -50,7 +41,6 @@ export class TraceViewerToolbarContribution extends AbstractViewContribution<Wid
     }
 
     registerCommands(registry: CommandRegistry): void {
-        super.registerCommands(registry);
         registry.registerCommand(
             TraceViewerToolbarCommands.ZOOM_IN, {
             isVisible: (w: Widget) => w instanceof TraceViewerWidget,
