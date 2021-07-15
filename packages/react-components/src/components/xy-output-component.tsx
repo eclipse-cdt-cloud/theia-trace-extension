@@ -23,13 +23,17 @@ type XYOuputState = AbstractOutputState & {
     xyData: any;
     columns: ColumnHeader[];
 };
+const ZOOM_IN = true;
+const ZOOM_OUT = false;
+const PAN_LEFT = true;
+const PAN_RIGHT = false;
 
 export class XYOutputComponent extends AbstractTreeOutputComponent<AbstractOutputProps, XYOuputState> {
     private currentColorIndex = 0;
     private colorMap: Map<string, number> = new Map();
-
     private lineChartRef: any;
     private mouseIsDown = false;
+    private positionXMove = 0;
     private posPixelSelect = 0;
     private plugin = {
         afterDraw: (chartInstance: Chart, _easing: Chart.Easing, _options?: any) => { this.afterChartDraw(chartInstance); }
@@ -163,7 +167,12 @@ export class XYOutputComponent extends AbstractTreeOutputComponent<AbstractOutpu
         // width={this.props.style.chartWidth}
         return <React.Fragment>
             {this.state.outputStatus === ResponseStatus.COMPLETED ?
-                <div id='xy-main' onMouseDown={event => this.beginSelection(event)} style={{ height: this.props.style.height }} >
+                <div id='xy-main' tabIndex={0}
+                    onKeyDown={event => this.onKeyDown(event)}
+                    onWheel={event => this.onWheel(event)}
+                    onMouseMove={event => this.onMouseMove(event)}
+                    onMouseDown={event => this.onMouseDown(event)}
+                    style={{ height: this.props.style.height }}>
                     <Line
                         data={this.state.xyData}
                         height={parseInt(this.props.style.height.toString())}
@@ -275,19 +284,125 @@ export class XYOutputComponent extends AbstractTreeOutputComponent<AbstractOutpu
         this.setState({orderedNodes: ids});
     }
 
-    private beginSelection(event: React.MouseEvent<HTMLDivElement, MouseEvent>) {
+    private onMouseDown(event: React.MouseEvent<HTMLDivElement, MouseEvent>) {
         this.mouseIsDown = true;
         this.posPixelSelect = event.nativeEvent.screenX;
-        const offset = this.props.viewRange.getOffset() ?? 0;
-        const scale = this.props.viewRange.getEnd() - this.props.viewRange.getstart();
-        const xPos = this.props.viewRange.getstart() - offset +
-            (event.nativeEvent.offsetX / this.lineChartRef.current.chartInstance.width) * scale;
+        const startTime = this.getTimeX(event.nativeEvent.offsetX);
         this.props.unitController.selectionRange = {
-            start: xPos,
-            end: xPos
+            start: startTime,
+            end: startTime
         };
         document.addEventListener('mousemove', this.updateSelection);
         document.addEventListener('mouseup', this.endSelection);
+    }
+
+    private updateRange(rangeStart: number, rangeEnd: number) {
+        if (rangeEnd < rangeStart) {
+            const temp = rangeStart;
+            rangeStart = rangeEnd;
+            rangeEnd = temp;
+        }
+        this.props.unitController.viewRange = {
+            start: rangeStart,
+            end: rangeEnd
+        };
+    }
+
+    private zoom(isZoomIn: boolean) {
+        if (this.props.unitController.viewRangeLength >= 1) {
+            let newStartRange = 0;
+            let newEndRange = 0;
+            const percentZoom = 0.9;
+            const position = this.getTimeX(this.positionXMove);
+            const startDistance  = position - this.props.unitController.viewRange.start;
+            const endDistance = this.props.unitController.viewRange.end - position;
+            const zoomFactor = isZoomIn ? percentZoom : 1 / percentZoom;
+            newStartRange = position - startDistance * zoomFactor;
+            newEndRange = position + endDistance * zoomFactor;
+            if (newStartRange < 0) {
+                newEndRange = newEndRange - newStartRange;
+            } else if (newEndRange > this.props.unitController.absoluteRange) {
+                const delta = newEndRange - this.props.unitController.absoluteRange;
+                newStartRange = newStartRange - delta;
+            }
+            newStartRange = Math.max(newStartRange, 0);
+            newEndRange = Math.min(newEndRange, this.props.unitController.absoluteRange);
+            this.updateRange(newStartRange, newEndRange);
+        }
+    }
+
+    private pan(panLeft: boolean) {
+        const panFactor = 0.1;
+        const percentRange = this.props.unitController.viewRangeLength * panFactor;
+        const panNumber = panLeft ? -1 : 1;
+        const startRange = this.props.unitController.viewRange.start + (panNumber * percentRange);
+        const endRange = this.props.unitController.viewRange.end + (panNumber * percentRange);
+        if (startRange < 0) {
+            this.props.unitController.viewRange = {
+                start: 0,
+                end: this.props.unitController.viewRangeLength
+            };
+        } else if (endRange > this.props.unitController.absoluteRange) {
+            this.props.unitController.viewRange = {
+                start: this.props.unitController.absoluteRange - this.props.unitController.viewRangeLength,
+                end: this.props.unitController.absoluteRange
+            };
+        } else {
+            this.props.unitController.viewRange = {
+                start: startRange,
+                end: endRange
+            };
+        }
+    }
+
+    private onWheel(wheel: React.WheelEvent) {
+        if (wheel.shiftKey) {
+            if (wheel.deltaY < 0) {
+                this.pan(PAN_LEFT);
+            }
+            else if (wheel.deltaY > 0) {
+                this.pan(PAN_RIGHT);
+            }
+        }
+    }
+
+    private getTimeX(event: number): number {
+        const offset = this.props.viewRange.getOffset() ?? 0;
+        const scale = this.props.viewRange.getEnd() - this.props.viewRange.getstart();
+        const xPos = this.props.viewRange.getstart() - offset +
+            (event / this.lineChartRef.current.chartInstance.width) * scale;
+        return xPos;
+    }
+
+    private onMouseMove(event: React.MouseEvent) {
+        this.positionXMove = event.nativeEvent.offsetX;
+    }
+
+    private onKeyDown(key: React.KeyboardEvent) {
+        switch (key.key) {
+            case 'W':
+            case 'w': {
+                this.zoom(ZOOM_IN);
+                break;
+            }
+            case 'S':
+            case 's': {
+                this.zoom(ZOOM_OUT);
+                break;
+            }
+            case 'A':
+            case 'a':
+            case 'ArrowLeft': {
+                this.pan(PAN_LEFT);
+                break;
+            }
+            case 'D':
+            case 'd':
+            case 'ArrowRight': {
+                this.pan(PAN_RIGHT);
+                break;
+            }
+        }
     }
 
     private async updateXY() {
