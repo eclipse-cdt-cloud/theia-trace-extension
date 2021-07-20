@@ -32,6 +32,7 @@ export class XYOutputComponent extends AbstractTreeOutputComponent<AbstractOutpu
     private currentColorIndex = 0;
     private colorMap: Map<string, number> = new Map();
     private lineChartRef: any;
+    private chartRef: any;
     private mouseIsDown = false;
     private positionXMove = 0;
     private posPixelSelect = 0;
@@ -57,6 +58,8 @@ export class XYOutputComponent extends AbstractTreeOutputComponent<AbstractOutpu
         document.removeEventListener('mouseup', this.endSelection);
     };
 
+    private preventDefaultHandler: ((event: WheelEvent) => void) | undefined;
+
     constructor(props: AbstractOutputProps) {
         super(props);
         this.state = {
@@ -72,6 +75,7 @@ export class XYOutputComponent extends AbstractTreeOutputComponent<AbstractOutpu
 
         this.afterChartDraw = this.afterChartDraw.bind(this);
         this.lineChartRef = React.createRef();
+        this.chartRef = React.createRef();
     }
 
     componentDidMount(): void {
@@ -115,6 +119,14 @@ export class XYOutputComponent extends AbstractTreeOutputComponent<AbstractOutpu
             this.updateXY();
         }
         if (this.lineChartRef.current) {
+            if (this.preventDefaultHandler === undefined) {
+                this.preventDefaultHandler = (event: WheelEvent) => {
+                    if (event.ctrlKey) {
+                        event.preventDefault();
+                    }
+                };
+                this.chartRef.current.addEventListener('wheel', this.preventDefaultHandler);
+            }
             this.lineChartRef.current.chartInstance.render();
         }
     }
@@ -172,7 +184,9 @@ export class XYOutputComponent extends AbstractTreeOutputComponent<AbstractOutpu
                     onWheel={event => this.onWheel(event)}
                     onMouseMove={event => this.onMouseMove(event)}
                     onMouseDown={event => this.onMouseDown(event)}
-                    style={{ height: this.props.style.height }}>
+                    style={{ height: this.props.style.height }}
+                    ref={this.chartRef}
+                    >
                     <Line
                         data={this.state.xyData}
                         height={parseInt(this.props.style.height.toString())}
@@ -362,6 +376,12 @@ export class XYOutputComponent extends AbstractTreeOutputComponent<AbstractOutpu
             }
             else if (wheel.deltaY > 0) {
                 this.pan(PAN_RIGHT);
+            }
+        } else if (wheel.ctrlKey) {
+            if (wheel.deltaY < 0) {
+                this.zoom(ZOOM_IN);
+            } else if (wheel.deltaY > 0) {
+                this.zoom(ZOOM_OUT);
             }
         }
     }
