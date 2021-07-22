@@ -23,6 +23,7 @@ type XYOuputState = AbstractOutputState & {
     xyData: any;
     columns: ColumnHeader[];
 };
+const RIGHT_CLICK_NUMBER = 2;
 const ZOOM_IN = true;
 const ZOOM_OUT = false;
 const PAN_LEFT = true;
@@ -35,14 +36,17 @@ export class XYOutputComponent extends AbstractTreeOutputComponent<AbstractOutpu
     private chartRef: any;
     private mouseIsDown = false;
     private positionXMove = 0;
+    private isRightClick = false;
     private posPixelSelect = 0;
+    private isMouseLeave = false;
+    private startPositionMouseRightClick = 0;
     private plugin = {
         afterDraw: (chartInstance: Chart, _easing: Chart.Easing, _options?: any) => { this.afterChartDraw(chartInstance); }
     };
     private updateSelection = (event: MouseEvent) => {
-        if (this.mouseIsDown && this.props.unitController.selectionRange) {
+        const scale = this.props.viewRange.getEnd() - this.props.viewRange.getstart();
+        if (this.mouseIsDown && this.props.unitController.selectionRange && !this.isRightClick) {
             const xStartPos = this.props.unitController.selectionRange.start;
-            const scale = this.props.viewRange.getEnd() - this.props.viewRange.getstart();
             let end = xStartPos + ((event.screenX - this.posPixelSelect) / this.lineChartRef.current.chartInstance.width) * scale;
             end = Math.min(Math.max(end, 0), this.props.unitController.absoluteRange);
             this.props.unitController.selectionRange = {
@@ -53,8 +57,12 @@ export class XYOutputComponent extends AbstractTreeOutputComponent<AbstractOutpu
     };
 
     private endSelection = () => {
+        if (this.isRightClick) {
+           this.applySelectionZoom();
+        } else {
+            document.removeEventListener('mousemove', this.updateSelection);
+        }
         this.mouseIsDown = false;
-        document.removeEventListener('mousemove', this.updateSelection);
         document.removeEventListener('mouseup', this.endSelection);
     };
 
@@ -70,7 +78,7 @@ export class XYOutputComponent extends AbstractTreeOutputComponent<AbstractOutpu
             collapsedNodes: [],
             orderedNodes: [],
             xyData: {},
-            columns: [{title: 'Name', sortable: true}]
+            columns: [{title: 'Name', sortable: true}],
         };
 
         this.afterChartDraw = this.afterChartDraw.bind(this);
@@ -183,6 +191,8 @@ export class XYOutputComponent extends AbstractTreeOutputComponent<AbstractOutpu
                     onKeyDown={event => this.onKeyDown(event)}
                     onWheel={event => this.onWheel(event)}
                     onMouseMove={event => this.onMouseMove(event)}
+                    onContextMenu={event => event.preventDefault()}
+                    onMouseLeave={event => this.onMouseLeave(event)}
                     onMouseDown={event => this.onMouseDown(event)}
                     style={{ height: this.props.style.height }}
                     ref={this.chartRef}
@@ -213,33 +223,58 @@ export class XYOutputComponent extends AbstractTreeOutputComponent<AbstractOutpu
         const ctx = chart.ctx;
         const xScale = (chart as any).scales['time-axis'];
         const ticks: number[] = xScale.ticks;
-        if (ctx && this.props.selectionRange) {
-            const min = Math.min(this.props.selectionRange.getstart(), this.props.selectionRange.getEnd());
-            const max = Math.max(this.props.selectionRange.getstart(), this.props.selectionRange.getEnd());
-            // If the selection is out of range
-            if (min > this.props.viewRange.getEnd() || max < this.props.viewRange.getstart()) {
-                return;
+        if (ctx) {
+            let start = 0;
+            if (this.props.selectionRange) {
+                const min = Math.min(this.props.selectionRange.getstart(), this.props.selectionRange.getEnd());
+                const max = Math.max(this.props.selectionRange.getstart(), this.props.selectionRange.getEnd());
+                const minValue = this.findNearestValue(min, ticks);
+                let minPixel = xScale.getPixelForValue(min, minValue);
+                const maxValue = this.findNearestValue(max, ticks);
+                let maxPixel = xScale.getPixelForValue(max, maxValue);
+                // In the case the selection is going out of bounds, the pixelValue needs to be in the displayed range.
+                if (maxPixel === 0) {
+                    maxPixel = chart.chartArea.right;
+                }
+                if (minPixel === 0) {
+                    minPixel = chart.chartArea.right;
+                }
+                ctx.strokeStyle = '#259fd8';
+                ctx.fillStyle = '#259fd8';
+                this.drawSelection(chart, minPixel, maxPixel);
             }
-            const minValue = this.findNearestValue(min, ticks);
-            const minPixel = xScale.getPixelForValue(min, minValue);
-            const maxValue = this.findNearestValue(max, ticks);
-            let maxPixel = xScale.getPixelForValue(max, maxValue);
-            // In the case the selection is going out of bounds, the pixelValue needs to be in the displayed range.
-            if (maxPixel === 0) {
-                maxPixel = chart.chartArea.right;
+            if (this.isRightClick) {
+                const offset = this.props.viewRange.getOffset() ?? 0;
+                start = this.startPositionMouseRightClick + offset;
+                const startValue = this.findNearestValue(start, ticks);
+                let startPixel = xScale.getPixelForValue(start, startValue);
+                const endPixel = this.positionXMove;
+                if (startPixel === 0) {
+                    startPixel = chart.chartArea.right;
+                }
+                ctx.strokeStyle = '#9f9f9f';
+                ctx.fillStyle = '#9f9f9f';
+                this.drawSelection(chart, startPixel, endPixel);
             }
+        }
+    }
+
+    private drawSelection(chart: Chart, startPixel: number, endPixel: number) {
+        const ctx = chart.ctx;
+        const minPixel = Math.min(startPixel, endPixel);
+        const maxPixel = Math.max(startPixel, endPixel);
+        if (ctx) {
             ctx.save();
 
             ctx.lineWidth = 1;
-            ctx.strokeStyle = '#259fd8';
             // Selection borders
-            if (min > this.props.viewRange.getstart()) {
+            if (startPixel > chart.chartArea.left) {
                 ctx.beginPath();
                 ctx.moveTo(minPixel, 0);
                 ctx.lineTo(minPixel, chart.chartArea.bottom);
                 ctx.stroke();
             }
-            if (max < this.props.viewRange.getEnd()) {
+            if (endPixel < this.props.viewRange.getEnd()) {
                 ctx.beginPath();
                 ctx.moveTo(maxPixel, 0);
                 ctx.lineTo(maxPixel, chart.chartArea.bottom);
@@ -247,9 +282,7 @@ export class XYOutputComponent extends AbstractTreeOutputComponent<AbstractOutpu
             }
             // Selection fill
             ctx.globalAlpha = 0.2;
-            ctx.fillStyle = '#259fd8';
             ctx.fillRect(minPixel, 0, maxPixel - minPixel, chart.chartArea.bottom);
-
             ctx.restore();
         }
     }
@@ -299,14 +332,21 @@ export class XYOutputComponent extends AbstractTreeOutputComponent<AbstractOutpu
     }
 
     private onMouseDown(event: React.MouseEvent<HTMLDivElement, MouseEvent>) {
+        this.isMouseLeave = false;
         this.mouseIsDown = true;
         this.posPixelSelect = event.nativeEvent.screenX;
         const startTime = this.getTimeX(event.nativeEvent.offsetX);
-        this.props.unitController.selectionRange = {
-            start: startTime,
-            end: startTime
-        };
-        document.addEventListener('mousemove', this.updateSelection);
+        if (event.button === RIGHT_CLICK_NUMBER) {
+            this.isRightClick = true;
+            this.startPositionMouseRightClick = startTime;
+        } else {
+            this.isRightClick = false;
+            this.props.unitController.selectionRange = {
+                start: startTime,
+                end: startTime
+            };
+            document.addEventListener('mousemove', this.updateSelection);
+        }
         document.addEventListener('mouseup', this.endSelection);
     }
 
@@ -370,6 +410,7 @@ export class XYOutputComponent extends AbstractTreeOutputComponent<AbstractOutpu
     }
 
     private onWheel(wheel: React.WheelEvent) {
+        this.isMouseLeave = false;
         if (wheel.shiftKey) {
             if (wheel.deltaY < 0) {
                 this.pan(PAN_LEFT);
@@ -396,31 +437,52 @@ export class XYOutputComponent extends AbstractTreeOutputComponent<AbstractOutpu
 
     private onMouseMove(event: React.MouseEvent) {
         this.positionXMove = event.nativeEvent.offsetX;
+        this.isMouseLeave = false;
+        if (this.mouseIsDown && this.isRightClick) {
+            this.forceUpdate();
+        }
+    }
+
+    private onMouseLeave(event: React.MouseEvent) {
+        this.isMouseLeave = true;
+        if (this.isRightClick) {
+            this.positionXMove = Math.max(0, Math.min(event.nativeEvent.offsetX, this.lineChartRef.current.chartInstance.width));
+            this.forceUpdate();
+        }
+    }
+
+    private applySelectionZoom() {
+        const newStartRange = this.startPositionMouseRightClick;
+        const newEndRange = this.getTimeX(this.positionXMove);
+        this.updateRange(newStartRange, newEndRange);
+        this.isRightClick = false;
     }
 
     private onKeyDown(key: React.KeyboardEvent) {
-        switch (key.key) {
-            case 'W':
-            case 'w': {
-                this.zoom(ZOOM_IN);
-                break;
-            }
-            case 'S':
-            case 's': {
-                this.zoom(ZOOM_OUT);
-                break;
-            }
-            case 'A':
-            case 'a':
-            case 'ArrowLeft': {
-                this.pan(PAN_LEFT);
-                break;
-            }
-            case 'D':
-            case 'd':
-            case 'ArrowRight': {
-                this.pan(PAN_RIGHT);
-                break;
+        if (!this.isMouseLeave) {
+            switch (key.key) {
+                case 'W':
+                case 'w': {
+                    this.zoom(ZOOM_IN);
+                    break;
+                }
+                case 'S':
+                case 's': {
+                    this.zoom(ZOOM_OUT);
+                    break;
+                }
+                case 'A':
+                case 'a':
+                case 'ArrowLeft': {
+                    this.pan(PAN_LEFT);
+                    break;
+                }
+                case 'D':
+                case 'd':
+                case 'ArrowRight': {
+                    this.pan(PAN_RIGHT);
+                    break;
+                }
             }
         }
     }
