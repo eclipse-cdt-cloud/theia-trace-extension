@@ -52,7 +52,7 @@ export class TraceExplorerTooltipWidget extends ReactWidget {
                 }
             });
         } else {
-            tooltipArray.push(<p><i>Select item to view properties</i></p>);
+            tooltipArray.push(<p key="-1"><i>Select item to view properties</i></p>);
         }
 
         return (
