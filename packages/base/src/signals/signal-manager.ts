@@ -18,8 +18,8 @@ export declare interface SignalManager {
     fireTraceViewerTabActivatedSignal(experiment: Experiment): void;
     fireUpdateZoomSignal(hasZoomedIn: boolean): void;
     fireResetZoomSignal(): void;
-    fireAnnotationFilterSignal(annotationMarkers?: string[]): void;
-    fireAnnotationsFetchedSignal(annotationCategories: string[]): void;
+    fireMarkerCategoriesFetchedSignal(): void;
+    fireMarkerSetsFetchedSignal(): void;
 }
 
 export const Signals = {
@@ -38,8 +38,8 @@ export const Signals = {
     TRACEVIEWERTAB_ACTIVATED: 'widget activated',
     UPDATE_ZOOM: 'update zoom',
     RESET_ZOOM: 'reset zoom',
-    ANNOTATION_MARKERS_FILTERED: 'filter marker category',
-    ANNOTATIONS_FETCHED: 'annotations fetched'
+    MARKER_CATEGORIES_FETCHED: 'marker categories fetched',
+    MARKERSETS_FETCHED: 'markersets fetched'
 };
 
 export class SignalManager extends EventEmitter implements SignalManager {
@@ -85,13 +85,12 @@ export class SignalManager extends EventEmitter implements SignalManager {
     fireResetZoomSignal(): void {
         this.emit(Signals.RESET_ZOOM);
     }
-    fireAnnotationFilterSignal(annotationMarkers?: string[]): void {
-        this.emit(Signals.ANNOTATION_MARKERS_FILTERED, annotationMarkers);
+    fireMarkerCategoriesFetchedSignal(): void {
+        this.emit(Signals.MARKER_CATEGORIES_FETCHED);
     }
-    fireAnnotationsFetchedSignal(annotationCategories: []): void {
-        this.emit(Signals.ANNOTATIONS_FETCHED, annotationCategories);
+    fireMarkerSetsFetchedSignal(): void {
+        this.emit(Signals.MARKERSETS_FETCHED);
     }
-
 }
 
 let instance: SignalManager = new SignalManager();
@@ -101,4 +100,3 @@ export const setSignalManagerInstance = (sm: SignalManager): void => {
 };
 
 export const signalManager = (): SignalManager => instance;
-

@@ -19,6 +19,8 @@ export interface AbstractOutputProps {
     selectionRange: TimeRange | undefined;
     resolution?: number;
     outputDescriptor: OutputDescriptor;
+    markerCategories: string[] | undefined;
+    markerSetId: string;
     style: OutputComponentStyle;
     // WidthProvider (react-grid-layout version 0.16.7) has a bug.
     // Workaround for it needs width to be explicitly passed

@@ -19,14 +19,21 @@ export namespace TraceViewerToolbarCommands {
         label: 'Reset',
         iconClass: 'fa fa-home fa-lg',
     };
+
+    export const FILTER: Command = {
+        id: 'trace.viewer.toolbar.filter',
+        label: 'Trace Viewer Toolbar Filter',
+        iconClass: 'fa fa-filter fa-lg',
+    };
+
+    export const MARKER_SETS: Command = {
+        id: 'trace.viewer.toolbar.markersets',
+        label: 'Markers',
+        iconClass: 'fa fa-bars fa-lg',
+    };
 }
 
-export const TRACE_VIEWER_TOOLBAR_COMMAND_FILTER: Command = {
-    id: 'trace.viewer.toolbar.filter',
-    label: 'Trace Viewer Toolbar Filter',
-    iconClass: 'fa fa-filter fa-lg',
-};
-
-export namespace TraceViewerToolbarFilterMenus {
-    export const TOOLBAR_FILTER_MARKERS_MENU: MenuPath = ['trace-viewer-filter-markers-menu'];
+export namespace TraceViewerToolbarMenus {
+    export const MARKER_CATEGORIES_MENU: MenuPath = ['trace-viewer-marker-categories-menu'];
+    export const MARKER_SETS_MENU: MenuPath = ['trace-viewer-marker-sets-menu'];
 }

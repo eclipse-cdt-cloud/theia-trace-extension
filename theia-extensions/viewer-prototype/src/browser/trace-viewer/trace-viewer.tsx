@@ -19,6 +19,7 @@ import { signalManager, Signals } from 'traceviewer-base/lib/signals/signal-mana
 import { OutputAddedSignalPayload } from 'traceviewer-base/lib/signals/output-added-signal-payload';
 import { TraceExplorerWidget } from '../trace-explorer/trace-explorer-widget';
 import { TraceExplorerContribution } from '../trace-explorer/trace-explorer-contribution';
+import { MarkerSet } from 'tsp-typescript-client/lib/models/markerset';
 
 export const TraceViewerWidgetOptions = Symbol('TraceViewerWidgetOptions');
 export interface TraceViewerWidgetOptions {
@@ -51,7 +52,13 @@ export class TraceViewerWidget extends ReactWidget {
     };
     protected explorerWidget: TraceExplorerWidget;
 
-    private onOutputAdded = (payload: OutputAddedSignalPayload): void => this.doHandleOutputAddedSignal(payload);
+    private markerCategoriesMap: Map<string, string[]> = new Map<string, string[]>();
+    private toolbarMarkerCategoriesMap: Map<string, { categoryCount: number, toggleInd: boolean }> = new Map();
+    private selectedMarkerCategoriesMap: Map<string, string[]> = new Map<string, string[]>();
+    private markerSetsMap: Map<MarkerSet, boolean> = new Map<MarkerSet, boolean>();
+    private selectedMarkerSetId = '';
+
+    private onOutputAdded = (payload: OutputAddedSignalPayload): Promise<void> => this.doHandleOutputAddedSignal(payload);
     private onExperimentSelected = (experiment: Experiment): void => this.doHandleExperimentSelectedSignal(experiment);
     private onCloseExperiment = (UUID: string): void => this.doHandleCloseExperimentSignal(UUID);
 
@@ -95,10 +102,11 @@ export class TraceViewerWidget extends ReactWidget {
                 if (this.isVisible) {
                     signalManager().fireTraceViewerTabActivatedSignal(experiment);
                 }
+                this.fetchMarkerSets(experiment.UUID);
             }
             this.update();
         }
-        this.subscribeToExplorerEvents();
+        this.subscribeToEvents();
         this.toDispose.push(this.toDisposeOnNewExplorer);
         // Make node focusable so it can achieve focus on activate (avoid warning);
         this.node.tabIndex = 0;
@@ -106,7 +114,7 @@ export class TraceViewerWidget extends ReactWidget {
 
     protected readonly toDisposeOnNewExplorer = new DisposableCollection();
 
-    protected subscribeToExplorerEvents(): void {
+    protected subscribeToEvents(): void {
         this.toDisposeOnNewExplorer.dispose();
         signalManager().on(Signals.OUTPUT_ADDED, this.onOutputAdded);
         signalManager().on(Signals.EXPERIMENT_SELECTED, this.onExperimentSelected);
@@ -213,6 +221,7 @@ export class TraceViewerWidget extends ReactWidget {
                             if (this.isVisible) {
                                 signalManager().fireTraceViewerTabActivatedSignal(experiment);
                             }
+                            this.fetchMarkerSets(experiment.UUID);
                             this.traceExplorerContribution.openView({
                                 activate: true
                             });
@@ -229,6 +238,14 @@ export class TraceViewerWidget extends ReactWidget {
                 progress.report({ message: 'Complete', work: { done: 100, total: 100 } });
                 progress.cancel();
             });
+    }
+
+    private async fetchMarkerSets(expUUID: string) {
+        const markers = await this.tspClient.fetchMarkerSets(expUUID);
+        const markersResponse = markers.getModel();
+        if (markersResponse && markers.isOk()) {
+            this.addMarkerSets(markersResponse.model);
+        }
     }
 
     onCloseRequest(msg: Message): void {
@@ -265,6 +282,8 @@ export class TraceViewerWidget extends ReactWidget {
             {this.openedExperiment ? <TraceContextComponent experiment={this.openedExperiment}
                 tspClient={this.tspClient}
                 outputs={this.outputDescriptors}
+                markerCategoriesMap={this.selectedMarkerCategoriesMap}
+                markerSetId={this.selectedMarkerSetId}
                 onOutputRemove={this.onOutputRemoved}
                 addResizeHandler={this.addResizeHandler}
                 removeResizeHandler={this.removeResizeHandler}
@@ -273,11 +292,24 @@ export class TraceViewerWidget extends ReactWidget {
         </div>;
     }
 
-    protected doHandleOutputAddedSignal(payload: OutputAddedSignalPayload): void {
+    private async fetchAnnotationCategories(output: OutputDescriptor) {
+        if (this.openedExperiment) {
+            const annotationCategories = await this.tspClient.fetchAnnotationsCategories(this.openedExperiment.UUID, output.id, this.selectedMarkerSetId);
+            const annotationCategoriesResponse = annotationCategories.getModel();
+            if (annotationCategories.isOk() && annotationCategoriesResponse) {
+                const markerCategories = annotationCategoriesResponse.model ? annotationCategoriesResponse.model.annotationCategories : [];
+                this.addMarkerCategories(output.id, markerCategories);
+            }
+        }
+    }
+
+    protected async doHandleOutputAddedSignal(payload: OutputAddedSignalPayload): Promise<void> {
         if (this.openedExperiment && payload.getExperiment().UUID === this.openedExperiment.UUID) {
             const exist = this.outputDescriptors.find(output => output.id === payload.getOutputDescriptor().id);
             if (!exist) {
-                this.outputDescriptors.push(payload.getOutputDescriptor());
+                const output = payload.getOutputDescriptor();
+                this.outputDescriptors.push(output);
+                await this.fetchAnnotationCategories(output);
                 this.update();
             }
         }
@@ -286,12 +318,7 @@ export class TraceViewerWidget extends ReactWidget {
     protected onOutputRemoved(outputId: string): void {
         const outputToKeep = this.outputDescriptors.filter(output => output.id !== outputId);
         this.outputDescriptors = outputToKeep;
-        // This is a temporary fix to not delete categories when the output is removed
-        // and hence commenting this code for now.
-
-        /* const payload: { [key: string]: {categoryName: string, toggleInd: boolean}[] } = {};
-        payload[outputId] = [];
-        signalManager().fireAnnotationsFetchedSignal(payload); */
+        this.removeMarkerCategories(outputId);
         this.update();
     }
 
@@ -342,5 +369,94 @@ export class TraceViewerWidget extends ReactWidget {
             }
         }
         return false;
+    }
+
+    private addMarkerSets(markerSets: MarkerSet[]) {
+        this.markerSetsMap = new Map<MarkerSet, boolean>();
+        if (markerSets.length) {
+            this.markerSetsMap.set({ name: 'None', id: '' }, true);
+        }
+        markerSets.forEach(markerSet => {
+            if (!this.markerSetsMap.has(markerSet)) {
+                this.markerSetsMap.set(markerSet, false);
+            }
+        });
+        signalManager().fireMarkerSetsFetchedSignal();
+    }
+
+    private addMarkerCategories(outputId: string, markerCategories: string[]) {
+        this.removeMarkerCategories(outputId);
+        const selectedMarkerCategories: string[] = [];
+        markerCategories.forEach(category => {
+            const categoryInfo = this.toolbarMarkerCategoriesMap.get(category);
+            const categoryCount = categoryInfo ? categoryInfo.categoryCount + 1 : 1;
+            const toggleInd = categoryInfo ? categoryInfo.toggleInd : true;
+            this.toolbarMarkerCategoriesMap.set(category, { categoryCount, toggleInd });
+            if (toggleInd) {
+                selectedMarkerCategories.push(category);
+            }
+        });
+        this.selectedMarkerCategoriesMap.set(outputId, selectedMarkerCategories);
+        this.markerCategoriesMap.set(outputId, markerCategories);
+        signalManager().fireMarkerCategoriesFetchedSignal();
+    }
+
+    private removeMarkerCategories(outputId: string) {
+        const categoriesToRemove = this.markerCategoriesMap.get(outputId);
+        if (categoriesToRemove) {
+            categoriesToRemove.forEach(annotation => {
+                const categoryInfo = this.toolbarMarkerCategoriesMap.get(annotation);
+                const categoryCount = categoryInfo ? categoryInfo.categoryCount - 1 : 0;
+                const toggleInd = categoryInfo ? categoryInfo.toggleInd : true;
+                if (categoryCount === 0) {
+                    this.toolbarMarkerCategoriesMap.delete(annotation);
+                } else {
+                    this.toolbarMarkerCategoriesMap.set(annotation, { categoryCount, toggleInd });
+                }
+            });
+        }
+        this.markerCategoriesMap.delete(outputId);
+        this.selectedMarkerCategoriesMap.delete(outputId);
+    }
+
+    getMarkerSets(): Map<MarkerSet, boolean> {
+        return this.markerSetsMap;
+    }
+
+    getMarkerCategories(): Map<string, { categoryCount: number, toggleInd: boolean }> {
+        return this.toolbarMarkerCategoriesMap;
+    }
+
+    updateMarkerCategoryState(categoryName: string): void {
+        const toggledmarkerCategory = this.toolbarMarkerCategoriesMap.get(categoryName);
+        if (toggledmarkerCategory) {
+            const categoryCount = toggledmarkerCategory?.categoryCount;
+            const toggleInd = !!!toggledmarkerCategory?.toggleInd;
+            this.toolbarMarkerCategoriesMap.set(categoryName, { categoryCount, toggleInd });
+            this.markerCategoriesMap.forEach((annotationsList, outputId) => {
+                const selectedMarkerCategories = annotationsList.filter(annotation => {
+                    const currCategoryInfo = this.toolbarMarkerCategoriesMap.get(annotation);
+                    return currCategoryInfo ? currCategoryInfo.toggleInd : false;
+                });
+                this.selectedMarkerCategoriesMap.set(outputId, selectedMarkerCategories);
+            });
+        }
+        this.update();
+    }
+
+    async updateMarkerSetState(markerSet: MarkerSet): Promise<void> {
+        const selectInd = this.markerSetsMap.get(markerSet);
+        if (selectInd) {
+            return;
+        }
+        this.selectedMarkerSetId = markerSet.id;
+        const prevSelectedMarkerSet = Array.from(this.markerSetsMap.keys()).find(markerSetItem => this.markerSetsMap.get(markerSetItem) === true);
+        if (prevSelectedMarkerSet) {
+            this.markerSetsMap.set(prevSelectedMarkerSet, false);
+        }
+        this.markerSetsMap.set(markerSet, true);
+        if (await Promise.all(this.outputDescriptors.map(output => this.fetchAnnotationCategories(output)))) {
+            this.update();
+        }
     }
 }
