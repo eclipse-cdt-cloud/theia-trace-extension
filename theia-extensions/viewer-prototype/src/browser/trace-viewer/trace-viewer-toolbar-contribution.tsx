@@ -3,7 +3,7 @@ import * as React from 'react';
 import { ApplicationShell, Widget } from '@theia/core/lib/browser';
 import { TabBarToolbarContribution, TabBarToolbarRegistry } from '@theia/core/lib/browser/shell/tab-bar-toolbar';
 import { CommandContribution, CommandRegistry, DisposableCollection, Emitter, MenuModelRegistry } from '@theia/core';
-import { TraceViewerToolbarCommands, TraceViewerToolbarFilterMenus, TRACE_VIEWER_TOOLBAR_COMMAND_FILTER } from './trace-viewer-toolbar-commands';
+import { TraceViewerToolbarCommands, TraceViewerToolbarMenus } from './trace-viewer-toolbar-commands';
 import { signalManager, Signals } from 'traceviewer-base/lib/signals/signal-manager';
 import { TraceViewerWidget } from './trace-viewer';
 import { TspClientProvider } from '../tsp-client-provider-impl';
@@ -20,24 +20,26 @@ export class TraceViewerToolbarContribution implements TabBarToolbarContribution
     @inject(CommandRegistry)
     protected readonly commands: CommandRegistry;
 
-    private annotationsMap: Map<string, boolean> = new Map<string, boolean>();
-    private onAnnotationsFetchedSignal = (annotationsList: string[]) => this.doHandleAnnotationsFetchedSignal(annotationsList);
-    protected readonly onAnnotationsChangedEmitter = new Emitter<void>();
-    protected readonly onAnnotationsChangedEvent = this.onAnnotationsChangedEmitter.event;
+    private onMarkerCategoriesFetchedSignal = () => this.doHandleMarkerCategoriesFetchedSignal();
+    private onMarkerSetsFetchedSignal = () => this.doHandleMarkerSetsFetchedSignal();
+
+    protected readonly onMarkerCategoriesChangedEmitter = new Emitter<void>();
+    protected readonly onMarkerCategoriesChangedEvent = this.onMarkerCategoriesChangedEmitter.event;
+    protected readonly onMakerSetsChangedEmitter = new Emitter<void>();
+    protected readonly onMakerSetsChangedEvent = this.onMakerSetsChangedEmitter.event;
 
     @postConstruct()
     protected init(): void {
-        signalManager().on(Signals.ANNOTATIONS_FETCHED, this.onAnnotationsFetchedSignal);
+        signalManager().on(Signals.MARKER_CATEGORIES_FETCHED, this.onMarkerCategoriesFetchedSignal);
+        signalManager().on(Signals.MARKERSETS_FETCHED, this.onMarkerSetsFetchedSignal);
     }
 
-    private doHandleAnnotationsFetchedSignal(annotationsList: string[]) {
-        annotationsList.forEach(annotation => {
-            if (!this.annotationsMap.has(annotation)) {
-                this.annotationsMap.set(annotation, true);
-            }
-        });
-        this.onAnnotationsChangedEmitter.fire();
-        signalManager().fireAnnotationFilterSignal(Array.from(this.annotationsMap.entries()).filter(category => category[1]).map(category => category[0]));
+    private doHandleMarkerCategoriesFetchedSignal() {
+        this.onMarkerCategoriesChangedEmitter.fire();
+    }
+
+    private doHandleMarkerSetsFetchedSignal() {
+        this.onMakerSetsChangedEmitter.fire();
     }
 
     registerCommands(registry: CommandRegistry): void {
@@ -66,50 +68,6 @@ export class TraceViewerToolbarContribution implements TabBarToolbarContribution
 
     registerToolbarItems(registry: TabBarToolbarRegistry): void {
         registry.registerItem({
-            id: TRACE_VIEWER_TOOLBAR_COMMAND_FILTER.id,
-            isVisible: w => w instanceof TraceViewerWidget && this.annotationsMap.size > 0,
-            // render() here is not a react component and hence need to disable the react display-name rule
-            // eslint-disable-next-line react/display-name
-            render: () => <div className="item enabled">
-                <div id="trace.viewer.toolbar.filter" className="fa fa-filter" title="Markers filter" onClick={async (event: React.MouseEvent) => {
-                    const toDisposeOnHide = new DisposableCollection();
-                    const menuPath = TraceViewerToolbarFilterMenus.TOOLBAR_FILTER_MARKERS_MENU;
-                    let index = 0;
-                    this.annotationsMap.forEach((toggleInd, categoryName, self) => {
-                        index += 1;
-                        toDisposeOnHide.push(this.menus.registerMenuAction(menuPath, {
-                            label: categoryName,
-                            commandId: categoryName.toString() + index.toString(),
-                            order: index.toString(),
-                        }));
-
-                        toDisposeOnHide.push(this.commands.registerCommand({
-                            id: categoryName.toString() + index.toString(),
-                            label: categoryName
-                        }, {
-                            execute: () => {
-                                self.set(categoryName, !self.get(categoryName));
-                                signalManager().fireAnnotationFilterSignal(Array.from(this.annotationsMap.entries()).filter(category => category[1]).map(category => category[0]));
-                            },
-                            isToggled: () => !!self.get(categoryName),
-
-                        }));
-                    });
-
-                    return this.contextMenuRenderer.render({
-                        menuPath,
-                        args: [],
-                        anchor: { x: event.clientX, y: event.clientY },
-                        onHide: () => setTimeout(() => toDisposeOnHide.dispose())
-                    });
-                }}></div>
-            </div>,
-            priority: 1,
-            group: 'navigation',
-            onDidChange: this.onAnnotationsChangedEvent,
-        });
-
-        registry.registerItem({
             id: TraceViewerToolbarCommands.ZOOM_IN.id,
             command: TraceViewerToolbarCommands.ZOOM_IN.id,
             tooltip: TraceViewerToolbarCommands.ZOOM_IN.label,
@@ -127,6 +85,104 @@ export class TraceViewerToolbarContribution implements TabBarToolbarContribution
             tooltip: TraceViewerToolbarCommands.RESET.label,
             priority: 3,
         });
+        registry.registerItem({
+            id: TraceViewerToolbarCommands.FILTER.id,
+            isVisible: w => {
+                if (w instanceof TraceViewerWidget) {
+                    const traceViewerWidget = w as TraceViewerWidget;
+                    const markerCategories = traceViewerWidget.getMarkerCategories();
+                    return markerCategories.size > 0;
+                }
+                return false;
+            },
+            // render() here is not a react component and hence need to disable the react display-name rule
+            // eslint-disable-next-line react/display-name
+            render: (widget: Widget) => <div className="item enabled">
+                <div id="trace.viewer.toolbar.filter" className="fa fa-filter" title="Markers filter" onClick={async (event: React.MouseEvent) => {
+                    const toDisposeOnHide = new DisposableCollection();
+                    const menuPath = TraceViewerToolbarMenus.MARKER_CATEGORIES_MENU;
+                    let index = 0;
+                    const traceViewerWidget = widget as TraceViewerWidget;
+                    const markerCategories = traceViewerWidget.getMarkerCategories();
+                    markerCategories.forEach((categoryInfo, categoryName, self) => {
+                        const toggleInd = categoryInfo.toggleInd;
+                        index += 1;
+                        toDisposeOnHide.push(this.menus.registerMenuAction(menuPath, {
+                            label: categoryName,
+                            commandId: categoryName.toString() + index.toString(),
+                            order: index.toString(),
+                        }));
+                        toDisposeOnHide.push(this.commands.registerCommand({
+                            id: categoryName.toString() + index.toString(),
+                            label: categoryName
+                        }, {
+                            execute: () => {
+                                traceViewerWidget.updateMarkerCategoryState(categoryName);
+                            },
+                            isToggled: () => toggleInd,
+                        }));
+                    });
+
+                    return this.contextMenuRenderer.render({
+                        menuPath,
+                        args: [],
+                        anchor: { x: event.clientX, y: event.clientY },
+                        onHide: () => setTimeout(() => toDisposeOnHide.dispose())
+                    });
+                }}></div>
+            </div>,
+            priority: 4,
+            group: 'navigation',
+            onDidChange: this.onMarkerCategoriesChangedEvent,
+        });
+        registry.registerItem({
+            id: TraceViewerToolbarCommands.MARKER_SETS.id,
+            isVisible: w => {
+                if (w instanceof TraceViewerWidget) {
+                    const traceViewerWidget = w as TraceViewerWidget;
+                    return traceViewerWidget.getMarkerSets().size > 0;
+                }
+                return false;
+            },
+            // render() here is not a react component and hence need to disable the react display-name rule
+            // eslint-disable-next-line react/display-name
+            render: (widget: TraceViewerWidget) => <div className="item enabled">
+                <div id="trace.viewer.toolbar.markersets" className="fa fa-bars" title="Marker Sets" onClick={async (event: React.MouseEvent) => {
+                    const toDisposeOnHide = new DisposableCollection();
+                    const menuPath = TraceViewerToolbarMenus.MARKER_SETS_MENU;
+                    let index = 0;
+                    const traceViewerWidget = widget as TraceViewerWidget;
+                    const markerSetsMap = traceViewerWidget.getMarkerSets();
+                    const sortedMarkerSets = Array.from(markerSetsMap.keys()).sort((a, b) => a.id < b.id ? -1 : 1);
+                    sortedMarkerSets.forEach(markerSet => {
+                        index += 1;
+                        toDisposeOnHide.push(this.menus.registerMenuAction(menuPath, {
+                            label: markerSet.name,
+                            commandId: markerSet.name.toString() + index.toString(),
+                            order: String.fromCharCode(index),
+                        }));
+
+                        toDisposeOnHide.push(this.commands.registerCommand({
+                            id: markerSet.name.toString() + index.toString(),
+                            label: markerSet.name
+                        }, {
+                            execute: () => {
+                                traceViewerWidget.updateMarkerSetState(markerSet);
+                            },
+                            isToggled: () => !!markerSetsMap.get(markerSet)
+                        }));
+                    });
+                    return this.contextMenuRenderer.render({
+                        menuPath,
+                        args: [],
+                        anchor: { x: event.clientX, y: event.clientY },
+                        onHide: () => setTimeout(() => toDisposeOnHide.dispose())
+                    });
+                }}></div>
+            </div>,
+            priority: 5,
+            group: 'navigation',
+            onDidChange: this.onMakerSetsChangedEvent,
+        });
     }
 }
-

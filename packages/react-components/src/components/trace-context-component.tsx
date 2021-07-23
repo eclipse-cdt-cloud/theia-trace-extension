@@ -31,6 +31,8 @@ interface TraceContextProps {
     tspClient: TspClient;
     experiment: Experiment;
     outputs: OutputDescriptor[];
+    markerCategoriesMap: Map<string, string[]>;
+    markerSetId: string;
     onOutputRemove: (outputId: string) => void;
     // Introduce dependency on Theia maybe it should be just a callback
     messageManager: Messages.MessageManager;
@@ -127,9 +129,7 @@ export class TraceContextComponent extends React.Component<TraceContextProps, Tr
         this.tooltipComponent = React.createRef();
         this.traceContextContainer = React.createRef();
         this.initialize();
-        signalManager().on(Signals.THEME_CHANGED, this.onBackgroundThemeUpdated);
-        signalManager().on(Signals.UPDATE_ZOOM, this.onUpdateZoom);
-        signalManager().on(Signals.RESET_ZOOM, this.onResetZoom);
+        this.subscribeToEvents();
     }
 
     private updateBackgroundTheme(theme: string): void {
@@ -194,10 +194,20 @@ export class TraceContextComponent extends React.Component<TraceContextProps, Tr
     }
 
     componentWillUnmount(): void {
-        signalManager().off(Signals.THEME_CHANGED, this.onBackgroundThemeUpdated);
         this.props.messageManager.removeStatusMessage(this.INDEXING_STATUS_BAR_KEY);
         this.props.messageManager.removeStatusMessage(this.TIME_SELECTION_STATUS_BAR_KEY);
         this.props.removeResizeHandler(this.onResize);
+        this.unsubscribeToEvents();
+    }
+
+    private subscribeToEvents() {
+        signalManager().on(Signals.THEME_CHANGED, this.onBackgroundThemeUpdated);
+        signalManager().on(Signals.UPDATE_ZOOM, this.onUpdateZoom);
+        signalManager().on(Signals.RESET_ZOOM, this.onResetZoom);
+    }
+
+    private unsubscribeToEvents() {
+        signalManager().off(Signals.THEME_CHANGED, this.onBackgroundThemeUpdated);
         signalManager().off(Signals.UPDATE_ZOOM, this.onUpdateZoom);
         signalManager().off(Signals.RESET_ZOOM, this.onResetZoom);
     }
@@ -311,6 +321,8 @@ export class TraceContextComponent extends React.Component<TraceContextProps, Tr
                         tooltipComponent: this.tooltipComponent.current,
                         traceId: this.state.experiment.UUID,
                         outputDescriptor: output,
+                        markerCategories: this.props.markerCategoriesMap.get(output.id),
+                        markerSetId: this.props.markerSetId,
                         range: this.state.currentRange,
                         nbEvents: this.state.experiment.nbEvents,
                         viewRange: this.state.currentViewRange,

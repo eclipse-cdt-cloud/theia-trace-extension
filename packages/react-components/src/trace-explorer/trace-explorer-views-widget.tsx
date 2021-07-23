@@ -124,19 +124,6 @@ export class ReactAvailableViewsWidget extends React.Component<ReactAvailableVie
             signalManager().fireExperimentSelectedSignal(this._selectedExperiment);
             signalManager().fireOutputAddedSignal(new OutputAddedSignalPayload(outputs[index], this._selectedExperiment));
         }
-        this.fetchAnnotationCategories(outputs[index]);
-    }
-
-    private async fetchAnnotationCategories(output: OutputDescriptor) {
-        const tspClient = this.props.tspClientProvider.getTspClient();
-        if (this._selectedExperiment) {
-            const annotationCategories = await tspClient.fetchAnnotationsCategories(this._selectedExperiment?.UUID, output.id);
-            const annotationCategoriesResponse = annotationCategories.getModel();
-            if (annotationCategories.isOk() && annotationCategoriesResponse) {
-                const categoriesList = annotationCategoriesResponse.model ? annotationCategoriesResponse.model.annotationCategories : [];
-                signalManager().fireAnnotationsFetchedSignal(categoriesList);
-            }
-        }
     }
 
     protected doHandleContextMenuEvent(event: React.MouseEvent<HTMLDivElement>, output: OutputDescriptor | undefined): void {
