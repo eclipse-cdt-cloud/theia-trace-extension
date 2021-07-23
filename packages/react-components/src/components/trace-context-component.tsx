@@ -101,7 +101,7 @@ export class TraceContextComponent extends React.Component<TraceContextProps, Tr
                 height: this.DEFAULT_COMPONENT_HEIGHT,
                 rowHeight: this.DEFAULT_COMPONENT_ROWHEIGHT,
                 naviBackgroundColor: this.props.backgroundTheme === 'light' ? 0xf4f7fb : 0x3f3f3f,
-                chartBackgroundColor: this.props.backgroundTheme === 'light' ? 0xf4f7fb : 0x3f3f3f,
+                chartBackgroundColor: this.props.backgroundTheme === 'light' ? 0xf4f7fb : 0x232323,
                 cursorColor: 0x259fd8,
                 lineColor: this.props.backgroundTheme === 'light' ? 0x757575 : 0xbbbbbb
             },
@@ -135,7 +135,7 @@ export class TraceContextComponent extends React.Component<TraceContextProps, Tr
                 height: this.DEFAULT_COMPONENT_HEIGHT,
                 rowHeight: this.DEFAULT_COMPONENT_ROWHEIGHT,
                 naviBackgroundColor: theme === 'light' ? 0xf4f7fb : 0x3f3f3f,
-                chartBackgroundColor: theme === 'light' ? 0xf4f7fb : 0x3f3f3f,
+                chartBackgroundColor: theme === 'light' ? 0xf4f7fb : 0x232323,
                 cursorColor: 0x259fd8,
                 lineColor: theme === 'light' ? 0x757575 : 0xbbbbbb
             },
