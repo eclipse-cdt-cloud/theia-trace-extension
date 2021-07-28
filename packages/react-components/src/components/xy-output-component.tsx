@@ -38,9 +38,11 @@ export class XYOutputComponent extends AbstractTreeOutputComponent<AbstractOutpu
         if (this.mouseIsDown && this.props.unitController.selectionRange) {
             const xStartPos = this.props.unitController.selectionRange.start;
             const scale = this.props.viewRange.getEnd() - this.props.viewRange.getstart();
+            let end = xStartPos + ((event.screenX - this.posPixelSelect) / this.lineChartRef.current.chartInstance.width) * scale;
+            end = Math.min(Math.max(end, 0), this.props.unitController.absoluteRange);
             this.props.unitController.selectionRange = {
                 start: xStartPos,
-                end: xStartPos + ((event.screenX - this.posPixelSelect) / this.lineChartRef.current.chartInstance.width) * scale
+                end: end
             };
         }
     };
