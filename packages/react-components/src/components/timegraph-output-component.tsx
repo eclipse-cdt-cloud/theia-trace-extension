@@ -81,7 +81,7 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
             rowStyleProvider: (row: TimelineChart.TimeGraphRowModel) => ({
                 backgroundColor: 0x979797,// 0xaaaaff,
                 backgroundOpacity: row.selected ? 0.1 : 0,
-                lineColor: 0xdddddd, // hasStates ? 0xdddddd : 0xaa4444, // row.data && row.data.hasStates
+                lineColor: this.props.backgroundTheme === 'light' ? 0xD3D3D3 : 0x3F4146 , // hasStates ? 0xdddddd : 0xaa4444, // row.data && row.data.hasStates
                 lineThickness: 1, // hasStates ? 1 : 3 // row.data && row.data.hasStates
             })
         };
@@ -328,7 +328,7 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
     }
 
     private getChartContainer() {
-        const grid = new TimeGraphChartGrid('timeGraphGrid', this.props.style.rowHeight, this.props.style.lineColor);
+        const grid = new TimeGraphChartGrid('timeGraphGrid', this.props.style.rowHeight, this.props.backgroundTheme === 'light' ? 0xdddddd : 0x34383C);
         const selectionRange = new TimeGraphChartSelectionRange('chart-selection-range', { color: this.props.style.cursorColor });
         return <ReactTimeGraphContainer
             options={
@@ -337,7 +337,7 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
                     height: parseInt(this.props.style.height.toString()),
                     width: this.props.style.chartWidth, // this.props.style.mainWidth,
                     backgroundColor: this.props.style.chartBackgroundColor,
-                    lineColor: this.props.style.lineColor,
+                    lineColor: this.props.backgroundTheme === 'light' ? 0xdddddd : 0x34383C,
                     classNames: 'horizontal-canvas'
                 }
             }
