@@ -93,6 +93,10 @@ export class XYOutputComponent extends AbstractTreeOutputComponent<AbstractOutpu
                     xyTree: treeResponse.model.entries,
                     columns
                 });
+            } else {
+                this.setState({
+                    outputStatus: treeResponse.status
+                });
             }
             return treeResponse.status;
         }
@@ -159,6 +163,17 @@ export class XYOutputComponent extends AbstractTreeOutputComponent<AbstractOutpu
             events: [ 'mousedown' ],
         };
         // width={this.props.style.chartWidth}
+        if (this.state.outputStatus === ResponseStatus.COMPLETED && this.state.xyTree.length === 0 ) {
+            return <React.Fragment>
+                {
+                    <p className='no-data' style={{fontSize: 20, marginRight: '5px', marginLeft: '5px', justifyContent:'center', alignItems:'center'}}>
+                        Trace analysis completed.
+                        No results: Trace missing required events.
+                    </p>
+                }
+            </React.Fragment>;
+        }
+
         return <React.Fragment>
             {this.state.outputStatus === ResponseStatus.COMPLETED ?
                 <div id='xy-main' onMouseDown={event => this.beginSelection(event)} style={{ height: this.props.style.height }} >
