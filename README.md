@@ -4,7 +4,7 @@ Theia trace viewer extension using the tsp-typescript-client (https://github.com
 
 Prerequisites for running this extension are the same as those for [running the theia IDE](https://github.com/eclipse-theia/theia/blob/master/doc/Developing.md#prerequisites).
 
-**👋 Want to help?** See [how to contribute code](https://github.com/theia-ide/theia-trace-extension#how-to-contribute-code).
+**👋 Want to help?** Read our [new contributor guide](https://github.com/theia-ide/theia-trace-extension#new-contributors) and see [how to contribute code](https://github.com/theia-ide/theia-trace-extension#how-to-contribute-code).
 
 ## Try a live demo via Gitpod!
 Click the Gitpod button below to access a live demo of the trace viewer. In a couple clicks and around 2 minutes you'll be on your way.
@@ -145,10 +145,28 @@ There is only a limited number of such operations and they are only implemented 
 ### Time Graph Tooltip
 Currently, the **Time Graph Tooltip** is populated when selecting a state in a Time Graph view.
 
+## New contributors
+⚠️ **Linux only!** Currently, the development environment for this project only works on Linux.
+
+### Explore the project context
+* **Check out the [tracevizlabs](https://github.com/dorsal-lab/Tracevizlab).** You don't need to complete all of them, but reading a couple is good context. Lab sets 0 and 1 are especially useful.
+* **Browse recent conference presentations.** They give an overview of the trace viewer's goals, architecture, and functionality.
+  * _Using Theia to take trace analysis and visualization to the next level_, [slides](https://www.eclipsecon.org/sites/default/files/slides/EclipseConEurope2019-TraceCompass-Theia.pdf), [video](https://www.youtube.com/watch?v=Fysg1mOadik) - Bernd Hufmann, Ericsson AB (EclipseCon 2019)
+  * _A New Flexible Architecture for Trace Compass_, [slides](https://tracingsummit.org/ts/2019/files/Tracingsummit2019-theia-dagenais.pdf), [video](https://www.youtube.com/watch?v=8s5vGf45e-g) - Michel Dagenais, Polytechnique Montréal ([Tracing Summit 2019](https://tracingsummit.org/ts/2019/))
+* **Get an [overview of external components](https://github.com/theia-ide/theia-trace-extension#related-code)** used by this trace viewer. See how they interact.
+
+### Start with a small change
+* **Explore the [Gitpod demo](https://github.com/theia-ide/theia-trace-extension#try-a-live-demo-via-gitpod).** Experiment with the trace viewer. Start exploring its code via Gitpod's in-browser IDE.
+* **Start with a small frontend improvement.** A relevant change can be [less than 5 lines of code](https://github.com/theia-ide/theia-trace-extension/pull/369/files). The Theia-based frontend repo is much less complex than the Trace Server's, so by starting in the frontend you'll learn high-level context about the project's different components without being overwhelmed with complexity.
+  * [Good first issues](https://github.com/theia-ide/theia-trace-extension/issues?q=is%3Aopen+is%3Aissue+label%3A%22good+first+issue%22)
+  * _Develop with Gitpod to initially avoid dev setup._ Put `gitpod.io/#` before your project fork's github URL to open an in-browser IDE and initially avoid any local dev setup. This dev approach works best for small changes because Gitpod workspaces are volatile.
+  * _Learn [how to contribute code](https://github.com/theia-ide/theia-trace-extension#how-to-contribute-code)._ Starting with a tiny change means you can first focus on exploring the code as well as learning the submission and review process (which is a significant learning step if you've never submitted a PR before).
+
 ## How to contribute code
 **Changes to the project** are made by submitting code with a pull request (PR).
 
 * [How to write and submit changes](https://www.dataschool.io/how-to-contribute-on-github/)
+* [Example pull request](https://github.com/theia-ide/theia-trace-extension/pull/402)
 
 **Good commit messages** make it easier to review code and understand why the changes were made. Please include a:
 * _Title:_ Concise and complete title written in imperative (e.g. "Update Gitpod demo screenshots" or "Single-click to select or open trace")
@@ -156,7 +174,10 @@ Currently, the **Time Graph Tooltip** is populated when selecting a state in a T
 * _Solution:_ What changes were made to resolve the situation? Why are these changes the right fix?
 * _Impact:_ What impact do these changes have? (e.g. Numbers to show a performance improvement, screenshots or a video for a UI change)
 * [_Sign-off:_](https://git-scm.com/docs/git-commit#Documentation/git-commit.txt---signoff) Use your full name and a long-term email address. This certifies that you have written the code and that, from a licensing perspective, the code is appropriate for use in open-source.   
+
+Other commit information:
 * [How to format the message](https://tbaggery.com/2008/04/19/a-note-about-git-commit-messages.html)
+* [Example commit message](https://github.com/theia-ide/theia-trace-extension/commit/bc18fcd110d7b8433293692421f2e4fb49f89bd6)
 
 ## Related code
 This trace viewer depends on code from several other repos. Sometimes resolving issues in the trace viewer repo requires making changes in these code bases:
