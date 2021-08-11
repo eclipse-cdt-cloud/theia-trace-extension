@@ -24,6 +24,11 @@ type TableOutputProps = AbstractOutputProps & {
     tableWidth?: string;
 };
 
+enum Direction {
+    NEXT,
+    PREVIOUS
+}
+
 export class TableOutputComponent extends AbstractOutputComponent<TableOutputProps, TableOuputState> {
     private debugMode = false;
     private columnIds: Array<number> = [];
@@ -83,7 +88,7 @@ export class TableOutputComponent extends AbstractOutputComponent<TableOutputPro
         this.onModelUpdated = this.onModelUpdated.bind(this);
         this.onKeyDown = this.onKeyDown.bind(this);
         this.searchEvents = this.searchEvents.bind(this);
-        this.findNextMatchedEvent = this.findNextMatchedEvent.bind(this);
+        this.findMatchedEvent = this.findMatchedEvent.bind(this);
     }
 
     renderMainArea(): React.ReactNode {
@@ -314,7 +319,8 @@ export class TableOutputComponent extends AbstractOutputComponent<TableOutputPro
                     floatingFilterComponentParams: {
                         suppressFilterButton: true,
                         onFilterChange: this.searchEvents,
-                        onclickNext: this.findNextMatchedEvent,
+                        onclickNext: () => this.findMatchedEvent(Direction.NEXT),
+                        onclickPrevious: () =>  this.findMatchedEvent(Direction.PREVIOUS),
                         colName: columnHeader.id.toString()
                     },
                     icons: {
@@ -409,7 +415,7 @@ export class TableOutputComponent extends AbstractOutputComponent<TableOutputPro
         return lines[0].index;
     }
 
-    private fetchAdditionalParams(isFiltered = false): ({ [key: string]: any }) {
+    private fetchAdditionalParams(direction?: Direction): ({ [key: string]: any }) {
         let additionalParams: { [key: string]: any } = {};
         const filterObj: { [key: number]: string } = {};
         if (this.filterModel) {
@@ -419,8 +425,10 @@ export class TableOutputComponent extends AbstractOutputComponent<TableOutputPro
             });
             additionalParams = {
                 ['table_search_expressions']: filterObj,
-                ['isFiltered']: isFiltered
             };
+            if (direction !== undefined) {
+                additionalParams['table_search_direction'] = Direction[direction];
+            }
         }
         return additionalParams;
 
@@ -490,11 +498,11 @@ export class TableOutputComponent extends AbstractOutputComponent<TableOutputPro
         }
     }
 
-    private async findNextMatchIndex(currRowIndex: number) {
+    private async findMatchIndex(currRowIndex: number, direction = Direction.NEXT) {
         const traceUUID = this.props.traceId;
         const tspClient = this.props.tspClient;
         const outputId = this.props.outputDescriptor.id;
-        const additionalParams = this.fetchAdditionalParams(true);
+        const additionalParams = this.fetchAdditionalParams(direction);
         const tspClientResponse = await tspClient.fetchTableLines(traceUUID, outputId, QueryHelper.tableQuery(this.columnIds, currRowIndex, 1, additionalParams));
         const lineResponse = tspClientResponse.getModel();
         if (!tspClientResponse.isOk() || !lineResponse) {
@@ -508,13 +516,56 @@ export class TableOutputComponent extends AbstractOutputComponent<TableOutputPro
         return lines[0].index;
     }
 
-    private async findNextMatchedEvent() {
+    private async findMatchedEvent(direction: Direction) {
         let isFound = false;
         if (this.gridApi) {
-            this.gridApi.deselectAll();
+
+            // make sure that both index are either both -1 or both have a valid number
+            if (this.selectStartIndex !== -1 && this.selectEndIndex === -1) {
+                this.selectEndIndex = this.selectStartIndex;
+            }
+            if (this.selectEndIndex !== -1 && this.selectStartIndex === -1) {
+                this.selectStartIndex = this.selectStartIndex;
+            }
+
+            let currRowIndex = 0;
+            if (this.selectStartIndex !== -1) {
+                if (direction === Direction.NEXT) {
+                    currRowIndex = Math.max(this.selectStartIndex, this.selectEndIndex) + 1;
+                } else {
+                    currRowIndex = Math.min(this.selectStartIndex, this.selectEndIndex) - 1;
+                }
+            } else if (direction === Direction.PREVIOUS) {
+                // no backward search if there is no selection
+                return;
+            }
+
+            let rowNodes: RowNode[] = [];
             this.gridApi.forEachNode(rowNode => {
-                if (rowNode.rowIndex > Math.max(this.selectStartIndex, this.selectEndIndex) && rowNode.data
-                    && rowNode.data['isMatched'] && !isFound) {
+                rowNodes.push(rowNode);
+            });
+
+            if (direction === Direction.PREVIOUS) {
+                rowNodes = rowNodes.reverse();
+            }
+
+            this.gridApi.deselectAll();
+            // consider only rows starting from the current row index and contiguous rows after that
+            let currRowIndexFound = false;
+            rowNodes.forEach(rowNode => {
+                if (rowNode.rowIndex === currRowIndex) {
+                    currRowIndexFound = true;
+                    // update current row index to next/previous contiguous row
+                    if (direction === Direction.NEXT) {
+                        currRowIndex++;
+                    } else {
+                        currRowIndex--;
+                    }
+                } else {
+                    // non-contiguous row found, stop searching in cache
+                    currRowIndexFound = false;
+                }
+                if (currRowIndexFound && !isFound && rowNode.data && rowNode.data['isMatched']) {
                     this.gridApi?.ensureIndexVisible(rowNode.rowIndex);
                     this.selectStartIndex = this.selectEndIndex = rowNode.rowIndex;
                     this.handleRowSelectionChange();
@@ -524,14 +575,20 @@ export class TableOutputComponent extends AbstractOutputComponent<TableOutputPro
             });
 
             if (isFound) {
+                // match found in cache
                 return;
             }
+            // find match outside the cache
+            if (currRowIndex >= 0) {
+                const lineIndex = await this.findMatchIndex(currRowIndex, direction);
+                if (lineIndex !== undefined) {
+                    this.gridApi.ensureIndexVisible(lineIndex);
+                    this.selectStartIndex = this.selectEndIndex = lineIndex;
+                }
+            }
 
-            const currRowIndex = this.gridApi?.getLastDisplayedRow() + 1;
-            const lineIndex = await this.findNextMatchIndex(currRowIndex);
-            if (lineIndex) {
-                this.gridApi.ensureIndexVisible(lineIndex);
-                this.selectStartIndex = this.selectEndIndex = lineIndex;
+            // apply new or previous selection
+            if (this.selectStartIndex !== -1 && this.selectEndIndex !== -1) {
                 this.handleRowSelectionChange();
                 this.enableIndexSelection = true;
                 this.selectRows();

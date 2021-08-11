@@ -1,4 +1,4 @@
-import { faAngleDown, faSearch, faSpinner, faTimes } from '@fortawesome/free-solid-svg-icons';
+import { faAngleDown, faAngleUp, faSearch, faSpinner, faTimes } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { ICellRendererParams, IFloatingFilterParams } from 'ag-grid-community';
 import debounce from 'lodash.debounce';
@@ -12,6 +12,7 @@ type CellRendererProps = ICellRendererParams & {
 type SearchFilterRendererProps = IFloatingFilterParams & {
     onFilterChange: (colName: string, filterValue: string) => void;
     onclickNext: () => void;
+    onclickPrevious: () => void;
     colName: string;
 };
 
@@ -90,6 +91,7 @@ export class SearchFilterRenderer extends React.Component<SearchFilterRendererPr
         this.onMouseLeaveHandler = this.onMouseLeaveHandler.bind(this);
         this.onClickHandler = this.onClickHandler.bind(this);
         this.onDownClickHandler = this.onDownClickHandler.bind(this);
+        this.onUpClickHandler = this.onUpClickHandler.bind(this);
         this.onCloseClickHandler = this.onCloseClickHandler.bind(this);
         this.onKeyDownEvent = this.onKeyDownEvent.bind(this);
 
@@ -110,6 +112,7 @@ export class SearchFilterRenderer extends React.Component<SearchFilterRendererPr
                         <input type="text" autoFocus={true} onKeyDown={this.onKeyDownEvent} onInput={this.onInputBoxChanged} style={{ width: '50%', margin: '10px' }} />
                         <FontAwesomeIcon className='hoverClass' icon={faTimes} style={{ marginTop: '20px' }} onClick={this.onCloseClickHandler} />
                         <FontAwesomeIcon className='hoverClass' icon={faAngleDown} style={{ marginLeft: '10px', marginTop: '20px' }} onClick={this.onDownClickHandler} />
+                        <FontAwesomeIcon className='hoverClass' icon={faAngleUp} style={{ marginLeft: '10px', marginTop: '20px' }} onClick={this.onUpClickHandler} />
                     </div>}
             </div>
         );
@@ -117,7 +120,11 @@ export class SearchFilterRenderer extends React.Component<SearchFilterRendererPr
 
     private onKeyDownEvent(event: React.KeyboardEvent) {
         if (event.key === 'Enter') {
-            this.props.onclickNext();
+            if (event.shiftKey) {
+                this.props.onclickPrevious();
+            } else {
+                this.props.onclickNext();
+            }
         } else if (event.key === 'Escape') {
             this.setState({
                 hasClicked: false
@@ -155,6 +162,11 @@ export class SearchFilterRenderer extends React.Component<SearchFilterRendererPr
 
     private onDownClickHandler() {
         this.props.onclickNext();
+        return;
+    }
+
+    private onUpClickHandler() {
+        this.props.onclickPrevious();
         return;
     }
 
