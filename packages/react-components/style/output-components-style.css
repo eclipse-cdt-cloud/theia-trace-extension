@@ -104,6 +104,10 @@ canvas {
     padding: 0 0;
 }
 
+#xy-dropdown {
+    margin-bottom: 5px;
+}
+
 #input-filter-tree {
     background-color: var(--theia-input-background);
     border: none;
