@@ -133,7 +133,7 @@ export class ReactAvailableViewsWidget extends React.Component<ReactAvailableVie
             const annotationCategories = await tspClient.fetchAnnotationsCategories(this._selectedExperiment?.UUID, output.id);
             const annotationCategoriesResponse = annotationCategories.getModel();
             if (annotationCategories.isOk() && annotationCategoriesResponse) {
-                const categoriesList = annotationCategoriesResponse.model.annotationCategories;
+                const categoriesList = annotationCategoriesResponse.model ? annotationCategoriesResponse.model.annotationCategories : [];
                 signalManager().fireAnnotationsFetchedSignal(categoriesList);
             }
         }
