@@ -19,7 +19,8 @@
     "start-all:browser": "yarn start:server & yarn start:browser",
     "start-all:electron": "yarn start:server & yarn start:electron",
     "lint": "lerna run lint",
-    "test": "lerna run test"
+    "test": "lerna run test",
+    "license:check": "node scripts/check_3pp_licenses.js"
   },
   "devDependencies": {
     "@theia/cli": "latest",

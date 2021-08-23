@@ -12,3 +12,5 @@ examples/*
 !examples/*/resources/
 !examples/*/scripts
 *.tsbuildinfo
+license-check-summary.txt
+license.jar
