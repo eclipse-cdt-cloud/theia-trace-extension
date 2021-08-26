@@ -1,11 +1,11 @@
 import * as React from 'react';
 import { List, ListRowProps, AutoSizer } from 'react-virtualized';
-import { OutputAddedSignalPayload } from '@trace-viewer/base/lib/signals/output-added-signal-payload';
-import { signalManager, Signals } from '@trace-viewer/base/lib/signals/signal-manager';
+import { OutputAddedSignalPayload } from 'traceviewer-base/lib/signals/output-added-signal-payload';
+import { signalManager, Signals } from 'traceviewer-base/lib/signals/signal-manager';
 import { OutputDescriptor } from 'tsp-typescript-client/lib/models/output-descriptor';
 import { Experiment } from 'tsp-typescript-client/lib/models/experiment';
-import { ITspClientProvider } from '@trace-viewer/base/lib/tsp-client-provider';
-import { ExperimentManager } from '@trace-viewer/base/lib/experiment-manager';
+import { ITspClientProvider } from 'traceviewer-base/lib/tsp-client-provider';
+import { ExperimentManager } from 'traceviewer-base/lib/experiment-manager';
 
 export interface ReactAvailableViewsProps {
     id: string,

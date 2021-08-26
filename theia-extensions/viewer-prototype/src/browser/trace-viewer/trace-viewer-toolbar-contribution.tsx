@@ -4,7 +4,7 @@ import { ApplicationShell, Widget } from '@theia/core/lib/browser';
 import { TabBarToolbarContribution, TabBarToolbarRegistry } from '@theia/core/lib/browser/shell/tab-bar-toolbar';
 import { CommandContribution, CommandRegistry, DisposableCollection, Emitter, MenuModelRegistry } from '@theia/core';
 import { TraceViewerToolbarCommands, TraceViewerToolbarFilterMenus, TRACE_VIEWER_TOOLBAR_COMMAND_FILTER } from './trace-viewer-toolbar-commands';
-import { signalManager, Signals } from '@trace-viewer/base/lib/signals/signal-manager';
+import { signalManager, Signals } from 'traceviewer-base/lib/signals/signal-manager';
 import { TraceViewerWidget } from './trace-viewer';
 import { TspClientProvider } from '../tsp-client-provider-impl';
 import { ContextMenuRenderer } from '@theia/core/lib/browser';

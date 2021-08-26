@@ -1,8 +1,7 @@
 {
-  "name": "theia-trace-viewer",
-  "private": "true",
-  "version": "0.0.0",
-  "description": "Trace Compass trace viewer Theia Extension",
+  "name": "theia-traceviewer",
+  "version": "0.0.1",
+  "description": "Trace Viewer Theia Extension",
   "keywords": [
     "theia-extension"
   ],
@@ -16,11 +15,11 @@
     "src"
   ],
   "dependencies": {
-    "@trace-viewer/base": "0.0.0",
-    "@trace-viewer/react-components": "0.0.0",
     "@theia/core": "latest",
     "@theia/editor": "latest",
     "@theia/filesystem": "latest",
+    "traceviewer-base": "0.0.1",
+    "traceviewer-react-components": "0.0.1",
     "tree-kill": "latest"
   },
   "devDependencies": {

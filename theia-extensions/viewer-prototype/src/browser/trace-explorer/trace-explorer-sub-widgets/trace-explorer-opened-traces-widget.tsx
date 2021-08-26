@@ -2,14 +2,14 @@ import { inject, injectable, postConstruct } from 'inversify';
 import { ReactWidget, Widget } from '@theia/core/lib/browser';
 import * as React from 'react';
 import { Experiment } from 'tsp-typescript-client/lib/models/experiment';
-import { ExperimentManager } from '@trace-viewer/base/lib/experiment-manager';
+import { ExperimentManager } from 'traceviewer-base/lib/experiment-manager';
 import { CommandService } from '@theia/core';
 import { TspClientProvider } from '../../tsp-client-provider-impl';
-import { signalManager} from '@trace-viewer/base/lib/signals/signal-manager';
+import { signalManager} from 'traceviewer-base/lib/signals/signal-manager';
 import { TraceExplorerTooltipWidget } from './trace-explorer-tooltip-widget';
 import { ContextMenuRenderer } from '@theia/core/lib/browser';
 import { TraceViewerCommand } from '../../trace-viewer/trace-viewer-commands';
-import { ReactOpenTracesWidget} from '@trace-viewer/react-components/lib/trace-explorer/trace-explorer-opened-traces-widget';
+import { ReactOpenTracesWidget} from 'traceviewer-react-components/lib/trace-explorer/trace-explorer-opened-traces-widget';
 import { TraceExplorerMenus } from '../trace-explorer-commands';
 
 @injectable()

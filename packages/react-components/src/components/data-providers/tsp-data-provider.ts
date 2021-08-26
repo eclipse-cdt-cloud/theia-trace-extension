@@ -6,7 +6,7 @@ import { TimelineChart } from 'timeline-chart/lib/time-graph-model';
 import { QueryHelper } from 'tsp-typescript-client/lib/models/query/query-helper';
 import { OutputElementStyle } from 'tsp-typescript-client/lib/models/styles';
 import { Annotation, Type } from 'tsp-typescript-client/lib/models/annotation';
-import { TimeRange } from '@trace-viewer/base/lib/utils/time-range';
+import { TimeRange } from 'traceviewer-base/lib/utils/time-range';
 
 enum ElementType {
     STATE = 'state',

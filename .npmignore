@@ -1,0 +1,13 @@
+.DS_Store
+.browser_modules
+.idea
+.metadata
+*.log
+build
+examples
+coverage
+download
+lerna-debug.log
+node_modules
+test-resources
+trace-compass-server

@@ -1,4 +1,4 @@
-import * as Messages from '@trace-viewer/base/lib/message-manager';
+import * as Messages from 'traceviewer-base/lib/message-manager';
 import { inject, injectable } from 'inversify';
 import { StatusBar, StatusBarAlignment } from '@theia/core/lib/browser';
 

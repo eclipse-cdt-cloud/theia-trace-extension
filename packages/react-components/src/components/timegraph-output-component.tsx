@@ -13,7 +13,7 @@ import { TimeGraphRowController } from 'timeline-chart/lib/time-graph-row-contro
 import { QueryHelper } from 'tsp-typescript-client/lib/models/query/query-helper';
 import { ResponseStatus } from 'tsp-typescript-client/lib/models/response/responses';
 import { TimeGraphEntry } from 'tsp-typescript-client/lib/models/timegraph';
-import { signalManager, Signals } from '@trace-viewer/base/lib/signals/signal-manager';
+import { signalManager, Signals } from 'traceviewer-base/lib/signals/signal-manager';
 import { AbstractOutputProps, AbstractOutputState } from './abstract-output-component';
 import { AbstractTreeOutputComponent } from './abstract-tree-output-component';
 import { StyleProperties } from './data-providers/style-properties';
@@ -23,7 +23,7 @@ import { ReactTimeGraphContainer } from './utils/timegraph-container-component';
 import { OutputElementStyle } from 'tsp-typescript-client/lib/models/styles';
 import { EntryTree } from './utils/filtrer-tree/entry-tree';
 import { listToTree, getAllExpandedNodeIds } from './utils/filtrer-tree/utils';
-import hash from '@trace-viewer/base/lib/utils/value-hash';
+import hash from 'traceviewer-base/lib/utils/value-hash';
 import ColumnHeader from './utils/filtrer-tree/column-header';
 import { TimeGraphAnnotationComponent } from 'timeline-chart/lib/components/time-graph-annotation';
 

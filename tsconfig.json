@@ -5,13 +5,13 @@
     },
     "references": [
         {
+            "path": "theia-extensions/viewer-prototype"
+        },
+        {
             "path": "packages/base"
         },
         {
             "path": "packages/react-components"
-        },
-        {
-            "path": "theia-extensions/viewer-prototype"
         }
     ]
 }
