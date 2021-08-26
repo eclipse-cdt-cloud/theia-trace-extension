@@ -3,7 +3,7 @@ import { ReactWidget, Message } from '@theia/core/lib/browser';
 import * as React from 'react';
 import { EditorOpenerOptions, EditorManager } from '@theia/editor/lib/browser';
 import URI from '@theia/core/lib/common/uri';
-import { Signals, signalManager } from '@trace-viewer/base/lib/signals/signal-manager';
+import { Signals, signalManager } from 'traceviewer-base/lib/signals/signal-manager';
 
 @injectable()
 export class TraceExplorerTooltipWidget extends ReactWidget {

@@ -1,13 +1,13 @@
 import * as React from 'react';
 import { List, ListRowProps, Index, AutoSizer } from 'react-virtualized';
 import { Experiment } from 'tsp-typescript-client/lib/models/experiment';
-import { ExperimentManager } from '@trace-viewer/base/lib/experiment-manager';
-import { signalManager, Signals } from '@trace-viewer/base/lib/signals/signal-manager';
+import { ExperimentManager } from 'traceviewer-base/lib/experiment-manager';
+import { signalManager, Signals } from 'traceviewer-base/lib/signals/signal-manager';
 import ReactModal from 'react-modal';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCopy } from '@fortawesome/free-solid-svg-icons';
-import { OpenedTracesUpdatedSignalPayload } from '@trace-viewer/base/lib/signals/opened-traces-updated-signal-payload';
-import { ITspClientProvider } from '@trace-viewer/base/lib/tsp-client-provider';
+import { OpenedTracesUpdatedSignalPayload } from 'traceviewer-base/lib/signals/opened-traces-updated-signal-payload';
+import { ITspClientProvider } from 'traceviewer-base/lib/tsp-client-provider';
 
 export interface ReactOpenTracesWidgetProps {
     id: string,

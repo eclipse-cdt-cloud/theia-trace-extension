@@ -6,7 +6,7 @@
     "tsbuild": "tsc -b",
     "tswatch": "tsc -b -w",
     "clean": "lerna run clean",
-    "prepare:packages": "lerna run --ignore=\"*-example-app\" --concurency=1 prepare",
+    "prepare:packages": "lerna run --ignore=\"*-example-app\" prepare",
     "prepare:examples": "lerna run --scope=\"*-example-app\" --parallel prepare",
     "rebuild:browser": "theia rebuild:browser",
     "rebuild:electron": "theia rebuild:electron",
@@ -19,12 +19,29 @@
     "start-all:browser": "yarn start:server & yarn start:browser",
     "start-all:electron": "yarn start:server & yarn start:electron",
     "lint": "lerna run lint",
-    "test": "lerna run test"
+    "test": "lerna run test",
+    "publish:latest": "lerna publish --registry=https://registry.npmjs.org/ --exact --no-git-tag-version --no-push",
+    "publish:next": "lerna publish --registry=https://registry.npmjs.org/ --exact --canary minor --preid=next.$(git rev-parse --short HEAD) --dist-tag=next --no-git-tag-version --no-push --yes"
+},
+  "keywords": [
+    "theia-extension",
+    "trace-viewer",
+    "trace-analysis",
+    "tracing",
+    "trace"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/theia-ide/theia-trace-extension"
   },
+  "bugs": {
+    "url": "https://github.com/theia-ide/theia-trace-extension/issues"
+  },
+  "homepage": "https://github.com/theia-ide/theia-trace-extension",
   "devDependencies": {
     "@theia/cli": "latest",
     "jsonc-parser": "^3.0.0",
-    "lerna": "2.4.0"
+    "lerna": "4.0.0"
   },
   "workspaces": [
     "examples/*",

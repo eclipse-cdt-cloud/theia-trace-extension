@@ -2,7 +2,7 @@ import { inject, injectable, postConstruct } from 'inversify';
 import { ReactWidget, Widget, Message } from '@theia/core/lib/browser';
 import { TspClientProvider } from '../../tsp-client-provider-impl';
 import * as React from 'react';
-import { ReactAvailableViewsWidget} from '@trace-viewer/react-components/lib/trace-explorer/trace-explorer-views-widget';
+import { ReactAvailableViewsWidget} from 'traceviewer-react-components/lib/trace-explorer/trace-explorer-views-widget';
 
 @injectable()
 export class TraceExplorerViewsWidget extends ReactWidget {

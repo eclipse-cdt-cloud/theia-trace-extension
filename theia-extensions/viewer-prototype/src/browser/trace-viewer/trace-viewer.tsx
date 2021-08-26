@@ -8,15 +8,15 @@ import { OutputDescriptor } from 'tsp-typescript-client/lib/models/output-descri
 import { Trace } from 'tsp-typescript-client/lib/models/trace';
 import { TspClient } from 'tsp-typescript-client/lib/protocol/tsp-client';
 import { TspClientProvider } from '../tsp-client-provider-impl';
-import { TraceManager } from '@trace-viewer/base/lib/trace-manager';
-import { ExperimentManager } from '@trace-viewer/base/lib/experiment-manager';
-import { TraceContextComponent } from '@trace-viewer/react-components/lib/components/trace-context-component';
+import { TraceManager } from 'traceviewer-base/lib/trace-manager';
+import { ExperimentManager } from 'traceviewer-base/lib/experiment-manager';
+import { TraceContextComponent } from 'traceviewer-react-components/lib/components/trace-context-component';
 import { Experiment } from 'tsp-typescript-client/lib/models/experiment';
 import URI from '@theia/core/lib/common/uri';
 import { TheiaMessageManager } from '../theia-message-manager';
 import { ThemeService } from '@theia/core/lib/browser/theming';
-import { signalManager, Signals } from '@trace-viewer/base/lib/signals/signal-manager';
-import { OutputAddedSignalPayload } from '@trace-viewer/base/lib/signals/output-added-signal-payload';
+import { signalManager, Signals } from 'traceviewer-base/lib/signals/signal-manager';
+import { OutputAddedSignalPayload } from 'traceviewer-base/lib/signals/output-added-signal-payload';
 import { TraceExplorerWidget } from '../trace-explorer/trace-explorer-widget';
 import { TraceExplorerContribution } from '../trace-explorer/trace-explorer-contribution';
 

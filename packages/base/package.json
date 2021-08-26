@@ -1,12 +1,16 @@
 {
-  "name": "@trace-viewer/base",
-  "version": "0.0.0",
-  "description": "Trace Compass base package, contains trace management utilities",
+  "name": "traceviewer-base",
+  "version": "0.0.1",
+  "description": "Trace Viewer base package, contains trace management utilities",
   "license": "MIT",
   "repository": {
     "type": "git",
     "url": "https://github.com/theia-ide/theia-trace-extension"
   },
+  "bugs": {
+    "url": "https://github.com/theia-ide/theia-trace-extension/issues"
+  },
+  "homepage": "https://github.com/theia-ide/theia-trace-extension",
   "files": [
     "lib",
     "src"
@@ -30,5 +34,6 @@
     "lint": "eslint .",
     "test": "echo 'test'",
     "watch": "tsc -w"
-  }
+  },
+  "gitHead": "4f93878b0ef9d58254a1f41daf99d03b4608df13"
 }
