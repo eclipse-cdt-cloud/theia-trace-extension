@@ -131,7 +131,7 @@ export class TraceManager {
         }
     }
 
-    public addTrace(trace: Trace) {
+    public addTrace(trace: Trace): void {
         this.fOpenTraces.set(trace.UUID, trace);
     }
 

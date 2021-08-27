@@ -25,26 +25,26 @@
     }
   },
   "dependencies": {
-    "@theia/core": "latest",
-    "@theia/filesystem": "latest",
-    "@theia/workspace": "latest",
-    "@theia/preferences": "latest",
-    "@theia/navigator": "latest",
-    "@theia/process": "latest",
-    "@theia/terminal": "latest",
-    "@theia/editor": "latest",
-    "@theia/markers": "latest",
-    "@theia/monaco": "latest",
-    "@theia/messages": "latest",
-    "@theia/vsx-registry": "latest",
-    "@theia/keymaps": "latest",
-    "@theia/getting-started": "latest",
-    "@theia/electron": "latest",
+    "@theia/core": "1.10.0",
+    "@theia/filesystem": "1.10.0",
+    "@theia/workspace": "1.10.0",
+    "@theia/preferences": "1.10.0",
+    "@theia/navigator": "1.10.0",
+    "@theia/process": "1.10.0",
+    "@theia/terminal": "1.10.0",
+    "@theia/editor": "1.10.0",
+    "@theia/markers": "1.10.0",
+    "@theia/monaco": "1.10.0",
+    "@theia/messages": "1.10.0",
+    "@theia/vsx-registry": "1.10.0",
+    "@theia/keymaps": "1.10.0",
+    "@theia/getting-started": "1.10.0",
+    "@theia/electron": "1.10.0",
     "theia-traceviewer": "0.0.1"
   },
   "devDependencies": {
-    "@theia/cli": "latest",
-    "electron-builder": "^22.3.2"
+    "@theia/cli": "1.10.0",
+    "electron-builder": "~22.9.1"
   },
   "scripts": {
     "prepare": "theia build --mode development",

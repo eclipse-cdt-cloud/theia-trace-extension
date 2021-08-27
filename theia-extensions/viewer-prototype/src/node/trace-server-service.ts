@@ -2,13 +2,16 @@ import { spawn } from 'child_process';
 import { injectable } from 'inversify';
 import { PortBusy, TraceServerConfigService } from '../common/trace-server-config';
 import treeKill = require('tree-kill');
+
 @injectable()
 export class TraceServerServiceImpl implements TraceServerConfigService {
     private processId: number;
 
     startTraceServer(path: string | undefined, port: number | undefined): Promise<string> {
-        const server = spawn(`${path}`, ['-vmargs', `-Dtraceserver.port=${port}`]);
-        this.processId = server.pid;
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        const server = spawn(path!, ['-vmargs', `-Dtraceserver.port=${port}`]);
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        this.processId = server.pid!;
         const timeouts: NodeJS.Timeout[] = [];
 
         return new Promise<string>((resolve, reject) => {

@@ -95,7 +95,8 @@ export class TraceViewerContribution extends WidgetOpenHandler<TraceViewerWidget
                     }
                 }
                 catch (err) {
-                    if (PortBusy.is(err)) {
+                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                    if (PortBusy.is(err as any)) {
                         this.messageService.error(
                             `Error opening serial port ${port}. (Port busy)`);
                     } else {
@@ -125,7 +126,8 @@ export class TraceViewerContribution extends WidgetOpenHandler<TraceViewerWidget
                     await this.traceServerConfigService.startTraceServer(this.path, this.port);
                     this.messageService.info(`Trace server started successfully on port: ${this.port}.`);
                 } catch (err) {
-                    if (PortBusy.is(err)) {
+                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                    if (PortBusy.is(err as any)) {
                         this.messageService.error(
                             `Error opening serial port ${this.port}. (Port busy)`);
                     } else {
