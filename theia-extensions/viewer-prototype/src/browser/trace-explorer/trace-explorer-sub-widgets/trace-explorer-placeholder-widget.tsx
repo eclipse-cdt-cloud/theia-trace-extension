@@ -103,7 +103,8 @@ export class TraceExplorerPlaceholderWidget extends ReactWidget {
                     }
                 }
                 catch (err) {
-                    if (PortBusy.is(err)) {
+                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                    if (PortBusy.is(err as any)) {
                         this.messageService.error(
                             `Error opening serial port ${this.port}. (Port busy)`);
                     } else {

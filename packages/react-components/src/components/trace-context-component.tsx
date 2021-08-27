@@ -23,7 +23,6 @@ import * as Messages from 'traceviewer-base/lib/message-manager';
 import { signalManager, Signals } from 'traceviewer-base/lib/signals/signal-manager';
 import ReactTooltip from 'react-tooltip';
 import { TooltipComponent } from './tooltip-component';
-import { remove } from 'lodash';
 
 const ResponsiveGridLayout = WidthProvider(Responsive);
 

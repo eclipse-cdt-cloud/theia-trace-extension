@@ -124,7 +124,7 @@ export class TableOutputComponent extends AbstractOutputComponent<TableOutputPro
         this.handleTimeSelectionChange = () => Promise.resolve();
     }
 
-    async componentDidUpdate(prevProps: TableOutputProps, prevState: TableOuputState): Promise<void> {
+    async componentDidUpdate(prevProps: TableOutputProps, _prevState: TableOuputState): Promise<void> {
         if (this.props.nbEvents !== prevProps.nbEvents) {
             this.gridApi?.setInfiniteRowCount(this.props.nbEvents);
         }
