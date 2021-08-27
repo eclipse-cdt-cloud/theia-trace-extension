@@ -1,7 +1,7 @@
 {
   "private": true,
   "scripts": {
-    "prepare": "yarn -s tsref && yarn -s tsbuild && yarn -s prepare:packages && yarn -s download:plugins && yarn -s prepare:examples",
+    "prepare": "yarn -s tsref && yarn -s tsbuild && yarn -s download:plugins && yarn -s prepare:examples",
     "tsref": "node scripts/typescript-references.js",
     "tsbuild": "tsc -b",
     "tswatch": "tsc -b -w",
@@ -41,7 +41,7 @@
   "devDependencies": {
     "@theia/cli": "latest",
     "jsonc-parser": "^3.0.0",
-    "lerna": "4.0.0"
+    "lerna": "^4.0.0"
   },
   "workspaces": [
     "examples/*",
