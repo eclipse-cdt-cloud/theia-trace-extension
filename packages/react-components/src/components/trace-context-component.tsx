@@ -78,6 +78,9 @@ export class TraceContextComponent extends React.Component<TraceContextProps, Tr
         }
     };
 
+    private onTimeGraphZoomed = (hasZoomedIn: boolean) => this.doHandleTimeGraphZoomedSignal(hasZoomedIn);
+    private onTimeGraphReset = () => this.doHandleTimeGraphResetSignal();
+
     constructor(props: TraceContextProps) {
         super(props);
         let traceRange = new TimeRange(0, 0);
@@ -124,6 +127,8 @@ export class TraceContextComponent extends React.Component<TraceContextProps, Tr
         this.traceContextContainer = React.createRef();
         this.initialize();
         signalManager().on(Signals.THEME_CHANGED, this.onBackgroundThemeUpdated);
+        signalManager().on(Signals.TIMEGRAPH_ZOOMED, this.onTimeGraphZoomed);
+        signalManager().on(Signals.TIMEGRAPH_RESET, this.onTimeGraphReset);
     }
 
     private updateBackgroundTheme(theme: string): void {
@@ -192,11 +197,48 @@ export class TraceContextComponent extends React.Component<TraceContextProps, Tr
         this.props.messageManager.removeStatusMessage(this.INDEXING_STATUS_BAR_KEY);
         this.props.messageManager.removeStatusMessage(this.TIME_SELECTION_STATUS_BAR_KEY);
         this.props.removeResizeHandler(this.onResize);
+        signalManager().off(Signals.TIMEGRAPH_ZOOMED, this.onTimeGraphZoomed);
+        signalManager().off(Signals.TIMEGRAPH_RESET, this.onTimeGraphReset);
     }
 
     async componentDidUpdate(): Promise<void> {
         // Rebuild enables tooltip on newly added output component
         ReactTooltip.rebuild();
+    }
+
+    private doHandleTimeGraphZoomedSignal(hasZoomedIn: boolean) {
+        this.zoomButton(hasZoomedIn);
+    }
+
+    private doHandleTimeGraphResetSignal() {
+        this.unitController.viewRange = { start: 0, end: this.unitController.absoluteRange };
+    }
+
+    private zoomButton(zoomIn: boolean) {
+        let newStartRange = 0;
+        let newEndRange = 0;
+        let position = (this.unitController.viewRange.end + this.unitController.viewRange.start) / 2;
+        const percentZoom = 0.9;
+        if (this.unitController.selectionRange) {
+            const positionMiddleSelection = (this.unitController.selectionRange.end + this.unitController.selectionRange.start) / 2;
+            if (positionMiddleSelection >= this.unitController.viewRange.start && positionMiddleSelection <= this.unitController.viewRange.end) {
+                position = positionMiddleSelection;
+            }
+        }
+        const startDistance  = position - this.unitController.viewRange.start;
+        const endDistance = this.unitController.viewRange.end - position;
+        const zoomFactor = zoomIn ? percentZoom : 1 / percentZoom;
+        newStartRange = position - startDistance * zoomFactor;
+        newEndRange = position + endDistance * zoomFactor;
+        if (newStartRange < 0) {
+            newEndRange = newEndRange - newStartRange;
+        } else if (newEndRange > this.unitController.absoluteRange) {
+            const delta = newEndRange - this.unitController.absoluteRange;
+            newStartRange = newStartRange - delta;
+        }
+        newStartRange = Math.max(newStartRange, 0);
+        newEndRange = Math.min(newEndRange, this.unitController.absoluteRange);
+        this.unitController.viewRange = { start: newStartRange, end: newEndRange };
     }
 
     private onResize() {

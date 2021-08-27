@@ -53,9 +53,6 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
     private styleMap = new Map<string, TimeGraphStateStyle>();
 
     private selectedElement: TimeGraphStateComponent | undefined;
-
-    private onTimeGraphZoomed = (hasZoomedIn: boolean) => this.doHandleTimeGraphZoomedSignal(hasZoomedIn);
-    private onTimeGraphReset = () => this.doHandleTimeGraphResetSignal();
     private annotationMarkers: string[] | undefined = undefined;
     private onSelectionChanged = (payload: { [key: string]: string; }) => this.doHandleSelectionChangedSignal(payload);
     private onMarkerFilterChanged = (annotationMarkers: string[]) => this.doHandleMarkerFilterChangedSignal(annotationMarkers);
@@ -116,8 +113,6 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
             }
         });
         signalManager().on(Signals.SELECTION_CHANGED, this.onSelectionChanged);
-        signalManager().on(Signals.TIMEGRAPH_ZOOMED, this.onTimeGraphZoomed);
-        signalManager().on(Signals.TIMEGRAPH_RESET, this.onTimeGraphReset);
         signalManager().on(Signals.ANNOTATION_MARKERS_FILTERED, this.onMarkerFilterChanged);
     }
 
@@ -137,8 +132,6 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
     componentWillUnmount(): void {
         super.componentWillUnmount();
         signalManager().off(Signals.SELECTION_CHANGED, this.onSelectionChanged);
-        signalManager().off(Signals.TIMEGRAPH_ZOOMED, this.onTimeGraphZoomed);
-        signalManager().off(Signals.TIMEGRAPH_RESET, this.onTimeGraphReset);
     }
 
     async fetchTree(): Promise<ResponseStatus> {
@@ -220,12 +213,6 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
         }
     }
 
-    private doHandleTimeGraphZoomedSignal(hasZoomedIn: boolean) {
-        this.chartLayer.adjustZoom(undefined, hasZoomedIn);
-    }
-    private doHandleTimeGraphResetSignal() {
-        this.props.unitController.viewRange = { start: 0, end: this.props.unitController.absoluteRange };
-    }
     private doHandleMarkerFilterChangedSignal(annotationMarkers: string[]) {
         this.annotationMarkers = annotationMarkers;
         this.chartLayer.updateChart();

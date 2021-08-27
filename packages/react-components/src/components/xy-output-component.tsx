@@ -12,6 +12,7 @@ import { EntryTree } from './utils/filtrer-tree/entry-tree';
 import { getAllExpandedNodeIds } from './utils/filtrer-tree/utils';
 import { TreeNode } from './utils/filtrer-tree/tree-node';
 import ColumnHeader from './utils/filtrer-tree/column-header';
+import { signalManager } from 'traceviewer-base/lib/signals/signal-manager';
 
 type XYOuputState = AbstractOutputState & {
     selectedSeriesId: number[];
@@ -481,6 +482,16 @@ export class XYOutputComponent extends AbstractTreeOutputComponent<AbstractOutpu
                 case 'd':
                 case 'ArrowRight': {
                     this.pan(PAN_RIGHT);
+                    break;
+                }
+                case '+':
+                case '=': {
+                    signalManager().fireZoomTimeGraphSignal(true);
+                    break;
+                }
+                case '-':
+                case '_': {
+                    signalManager().fireZoomTimeGraphSignal(false);
                     break;
                 }
             }
