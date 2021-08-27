@@ -17,25 +17,24 @@
     }
   },
   "dependencies": {
-    "@theia/core": "1.10.0",
-    "@theia/filesystem": "1.10.0",
-    "@theia/workspace": "1.10.0",
-    "@theia/preferences": "1.10.0",
-    "@theia/navigator": "1.10.0",
-    "@theia/process": "1.10.0",
-    "@theia/terminal": "1.10.0",
-    "@theia/editor": "1.10.0",
-    "@theia/markers": "1.10.0",
-    "@theia/monaco": "1.10.0",
-    "@theia/messages": "1.10.0",
-    "@theia/cpp-debug": "1.0.0",
-    "@theia/vsx-registry": "1.10.0",
-    "@theia/keymaps": "1.10.0",
-    "@theia/getting-started": "1.10.0",
+    "@theia/core": "1.17.2",
+    "@theia/filesystem": "1.17.2",
+    "@theia/workspace": "1.17.2",
+    "@theia/preferences": "1.17.2",
+    "@theia/navigator": "1.17.2",
+    "@theia/process": "1.17.2",
+    "@theia/terminal": "1.17.2",
+    "@theia/editor": "1.17.2",
+    "@theia/markers": "1.17.2",
+    "@theia/monaco": "1.17.2",
+    "@theia/messages": "1.17.2",
+    "@theia/vsx-registry": "1.17.2",
+    "@theia/keymaps": "1.17.2",
+    "@theia/getting-started": "1.17.2",
     "theia-traceviewer": "0.0.1"
   },
   "devDependencies": {
-    "@theia/cli": "1.10.0"
+    "@theia/cli": "1.17.2"
   },
   "scripts": {
     "prepare": "theia build --mode development",

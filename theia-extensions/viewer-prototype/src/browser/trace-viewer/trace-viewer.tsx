@@ -72,7 +72,7 @@ export class TraceViewerWidget extends ReactWidget {
         this.title.closable = true;
         this.addClass('theia-trace-open');
         this.backgroundTheme = ThemeService.get().getCurrentTheme().type;
-        ThemeService.get().onThemeChange(() => this.updateBackgroundTheme());
+        ThemeService.get().onDidColorThemeChange(() => this.updateBackgroundTheme());
         if (!this.options.traceUUID) {
             this.initialize();
         }

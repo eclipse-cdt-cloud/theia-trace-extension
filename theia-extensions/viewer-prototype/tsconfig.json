@@ -10,7 +10,7 @@
         "moduleResolution": "node",
         "skipLibCheck": true,
         "esModuleInterop": true,
-        "target": "ES5",
+        "target": "ES2017",
         "jsx": "react",
         "lib": [
             "es6",
