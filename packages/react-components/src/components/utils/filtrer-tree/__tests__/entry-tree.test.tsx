@@ -6,6 +6,7 @@ import { within } from "@testing-library/dom";
 
 const mockOnChecked = jest.fn();
 const mockOnCollapse = jest.fn();
+const mockOnClose = jest.fn();
 
 test('Empty tree', () => {
     const tree = create(<EntryTree
@@ -16,6 +17,8 @@ test('Empty tree', () => {
         showFilter={false}
         onToggleCheck={mockOnChecked}
         onToggleCollapse={mockOnCollapse}
+        onClose={mockOnClose}
+        showCloseIcons={false}
     />)
         .toJSON();
     expect(tree).toMatchSnapshot();
@@ -42,6 +45,8 @@ test('one level of entries', () => {
         showFilter={false}
         onToggleCheck={mockOnChecked}
         onToggleCollapse={mockOnCollapse}
+        showCloseIcons={false}
+        onClose={mockOnClose}
         showHeader={true}
         headers={[{title: 'Sortable column', sortable: true}, {title: 'Unsortable column', sortable: false}]}
     />)
@@ -56,6 +61,8 @@ test('one level of entries', () => {
         showFilter={false}
         onToggleCheck={mockOnChecked}
         onToggleCollapse={mockOnCollapse}
+        showCloseIcons={false}
+        onClose={mockOnClose}
         showHeader={true}
         headers={[{title: 'Sortable column', sortable: true}, {title: 'Unsortable column', sortable: false}]}
     />)
@@ -69,6 +76,8 @@ test('one level of entries', () => {
         showFilter={false}
         onToggleCheck={mockOnChecked}
         onToggleCollapse={mockOnCollapse}
+        onClose={mockOnClose}
+        showCloseIcons={false}
         showHeader={false}
         headers={[{title: 'Sortable column', sortable: true}, {title: 'Unsortable column', sortable: false}]}
     />)
@@ -111,6 +120,8 @@ describe('Entry with children', () => {
             showFilter={false}
             onToggleCheck={mockOnChecked}
             onToggleCollapse={mockOnCollapse}
+            onClose={mockOnClose}
+            showCloseIcons={false}
             showHeader={true}
             headers={[{title: 'Sortable column', sortable: true}, {title: 'Unsortable column', sortable: false}]}
         />)
@@ -127,6 +138,8 @@ describe('Entry with children', () => {
             checkedSeries={[grandchild1.id]}
             onToggleCheck={mockOnChecked}
             onToggleCollapse={mockOnCollapse}
+            onClose={mockOnClose}
+            showCloseIcons={false}
             showHeader={true}
             headers={[{title: 'Sortable column', sortable: true}, {title: 'Unsortable column', sortable: false}]}
         />)
@@ -143,6 +156,8 @@ describe('Entry with children', () => {
             showFilter={false}
             onToggleCheck={mockOnChecked}
             onToggleCollapse={mockOnCollapse}
+            onClose={mockOnClose}
+            showCloseIcons={false}
             showHeader={true}
             headers={[{title: 'Sortable column', sortable: true}, {title: 'Unsortable column', sortable: false}]}
         />)
@@ -160,6 +175,8 @@ describe('Entry with children', () => {
             showFilter={false}
             onToggleCheck={mockOnChecked}
             onToggleCollapse={mockOnCollapse}
+            onClose={mockOnClose}
+            showCloseIcons={false}
             showHeader={true}
             headers={[{title: 'Sortable column', sortable: true}, {title: 'Unsortable column', sortable: false}]}
         />)
@@ -196,6 +213,8 @@ describe('Entry with children', () => {
             checkedSeries={[grandchild2.id]}
             onToggleCheck={mockOnChecked}
             onToggleCollapse={mockOnCollapse}
+            onClose={mockOnClose}
+            showCloseIcons={false}
             showHeader={true}
             headers={[{title: 'Sortable column', sortable: true}, {title: 'Unsortable column', sortable: false}]}
         />)
@@ -217,6 +236,8 @@ describe('Entry with children', () => {
             showFilter={false}
             onToggleCheck={mockOnChecked}
             onToggleCollapse={mockOnCollapse}
+            onClose={mockOnClose}
+            showCloseIcons={false}
             showHeader={true}
             headers={[{title: 'Sortable column', sortable: true}, {title: 'Unsortable column', sortable: false}]}
         />)
@@ -237,6 +258,8 @@ describe('Entry with children', () => {
             showFilter={true}
             onToggleCheck={mockOnChecked}
             onToggleCollapse={mockOnCollapse}
+            onClose={mockOnClose}
+            showCloseIcons={false}
             showHeader={true}
             headers={[{title: 'Sortable column', sortable: true}, {title: 'Unsortable column', sortable: false}]}
         />)
@@ -253,6 +276,8 @@ describe('Entry with children', () => {
             showFilter={true}
             onToggleCheck={mockOnChecked}
             onToggleCollapse={mockOnCollapse}
+            onClose={mockOnClose}
+            showCloseIcons={false}
             showHeader={true}
             headers={[{title: 'Sortable column', sortable: true}, {title: 'Unsortable column', sortable: false}]}
         />)

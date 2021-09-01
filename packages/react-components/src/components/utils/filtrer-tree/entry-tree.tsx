@@ -9,9 +9,11 @@ interface EntryTreeProps {
     entries: Entry[];
     checkedSeries: number[];
     showCheckboxes: boolean;
+    showCloseIcons: boolean;
     collapsedNodes: number[];
     showFilter: boolean;
     onToggleCheck: (ids: number[]) => void;
+    onClose: (id: number) => void;
     onToggleCollapse: (id: number, nodes: TreeNode[]) => void;
     onOrderChange: (ids: number[]) => void;
     showHeader: boolean;

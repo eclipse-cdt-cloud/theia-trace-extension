@@ -153,9 +153,29 @@ exports[`Entry with children All unchecked 1`] = `
               />
             </svg>
           </span>
+          <span
+            onClick={[Function]}
+            style={
+              Object {
+                "padding": 5,
+              }
+            }
+          >
+            
+          </span>
           child1
         </td>
         <td>
+          <span
+            onClick={[Function]}
+            style={
+              Object {
+                "padding": 5,
+              }
+            }
+          >
+            
+          </span>
           child1 second column
         </td>
       </tr>
@@ -214,9 +234,29 @@ exports[`Entry with children All unchecked 1`] = `
               />
             </svg>
           </span>
+          <span
+            onClick={[Function]}
+            style={
+              Object {
+                "padding": 5,
+              }
+            }
+          >
+            
+          </span>
           child2
         </td>
         <td>
+          <span
+            onClick={[Function]}
+            style={
+              Object {
+                "padding": 5,
+              }
+            }
+          >
+            
+          </span>
           child2 second column
         </td>
       </tr>
@@ -256,9 +296,29 @@ exports[`Entry with children All unchecked 1`] = `
               />
             </svg>
           </span>
+          <span
+            onClick={[Function]}
+            style={
+              Object {
+                "padding": 5,
+              }
+            }
+          >
+            
+          </span>
           grandchild1
         </td>
         <td>
+          <span
+            onClick={[Function]}
+            style={
+              Object {
+                "padding": 5,
+              }
+            }
+          >
+            
+          </span>
           grandchild1 second column
         </td>
       </tr>
@@ -298,9 +358,29 @@ exports[`Entry with children All unchecked 1`] = `
               />
             </svg>
           </span>
+          <span
+            onClick={[Function]}
+            style={
+              Object {
+                "padding": 5,
+              }
+            }
+          >
+            
+          </span>
           grandchild2
         </td>
         <td>
+          <span
+            onClick={[Function]}
+            style={
+              Object {
+                "padding": 5,
+              }
+            }
+          >
+            
+          </span>
           grandchild2 second column
         </td>
       </tr>
@@ -456,9 +536,29 @@ exports[`Entry with children Check one grandchild 1`] = `
               />
             </svg>
           </span>
+          <span
+            onClick={[Function]}
+            style={
+              Object {
+                "padding": 5,
+              }
+            }
+          >
+            
+          </span>
           child1
         </td>
         <td>
+          <span
+            onClick={[Function]}
+            style={
+              Object {
+                "padding": 5,
+              }
+            }
+          >
+            
+          </span>
           child1 second column
         </td>
       </tr>
@@ -517,9 +617,29 @@ exports[`Entry with children Check one grandchild 1`] = `
               />
             </svg>
           </span>
+          <span
+            onClick={[Function]}
+            style={
+              Object {
+                "padding": 5,
+              }
+            }
+          >
+            
+          </span>
           child2
         </td>
         <td>
+          <span
+            onClick={[Function]}
+            style={
+              Object {
+                "padding": 5,
+              }
+            }
+          >
+            
+          </span>
           child2 second column
         </td>
       </tr>
@@ -559,9 +679,29 @@ exports[`Entry with children Check one grandchild 1`] = `
               />
             </svg>
           </span>
+          <span
+            onClick={[Function]}
+            style={
+              Object {
+                "padding": 5,
+              }
+            }
+          >
+            
+          </span>
           grandchild1
         </td>
         <td>
+          <span
+            onClick={[Function]}
+            style={
+              Object {
+                "padding": 5,
+              }
+            }
+          >
+            
+          </span>
           grandchild1 second column
         </td>
       </tr>
@@ -601,9 +741,29 @@ exports[`Entry with children Check one grandchild 1`] = `
               />
             </svg>
           </span>
+          <span
+            onClick={[Function]}
+            style={
+              Object {
+                "padding": 5,
+              }
+            }
+          >
+            
+          </span>
           grandchild2
         </td>
         <td>
+          <span
+            onClick={[Function]}
+            style={
+              Object {
+                "padding": 5,
+              }
+            }
+          >
+            
+          </span>
           grandchild2 second column
         </td>
       </tr>
@@ -759,9 +919,29 @@ exports[`Entry with children Collapse one child 1`] = `
               />
             </svg>
           </span>
+          <span
+            onClick={[Function]}
+            style={
+              Object {
+                "padding": 5,
+              }
+            }
+          >
+            
+          </span>
           child1
         </td>
         <td>
+          <span
+            onClick={[Function]}
+            style={
+              Object {
+                "padding": 5,
+              }
+            }
+          >
+            
+          </span>
           child1 second column
         </td>
       </tr>
@@ -820,9 +1000,29 @@ exports[`Entry with children Collapse one child 1`] = `
               />
             </svg>
           </span>
+          <span
+            onClick={[Function]}
+            style={
+              Object {
+                "padding": 5,
+              }
+            }
+          >
+            
+          </span>
           child2
         </td>
         <td>
+          <span
+            onClick={[Function]}
+            style={
+              Object {
+                "padding": 5,
+              }
+            }
+          >
+            
+          </span>
           child2 second column
         </td>
       </tr>
@@ -988,9 +1188,29 @@ Array [
                 />
               </svg>
             </span>
+            <span
+              onClick={[Function]}
+              style={
+                Object {
+                  "padding": 5,
+                }
+              }
+            >
+              
+            </span>
             child1
           </td>
           <td>
+            <span
+              onClick={[Function]}
+              style={
+                Object {
+                  "padding": 5,
+                }
+              }
+            >
+              
+            </span>
             child1 second column
           </td>
         </tr>
@@ -1049,9 +1269,29 @@ Array [
                 />
               </svg>
             </span>
+            <span
+              onClick={[Function]}
+              style={
+                Object {
+                  "padding": 5,
+                }
+              }
+            >
+              
+            </span>
             child2
           </td>
           <td>
+            <span
+              onClick={[Function]}
+              style={
+                Object {
+                  "padding": 5,
+                }
+              }
+            >
+              
+            </span>
             child2 second column
           </td>
         </tr>
@@ -1091,9 +1331,29 @@ Array [
                 />
               </svg>
             </span>
+            <span
+              onClick={[Function]}
+              style={
+                Object {
+                  "padding": 5,
+                }
+              }
+            >
+              
+            </span>
             grandchild1
           </td>
           <td>
+            <span
+              onClick={[Function]}
+              style={
+                Object {
+                  "padding": 5,
+                }
+              }
+            >
+              
+            </span>
             grandchild1 second column
           </td>
         </tr>
@@ -1133,9 +1393,29 @@ Array [
                 />
               </svg>
             </span>
+            <span
+              onClick={[Function]}
+              style={
+                Object {
+                  "padding": 5,
+                }
+              }
+            >
+              
+            </span>
             grandchild2
           </td>
           <td>
+            <span
+              onClick={[Function]}
+              style={
+                Object {
+                  "padding": 5,
+                }
+              }
+            >
+              
+            </span>
             grandchild2 second column
           </td>
         </tr>
@@ -1235,9 +1515,29 @@ exports[`one level of entries 1`] = `
               }
             }
           />
+          <span
+            onClick={[Function]}
+            style={
+              Object {
+                "padding": 5,
+              }
+            }
+          >
+            
+          </span>
           entry2
         </td>
         <td>
+          <span
+            onClick={[Function]}
+            style={
+              Object {
+                "padding": 5,
+              }
+            }
+          >
+            
+          </span>
           entry2 column2
         </td>
       </tr>
@@ -1374,9 +1674,29 @@ exports[`one level of entries 2`] = `
               />
             </svg>
           </span>
+          <span
+            onClick={[Function]}
+            style={
+              Object {
+                "padding": 5,
+              }
+            }
+          >
+            
+          </span>
           entry2
         </td>
         <td>
+          <span
+            onClick={[Function]}
+            style={
+              Object {
+                "padding": 5,
+              }
+            }
+          >
+            
+          </span>
           entry2 column2
         </td>
       </tr>
@@ -1474,9 +1794,29 @@ exports[`one level of entries 3`] = `
               />
             </svg>
           </span>
+          <span
+            onClick={[Function]}
+            style={
+              Object {
+                "padding": 5,
+              }
+            }
+          >
+            
+          </span>
           entry2
         </td>
         <td>
+          <span
+            onClick={[Function]}
+            style={
+              Object {
+                "padding": 5,
+              }
+            }
+          >
+            
+          </span>
           entry2 column2
         </td>
       </tr>

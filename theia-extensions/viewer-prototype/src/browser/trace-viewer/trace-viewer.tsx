@@ -61,6 +61,7 @@ export class TraceViewerWidget extends ReactWidget {
     private onOutputAdded = (payload: OutputAddedSignalPayload): Promise<void> => this.doHandleOutputAddedSignal(payload);
     private onExperimentSelected = (experiment: Experiment): void => this.doHandleExperimentSelectedSignal(experiment);
     private onCloseExperiment = (UUID: string): void => this.doHandleCloseExperimentSignal(UUID);
+    private onMarkerCategoryClosedSignal = (payload: { traceViewerId: string, markerCategory: string }) => this.doHandleMarkerCategoryClosedSignal(payload);
 
     @inject(TraceViewerWidgetOptions) protected readonly options: TraceViewerWidgetOptions;
     @inject(TspClientProvider) protected tspClientProvider: TspClientProvider;
@@ -119,6 +120,7 @@ export class TraceViewerWidget extends ReactWidget {
         signalManager().on(Signals.OUTPUT_ADDED, this.onOutputAdded);
         signalManager().on(Signals.EXPERIMENT_SELECTED, this.onExperimentSelected);
         signalManager().on(Signals.CLOSE_TRACEVIEWERTAB, this.onCloseExperiment);
+        signalManager().on(Signals.MARKER_CATEGORY_CLOSED, this.onMarkerCategoryClosedSignal);
     }
 
     protected updateBackgroundTheme(): void {
@@ -371,6 +373,14 @@ export class TraceViewerWidget extends ReactWidget {
         return false;
     }
 
+    private doHandleMarkerCategoryClosedSignal(payload: { traceViewerId: string, markerCategory: string }) {
+        const traceViewerId = payload.traceViewerId;
+        const markerCategory = payload.markerCategory;
+        if (traceViewerId === this.id) {
+            this.updateMarkerCategoryState(markerCategory);
+        }
+    }
+
     private addMarkerSets(markerSets: MarkerSet[]) {
         this.markerSetsMap = new Map<MarkerSet, boolean>();
         if (markerSets.length) {
@@ -404,14 +414,14 @@ export class TraceViewerWidget extends ReactWidget {
     private removeMarkerCategories(outputId: string) {
         const categoriesToRemove = this.markerCategoriesMap.get(outputId);
         if (categoriesToRemove) {
-            categoriesToRemove.forEach(annotation => {
-                const categoryInfo = this.toolbarMarkerCategoriesMap.get(annotation);
+            categoriesToRemove.forEach(category => {
+                const categoryInfo = this.toolbarMarkerCategoriesMap.get(category);
                 const categoryCount = categoryInfo ? categoryInfo.categoryCount - 1 : 0;
                 const toggleInd = categoryInfo ? categoryInfo.toggleInd : true;
                 if (categoryCount === 0) {
-                    this.toolbarMarkerCategoriesMap.delete(annotation);
+                    this.toolbarMarkerCategoriesMap.delete(category);
                 } else {
-                    this.toolbarMarkerCategoriesMap.set(annotation, { categoryCount, toggleInd });
+                    this.toolbarMarkerCategoriesMap.set(category, { categoryCount, toggleInd });
                 }
             });
         }
@@ -433,9 +443,9 @@ export class TraceViewerWidget extends ReactWidget {
             const categoryCount = toggledmarkerCategory?.categoryCount;
             const toggleInd = !!!toggledmarkerCategory?.toggleInd;
             this.toolbarMarkerCategoriesMap.set(categoryName, { categoryCount, toggleInd });
-            this.markerCategoriesMap.forEach((annotationsList, outputId) => {
-                const selectedMarkerCategories = annotationsList.filter(annotation => {
-                    const currCategoryInfo = this.toolbarMarkerCategoriesMap.get(annotation);
+            this.markerCategoriesMap.forEach((categoriesList, outputId) => {
+                const selectedMarkerCategories = categoriesList.filter(category => {
+                    const currCategoryInfo = this.toolbarMarkerCategoriesMap.get(category);
                     return currCategoryInfo ? currCategoryInfo.toggleInd : false;
                 });
                 this.selectedMarkerCategoriesMap.set(outputId, selectedMarkerCategories);

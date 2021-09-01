@@ -26,6 +26,7 @@ import { listToTree, getAllExpandedNodeIds } from './utils/filtrer-tree/utils';
 import hash from 'traceviewer-base/lib/utils/value-hash';
 import ColumnHeader from './utils/filtrer-tree/column-header';
 import { TimeGraphAnnotationComponent } from 'timeline-chart/lib/components/time-graph-annotation';
+import { Entry } from 'tsp-typescript-client';
 
 type TimegraphOutputProps = AbstractOutputProps & {
     addWidgetResizeHandler: (handler: () => void) => void;
@@ -34,25 +35,34 @@ type TimegraphOutputProps = AbstractOutputProps & {
 
 type TimegraphOutputState = AbstractOutputState & {
     timegraphTree: TimeGraphEntry[];
+    markerCategoryEntries: Entry[];
     collapsedNodes: number[];
+    collapsedMarkerNodes: number[];
     columns: ColumnHeader[];
 };
 
 export class TimegraphOutputComponent extends AbstractTreeOutputComponent<TimegraphOutputProps, TimegraphOutputState> {
     private totalHeight = 0;
     private rowController: TimeGraphRowController;
+    private markerRowController: TimeGraphRowController;
     private chartLayer: TimeGraphChart;
+    private markersChartLayer: TimeGraphChart;
     private vscrollLayer: TimeGraphVerticalScrollbar;
     private chartCursors: TimeGraphChartCursors;
     private arrowLayer: TimeGraphChartArrows;
-    private horizontalContainer: React.RefObject<HTMLDivElement>;
     private rangeEventsLayer: TimeGraphRangeEventsLayer;
+
+    private horizontalContainer: React.RefObject<HTMLDivElement>;
+    private timeGraphTreeRef: React.RefObject<HTMLDivElement>;
+    private markerTreeRef: React.RefObject<HTMLDivElement>;
 
     private tspDataProvider: TspDataProvider;
     private styleProvider: StyleProvider;
     private styleMap = new Map<string, TimeGraphStateStyle>();
 
     private selectedElement: TimeGraphStateComponent | undefined;
+    private markerCategoriesLayerData: { rows: TimelineChart.TimeGraphRowModel[], range: TimelineChart.TimeGraphRange, resolution: number } | undefined = undefined;
+    private selectedMarkerCategories: string[] | undefined = undefined;
     private onSelectionChanged = (payload: { [key: string]: string; }) => this.doHandleSelectionChangedSignal(payload);
 
     constructor(props: TimegraphOutputProps) {
@@ -60,15 +70,22 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
         this.state = {
             outputStatus: ResponseStatus.RUNNING,
             timegraphTree: [],
+            markerCategoryEntries: [],
             collapsedNodes: [],
-            columns: []
-
+            columns: [],
+            collapsedMarkerNodes: []
         };
+        this.selectedMarkerCategories = this.props.markerCategories;
         this.onToggleCollapse = this.onToggleCollapse.bind(this);
+        this.onMarkerCategoryRowClose = this.onMarkerCategoryRowClose.bind(this);
+        this.onToggleAnnotationCollapse = this.onToggleAnnotationCollapse.bind(this);
         this.tspDataProvider = new TspDataProvider(this.props.tspClient, this.props.traceId, this.props.outputDescriptor.id);
         this.styleProvider = new StyleProvider(this.props.outputDescriptor.id, this.props.traceId, this.props.tspClient);
         this.rowController = new TimeGraphRowController(this.props.style.rowHeight, this.totalHeight);
+        this.markerRowController = new TimeGraphRowController(this.props.style.rowHeight, this.totalHeight);
         this.horizontalContainer = React.createRef();
+        this.timeGraphTreeRef = React.createRef();
+        this.markerTreeRef = React.createRef();
         const providers: TimeGraphChartProviders = {
             /**
              * @param range requested time range
@@ -78,24 +95,27 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
             dataProvider: async (range: TimelineChart.TimeGraphRange, resolution: number) => this.fetchTimegraphData(range, resolution),
             stateStyleProvider: (state: TimelineChart.TimeGraphState) => this.getStateStyle(state),
             rowAnnotationStyleProvider: (annotation: TimelineChart.TimeGraphAnnotation) => this.getAnnotationStyle(annotation),
-            rowStyleProvider: (row: TimelineChart.TimeGraphRowModel) => ({
-                backgroundColor: 0x979797,// 0xaaaaff,
-                backgroundOpacity: row.selected ? 0.1 : 0,
-                lineColor: this.props.backgroundTheme === 'light' ? 0xD3D3D3 : 0x3F4146, // hasStates ? 0xdddddd : 0xaa4444, // row.data && row.data.hasStates
-                lineThickness: 1, // hasStates ? 1 : 3 // row.data && row.data.hasStates
-            })
+            rowStyleProvider: (row: TimelineChart.TimeGraphRowModel) => this.getRowStyle(row)
         };
+
+        const markersProvider: TimeGraphChartProviders = {
+            dataProvider: async (range: TimelineChart.TimeGraphRange, resolution: number) => this.fetchMarkersData(range, resolution),
+            stateStyleProvider: (state: TimelineChart.TimeGraphState) => this.getMarkerStateStyle(state),
+            rowStyleProvider: (row: TimelineChart.TimeGraphRowModel) => this.getRowStyle(row)
+        };
+
         this.rangeEventsLayer = new TimeGraphRangeEventsLayer('timeGraphRangeEvents', providers);
         this.chartLayer = new TimeGraphChart('timeGraphChart', providers, this.rowController);
         this.arrowLayer = new TimeGraphChartArrows('timeGraphChartArrows', this.rowController);
         this.vscrollLayer = new TimeGraphVerticalScrollbar('timeGraphVerticalScrollbar', this.rowController);
         this.chartCursors = new TimeGraphChartCursors('chart-cursors', this.chartLayer, this.rowController, { color: this.props.style.cursorColor });
         this.rowController.onVerticalOffsetChangedHandler(() => {
-            if (this.treeRef.current) {
-                this.treeRef.current.scrollTop = this.rowController.verticalOffset;
+            if (this.timeGraphTreeRef.current) {
+                this.timeGraphTreeRef.current.scrollTop = this.rowController.verticalOffset;
             }
         });
 
+        this.markersChartLayer = new TimeGraphChart('timeGraphChart', markersProvider, this.markerRowController);
         this.chartLayer.onSelectedStateChanged(model => {
             if (model) {
                 const el = this.chartLayer.getElementById(model.id);
@@ -119,8 +139,11 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
     }
 
     synchronizeTreeScroll(): void {
-        if (this.treeRef.current) {
-            this.rowController.verticalOffset = this.treeRef.current.scrollTop;
+        if (this.timeGraphTreeRef.current) {
+            this.rowController.verticalOffset = this.timeGraphTreeRef.current.scrollTop;
+        }
+        if (this.markerTreeRef.current) {
+            this.markerRowController.verticalOffset = this.markerTreeRef.current.scrollTop;
         }
     }
 
@@ -167,9 +190,15 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
             this.state.collapsedNodes !== prevState.collapsedNodes ||
             prevProps.markerCategories !== this.props.markerCategories ||
             prevProps.markerSetId !== this.props.markerSetId) {
+            this.selectedMarkerCategories = this.props.markerCategories;
             this.chartLayer.updateChart();
+            this.markersChartLayer.updateChart();
             this.arrowLayer.update();
             this.rangeEventsLayer.update();
+        }
+        if (this.state.markerCategoryEntries !== prevState.markerCategoryEntries ||
+            this.state.collapsedMarkerNodes !== prevState.collapsedMarkerNodes) {
+            this.markersChartLayer.updateChart();
         }
     }
 
@@ -182,6 +211,32 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
             newList = newList.concat(id);
         }
         this.setState({ collapsedNodes: newList }, this.updateTotalHeight);
+    }
+
+    private onToggleAnnotationCollapse() {
+        if (this.state.collapsedMarkerNodes.length === 0) {
+            const annotationNodes = this.state.markerCategoryEntries.map(annotation => annotation.id);
+            this.setState({ collapsedMarkerNodes: annotationNodes });
+        } else {
+            this.setState({ collapsedMarkerNodes: [] });
+        }
+    }
+
+    private onMarkerCategoryRowClose(id: number) {
+        const annotation = this.state.markerCategoryEntries.find(entry => entry.id === id);
+        if (annotation && this.selectedMarkerCategories) {
+            this.setState({
+                markerCategoryEntries: this.state.markerCategoryEntries.filter(item => item !== annotation)
+            });
+            const removedIndex = this.selectedMarkerCategories.findIndex(annotationMarker => annotation.labels[0] === annotationMarker);
+            if (removedIndex !== -1) {
+                const annotationLabel = this.selectedMarkerCategories[removedIndex];
+                this.selectedMarkerCategories = this.selectedMarkerCategories.filter(item => item !== annotationLabel);
+                this.markerCategoriesLayerData?.rows.splice(removedIndex, 1);
+                signalManager().fireMarkerCategoryClosedSignal({ traceViewerId: this.props.traceId, markerCategory: annotationLabel });
+            }
+            this.markersChartLayer.updateChart();
+        }
     }
 
     private updateTotalHeight() {
@@ -217,17 +272,45 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
         }
     }
 
+    private getMarkersLayerHeight() {
+        return (this.state.markerCategoryEntries.length <= 1 ? 0 : (this.state.collapsedMarkerNodes.length ? 1 :
+            this.state.markerCategoryEntries.length) + 0.6) * 20;
+    }
+
     renderTree(): React.ReactNode {
         // TODO Show header, when we can have entries in-line with timeline-chart
-        return <EntryTree
-            collapsedNodes={this.state.collapsedNodes}
-            showFilter={false}
-            entries={this.state.timegraphTree}
-            showCheckboxes={false}
-            onToggleCollapse={this.onToggleCollapse}
-            showHeader={false}
-            className="timegraph-tree"
-        />;
+        return <>
+            <div ref={this.timeGraphTreeRef} onScroll={_ev => { this.synchronizeTreeScroll(); }}
+                className='output-component-tree'
+                style={{
+                    height: parseInt(this.props.style.height.toString()) - this.getMarkersLayerHeight()
+                }}>
+                <EntryTree
+                    collapsedNodes={this.state.collapsedNodes}
+                    showFilter={false}
+                    entries={this.state.timegraphTree}
+                    showCheckboxes={false}
+                    onToggleCollapse={this.onToggleCollapse}
+                    showHeader={false}
+                    className="timegraph-tree"
+                />
+            </div>
+            <div ref={this.markerTreeRef} onScroll={_ev => { this.synchronizeTreeScroll(); }}
+                className='output-component-tree'
+                style={{ height: this.getMarkersLayerHeight() }}>
+                <EntryTree
+                    collapsedNodes={this.state.collapsedMarkerNodes}
+                    showFilter={false}
+                    entries={this.state.markerCategoryEntries}
+                    showCheckboxes={false}
+                    showCloseIcons={true}
+                    onToggleCollapse={this.onToggleAnnotationCollapse}
+                    onClose={this.onMarkerCategoryRowClose}
+                    showHeader={false}
+                    className="timegraph-tree"
+                />
+            </div>
+        </>;
     }
 
     renderChart(): React.ReactNode {
@@ -309,7 +392,30 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
     private renderTimeGraphContent() {
         return <div id='main-timegraph-content' ref={this.horizontalContainer} style={{ height: this.props.style.height }} >
             {this.getChartContainer()}
+            {this.getMarkersContainer()}
         </div>;
+    }
+
+    private getMarkersContainer() {
+        return <ReactTimeGraphContainer
+            options={
+                {
+                    id: 'timegraph-chart-1',
+                    height: this.getMarkersLayerHeight(),
+                    width: this.props.style.chartWidth,
+                    backgroundColor: this.props.style.chartBackgroundColor,
+                    lineColor: this.props.style.lineColor,
+                    classNames: 'horizontal-canvas'
+                }
+            }
+            addWidgetResizeHandler={this.props.addWidgetResizeHandler}
+            removeWidgetResizeHandler={this.props.removeWidgetResizeHandler}
+            unitController={this.props.unitController}
+            id='timegraph-chart-1'
+            layers={[this.markersChartLayer]}
+        >
+        </ReactTimeGraphContainer>;
+
     }
 
     private getChartContainer() {
@@ -319,7 +425,7 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
             options={
                 {
                     id: 'timegraph-chart',
-                    height: parseInt(this.props.style.height.toString()),
+                    height: parseInt(this.props.style.height.toString()) - this.getMarkersLayerHeight(),
                     width: this.props.style.chartWidth, // this.props.style.mainWidth,
                     backgroundColor: this.props.style.chartBackgroundColor,
                     lineColor: this.props.backgroundTheme === 'light' ? 0xdddddd : 0x34383C,
@@ -371,6 +477,7 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
         const nbTimes = Math.ceil(Number(end - start) / resolution) + 1;
         const timeGraphData: TimelineChart.TimeGraphModel = await this.tspDataProvider.getData(orderedTreeIds, this.state.timegraphTree,
             this.props.range, newRange, nbTimes, this.props.markerCategories, this.props.markerSetId);
+        this.updateMarkersData(timeGraphData.rangeEvents, newRange, nbTimes);
         this.arrowLayer.addArrows(timeGraphData.arrows);
         this.rangeEventsLayer.addRangeEvents(timeGraphData.rangeEvents);
 
@@ -379,6 +486,117 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
             range: newRange,
             resolution: resolution
         };
+    }
+
+    private updateMarkersData(rangeEvents: TimelineChart.TimeGraphAnnotation[], newRange: TimelineChart.TimeGraphRange, newResolution: number) {
+        const annotationEntries: Entry[] = [];
+        const markers: Map<string, TimelineChart.TimeGraphState[]> = new Map();
+        const rows: TimelineChart.TimeGraphRowModel[] = [];
+        const filteredEvents = rangeEvents.filter(event => this.selectedMarkerCategories?.includes(event.category));
+
+        filteredEvents.forEach(event => {
+            const categoryName = event.category;
+            if (!markers.has(categoryName)) {
+                markers.set(categoryName, []);
+            }
+            const states = markers.get(categoryName) || [];
+            const state = {
+                id: '1',
+                range: {
+                    start: event.range.start,
+                    end: event.range.end
+                },
+                label: event.label,
+                data: {
+                    style: event.data?.style,
+                    annotation: event
+                }
+            };
+            states.push(state);
+        });
+
+        const defaultRow = {
+            id: 1,
+            name: '',
+            range: {
+                start: this.props.viewRange.getStart(),
+                end: this.props.viewRange.getStart() + this.props.unitController.absoluteRange
+            },
+            states: [],
+            annotations: [],
+            prevPossibleState: BigInt(Number.MIN_SAFE_INTEGER),
+            nextPossibleState: BigInt(Number.MAX_SAFE_INTEGER)
+        };
+        rows.push(defaultRow);
+
+        annotationEntries.push({
+            id: 0,
+            labels: [''],
+            parentId: -1
+        });
+
+        Array.from(markers.entries()).forEach((value, index) => {
+            annotationEntries.push({
+                id: index + 1,
+                labels: [value[0]],
+                parentId: 0
+            });
+
+            const row = {
+                id: 1,
+                name: '',
+                range: {
+                    start: this.props.viewRange.getStart(),
+                    end: this.props.viewRange.getStart() + this.props.unitController.absoluteRange
+                },
+                states: value[1],
+                annotations: [],
+                prevPossibleState: BigInt(Number.MIN_SAFE_INTEGER),
+                nextPossibleState: BigInt(Number.MAX_SAFE_INTEGER)
+            };
+            rows.push(row);
+        });
+
+        this.markerCategoriesLayerData = {
+            rows,
+            range: newRange,
+            resolution: newResolution
+        };
+
+        this.setState({ markerCategoryEntries: annotationEntries });
+    }
+
+    private async fetchMarkersData(range: TimelineChart.TimeGraphRange, resolution: number) {
+        const rows = (this.state.collapsedMarkerNodes.length !== 0 || !!!this.markerCategoriesLayerData) ? [] : this.markerCategoriesLayerData.rows;
+        return {
+            rows,
+            range: this.markerCategoriesLayerData ? this.markerCategoriesLayerData.range : range,
+            resolution: this.markerCategoriesLayerData ? this.markerCategoriesLayerData.resolution : resolution
+        };
+    }
+
+    private getRowStyle(row: TimelineChart.TimeGraphRowModel) {
+        return {
+            backgroundColor: 0x979797,// 0xaaaaff,
+            backgroundOpacity: row.selected ? 0.1 : 0,
+            lineColor: this.props.backgroundTheme === 'light' ? 0xD3D3D3 : 0x3F4146, // hasStates ? 0xdddddd : 0xaa4444, // row.data && row.data.hasStates
+            lineThickness: 1, // hasStates ? 1 : 3 // row.data && row.data.hasStates
+        };
+    }
+
+    private getMarkerStateStyle(state: TimelineChart.TimeGraphState) {
+        if (state.data && state.data.annotation) {
+            const annotation = state.data.annotation;
+            const style = this.getAnnotationStyle(annotation);
+            return {
+                color: style ? style.color : 0x000000,
+                height: this.markerRowController.rowHeight,
+                borderWidth: 1,
+                borderColor: 0x000000
+            };
+        }
+
+        return this.getStateStyle(state);
     }
 
     private getStateStyle(state: TimelineChart.TimeGraphState) {

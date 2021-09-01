@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faChevronDown, faChevronRight, faCheckSquare, faSquare, faMinusSquare, faSort, faSortDown, faSortUp } from '@fortawesome/free-solid-svg-icons';
+import { faChevronDown, faChevronRight, faCheckSquare, faSquare, faMinusSquare, faSort, faSortDown, faSortUp, faTimes } from '@fortawesome/free-solid-svg-icons';
 
 interface iconsShape {
     expand: React.ReactNode,
@@ -10,7 +10,8 @@ interface iconsShape {
     halfChecked: React.ReactNode,
     sort: React.ReactNode,
     sortDown: React.ReactNode,
-    sortUp: React.ReactNode
+    sortUp: React.ReactNode,
+    close: React.ReactNode
 }
 
 const icons: iconsShape = {
@@ -21,7 +22,8 @@ const icons: iconsShape = {
     halfChecked: <FontAwesomeIcon icon={faMinusSquare}/>,
     sort: <FontAwesomeIcon icon={faSort}/>,
     sortDown: <FontAwesomeIcon icon={faSortDown}/>,
-    sortUp: <FontAwesomeIcon icon={faSortUp}/>
+    sortUp: <FontAwesomeIcon icon={faSortUp}/>,
+    close: <FontAwesomeIcon icon={faTimes}/>
 };
 
 export default icons;
