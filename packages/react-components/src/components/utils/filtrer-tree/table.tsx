@@ -9,10 +9,12 @@ interface TableProps {
     nodes: TreeNode[];
     collapsedNodes: number[];
     isCheckable: boolean;
+    isClosable: boolean;
     sortConfig: SortConfig[];
     getCheckedStatus: (id: number) => number;
     onToggleCollapse: (id: number) => void;
     onToggleCheck: (id: number) => void;
+    onClose: (id: number) => void;
     onSort: (sortedNodes: TreeNode[]) => void;
     onSortConfigChange: (sortConfig: SortConfig[]) => void;
     showHeader: boolean;
@@ -30,7 +32,7 @@ export class Table extends React.Component<TableProps> {
         const config: SortConfig[] = [];
         this.props.headers.forEach((header: ColumnHeader, columnIndex) => {
             if (header.sortable) {
-                config.push({column: header.title, columnIndex: columnIndex, sortState: sortState.default});
+                config.push({ column: header.title, columnIndex: columnIndex, sortState: sortState.default });
                 sortableCols.push(header.title);
             }
         });
@@ -42,9 +44,9 @@ export class Table extends React.Component<TableProps> {
         let newSortConfigs: SortConfig[] = [...this.props.sortConfig];
         newSortConfigs = newSortConfigs.map((config: SortConfig) => {
             if (config.column === sortColumn) {
-                return {...config, sortState: nextSortState(config.sortState)};
+                return { ...config, sortState: nextSortState(config.sortState) };
             } else {
-                return {...config, sortState: sortState.default};
+                return { ...config, sortState: sortState.default };
             }
         });
         const newSortedNodes = sortNodes(this.props.nodes, newSortConfigs);
@@ -55,7 +57,7 @@ export class Table extends React.Component<TableProps> {
     render(): JSX.Element {
         return (
             <div>
-                <table style={{borderCollapse: 'collapse'}} className={this.props.className}>
+                <table style={{ borderCollapse: 'collapse' }} className={this.props.className}>
                     {this.props.showHeader && <TableHeader
                         columns={this.props.headers}
                         sortableColumns={this.sortableColumns}

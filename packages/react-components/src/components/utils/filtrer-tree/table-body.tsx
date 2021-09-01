@@ -6,8 +6,10 @@ interface TableBodyProps {
     nodes: TreeNode[];
     collapsedNodes: number[];
     isCheckable: boolean;
+    isClosable: boolean;
     getCheckedStatus: (id: number) => number;
     onToggleCollapse: (id: number) => void;
+    onClose: (id: number) => void;
     onToggleCheck: (id: number) => void;
 }
 
@@ -19,7 +21,7 @@ export class TableBody extends React.Component<TableBodyProps> {
     createRow = (node: TreeNode): React.ReactNode =>
         <TableRow
             {...this.props}
-            key={'row-'+node.id}
+            key={'row-' + node.id}
             node={node}
             level={0}
         />;
@@ -27,7 +29,7 @@ export class TableBody extends React.Component<TableBodyProps> {
     renderRows = (): React.ReactNode => this.props.nodes.map((node: TreeNode) => this.createRow(node));
 
     render(): React.ReactNode | undefined {
-        if (!this.props.nodes) {return undefined;}
+        if (!this.props.nodes) { return undefined; }
 
         return (
             <tbody>

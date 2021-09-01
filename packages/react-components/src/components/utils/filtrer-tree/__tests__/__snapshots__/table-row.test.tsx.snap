@@ -37,6 +37,16 @@ exports[`Checked status 1`] = `
         />
       </svg>
     </span>
+    <span
+      onClick={[Function]}
+      style={
+        Object {
+          "padding": 5,
+        }
+      }
+    >
+      
+    </span>
     cell1 - text
   </td>
 </tr>
@@ -78,6 +88,16 @@ exports[`Checked status 2`] = `
           style={Object {}}
         />
       </svg>
+    </span>
+    <span
+      onClick={[Function]}
+      style={
+        Object {
+          "padding": 5,
+        }
+      }
+    >
+      
     </span>
     cell1 - text
   </td>
@@ -121,6 +141,16 @@ exports[`Checked status 3`] = `
         />
       </svg>
     </span>
+    <span
+      onClick={[Function]}
+      style={
+        Object {
+          "padding": 5,
+        }
+      }
+    >
+      
+    </span>
     cell1 - text
   </td>
 </tr>
@@ -163,6 +193,16 @@ exports[`Levels 1`] = `
         />
       </svg>
     </span>
+    <span
+      onClick={[Function]}
+      style={
+        Object {
+          "padding": 5,
+        }
+      }
+    >
+      
+    </span>
     cell1 - text
   </td>
 </tr>
@@ -204,6 +244,16 @@ exports[`Levels 2`] = `
           style={Object {}}
         />
       </svg>
+    </span>
+    <span
+      onClick={[Function]}
+      style={
+        Object {
+          "padding": 5,
+        }
+      }
+    >
+      
     </span>
     cell1 - text
   </td>
@@ -267,9 +317,29 @@ Array [
           />
         </svg>
       </span>
+      <span
+        onClick={[Function]}
+        style={
+          Object {
+            "padding": 5,
+          }
+        }
+      >
+        
+      </span>
       parent 1 text
     </td>
     <td>
+      <span
+        onClick={[Function]}
+        style={
+          Object {
+            "padding": 5,
+          }
+        }
+      >
+        
+      </span>
       parent 2 text
     </td>
   </tr>,
@@ -309,9 +379,29 @@ Array [
           />
         </svg>
       </span>
+      <span
+        onClick={[Function]}
+        style={
+          Object {
+            "padding": 5,
+          }
+        }
+      >
+        
+      </span>
       child1
     </td>
     <td>
+      <span
+        onClick={[Function]}
+        style={
+          Object {
+            "padding": 5,
+          }
+        }
+      >
+        
+      </span>
       child 1 text
     </td>
   </tr>,
@@ -351,9 +441,29 @@ Array [
           />
         </svg>
       </span>
+      <span
+        onClick={[Function]}
+        style={
+          Object {
+            "padding": 5,
+          }
+        }
+      >
+        
+      </span>
       child2
     </td>
     <td>
+      <span
+        onClick={[Function]}
+        style={
+          Object {
+            "padding": 5,
+          }
+        }
+      >
+        
+      </span>
       child 2 text
     </td>
   </tr>,
@@ -378,6 +488,16 @@ exports[`Uncheckable 1`] = `
         }
       }
     />
+    <span
+      onClick={[Function]}
+      style={
+        Object {
+          "padding": 5,
+        }
+      }
+    >
+      
+    </span>
     cell1 - text
   </td>
 </tr>
@@ -440,6 +560,16 @@ Array [
           />
         </svg>
       </span>
+      <span
+        onClick={[Function]}
+        style={
+          Object {
+            "padding": 5,
+          }
+        }
+      >
+        
+      </span>
       parent text
     </td>
   </tr>,
@@ -479,6 +609,16 @@ Array [
           />
         </svg>
       </span>
+      <span
+        onClick={[Function]}
+        style={
+          Object {
+            "padding": 5,
+          }
+        }
+      >
+        
+      </span>
       child 1 text
     </td>
   </tr>,
@@ -517,6 +657,16 @@ Array [
             style={Object {}}
           />
         </svg>
+      </span>
+      <span
+        onClick={[Function]}
+        style={
+          Object {
+            "padding": 5,
+          }
+        }
+      >
+        
       </span>
       child 2 text
     </td>
@@ -579,6 +729,16 @@ exports[`with children With children collapsed 1`] = `
           style={Object {}}
         />
       </svg>
+    </span>
+    <span
+      onClick={[Function]}
+      style={
+        Object {
+          "padding": 5,
+        }
+      }
+    >
+      
     </span>
     parent text
   </td>
