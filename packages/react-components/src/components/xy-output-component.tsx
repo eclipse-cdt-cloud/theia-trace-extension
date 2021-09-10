@@ -145,6 +145,10 @@ export class XYOutputComponent extends AbstractTreeOutputComponent<AbstractOutpu
             },
             maintainAspectRatio: false,
             legend: { display: false },
+            tooltips: {
+                intersect: false,
+                mode: 'index'
+                },
             layout: {
                 padding: {
                     left: 0,
