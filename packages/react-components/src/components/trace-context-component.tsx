@@ -23,6 +23,7 @@ import * as Messages from 'traceviewer-base/lib/message-manager';
 import { signalManager, Signals } from 'traceviewer-base/lib/signals/signal-manager';
 import ReactTooltip from 'react-tooltip';
 import { TooltipComponent } from './tooltip-component';
+import { BIMath } from 'timeline-chart/lib/bigint-utils';
 
 const ResponsiveGridLayout = WidthProvider(Responsive);
 
@@ -39,7 +40,7 @@ interface TraceContextProps {
 }
 
 interface TraceContextState {
-    timeOffset: number;
+    timeOffset: bigint;
     currentRange: TimeRange;
     currentViewRange: TimeRange;
     currentTimeSelection: TimeRange | undefined;
@@ -83,8 +84,8 @@ export class TraceContextComponent extends React.Component<TraceContextProps, Tr
 
     constructor(props: TraceContextProps) {
         super(props);
-        let traceRange = new TimeRange(0, 0);
-        let viewRange = new TimeRange(0, 0);
+        let traceRange = new TimeRange(BigInt(0), BigInt(0));
+        let viewRange = new TimeRange(BigInt(0), BigInt(0));
         if (this.props.experiment) {
             const experiment = this.props.experiment;
             traceRange = new TimeRange(experiment.start - this.props.experiment.start, experiment.end - this.props.experiment.start, this.props.experiment.start);
@@ -110,15 +111,15 @@ export class TraceContextComponent extends React.Component<TraceContextProps, Tr
             backgroundTheme: this.props.backgroundTheme
         };
         const absoluteRange = traceRange.getDuration();
-        this.unitController = new TimeGraphUnitController(absoluteRange, { start: 0, end: absoluteRange });
-        this.unitController.numberTranslator = (theNumber: number) => {
-            const originalStart = traceRange.getstart();
+        this.unitController = new TimeGraphUnitController(absoluteRange, { start: BigInt(0), end: absoluteRange });
+        this.unitController.numberTranslator = (theNumber: bigint) => {
+            const originalStart = traceRange.getStart();
             theNumber += originalStart;
-            const zeroPad = (num: number) => String(num).padStart(3, '0');
-            const seconds = Math.floor(theNumber / 1000000000);
-            const millis = zeroPad(Math.floor(theNumber / 1000000) % 1000);
-            const micros = zeroPad(Math.floor(theNumber / 1000) % 1000);
-            const nanos = zeroPad(Math.floor(theNumber) % 1000);
+            const zeroPad = (num: bigint) => String(num).padStart(3, '0');
+            const seconds = theNumber / BigInt(1000000000);
+            const millis = zeroPad((theNumber / BigInt(1000000)) % BigInt(1000));
+            const micros = zeroPad((theNumber / BigInt(1000)) % BigInt(1000));
+            const nanos = zeroPad(theNumber % BigInt(1000));
             return seconds + '.' + millis + ' ' + micros + ' ' + nanos;
         };
         this.unitController.onSelectionRangeChange(range => { this.handleTimeSelectionChange(range); });
@@ -150,7 +151,7 @@ export class TraceContextComponent extends React.Component<TraceContextProps, Tr
     private async initialize() {
         await this.updateTrace();
         this.unitController.absoluteRange = this.state.experiment.end - this.state.timeOffset;
-        this.unitController.viewRange = { start: 0, end: this.state.experiment.end - this.state.timeOffset };
+        this.unitController.viewRange = { start: BigInt(0), end: this.state.experiment.end - this.state.timeOffset };
     }
 
     private async updateTrace() {
@@ -211,33 +212,23 @@ export class TraceContextComponent extends React.Component<TraceContextProps, Tr
     }
 
     private doHandleResetZoomSignal() {
-        this.unitController.viewRange = { start: 0, end: this.unitController.absoluteRange };
+        this.unitController.viewRange = { start: BigInt(0), end: this.unitController.absoluteRange };
     }
 
     private zoomButton(zoomIn: boolean) {
-        let newStartRange = 0;
-        let newEndRange = 0;
-        let position = (this.unitController.viewRange.end + this.unitController.viewRange.start) / 2;
-        const percentZoom = 0.9;
+        let position = (this.unitController.viewRange.end + this.unitController.viewRange.start) / BigInt(2);
         if (this.unitController.selectionRange) {
-            const positionMiddleSelection = (this.unitController.selectionRange.end + this.unitController.selectionRange.start) / 2;
+            const positionMiddleSelection = (this.unitController.selectionRange.end + this.unitController.selectionRange.start) / BigInt(2);
             if (positionMiddleSelection >= this.unitController.viewRange.start && positionMiddleSelection <= this.unitController.viewRange.end) {
                 position = positionMiddleSelection;
             }
         }
-        const startDistance  = position - this.unitController.viewRange.start;
-        const endDistance = this.unitController.viewRange.end - position;
-        const zoomFactor = zoomIn ? percentZoom : 1 / percentZoom;
-        newStartRange = position - startDistance * zoomFactor;
-        newEndRange = position + endDistance * zoomFactor;
-        if (newStartRange < 0) {
-            newEndRange = newEndRange - newStartRange;
-        } else if (newEndRange > this.unitController.absoluteRange) {
-            const delta = newEndRange - this.unitController.absoluteRange;
-            newStartRange = newStartRange - delta;
-        }
-        newStartRange = Math.max(newStartRange, 0);
-        newEndRange = Math.min(newEndRange, this.unitController.absoluteRange);
+        const startDistance = position - this.unitController.viewRange.start;
+        const zoomFactor = zoomIn ? 0.8 : 1.25;
+        const newDuration = BIMath.clamp(Number(this.unitController.viewRangeLength) * zoomFactor,
+            BigInt(2), this.unitController.absoluteRange);
+        const newStartRange = BIMath.max(0, position - BIMath.round(Number(startDistance) * zoomFactor));
+        const newEndRange = newStartRange + newDuration;
         this.unitController.viewRange = { start: newStartRange, end: newEndRange };
     }
 
@@ -253,8 +244,8 @@ export class TraceContextComponent extends React.Component<TraceContextProps, Tr
 
     private handleTimeSelectionChange(range?: TimelineChart.TimeGraphRange) {
         if (range) {
-            const t1 = Math.trunc(range.start + this.state.timeOffset);
-            const t2 = Math.trunc(range.end + this.state.timeOffset);
+            const t1 = range.start + this.state.timeOffset;
+            const t2 = range.end + this.state.timeOffset;
 
             this.props.messageManager.addStatusMessage(this.TIME_SELECTION_STATUS_BAR_KEY, {
                 text: `T1: ${t1} T2: ${t2} Delta: ${t2 - t1}`,

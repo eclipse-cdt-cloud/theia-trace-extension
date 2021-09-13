@@ -1,7 +1,7 @@
 export class TimeRange {
-    private start: number;
-    private end: number;
-    private offset: number | undefined;
+    private start: bigint;
+    private end: bigint;
+    private offset: bigint | undefined;
 
     /**
      * Constructor.
@@ -9,7 +9,7 @@ export class TimeRange {
      * @param end Range end time
      * @param offset Time offset, if this is defined the start and end time should be relative to this value
      */
-    constructor(start: number, end: number, offset?: number) {
+    constructor(start: bigint, end: bigint, offset?: bigint) {
         this.start = start;
         this.end = end;
         this.offset = offset;
@@ -19,7 +19,7 @@ export class TimeRange {
      * Get the range start time.
      * If an offset is present the return value is start + offset.
      */
-    public getstart(): number {
+    public getStart(): bigint {
         if (this.offset !== undefined) {
             return this.start + this.offset;
         }
@@ -30,7 +30,7 @@ export class TimeRange {
      * Get the range end time.
      * If an offset is present the return value is end + offset.
      */
-    public getEnd(): number {
+    public getEnd(): bigint {
         if (this.offset !== undefined) {
             return this.end + this.offset;
         }
@@ -40,14 +40,14 @@ export class TimeRange {
     /**
      * Get range duration
      */
-    public getDuration(): number {
+    public getDuration(): bigint {
         return this.end - this.start;
     }
 
     /**
      * Return the time offset
      */
-    public getOffset(): number | undefined {
+    public getOffset(): bigint | undefined {
         return this.offset;
     }
 }
