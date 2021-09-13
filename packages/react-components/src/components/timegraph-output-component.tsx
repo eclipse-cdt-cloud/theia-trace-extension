@@ -135,7 +135,7 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
     }
 
     async fetchTree(): Promise<ResponseStatus> {
-        const parameters = QueryHelper.timeQuery([this.props.range.getstart(), this.props.range.getEnd()]);
+        const parameters = QueryHelper.timeQuery([this.props.range.getStart(), this.props.range.getEnd()]);
         const tspClientResponse = await this.props.tspClient.fetchTimeGraphTree(this.props.traceId, this.props.outputDescriptor.id, parameters);
         const treeResponse = tspClientResponse.getModel();
         if (tspClientResponse.isOk() && treeResponse) {
@@ -199,12 +199,12 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
     }
 
     private doHandleSelectionChangedSignal(payload: { [key: string]: string }) {
-        const offset = this.props.viewRange.getOffset() || 0;
-        const startTimestamp = Number(payload['startTimestamp']);
-        const endTimestamp = Number(payload['endTimestamp']);
-        if (!isNaN(startTimestamp) && !isNaN(endTimestamp)) {
-            const selectionRangeStart = startTimestamp - offset;
-            const selectionRangeEnd = endTimestamp - offset;
+        const offset = this.props.viewRange.getOffset() || BigInt(0);
+        const startTimestamp = payload['startTimestamp'];
+        const endTimestamp = payload['endTimestamp'];
+        if (startTimestamp !== undefined && endTimestamp !== undefined) {
+            const selectionRangeStart = BigInt(startTimestamp) - offset;
+            const selectionRangeEnd = BigInt(endTimestamp) - offset;
             this.props.unitController.selectionRange = {
                 start: selectionRangeStart,
                 end: selectionRangeEnd
@@ -265,8 +265,8 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
                 start = this.props.unitController.numberTranslator(elementRange.start);
                 end = this.props.unitController.numberTranslator(elementRange.end);
             }
-            start = start ? start : (elementRange.start + (offset ? offset : 0)).toString();
-            end = end ? end : (elementRange.end + (offset ? offset : 0)).toString();
+            start = start ? start : (elementRange.start + (offset ? offset : BigInt(0))).toString();
+            end = end ? end : (elementRange.end + (offset ? offset : BigInt(0))).toString();
             const tooltip = await this.tspDataProvider.fetchStateTooltip(element, this.props.viewRange);
             return {
                 'Label': label,
@@ -286,8 +286,8 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
                 start = this.props.unitController.numberTranslator(elementRange.start);
                 end = this.props.unitController.numberTranslator(elementRange.end);
             }
-            start = start ? start : (elementRange.start + (offset ? offset : 0)).toString();
-            end = end ? end : (elementRange.end + (offset ? offset : 0)).toString();
+            start = start ? start : (elementRange.start + (offset ? offset : BigInt(0))).toString();
+            end = end ? end : (elementRange.end + (offset ? offset : BigInt(0))).toString();
             const tooltip = await this.tspDataProvider.fetchAnnotationTooltip(element, this.props.viewRange);
             if (start === end) {
                 return {
@@ -367,8 +367,8 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
         const treeNodes = listToTree(this.state.timegraphTree, this.state.columns);
         const orderedTreeIds = getAllExpandedNodeIds(treeNodes, this.state.collapsedNodes);
         const length = range.end - range.start;
-        const overlap = ((length * 5) - length) / 2;
-        const start = range.start - overlap > 0 ? range.start - overlap : 0;
+        const overlap = ((length * BigInt(5)) - length) / BigInt(2);
+        const start = range.start - overlap > 0 ? range.start - overlap : BigInt(0);
         const end = range.end + overlap < this.props.unitController.absoluteRange ? range.end + overlap : this.props.unitController.absoluteRange;
         const newRange: TimelineChart.TimeGraphRange = { start, end };
         const newResolution: number = resolution * 0.8;

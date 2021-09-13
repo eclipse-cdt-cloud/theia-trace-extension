@@ -38,9 +38,9 @@ export class TableOutputComponent extends AbstractOutputComponent<TableOutputPro
     private frameworkComponents: any;
     private gridApi: GridApi | undefined = undefined;
     private columnApi: ColumnApi | undefined = undefined;
-    private prevStartTimestamp: number = Number.MIN_VALUE;
-    private startTimestamp: number = Number.MAX_VALUE;
-    private endTimestamp: number = Number.MIN_VALUE;
+    private prevStartTimestamp = -BigInt(2 ** 63);
+    private startTimestamp = BigInt(2 ** 63);
+    private endTimestamp = -BigInt(2 ** 63);
     private columnsPacked = false;
     private timestampCol: string | undefined = undefined;
     private eventSignal = false;
@@ -145,12 +145,12 @@ export class TableOutputComponent extends AbstractOutputComponent<TableOutputPro
             if (this.selectStartIndex === -1) {
                 this.selectStartIndex = rowIndex;
                 if (currTimestamp) {
-                    this.startTimestamp = Number(currTimestamp);
+                    this.startTimestamp = BigInt(currTimestamp);
                 }
             }
             this.selectEndIndex = rowIndex;
             if (currTimestamp) {
-                this.endTimestamp = Number(currTimestamp);
+                this.endTimestamp = BigInt(currTimestamp);
             }
             this.selectRows();
         } else {
@@ -163,7 +163,7 @@ export class TableOutputComponent extends AbstractOutputComponent<TableOutputPro
             }
             this.selectStartIndex = this.selectEndIndex = rowIndex;
             if (currTimestamp) {
-                this.startTimestamp = this.endTimestamp = Number(currTimestamp);
+                this.startTimestamp = this.endTimestamp = BigInt(currTimestamp);
             }
         }
         this.handleRowSelectionChange();
@@ -202,7 +202,7 @@ export class TableOutputComponent extends AbstractOutputComponent<TableOutputPro
                     const nextRow = gridApi.getRowNode(String(rowIndex + 1));
                     if (isContiguous === false) {
                         if (this.timestampCol && nextRow.data) {
-                            this.startTimestamp = this.endTimestamp = Number(nextRow.data[this.timestampCol]);
+                            this.startTimestamp = this.endTimestamp = BigInt(nextRow.data[this.timestampCol]);
                         }
                         this.selectStartIndex = this.selectEndIndex = nextRow.rowIndex;
                     } else {
@@ -217,7 +217,7 @@ export class TableOutputComponent extends AbstractOutputComponent<TableOutputPro
                         }
                         this.selectEndIndex += 1;
                         if (this.timestampCol && nextRow.data) {
-                            this.endTimestamp = Number(nextRow.data[this.timestampCol]);
+                            this.endTimestamp = BigInt(nextRow.data[this.timestampCol]);
                         }
                     }
                     this.handleRowSelectionChange();
@@ -230,7 +230,7 @@ export class TableOutputComponent extends AbstractOutputComponent<TableOutputPro
 
                     if (isContiguous === false) {
                         if (this.timestampCol && nextRow.data) {
-                            this.startTimestamp = this.endTimestamp = Number(nextRow.data[this.timestampCol]);
+                            this.startTimestamp = this.endTimestamp = BigInt(nextRow.data[this.timestampCol]);
                         }
                         this.selectStartIndex = this.selectEndIndex = nextRow.rowIndex;
                     } else {
@@ -245,7 +245,7 @@ export class TableOutputComponent extends AbstractOutputComponent<TableOutputPro
                         }
                         this.selectEndIndex -= 1;
                         if (this.timestampCol && nextRow.data) {
-                            this.endTimestamp = Number(nextRow.data[this.timestampCol]);
+                            this.endTimestamp = BigInt(nextRow.data[this.timestampCol]);
                         }
                     }
                     this.handleRowSelectionChange();
@@ -253,7 +253,7 @@ export class TableOutputComponent extends AbstractOutputComponent<TableOutputPro
                 } else if (keyEvent.code === 'Space') {
                     this.selectEndIndex = rowIndex;
                     if (currTimestamp) {
-                        this.endTimestamp = Number(currTimestamp);
+                        this.endTimestamp = BigInt(currTimestamp);
                     }
                     this.selectRows();
                     this.handleRowSelectionChange();
@@ -264,7 +264,7 @@ export class TableOutputComponent extends AbstractOutputComponent<TableOutputPro
                     currentRow.setSelected(true);
                 }
                 this.selectStartIndex = this.selectEndIndex = rowIndex;
-                this.startTimestamp = this.endTimestamp = Number(currTimestamp);
+                this.startTimestamp = this.endTimestamp = BigInt(currTimestamp);
                 this.handleRowSelectionChange();
             }
         }
@@ -282,7 +282,7 @@ export class TableOutputComponent extends AbstractOutputComponent<TableOutputPro
         const outputId = this.props.outputDescriptor.id;
 
         // Fetch columns
-        const tspClientResponse = await tspClient.fetchTableColumns(traceUUID, outputId, QueryHelper.timeQuery([0, 1]));
+        const tspClientResponse = await tspClient.fetchTableColumns(traceUUID, outputId, QueryHelper.timeQuery([BigInt(0), BigInt(1)]));
         const columnsResponse = tspClientResponse.getModel();
         const colIds: Array<number> = [];
         const columnsArray = new Array<any>();
@@ -355,7 +355,7 @@ export class TableOutputComponent extends AbstractOutputComponent<TableOutputPro
             const startTimestamp = String(this.startTimestamp);
             const endTimestamp = String(this.endTimestamp);
             const payload = { startTimestamp, endTimestamp };
-            this.prevStartTimestamp = Number(startTimestamp);
+            this.prevStartTimestamp = BigInt(startTimestamp);
             this.eventSignal = true;
             signalManager().fireSelectionChangedSignal(payload);
         }
@@ -368,8 +368,8 @@ export class TableOutputComponent extends AbstractOutputComponent<TableOutputPro
                 return;
             }
 
-            this.startTimestamp = Math.trunc(this.props.range.getstart() + range.start);
-            this.endTimestamp = Math.trunc(this.props.range.getstart() + range.end);
+            this.startTimestamp = this.props.range.getStart() + range.start;
+            this.endTimestamp = this.props.range.getStart() + range.end;
 
             if (this.startTimestamp === this.endTimestamp || !this.timestampCol) {
                 this.enableIndexSelection = true;
@@ -382,7 +382,7 @@ export class TableOutputComponent extends AbstractOutputComponent<TableOutputPro
                 this.selectStartIndex = this.selectEndIndex = -1;
                 this.gridApi.deselectAll();
 
-                const index = await this.fetchTableIndex(this.startTimestamp > this.endTimestamp ? this.startTimestamp+1 : this.startTimestamp);
+                const index = await this.fetchTableIndex(this.startTimestamp > this.endTimestamp ? this.startTimestamp + BigInt(1) : this.startTimestamp);
                 if (index) {
                     const startIndex = this.startTimestamp > this.endTimestamp ? index-1 : index;
                     this.selectStartIndex = this.selectStartIndex === -1 ? startIndex : this.selectStartIndex;
@@ -397,7 +397,7 @@ export class TableOutputComponent extends AbstractOutputComponent<TableOutputPro
 
     }
 
-    private async fetchTableIndex(timestamp: number) {
+    private async fetchTableIndex(timestamp: bigint) {
         const traceUUID = this.props.traceId;
         const tspClient = this.props.tspClient;
         const outputId = this.props.outputDescriptor.id;
@@ -599,8 +599,8 @@ export class TableOutputComponent extends AbstractOutputComponent<TableOutputPro
     private isValidRowSelection(rowNode: RowNode): boolean {
         if ((this.enableIndexSelection && this.selectStartIndex !== -1 && this.selectEndIndex !== -1 && rowNode.rowIndex >= Math.min(this.selectStartIndex, this.selectEndIndex)
             && rowNode.rowIndex <= Math.max(this.selectStartIndex, this.selectEndIndex)) || (!this.enableIndexSelection
-                && this.timestampCol && rowNode.data[this.timestampCol] >= Math.min(this.startTimestamp, this.endTimestamp)
-                && rowNode.data[this.timestampCol] <= Math.max(this.startTimestamp, this.endTimestamp))) {
+                && this.timestampCol && rowNode.data[this.timestampCol] >= (this.startTimestamp <= this.endTimestamp ? this.startTimestamp : this.endTimestamp)
+                && rowNode.data[this.timestampCol] <= (this.endTimestamp <= this.startTimestamp ? this.endTimestamp : this.startTimestamp))) {
             return true;
         }
         return false;

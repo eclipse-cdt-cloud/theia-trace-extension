@@ -12,6 +12,7 @@ import { EntryTree } from './utils/filtrer-tree/entry-tree';
 import { getAllExpandedNodeIds } from './utils/filtrer-tree/utils';
 import { TreeNode } from './utils/filtrer-tree/tree-node';
 import ColumnHeader from './utils/filtrer-tree/column-header';
+import { BIMath } from 'timeline-chart/lib/bigint-utils';
 
 type XYOuputState = AbstractOutputState & {
     selectedSeriesId: number[];
@@ -39,7 +40,7 @@ export class XYOutputComponent extends AbstractTreeOutputComponent<AbstractOutpu
     private isRightClick = false;
     private posPixelSelect = 0;
     private isMouseLeave = false;
-    private startPositionMouseRightClick = 0;
+    private startPositionMouseRightClick = BigInt(0);
     private plugin = {
         afterDraw: (chartInstance: Chart, _easing: Chart.Easing, _options?: any) => { this.afterChartDraw(chartInstance); }
     };
@@ -77,7 +78,7 @@ export class XYOutputComponent extends AbstractTreeOutputComponent<AbstractOutpu
     }
 
     async fetchTree(): Promise<ResponseStatus> {
-        const parameters = QueryHelper.timeQuery([this.props.range.getstart(), this.props.range.getEnd()]);
+        const parameters = QueryHelper.timeQuery([this.props.range.getStart(), this.props.range.getEnd()]);
         const tspClientResponse = await this.props.tspClient.fetchXYTree(this.props.traceId, this.props.outputDescriptor.id, parameters);
         const treeResponse = tspClientResponse.getModel();
         if (tspClientResponse.isOk() && treeResponse) {
@@ -222,37 +223,18 @@ export class XYOutputComponent extends AbstractTreeOutputComponent<AbstractOutpu
 
     private afterChartDraw(chart: Chart) {
         const ctx = chart.ctx;
-        const xScale = (chart as any).scales['time-axis'];
-        const ticks: number[] = xScale.ticks;
         if (ctx) {
-            let start = 0;
             if (this.props.selectionRange) {
-                const min = Math.min(this.props.selectionRange.getstart(), this.props.selectionRange.getEnd());
-                const max = Math.max(this.props.selectionRange.getstart(), this.props.selectionRange.getEnd());
-                const minValue = this.findNearestValue(min, ticks);
-                let minPixel = xScale.getPixelForValue(min, minValue);
-                const maxValue = this.findNearestValue(max, ticks);
-                let maxPixel = xScale.getPixelForValue(max, maxValue);
-                // In the case the selection is going out of bounds, the pixelValue needs to be in the displayed range.
-                if (maxPixel === 0) {
-                    maxPixel = chart.chartArea.right;
-                }
-                if (minPixel === 0) {
-                    minPixel = chart.chartArea.right;
-                }
+                const startPixel = this.getXForTime(this.props.selectionRange.getStart());
+                const endPixel = this.getXForTime(this.props.selectionRange.getEnd());
                 ctx.strokeStyle = '#259fd8';
                 ctx.fillStyle = '#259fd8';
-                this.drawSelection(chart, minPixel, maxPixel);
+                this.drawSelection(chart, startPixel, endPixel);
             }
             if (this.isRightClick) {
-                const offset = this.props.viewRange.getOffset() ?? 0;
-                start = this.startPositionMouseRightClick + offset;
-                const startValue = this.findNearestValue(start, ticks);
-                let startPixel = xScale.getPixelForValue(start, startValue);
+                const offset = this.props.viewRange.getOffset() ?? BigInt(0);
+                const startPixel = this.getXForTime(this.startPositionMouseRightClick + offset);
                 const endPixel = this.positionXMove;
-                if (startPixel === 0) {
-                    startPixel = chart.chartArea.right;
-                }
                 ctx.strokeStyle = '#9f9f9f';
                 ctx.fillStyle = '#9f9f9f';
                 this.drawSelection(chart, startPixel, endPixel);
@@ -286,18 +268,6 @@ export class XYOutputComponent extends AbstractTreeOutputComponent<AbstractOutpu
             ctx.fillRect(minPixel, 0, maxPixel - minPixel, chart.chartArea.bottom);
             ctx.restore();
         }
-    }
-
-    private findNearestValue(value: number, ticks: number[]): number {
-        let nearestIndex: number | undefined = undefined;
-        ticks.forEach((tick, index) => {
-            if (tick >= value) {
-                if (!nearestIndex) {
-                    nearestIndex = index;
-                }
-            }
-        });
-        return nearestIndex ? nearestIndex : 0;
     }
 
     private onToggleCheck(ids: number[]) {
@@ -336,7 +306,7 @@ export class XYOutputComponent extends AbstractTreeOutputComponent<AbstractOutpu
         this.isMouseLeave = false;
         this.mouseIsDown = true;
         this.posPixelSelect = event.nativeEvent.screenX;
-        const startTime = this.getTimeX(event.nativeEvent.offsetX);
+        const startTime = this.getTimeForX(event.nativeEvent.offsetX);
         if (event.button === RIGHT_CLICK_NUMBER) {
             this.isRightClick = true;
             this.startPositionMouseRightClick = startTime;
@@ -358,7 +328,7 @@ export class XYOutputComponent extends AbstractTreeOutputComponent<AbstractOutpu
         document.addEventListener('mouseup', this.endSelection);
     }
 
-    private updateRange(rangeStart: number, rangeEnd: number) {
+    private updateRange(rangeStart: bigint, rangeEnd: bigint) {
         if (rangeEnd < rangeStart) {
             const temp = rangeStart;
             rangeStart = rangeEnd;
@@ -372,36 +342,26 @@ export class XYOutputComponent extends AbstractTreeOutputComponent<AbstractOutpu
 
     private zoom(isZoomIn: boolean) {
         if (this.props.unitController.viewRangeLength >= 1) {
-            let newStartRange = 0;
-            let newEndRange = 0;
-            const percentZoom = 0.9;
-            const position = this.getTimeX(this.positionXMove);
-            const startDistance  = position - this.props.unitController.viewRange.start;
-            const endDistance = this.props.unitController.viewRange.end - position;
-            const zoomFactor = isZoomIn ? percentZoom : 1 / percentZoom;
-            newStartRange = position - startDistance * zoomFactor;
-            newEndRange = position + endDistance * zoomFactor;
-            if (newStartRange < 0) {
-                newEndRange = newEndRange - newStartRange;
-            } else if (newEndRange > this.props.unitController.absoluteRange) {
-                const delta = newEndRange - this.props.unitController.absoluteRange;
-                newStartRange = newStartRange - delta;
-            }
-            newStartRange = Math.max(newStartRange, 0);
-            newEndRange = Math.min(newEndRange, this.props.unitController.absoluteRange);
+            const position = this.getTimeForX(this.positionXMove);
+            const startDistance = position - this.props.unitController.viewRange.start;
+            const zoomFactor = isZoomIn ? 0.8 : 1.25;
+            const newDuration = BIMath.clamp(Number(this.props.unitController.viewRangeLength) * zoomFactor,
+                BigInt(2), this.props.unitController.absoluteRange);
+            const newStartRange = BIMath.max(0, position - BIMath.round(Number(startDistance) * zoomFactor));
+            const newEndRange = newStartRange + newDuration;
             this.updateRange(newStartRange, newEndRange);
         }
     }
 
     private pan(panLeft: boolean) {
         const panFactor = 0.1;
-        const percentRange = this.props.unitController.viewRangeLength * panFactor;
-        const panNumber = panLeft ? -1 : 1;
+        const percentRange = BIMath.round(Number(this.props.unitController.viewRangeLength) * panFactor);
+        const panNumber = panLeft ? BigInt(-1) : BigInt(1);
         const startRange = this.props.unitController.viewRange.start + (panNumber * percentRange);
         const endRange = this.props.unitController.viewRange.end + (panNumber * percentRange);
         if (startRange < 0) {
             this.props.unitController.viewRange = {
-                start: 0,
+                start: BigInt(0),
                 end: this.props.unitController.viewRangeLength
             };
         } else if (endRange > this.props.unitController.absoluteRange) {
@@ -435,12 +395,25 @@ export class XYOutputComponent extends AbstractTreeOutputComponent<AbstractOutpu
         }
     }
 
-    private getTimeX(event: number): number {
-        const offset = this.props.viewRange.getOffset() ?? 0;
-        const scale = this.props.viewRange.getEnd() - this.props.viewRange.getstart();
-        const xPos = this.props.viewRange.getstart() - offset +
-            (event / this.lineChartRef.current.chartInstance.width) * scale;
-        return xPos;
+    private getTimeForX(x: number): bigint {
+        if (!this.lineChartRef.current?.chartInstance) {
+            return BigInt(0);
+        }
+        const offset = this.props.viewRange.getOffset() ?? BigInt(0);
+        const duration = this.props.viewRange.getDuration();
+        const time = this.props.viewRange.getStart() - offset +
+            BIMath.round(x / this.lineChartRef.current.chartInstance.width * Number(duration));
+        return time;
+    }
+
+    protected getXForTime(time: bigint): number {
+        if (!this.lineChartRef.current?.chartInstance) {
+            return 0;
+        }
+        const start = this.props.viewRange.getStart();
+        const duration = this.props.viewRange.getDuration();
+        const x = Number(time - start) / Number(duration) * this.lineChartRef.current.chartInstance.width;
+        return x;
     }
 
     private updateSelection(): void {
@@ -448,7 +421,7 @@ export class XYOutputComponent extends AbstractTreeOutputComponent<AbstractOutpu
             const xStartPos = this.props.unitController.selectionRange.start;
             this.props.unitController.selectionRange = {
                 start: xStartPos,
-                end: this.getTimeX(this.positionXMove)
+                end: this.getTimeForX(this.positionXMove)
             };
         }
     }
@@ -475,7 +448,7 @@ export class XYOutputComponent extends AbstractTreeOutputComponent<AbstractOutpu
 
     private applySelectionZoom() {
         const newStartRange = this.startPositionMouseRightClick;
-        const newEndRange = this.getTimeX(this.positionXMove);
+        const newEndRange = this.getTimeForX(this.positionXMove);
         this.updateRange(newStartRange, newEndRange);
         this.isRightClick = false;
     }
@@ -518,16 +491,16 @@ export class XYOutputComponent extends AbstractTreeOutputComponent<AbstractOutpu
     }
 
     private async updateXY() {
-        let start = 1332170682440133097;
-        let end = 1332170682540133097;
+        let start = BigInt(0);
+        let end = BigInt(0);
         const viewRange = this.props.viewRange;
         if (viewRange) {
-            start = viewRange.getstart();
+            start = viewRange.getStart();
             end = viewRange.getEnd();
         }
 
         const xyDataParameters = QueryHelper.selectionTimeQuery(
-            QueryHelper.splitRangeIntoEqualParts(Math.trunc(start), Math.trunc(end), this.props.style.chartWidth), this.state.checkedSeries);
+            QueryHelper.splitRangeIntoEqualParts(start, end, this.props.style.chartWidth), this.state.checkedSeries);
 
         const tspClientResponse = await this.props.tspClient.fetchXY(this.props.traceId, this.props.outputDescriptor.id, xyDataParameters);
         const xyDataResponse = tspClientResponse.getModel();
