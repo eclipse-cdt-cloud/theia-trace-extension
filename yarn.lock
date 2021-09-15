@@ -2870,7 +2870,7 @@
     "@theia/monaco" "1.17.2"
     anser "^2.0.1"
 
-"@theia/core@1.17.2", "@theia/core@latest":
+"@theia/core@1.17.2":
   version "1.17.2"
   resolved "https://registry.yarnpkg.com/@theia/core/-/core-1.17.2.tgz#b527c219dba6b2a2eb6031ff843a62e2366b2273"
   integrity sha512-AEgZz3tt/1+AjzGY6WQBNT39kA8FFGumeVTvB6QwsJGRufBPKH+G/Y10n4UG9dtnOysq6/KlC9VHwmSQkfudDQ==
@@ -2938,17 +2938,7 @@
     ws "^7.1.2"
     yargs "^15.3.1"
 
-"@theia/cpp-debug@1.0.0":
-  version "1.0.0"
-  resolved "https://registry.yarnpkg.com/@theia/cpp-debug/-/cpp-debug-1.0.0.tgz#9752d3836ea345db11fadf996cf53d9b3349ac73"
-  integrity sha512-/dHTs1o0YKg07UZTOJFuSNXeLXCb9QylU+a9BpHTfRs407gc8wZcH8+wERK0TflBsDe8vVGrpJFsJMJcyG7Weg==
-  dependencies:
-    "@theia/core" latest
-    "@theia/debug" latest
-    ajv "^6.5.3"
-    lodash "^4.17.10"
-
-"@theia/debug@1.17.2", "@theia/debug@latest":
+"@theia/debug@1.17.2":
   version "1.17.2"
   resolved "https://registry.yarnpkg.com/@theia/debug/-/debug-1.17.2.tgz#694f1d2e1a06ead0fcc8f268ee21cba50389f8eb"
   integrity sha512-RTrZixxqoks0RwtQZ0TQtthsUgZhhvIKfEuRgFiBqMRqddLWrnguV+xcd4WCGWlDuVJaD2jCz8gGbKNc3ubHKg==
