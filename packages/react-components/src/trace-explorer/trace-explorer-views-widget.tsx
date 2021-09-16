@@ -135,8 +135,11 @@ export class ReactAvailableViewsWidget extends React.Component<ReactAvailableVie
     }
 
     protected doExperimentSelected(experiment: Experiment | undefined): void {
-        this._selectedExperiment = experiment;
-        this.updateAvailableViews();
+        if (this._selectedExperiment?.UUID !== experiment?.UUID) {
+            this._selectedExperiment = experiment;
+            this.setState({availableOutputDescriptors: []});
+            this.updateAvailableViews();
+        }
     }
 
     protected updateAvailableViews = async (): Promise<void> => this.doUpdateAvailableViews();
