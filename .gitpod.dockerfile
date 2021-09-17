@@ -13,6 +13,7 @@ RUN sudo apt-get update \
     && sudo apt-get install -y libx11-dev libxkbfile-dev \
     # keytar
     && sudo apt-get install -y libsecret-1-dev \
+    # Clear package info (to free space)
     && sudo rm -rf /var/lib/apt/lists/*
 
 ENV NODE_VERSION="12.14.1"
