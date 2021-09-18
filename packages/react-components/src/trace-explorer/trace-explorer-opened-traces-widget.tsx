@@ -8,6 +8,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCopy } from '@fortawesome/free-solid-svg-icons';
 import { OpenedTracesUpdatedSignalPayload } from '@trace-viewer/base/lib/signals/opened-traces-updated-signal-payload';
 import { ITspClientProvider } from '@trace-viewer/base/lib/tsp-client-provider';
+import { MenuItemTrace } from './menu-item-trace';
 
 export interface ReactOpenTracesWidgetProps {
     id: string,
@@ -44,6 +45,7 @@ export class ReactOpenTracesWidget extends React.Component<ReactOpenTracesWidget
         signalManager().on(Signals.EXPERIMENT_CLOSED, this._onExperimentClosed);
         signalManager().on(Signals.TRACEVIEWERTAB_ACTIVATED, this._onOpenedTracesWidgetActivated);
 
+        this.handleExperimentNameUpdate = this.handleExperimentNameUpdate.bind(this);
         this._experimentManager = this.props.tspClientProvider.getExperimentManager();
         this.props.tspClientProvider.addTspClientChangeListener(() => {
             this._experimentManager = this.props.tspClientProvider.getExperimentManager();
@@ -109,7 +111,6 @@ export class ReactOpenTracesWidget extends React.Component<ReactOpenTracesWidget
     render(): React.ReactNode {
         const totalHeight = this.getTotalHeight();
         this._forceUpdateKey = !this._forceUpdateKey;
-        const key = Number(this._forceUpdateKey);
         return (
             <>
                 <ReactModal isOpen={this._showShareDialog} onRequestClose={this.handleShareModalClose}
@@ -122,7 +123,6 @@ export class ReactOpenTracesWidget extends React.Component<ReactOpenTracesWidget
                         <AutoSizer>
                             {({ width }) =>
                                 <List
-                                    key={key}
                                     height={totalHeight}
                                     width={width}
                                     rowCount={this.state.openedExperiments.length}
@@ -151,25 +151,17 @@ export class ReactOpenTracesWidget extends React.Component<ReactOpenTracesWidget
         if (props.index === this.state.selectedExperimentIndex) {
             traceContainerClassName = traceContainerClassName + ' theia-mod-selected';
         }
-        return <div className={traceContainerClassName}
-            id={`${traceContainerClassName}-${props.index}`}
-            key={props.key}
-            style={props.style}
-            onClick={event => { this.handleClickEvent(event, traceUUID); }}
-            onContextMenu={event => { this.handleContextMenuEvent(event, traceUUID); }}
-            data-id={`${props.index}`}>
-            <div className='trace-element-container'>
-                <div className='trace-element-info' >
-                    <h4 className='trace-element-name'>{traceName}</h4>
-                    {this.renderTracesForExperiment(props.index)}
-                </div>
-                {/* <div className='trace-element-options'>
-                    <button className='share-context-button' onClick={this.handleShareButtonClick.bind(this, props.index)}>
-                        <FontAwesomeIcon icon={faShareSquare} />
-                    </button>
-                </div> */}
-            </div>
-        </div>;
+        return <MenuItemTrace
+            onExperimentNameChange = {this.handleExperimentNameUpdate}
+            menuItemTraceContainerClassName = {traceContainerClassName}
+            traces={this.state.openedExperiments[props.index].traces}
+            experimentName={traceName}
+            experimentUUID={traceUUID}
+            key={traceUUID}
+            index={props.index}
+            handleContextMenuEvent={this.handleContextMenuEvent}
+            handleClickEvent={this.handleClickEvent}
+        />;
     }
 
     protected renderTracesForExperiment(index: number): React.ReactNode {
@@ -235,13 +227,31 @@ export class ReactOpenTracesWidget extends React.Component<ReactOpenTracesWidget
 
     protected async doUpdateOpenedExperiments(): Promise<void> {
         const remoteExperiments = await this._experimentManager.getOpenedExperiments();
+
         remoteExperiments.forEach(experiment => {
             this._experimentManager.addExperiment(experiment);
         });
+
+        remoteExperiments.forEach(newExp => {
+            this.state.openedExperiments.forEach(oldExp =>{
+                if (newExp.UUID === oldExp.UUID) {
+                    newExp.name = oldExp.name;
+                }
+            });
+        });
+
         const selectedIndex = remoteExperiments.findIndex(experiment => this._selectedExperiment &&
             experiment.UUID === this._selectedExperiment.UUID);
         this.setState({ openedExperiments: remoteExperiments, selectedExperimentIndex: selectedIndex !== -1 ? selectedIndex : 0 });
         signalManager().fireOpenedTracesChangedSignal(new OpenedTracesUpdatedSignalPayload(remoteExperiments ? remoteExperiments.length : 0));
+    }
+
+    protected handleExperimentNameUpdate(newExperimentName: string, index: number): void {
+        const modifiedOpenedExperiments = this.state.openedExperiments.slice();
+        modifiedOpenedExperiments[index].name = newExperimentName;
+        this.setState({
+            openedExperiments: modifiedOpenedExperiments
+        });
     }
 
     protected handleShareButtonClick = (index: number): void => this.doHandleShareButtonClick(index);

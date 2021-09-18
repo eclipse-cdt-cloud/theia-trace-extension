@@ -54,6 +54,7 @@ export class TraceViewerWidget extends ReactWidget {
     private onOutputAdded = (payload: OutputAddedSignalPayload): void => this.doHandleOutputAddedSignal(payload);
     private onExperimentSelected = (experiment: Experiment): void => this.doHandleExperimentSelectedSignal(experiment);
     private onCloseExperiment = (UUID: string): void => this.doHandleCloseExperimentSignal(UUID);
+    private onExperimentNameChange = (payload: { tabName: string, experimentUUID: string; }): void => this.doHandleExperimentNameChange(payload);
 
     @inject(TraceViewerWidgetOptions) protected readonly options: TraceViewerWidgetOptions;
     @inject(TspClientProvider) protected tspClientProvider: TspClientProvider;
@@ -111,11 +112,18 @@ export class TraceViewerWidget extends ReactWidget {
         signalManager().on(Signals.OUTPUT_ADDED, this.onOutputAdded);
         signalManager().on(Signals.EXPERIMENT_SELECTED, this.onExperimentSelected);
         signalManager().on(Signals.CLOSE_TRACEVIEWERTAB, this.onCloseExperiment);
+        signalManager().on(Signals.EXPERIMENT_CHANGED, this.onExperimentNameChange);
     }
 
     protected updateBackgroundTheme(): void {
         const currentThemeType = ThemeService.get().getCurrentTheme().type;
         signalManager().fireThemeChangedSignal(currentThemeType);
+    }
+
+    protected doHandleExperimentNameChange(payload: { tabName: string, experimentUUID: string; }): void {
+        if (payload.experimentUUID === this.options.traceUUID) {
+            this.title.label = payload.tabName;
+        }
     }
 
     dispose(): void {
