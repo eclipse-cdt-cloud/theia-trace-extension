@@ -17259,10 +17259,10 @@ timed-out@^4.0.0, timed-out@^4.0.1:
   resolved "https://registry.yarnpkg.com/timed-out/-/timed-out-4.0.1.tgz#f32eacac5a175bea25d7fab565ab3ed8741ef56f"
   integrity sha1-8y6srFoXW+ol1/q1Zas+2HQe9W8=
 
-timeline-chart@next:
-  version "0.2.0-next.3363469.0"
-  resolved "https://registry.yarnpkg.com/timeline-chart/-/timeline-chart-0.2.0-next.3363469.0.tgz#bc760f6b06c8f86813985db85f74853374aade00"
-  integrity sha512-ZoL8hnyX8D4LwCUPGn91DGzI15Tv6sRcHReuj2K35BfAbuvg9bh9b8QuDF/Khv7k/ZGTp0E1Quv3LtSPlQvBBg==
+timeline-chart@^0.2.0:
+  version "0.2.0"
+  resolved "https://registry.yarnpkg.com/timeline-chart/-/timeline-chart-0.2.0.tgz#d8af26c4cd632a0c17ecc619518d273176287ef5"
+  integrity sha512-bA8Oo3dD1troe2VpcaGh4B64umcEeF0eBr5+lHdf37wmw8KPUUNrKLBhhFmWBdVoVMh850Y+FW7qtnk72WPntA==
   dependencies:
     "@types/lodash.throttle" "^4.1.4"
     glob "^7.1.6"
@@ -17466,10 +17466,10 @@ tslib@^2.2.0, tslib@^2.3.1:
   resolved "https://registry.yarnpkg.com/tslib/-/tslib-2.3.1.tgz#e8a335add5ceae51aa261d32a490158ef042ef01"
   integrity sha512-77EbyPPpMz+FRFRuAFlWMtmgUWGe9UOG2Z25NqCwiIjRhOf5iKGuzSe5P2w1laq+FkRy4p+PCuVkJSGkzTEKVw==
 
-tsp-typescript-client@next:
-  version "0.2.0-next.33d243c"
-  resolved "https://registry.yarnpkg.com/tsp-typescript-client/-/tsp-typescript-client-0.2.0-next.33d243c.tgz#4454fc9ee3b1594b7f6ec7d83d0760ccc569542c"
-  integrity sha512-eDNAyCS+Sh0DLgRuXdLuQI4asj1JmfvUd2yGYJdszl0QbiiDZ2FK79I1/0UwjOheXVzRVSb+aPeGw6b3A4sOvw==
+tsp-typescript-client@^0.3.0:
+  version "0.3.0"
+  resolved "https://registry.yarnpkg.com/tsp-typescript-client/-/tsp-typescript-client-0.3.0.tgz#6cfd075f219e2338a6e6d5e0aa9f329188e29171"
+  integrity sha512-JVG3dlFAU7vd0NvlY1xLb54R3MUavX5mYe6r26DiZqg5+BUbEW3s0B4eAs3ebueGIUAr1P+NjcsTzJfWtdcbMg==
   dependencies:
     node-fetch "^2.5.0"
 

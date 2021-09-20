@@ -16,7 +16,7 @@
     "src"
   ],
   "dependencies": {
-    "tsp-typescript-client": "next"
+    "tsp-typescript-client": "^0.3.0"
   },
   "devDependencies": {
     "@typescript-eslint/eslint-plugin": "^3.4.0",
