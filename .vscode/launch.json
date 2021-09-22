@@ -10,6 +10,10 @@
             "name": "Start in Chrome",
             "port": 9222,
             "sourceMaps": true,
+            "sourceMapPathOverrides": {
+                "viewer-prototype:///./js/*": "${workspaceRoot}/viewer-prototype/lib/**/*.js",
+                "viewer-prototype:///js/*": "${workspaceRoot}/viewer-prototype/lib/**/*.js"
+            },
             "webRoot": "${workspaceRoot}",
             "url": "http://localhost:3000"
         },
@@ -19,6 +23,10 @@
             "name": "Attach to Chrome",
             "port": 9222,
             "sourceMaps": true,
+            "sourceMapPathOverrides": {
+                "viewer-prototype:///./js/*": "${workspaceRoot}/viewer-prototype/lib/**/*.js",
+                "viewer-prototype:///js/*": "${workspaceRoot}/viewer-prototype/lib/**/*.js"
+            },
             "webRoot": "${workspaceRoot}"
         },
         {
@@ -27,7 +35,17 @@
             "name": "Start in Firefox",
             "reAttach": true,
             "webRoot": "${workspaceRoot}",
-            "url": "http://localhost:3000"
+            "url": "http://localhost:3000",
+            "pathMappings": [
+                {
+                    "url": "webpack://browser-theia-trace-example-app/theia-extensions",
+                    "path": "${workspaceFolder}/theia-extensions"
+                },
+                {
+                    "url": "webpack://browser-theia-trace-example-app/packages",
+                    "path": "${workspaceFolder}/packages"
+                }
+            ]
         },
         {
             "type": "node",
@@ -82,7 +100,7 @@
                 "${workspaceRoot}/packages/*/lib/**/*.js",
                 "${workspaceRoot}/theia-extensions/*/lib/**/*.js",
                 "${workspaceRoot}/examples/electron/lib/**/*.js",
-                "${workspaceRoot}/examples/electron/src-gen/**/*.js",
+                "${workspaceRoot}/examples/electron/src-gen/**/*.js"
             ],
             "smartStep": true,
             "internalConsoleOptions": "openOnSessionStart",
@@ -102,7 +120,7 @@
             "internalConsoleOptions": "neverOpen",
             "disableOptimisticBPs": true,
             "windows": {
-              "program": "${workspaceFolder}/node_modules/jest/bin/jest",
+                "program": "${workspaceFolder}/node_modules/jest/bin/jest"
             }
         }
     ]
