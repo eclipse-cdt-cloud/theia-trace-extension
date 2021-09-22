@@ -463,23 +463,31 @@ export class XYOutputComponent extends AbstractTreeOutputComponent<AbstractOutpu
         if (!this.isMouseLeave) {
             switch (key.key) {
                 case 'W':
-                case 'w': {
+                case 'w':
+                case 'i':
+                case 'I': {
                     this.zoom(ZOOM_IN);
                     break;
                 }
                 case 'S':
-                case 's': {
+                case 's':
+                case 'K':
+                case 'k': {
                     this.zoom(ZOOM_OUT);
                     break;
                 }
                 case 'A':
                 case 'a':
+                case 'J':
+                case 'j':
                 case 'ArrowLeft': {
                     this.pan(PAN_LEFT);
                     break;
                 }
                 case 'D':
                 case 'd':
+                case 'L':
+                case 'l':
                 case 'ArrowRight': {
                     this.pan(PAN_RIGHT);
                     break;
