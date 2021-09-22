@@ -44,24 +44,10 @@ export class XYOutputComponent extends AbstractTreeOutputComponent<AbstractOutpu
     private plugin = {
         afterDraw: (chartInstance: Chart, _easing: Chart.Easing, _options?: any) => { this.afterChartDraw(chartInstance); }
     };
-    private updateSelection = (event: MouseEvent) => {
-        const scale = this.props.viewRange.getEnd() - this.props.viewRange.getstart();
-        if (this.mouseIsDown && this.props.unitController.selectionRange && !this.isRightClick) {
-            const xStartPos = this.props.unitController.selectionRange.start;
-            let end = xStartPos + ((event.screenX - this.posPixelSelect) / this.lineChartRef.current.chartInstance.width) * scale;
-            end = Math.min(Math.max(end, 0), this.props.unitController.absoluteRange);
-            this.props.unitController.selectionRange = {
-                start: xStartPos,
-                end: end
-            };
-        }
-    };
 
     private endSelection = () => {
         if (this.isRightClick) {
            this.applySelectionZoom();
-        } else {
-            document.removeEventListener('mousemove', this.updateSelection);
         }
         this.mouseIsDown = false;
         document.removeEventListener('mouseup', this.endSelection);
@@ -357,11 +343,18 @@ export class XYOutputComponent extends AbstractTreeOutputComponent<AbstractOutpu
             this.startPositionMouseRightClick = startTime;
         } else {
             this.isRightClick = false;
-            this.props.unitController.selectionRange = {
-                start: startTime,
-                end: startTime
-            };
-            document.addEventListener('mousemove', this.updateSelection);
+            if (event.shiftKey && this.props.unitController.selectionRange) {
+                this.props.unitController.selectionRange = {
+                    start: this.props.unitController.selectionRange.start,
+                    end: startTime
+                };
+            } else {
+                this.props.unitController.selectionRange = {
+                    start: startTime,
+                    end: startTime
+                };
+            }
+            this.onMouseMove(event);
         }
         document.addEventListener('mouseup', this.endSelection);
     }
@@ -451,9 +444,22 @@ export class XYOutputComponent extends AbstractTreeOutputComponent<AbstractOutpu
         return xPos;
     }
 
+    private updateSelection(): void {
+        if (this.props.unitController.selectionRange){
+            const xStartPos = this.props.unitController.selectionRange.start;
+            this.props.unitController.selectionRange = {
+                start: xStartPos,
+                end: this.getTimeX(this.positionXMove)
+            };
+        }
+    }
+
     private onMouseMove(event: React.MouseEvent) {
         this.positionXMove = event.nativeEvent.offsetX;
         this.isMouseLeave = false;
+        if (this.mouseIsDown && !this.isRightClick) {
+            this.updateSelection();
+        }
         if (this.mouseIsDown && this.isRightClick) {
             this.forceUpdate();
         }
@@ -461,9 +467,10 @@ export class XYOutputComponent extends AbstractTreeOutputComponent<AbstractOutpu
 
     private onMouseLeave(event: React.MouseEvent) {
         this.isMouseLeave = true;
-        if (this.isRightClick) {
-            this.positionXMove = Math.max(0, Math.min(event.nativeEvent.offsetX, this.lineChartRef.current.chartInstance.width));
-            this.forceUpdate();
+        this.positionXMove = Math.max(0, Math.min(event.nativeEvent.offsetX, this.lineChartRef.current.chartInstance.width));
+        this.forceUpdate();
+        if (this.mouseIsDown && !this.isRightClick) {
+            this.updateSelection();
         }
     }
 
