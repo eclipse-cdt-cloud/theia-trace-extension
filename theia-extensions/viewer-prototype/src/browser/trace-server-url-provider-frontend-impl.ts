@@ -1,32 +1,48 @@
-import { inject, injectable } from 'inversify';
-import { TraceServerUrlProvider, TRACE_SERVER_DEFAULT_URL } from '../common/trace-server-url-provider';
-import { FrontendApplicationContribution } from '@theia/core/lib/browser';
-import { TracePreferences, TRACE_PORT } from './trace-server-preference';
-import { TraceServerConfigService } from '../common/trace-server-config';
 import { Emitter, Event, MessageService } from '@theia/core';
+import { FrontendApplicationContribution } from '@theia/core/lib/browser';
 import { EnvVariablesServer } from '@theia/core/lib/common/env-variables/env-variables-protocol';
+import { inject, injectable } from 'inversify';
+import { TraceServerConfigService } from '../common/trace-server-config';
+import { TraceServerUrlProvider, TRACE_SERVER_DEFAULT_URL } from '../common/trace-server-url-provider';
+import { TracePreferences, TRACE_PORT } from './trace-server-preference';
 
 @injectable()
 export class TraceServerUrlProviderImpl implements TraceServerUrlProvider, FrontendApplicationContribution {
 
     /**
-     * `undefined` until both `_traceServerUrlPromise` and `_traceServerPortPromise` are resolved.
+     * The Trace Server URL resolved from a URL template and a port number.
      * Updated each time the port is changed from the preferences.
+     * `undefined` until both `_traceServerUrlPromise` and `_traceServerPortPromise` are resolved.
      */
     protected _traceServerUrl?: string;
+    protected _traceServerUrlPromise: Promise<string>;
     protected _onDidChangeTraceServerUrlEmitter = new Emitter<string>();
 
-    /** `undefined` until `_traceServerUrlPromise` is resolved. */
+    /**
+     * The Trace Server URL template.
+     * The `{}` characters will be replaced with the port defined in the preferences.
+     * `undefined` until `_traceServerUrlPromise` is resolved.
+     */
     protected _traceServerUrlTemplate?: string;
     protected _traceServerUrlTemplatePromise: Promise<string>;
 
-    /** `undefined` until `_traceServerPortPromise` is resolved. */
+    /**
+     * A configurable port number from the preferences.
+     * `undefined` until `_traceServerPortPromise` is resolved.
+     */
     protected _traceServerPort?: number;
     protected _traceServerPortPromise: Promise<number>;
 
-    /** To prevent parallel execution of the `TRACE_PORT` preference change callback. */
+    /**
+     * Identifier for port preference change event handlers.
+     * Used to prevent some concurrency cases.
+     */
     protected _traceServerPortEventId = 0;
 
+    /**
+     * Listen for updates to the Trace Server URL.
+     * This happens when a user changes the `TRACE_PORT` user preference.
+     */
     get onDidChangeTraceServerUrl(): Event<string> {
         return this._onDidChangeTraceServerUrlEmitter.event;
     }
@@ -37,6 +53,7 @@ export class TraceServerUrlProviderImpl implements TraceServerUrlProvider, Front
         @inject(TraceServerConfigService) protected traceServerConfigService: TraceServerConfigService,
         @inject(MessageService) protected messageService: MessageService,
     ) {
+        // Get the URL template from the remote environment.
         this._traceServerUrlTemplatePromise = this.environment.getValue('TRACE_SERVER_URL')
             .then(variable => {
                 const url = variable?.value;
@@ -44,6 +61,7 @@ export class TraceServerUrlProviderImpl implements TraceServerUrlProvider, Front
                     ? this.normalizeUrl(url)
                     : TRACE_SERVER_DEFAULT_URL;
             });
+        // Ge the configurable port from Theia's preferences.
         this._traceServerPortPromise = this.tracePreferences.ready
             .then(() => {
                 this.tracePreferences.onPreferenceChanged(async event => {
@@ -53,7 +71,7 @@ export class TraceServerUrlProviderImpl implements TraceServerUrlProvider, Front
                         try {
                             await this.traceServerConfigService.stopTraceServer();
                             this.messageService.info(`Trace server disconnected on port: ${event.oldValue}.`);
-                        } catch (e) {
+                        } catch (_) {
                             // Do not show the error incase the user tries to modify the port before starting a server
                         }
                         // Skip this event as a new one is running concurrently.
@@ -62,30 +80,42 @@ export class TraceServerUrlProviderImpl implements TraceServerUrlProvider, Front
                         }
                         // Make sure we only update and fire the url change event after being initialized.
                         if (this._traceServerUrl !== undefined) {
-                            this.updateTraceServerUrl(true);
+                            this.updateTraceServerUrl();
                         }
                     }
                 });
                 return this.tracePreferences[TRACE_PORT];
             });
+        // Combine both the URL template and the port to initialized the Trace Server URL.
+        this._traceServerUrlPromise = Promise.all([
+            this._traceServerUrlTemplatePromise,
+            this._traceServerPortPromise,
+        ]).then(([
+            urlTemplate,
+            port
+        ]) => this.setTraceServerUrl(urlTemplate, port));
     }
 
     async initialize(): Promise<void> {
         // Don't start the application until the traceServerUrl is set.
-        [
-            this._traceServerPort,
-            this._traceServerUrlTemplate,
-        ] = await Promise.all([
-            this._traceServerPortPromise,
-            this._traceServerUrlTemplatePromise,
-        ]);
-        // Do not fire the url change event on initialization, only set `_traceServerUrl`.
-        this.updateTraceServerUrl(false);
+        await this._traceServerUrlPromise;
     }
 
+    /**
+     * Promise that resolves once the Trace Server URL is fully initialized.
+     */
+    async getTraceServerUrlPromise(): Promise<string> {
+        return this._traceServerUrlPromise;
+    }
+
+    /**
+     * Get the configured and initialized Trace Server URL.
+     * If this method is called in `injectable` class construtors it will throw,
+     * fetching the Trace Server URL is inherently asynchronous.
+     */
     getTraceServerUrl(): string {
         if (this._traceServerUrl === undefined) {
-            throw new Error('the trace server url is not yet defined (too early?)');
+            throw new Error('The trace server url is not yet defined. Try using getTraceServerUrlPromise.');
         }
         return this._traceServerUrl;
     }
@@ -103,13 +133,15 @@ export class TraceServerUrlProviderImpl implements TraceServerUrlProvider, Front
         return url;
     }
 
-    protected updateTraceServerUrl(fireEvent: boolean): void {
+    protected setTraceServerUrl(urlTemplate: string, port: number): string {
+        return this._traceServerUrl = urlTemplate.replace(/{}/g, port.toString());
+    }
+
+    protected updateTraceServerUrl(): void {
         if (this._traceServerPort === undefined || this._traceServerUrlTemplate === undefined) {
             return;
         }
-        this._traceServerUrl = this._traceServerUrlTemplate.replace(/{}/g, this._traceServerPort.toString());
-        if (fireEvent) {
-            this._onDidChangeTraceServerUrlEmitter.fire(this._traceServerUrl);
-        }
+        const traceServerUrl = this.setTraceServerUrl(this._traceServerUrlTemplate, this._traceServerPort);
+        this._onDidChangeTraceServerUrlEmitter.fire(traceServerUrl);
     }
 }

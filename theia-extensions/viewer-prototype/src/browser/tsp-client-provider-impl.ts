@@ -4,6 +4,7 @@ import { TspClient } from 'tsp-typescript-client/lib/protocol/tsp-client';
 import { ExperimentManager } from 'traceviewer-base/lib/experiment-manager';
 import { TraceManager } from 'traceviewer-base/lib/trace-manager';
 import { ITspClientProvider } from 'traceviewer-base/lib/tsp-client-provider';
+import { LazyTspClientFactory } from 'traceviewer-base/lib/lazy-tsp-client';
 
 @injectable()
 export class TspClientProvider implements ITspClientProvider {
@@ -14,9 +15,10 @@ export class TspClientProvider implements ITspClientProvider {
     private _listeners: ((tspClient: TspClient) => void)[];
 
     constructor(
-        @inject(TraceServerUrlProvider) private tspUrlProvider: TraceServerUrlProvider
+        @inject(TraceServerUrlProvider) private tspUrlProvider: TraceServerUrlProvider,
+        @inject(LazyTspClientFactory) private lazyTspClientFactory: LazyTspClientFactory,
     ) {
-        this._tspClient = new TspClient(this.tspUrlProvider.getTraceServerUrl());
+        this._tspClient = this.lazyTspClientFactory(this.tspUrlProvider.getTraceServerUrlPromise()) as TspClient;
         this._traceManager = new TraceManager(this._tspClient);
         this._experimentManager = new ExperimentManager(this._tspClient, this._traceManager);
         this._listeners = [];

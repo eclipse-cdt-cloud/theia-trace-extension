@@ -18,11 +18,13 @@ import { bindTraceServerPreferences } from '../trace-server-bindings';
 import { TraceServerConfigService, traceServerPath } from '../../common/trace-server-config';
 import { TabBarToolbarContribution } from '@theia/core/lib/browser/shell/tab-bar-toolbar';
 import { TraceViewerToolbarContribution } from './trace-viewer-toolbar-contribution';
+import { LazyTspClientFactory, LazyTspClientFactoryImpl } from 'traceviewer-base/lib/lazy-tsp-client';
 
 export default new ContainerModule(bind => {
     bind(TraceServerUrlProviderImpl).toSelf().inSingletonScope();
     bind(FrontendApplicationContribution).toService(TraceServerUrlProviderImpl);
     bind(TraceServerUrlProvider).toService(TraceServerUrlProviderImpl);
+    bind(LazyTspClientFactory).toFunction(LazyTspClientFactoryImpl);
     bind(TspClientProvider).toSelf().inSingletonScope();
     bind(TheiaMessageManager).toSelf().inSingletonScope();
 
