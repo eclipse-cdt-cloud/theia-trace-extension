@@ -134,14 +134,16 @@ export class TraceServerUrlProviderImpl implements TraceServerUrlProvider, Front
     }
 
     protected setTraceServerUrl(urlTemplate: string, port: number): string {
-        return this._traceServerUrl = urlTemplate.replace(/{}/g, port.toString());
+        const traceServerUrl = urlTemplate.replace(/{}/g, port.toString());
+        this._traceServerUrl = traceServerUrl;
+        this._onDidChangeTraceServerUrlEmitter.fire(traceServerUrl);
+        return traceServerUrl;
     }
 
     protected updateTraceServerUrl(): void {
         if (this._traceServerPort === undefined || this._traceServerUrlTemplate === undefined) {
             return;
         }
-        const traceServerUrl = this.setTraceServerUrl(this._traceServerUrlTemplate, this._traceServerPort);
-        this._onDidChangeTraceServerUrlEmitter.fire(traceServerUrl);
+        this.setTraceServerUrl(this._traceServerUrlTemplate, this._traceServerPort);
     }
 }

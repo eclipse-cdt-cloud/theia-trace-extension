@@ -18,17 +18,21 @@ export class TspClientProvider implements ITspClientProvider {
         @inject(TraceServerUrlProvider) private tspUrlProvider: TraceServerUrlProvider,
         @inject(LazyTspClientFactory) private lazyTspClientFactory: LazyTspClientFactory,
     ) {
-        this._tspClient = this.lazyTspClientFactory(this.tspUrlProvider.getTraceServerUrlPromise()) as TspClient;
+        const traceServerUrlPromise = this.tspUrlProvider.getTraceServerUrlPromise();
+        this._tspClient = this.lazyTspClientFactory(traceServerUrlPromise) as TspClient;
         this._traceManager = new TraceManager(this._tspClient);
         this._experimentManager = new ExperimentManager(this._tspClient, this._traceManager);
         this._listeners = [];
-        tspUrlProvider.onDidChangeTraceServerUrl(url => {
-            this._tspClient = new TspClient(url);
-            this._traceManager = new TraceManager(this._tspClient);
-            this._experimentManager = new ExperimentManager(this._tspClient, this._traceManager);
-            for (const listener of this._listeners) {
-                listener(this._tspClient);
-            }
+        // Skip the first event fired when the Trace Server URL gets initialized.
+        traceServerUrlPromise.then(() => {
+            tspUrlProvider.onDidChangeTraceServerUrl(url => {
+                this._tspClient = new TspClient(url);
+                this._traceManager = new TraceManager(this._tspClient);
+                this._experimentManager = new ExperimentManager(this._tspClient, this._traceManager);
+                for (const listener of this._listeners) {
+                    listener(this._tspClient);
+                }
+            });
         });
     }
 
