@@ -2,7 +2,6 @@ import { ContainerModule, Container } from 'inversify';
 import { WidgetFactory, OpenHandler, FrontendApplicationContribution, bindViewContribution, WebSocketConnectionProvider } from '@theia/core/lib/browser';
 import { TraceViewerWidget, TraceViewerWidgetOptions } from './trace-viewer';
 import { TraceViewerContribution } from './trace-viewer-contribution';
-import { TraceViewerEnvironment } from '../../common/trace-viewer-environment';
 import { TraceServerUrlProvider } from '../../common/trace-server-url-provider';
 import { CommandContribution } from '@theia/core/lib/common';
 import 'ag-grid-community/dist/styles/ag-grid.css';
@@ -21,7 +20,6 @@ import { TabBarToolbarContribution } from '@theia/core/lib/browser/shell/tab-bar
 import { TraceViewerToolbarContribution } from './trace-viewer-toolbar-contribution';
 
 export default new ContainerModule(bind => {
-    bind(TraceViewerEnvironment).toSelf().inRequestScope();
     bind(TraceServerUrlProviderImpl).toSelf().inSingletonScope();
     bind(FrontendApplicationContribution).toService(TraceServerUrlProviderImpl);
     bind(TraceServerUrlProvider).toService(TraceServerUrlProviderImpl);

@@ -14,6 +14,5 @@ export interface TraceServerUrlProvider {
      * @param listener The listener function to be called when the url is
      * changed
      */
-    addTraceServerUrlChangedListener(listener: (url: string) => void): void;
-
+    onDidChangeTraceServerUrl(listener: (url: string) => void): void;
 }

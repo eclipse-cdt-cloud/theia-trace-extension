@@ -7,7 +7,6 @@ export function bindTraceServerPreferences(bind: interfaces.Bind): void {
         const preferences = ctx.container.get<PreferenceService>(PreferenceService);
         return createPreferenceProxy(preferences, ServerSchema);
     }).inSingletonScope();
-
     bind(PreferenceContribution).toConstantValue({
         schema: ServerSchema,
     });

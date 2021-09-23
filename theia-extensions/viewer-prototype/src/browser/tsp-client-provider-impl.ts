@@ -20,11 +20,13 @@ export class TspClientProvider implements ITspClientProvider {
         this._traceManager = new TraceManager(this._tspClient);
         this._experimentManager = new ExperimentManager(this._tspClient, this._traceManager);
         this._listeners = [];
-        tspUrlProvider.addTraceServerUrlChangedListener(url => {
+        tspUrlProvider.onDidChangeTraceServerUrl(url => {
             this._tspClient = new TspClient(url);
             this._traceManager = new TraceManager(this._tspClient);
             this._experimentManager = new ExperimentManager(this._tspClient, this._traceManager);
-            this._listeners.forEach(listener => listener(this._tspClient));
+            for (const listener of this._listeners) {
+                listener(this._tspClient);
+            }
         });
     }
 
