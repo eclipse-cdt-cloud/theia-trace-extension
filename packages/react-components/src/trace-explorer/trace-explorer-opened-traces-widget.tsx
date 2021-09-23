@@ -47,6 +47,11 @@ export class ReactOpenTracesWidget extends React.Component<ReactOpenTracesWidget
         this._experimentManager = this.props.tspClientProvider.getExperimentManager();
         this.props.tspClientProvider.addTspClientChangeListener(() => {
             this._experimentManager = this.props.tspClientProvider.getExperimentManager();
+            // new tsp-client connection... re-initialize the this widget and trac explorer
+            this.setState({ openedExperiments: [], selectedExperimentIndex: 0 });
+            this._selectedExperiment = undefined;
+            signalManager().fireOpenedTracesChangedSignal(new OpenedTracesUpdatedSignalPayload(0));
+            this.initialize();
         });
         this.state = { openedExperiments: [], selectedExperimentIndex: 0 };
     }

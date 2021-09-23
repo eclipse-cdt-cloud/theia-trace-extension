@@ -35,6 +35,7 @@ export class ReactAvailableViewsWidget extends React.Component<ReactAvailableVie
         this._experimentManager = this.props.tspClientProvider.getExperimentManager();
         this.props.tspClientProvider.addTspClientChangeListener(() => {
             this._experimentManager = this.props.tspClientProvider.getExperimentManager();
+            this.setState({ availableOutputDescriptors: [] });
         });
         signalManager().on(Signals.EXPERIMENT_SELECTED, this.doHandleExperimentSelectedSignal);
         this.state = { availableOutputDescriptors: [] };

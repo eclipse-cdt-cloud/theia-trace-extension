@@ -17,23 +17,23 @@ export class TraceViewerEnvironment {
         @inject(MessageService) protected readonly messageService: MessageService) {
 
         this.port = this.preferenceService.get(TRACE_PORT);
-        this.preferenceService.onPreferenceChanged(async event => {
-            if (event.preferenceName === TRACE_PORT) {
-                try {
-                    await this.traceServerConfigService.stopTraceServer();
-                    this.messageService.info(`Trace server disconnected on port: ${this.port}.`);
-                } catch (e){
-                    // Do not show the error incase the user tries to modify the port before starting a server
-                }
-                this.port = event.newValue;
-                this._traceServerUrl = TRACE_SERVER_DEFAULT_URL.replace(/{}/g, this.port ? this.port : TRACE_SERVER_DEFAULT_PORT);
-            }
-        });
     }
 
     protected _traceServerUrl: string | undefined;
     async getTraceServerUrl(): Promise<string> {
         if (!this._traceServerUrl) {
+            this.preferenceService.onPreferenceChanged(async event => {
+                if (event.preferenceName === TRACE_PORT) {
+                    try {
+                        await this.traceServerConfigService.stopTraceServer();
+                        this.messageService.info(`Trace server disconnected on port: ${this.port}.`);
+                    } catch (e){
+                        // Do not show the error incase the user tries to modify the port before starting a server
+                    }
+                    this.port = event.newValue;
+                    this._traceServerUrl = TRACE_SERVER_DEFAULT_URL.replace(/{}/g, this.port ? this.port : TRACE_SERVER_DEFAULT_PORT);
+                }
+            });
             const traceServerUrl = await this.environments.getValue('TRACE_SERVER_URL');
             this._traceServerUrl = traceServerUrl ? this.parseUrl(traceServerUrl.value || TRACE_SERVER_DEFAULT_URL) : TRACE_SERVER_DEFAULT_URL;
         }

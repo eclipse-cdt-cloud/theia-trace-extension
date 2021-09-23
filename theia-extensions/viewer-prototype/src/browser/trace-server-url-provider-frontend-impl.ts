@@ -21,6 +21,11 @@ export class TraceServerUrlProviderImpl implements TraceServerUrlProvider, Front
 
     ) {
         this.port = this.preferenceService.get(TRACE_PORT);
+        this._traceServerUrl = TRACE_SERVER_DEFAULT_URL.replace(/{}/g, this.port ? this.port : TRACE_SERVER_DEFAULT_PORT);
+        this._listeners = [];
+    }
+
+    async onStart(_app: FrontendApplication): Promise<void> {
         this.preferenceService.onPreferenceChanged(async event => {
             if (event.preferenceName === TRACE_PORT) {
                 try {
@@ -34,14 +39,7 @@ export class TraceServerUrlProviderImpl implements TraceServerUrlProvider, Front
                 this.updateListeners();
 
             }
-
         });
-
-        this._traceServerUrl = TRACE_SERVER_DEFAULT_URL.replace(/{}/g, this.port ? this.port : TRACE_SERVER_DEFAULT_PORT);
-        this._listeners = [];
-    }
-
-    async onStart(_app: FrontendApplication): Promise<void> {
         this._traceServerUrl = await this.traceViewerEnvironment.getTraceServerUrl();
         this.updateListeners();
     }
