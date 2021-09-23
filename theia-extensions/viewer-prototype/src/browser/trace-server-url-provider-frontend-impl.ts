@@ -61,7 +61,7 @@ export class TraceServerUrlProviderImpl implements TraceServerUrlProvider, Front
                     ? this.normalizeUrl(url)
                     : TRACE_SERVER_DEFAULT_URL;
             });
-        // Ge the configurable port from Theia's preferences.
+        // Get the configurable port from Theia's preferences.
         this._traceServerPortPromise = this.tracePreferences.ready
             .then(() => {
                 this.tracePreferences.onPreferenceChanged(async event => {
@@ -86,7 +86,7 @@ export class TraceServerUrlProviderImpl implements TraceServerUrlProvider, Front
                 });
                 return this.tracePreferences[TRACE_PORT];
             });
-        // Combine both the URL template and the port to initialized the Trace Server URL.
+        // Combine both the URL template and the port to initialize the Trace Server URL.
         this._traceServerUrlPromise = Promise.all([
             this._traceServerUrlTemplatePromise,
             this._traceServerPortPromise,
@@ -97,7 +97,7 @@ export class TraceServerUrlProviderImpl implements TraceServerUrlProvider, Front
     }
 
     async initialize(): Promise<void> {
-        // Don't start the application until the traceServerUrl is set.
+        // Don't start the application until the Trace Server URL is initialized.
         await this._traceServerUrlPromise;
     }
 
