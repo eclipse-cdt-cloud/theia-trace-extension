@@ -36,8 +36,6 @@ export class TraceServerUrlProviderImpl implements TraceServerUrlProvider, Front
     protected _traceServerPortEventId = 0;
 
     protected _traceServerUrlPromise: Promise<string>;
-    protected _traceServerUrlTemplatePromise: Promise<string>;
-    protected _traceServerPortPromise: Promise<number>;
 
     protected _onDidChangeTraceServerUrlEmitter = new Emitter<string>();
 
@@ -56,7 +54,7 @@ export class TraceServerUrlProviderImpl implements TraceServerUrlProvider, Front
         @inject(MessageService) protected messageService: MessageService,
     ) {
         // Get the URL template from the remote environment.
-        this._traceServerUrlTemplatePromise = this.environment.getValue('TRACE_SERVER_URL')
+        const traceServerUrlTemplatePromise = this.environment.getValue('TRACE_SERVER_URL')
             .then(variable => {
                 const url = variable?.value;
                 return url // string(true) | empty-string(false) | undefined(false)
@@ -64,7 +62,7 @@ export class TraceServerUrlProviderImpl implements TraceServerUrlProvider, Front
                     : TRACE_SERVER_DEFAULT_URL;
             });
         // Get the configurable port from Theia's preferences.
-        this._traceServerPortPromise = this.tracePreferences.ready
+        const traceServerPortPromise = this.tracePreferences.ready
             .then(() => {
                 this.tracePreferences.onPreferenceChanged(async event => {
                     if (event.preferenceName === TRACE_PORT) {
@@ -87,12 +85,11 @@ export class TraceServerUrlProviderImpl implements TraceServerUrlProvider, Front
             });
         // Combine both the URL template and the port to initialize the Trace Server URL.
         this._traceServerUrlPromise = Promise.all([
-            this._traceServerUrlTemplatePromise,
-            this._traceServerPortPromise,
-        ]).then(([
-            urlTemplate,
-            port
-        ]) => this.setTraceServerUrl(urlTemplate, port));
+            traceServerUrlTemplatePromise,
+            traceServerPortPromise,
+        // Once both promises are resolved both `this._traceServerUrlTemplate` and `this._traceServerPort` are set.
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        ]).then(() => this.updateTraceServerUrl()!);
     }
 
     async initialize(): Promise<void> {
@@ -139,13 +136,10 @@ export class TraceServerUrlProviderImpl implements TraceServerUrlProvider, Front
         return traceServerUrl;
     }
 
-    protected updateTraceServerUrl(): void {
-        if (this._traceServerUrl !== undefined) {
-            return; // The Trace Server URL isn't initialized yet = try again later.
-        }
+    protected updateTraceServerUrl(): string | undefined {
         if (this._traceServerPort === undefined || this._traceServerUrlTemplate === undefined) {
             return; // State is only partially initialized = try again later.
         }
-        this.setTraceServerUrl(this._traceServerUrlTemplate, this._traceServerPort);
+        return this.setTraceServerUrl(this._traceServerUrlTemplate, this._traceServerPort);
     }
 }
