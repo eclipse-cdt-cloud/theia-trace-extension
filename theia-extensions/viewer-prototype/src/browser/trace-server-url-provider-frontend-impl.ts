@@ -15,8 +15,6 @@ export class TraceServerUrlProviderImpl implements TraceServerUrlProvider, Front
      * `undefined` until both `_traceServerUrlPromise` and `_traceServerPortPromise` are resolved.
      */
     protected _traceServerUrl?: string;
-    protected _traceServerUrlPromise: Promise<string>;
-    protected _onDidChangeTraceServerUrlEmitter = new Emitter<string>();
 
     /**
      * The Trace Server URL template.
@@ -24,20 +22,24 @@ export class TraceServerUrlProviderImpl implements TraceServerUrlProvider, Front
      * `undefined` until `_traceServerUrlPromise` is resolved.
      */
     protected _traceServerUrlTemplate?: string;
-    protected _traceServerUrlTemplatePromise: Promise<string>;
 
     /**
      * A configurable port number from the preferences.
      * `undefined` until `_traceServerPortPromise` is resolved.
      */
     protected _traceServerPort?: number;
-    protected _traceServerPortPromise: Promise<number>;
 
     /**
      * Identifier for port preference change event handlers.
      * Used to prevent some concurrency cases.
      */
     protected _traceServerPortEventId = 0;
+
+    protected _traceServerUrlPromise: Promise<string>;
+    protected _traceServerUrlTemplatePromise: Promise<string>;
+    protected _traceServerPortPromise: Promise<number>;
+
+    protected _onDidChangeTraceServerUrlEmitter = new Emitter<string>();
 
     /**
      * Listen for updates to the Trace Server URL.
