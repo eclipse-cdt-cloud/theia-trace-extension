@@ -27,6 +27,7 @@ module.exports = {
         '.eslintrc.js',
         'plugins',
         '**/*/__tests__',
+        '**/*/__mocks__',
         'jestSetup.ts'
     ],
     parserOptions: {
