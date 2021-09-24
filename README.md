@@ -26,9 +26,13 @@ Prerequisites: A GitHub account (for logging into Gitpod)
 
 ## Consume the trace viewer extension from npm
 
-We plan to distribute this extension on npm.
+The **theia-trace-extension** project publishes the following packages to NPM:
 
-Availability: TBD
+* [theia-traceviewer](https://www.npmjs.com/package/theia-traceviewer): The Theia trace viewer extension. Add this package to the package.json of your Theia application.
+* [traceviewer-base](https://www.npmjs.com/package/traceviewer-base): This package contains trace management utilities for managing traces using Trace Server applications that implement the TSP.
+* [traceviewer-react-components](https://www.npmjs.com/package/traceviewer-components): This package contains views and utilities for visualizing traces and logs via the TSP connected to a Trace Server application.
+
+While being initially used within the *theia-traceviewer*, the code base of *traceviewer-base* and *traceviewer-react-components* is independent to any Theia APIs and hence can be integrated in other web applications.
 
 ## Build the extension and example application
 
