@@ -108,11 +108,11 @@ For example, to start the browser example app with a specific URL, one can run
 It's possible to package the repo's example application with `electron-builder`. After running `yarn` in the repo root, do:
 
 ```bash
-  $ cd electron-app
+  $ cd examples/electron
   $ yarn package
 ```
 
-  The configured Linux packaging(s) will be generated folder `electron-app/dist`
+  The configured Linux packaging(s) will be generated in folder `examples/electron/dist`
 
 ## Using the trace extension
 This section describes how to operate the Theia trace extension to view and analyze traces. The UI, view interactions, and UX are prelimiary and subject to revisions in the future.
