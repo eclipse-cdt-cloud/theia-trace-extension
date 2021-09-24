@@ -86,7 +86,7 @@ export class TraceServerUrlProviderImpl implements TraceServerUrlProvider, Front
                         }
                     }
                 });
-                return this.tracePreferences[TRACE_PORT];
+                return this._traceServerPort = this.tracePreferences[TRACE_PORT];
             });
         // Combine both the URL template and the port to initialize the Trace Server URL.
         this._traceServerUrlPromise = Promise.all([
