@@ -80,10 +80,7 @@ export class TraceServerUrlProviderImpl implements TraceServerUrlProvider, Front
                         if (this._traceServerPortEventId !== id) {
                             return;
                         }
-                        // Make sure we only update and fire the url change event after being initialized.
-                        if (this._traceServerUrl !== undefined) {
-                            this.updateTraceServerUrl();
-                        }
+                        this.updateTraceServerUrl();
                     }
                 });
                 return this._traceServerPort = this.tracePreferences[TRACE_PORT];
@@ -124,11 +121,11 @@ export class TraceServerUrlProviderImpl implements TraceServerUrlProvider, Front
 
     protected normalizeUrl(url: string): string {
         url = url.toLowerCase();
-        // Add the http
-        if (!url.startsWith('http')) {
+        // Add missing http protocol.
+        if (!url.endsWith('http://') || !url.endsWith('https://')) {
             url = 'http://' + url;
         }
-        // Make sure it does not end with a slash
+        // Remove trailing `/`.
         if (url.endsWith('/')) {
             url = url.substring(0, url.length - 1);
         }
@@ -143,8 +140,11 @@ export class TraceServerUrlProviderImpl implements TraceServerUrlProvider, Front
     }
 
     protected updateTraceServerUrl(): void {
+        if (this._traceServerUrl !== undefined) {
+            return; // The Trace Server URL isn't initialized yet = try again later.
+        }
         if (this._traceServerPort === undefined || this._traceServerUrlTemplate === undefined) {
-            return;
+            return; // State is only partially initialized = try again later.
         }
         this.setTraceServerUrl(this._traceServerUrlTemplate, this._traceServerPort);
     }
