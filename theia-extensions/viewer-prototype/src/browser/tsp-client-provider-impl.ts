@@ -19,7 +19,7 @@ export class TspClientProvider implements ITspClientProvider {
         @inject(LazyTspClientFactory) private lazyTspClientFactory: LazyTspClientFactory,
     ) {
         const traceServerUrlPromise = this.tspUrlProvider.getTraceServerUrlPromise();
-        this._tspClient = this.lazyTspClientFactory(traceServerUrlPromise) as TspClient;
+        this._tspClient = this.lazyTspClientFactory(traceServerUrlPromise);
         this._traceManager = new TraceManager(this._tspClient);
         this._experimentManager = new ExperimentManager(this._tspClient, this._traceManager);
         this._listeners = [];

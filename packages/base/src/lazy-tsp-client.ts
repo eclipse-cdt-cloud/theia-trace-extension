@@ -2,6 +2,11 @@
 
 import { TspClient } from 'tsp-typescript-client';
 
+/**
+ * Hack!
+ * The `LazyTspClient` replaces _every_ method with an asynchronous one.
+ * Only keep methods, discard properties.
+ */
 export type LazyTspClient = {
     [K in keyof TspClient]: TspClient[K] extends (...args: infer A) => (infer R | Promise<infer R>)
         ? (...args: A) => Promise<R>
@@ -9,9 +14,9 @@ export type LazyTspClient = {
 };
 
 export const LazyTspClientFactory = Symbol('LazyTspClientFactory');
-export type LazyTspClientFactory = (url: Promise<string>) => LazyTspClient;
+export type LazyTspClientFactory = (url: Promise<string>) => TspClient;
 
-export function LazyTspClientFactoryImpl(url: Promise<string>): LazyTspClient {
+export function LazyTspClientFactoryImpl(url: Promise<string>): TspClient {
     // Most(all) methods from the `TspClient` are asynchronous.
     // The `LazyTspClient` will just delay each call to its methods by
     // first awaiting for the asynchronous `baseUrl` resolution which
@@ -29,5 +34,5 @@ export function LazyTspClientFactoryImpl(url: Promise<string>): LazyTspClient {
             }
             return method;
         }
-    });
+    }) as LazyTspClient as TspClient;
 }
