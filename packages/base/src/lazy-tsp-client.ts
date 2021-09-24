@@ -13,10 +13,8 @@ export type LazyTspClient = {
         : never // discard field
 };
 
-export const LazyTspClientFactory = Symbol('LazyTspClientFactory');
-export type LazyTspClientFactory = (url: Promise<string>) => TspClient;
-
-export function LazyTspClientFactoryImpl(url: Promise<string>): TspClient {
+export type LazyTspClientFactory = typeof LazyTspClientFactory;
+export function LazyTspClientFactory(url: Promise<string>): TspClient {
     // Most(all) methods from the `TspClient` are asynchronous.
     // The `LazyTspClient` will just delay each call to its methods by
     // first awaiting for the asynchronous `baseUrl` resolution which
