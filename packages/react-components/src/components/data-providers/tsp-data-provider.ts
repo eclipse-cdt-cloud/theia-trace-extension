@@ -32,10 +32,19 @@ export class TspDataProvider {
         this.totalRange = BigInt(0);
     }
 
+    /**
+     * @param ids requested entry ids
+     * @param entries time graph entries
+     * @param totalTimeRange total time range
+     * @param viewRange requested view range relative to start of total time range
+     * @param nbTimes number of requested time samples
+     * @param annotationMarkers requested annotation categories
+     * @returns time graph model
+     */
     async getData(ids: number[], entries: TimeGraphEntry[],
         totalTimeRange: TimeRange,
         viewRange?: TimelineChart.TimeGraphRange,
-        resolution?: number,
+        nbTimes?: number,
         annotationMarkers?: string[]): Promise<TimelineChart.TimeGraphModel> {
         this.timeGraphEntries = [...entries];
         if (!this.timeGraphEntries.length) {
@@ -52,10 +61,10 @@ export class TspDataProvider {
         this.totalRange = totalTimeRange.getEnd() - totalTimeRange.getStart();
         let fetchParameters = QueryHelper.selectionTimeQuery([],
             ids, annotationMarkers !== undefined ? { 'requested_marker_categories': annotationMarkers } : {});
-        if (viewRange && resolution) {
+        if (viewRange && nbTimes) {
             const start = totalTimeRange.getStart() + viewRange.start;
             const end = totalTimeRange.getStart() + viewRange.end;
-            fetchParameters = QueryHelper.selectionTimeQuery(QueryHelper.splitRangeIntoEqualParts(start, end, resolution),
+            fetchParameters = QueryHelper.selectionTimeQuery(QueryHelper.splitRangeIntoEqualParts(start, end, nbTimes),
                 ids, annotationMarkers !== undefined ? { 'requested_marker_categories': annotationMarkers } : {});
         }
         const tspClientResponse = await this.client.fetchTimeGraphStates(this.traceUUID, this.outputId, fetchParameters);
@@ -107,7 +116,7 @@ export class TspDataProvider {
                 row.annotations = entryArray;
             }
         }
-        const arrows = await this.getArrows(ids, viewRange, resolution);
+        const arrows = await this.getArrows(ids, viewRange, nbTimes);
 
         return {
             id: 'model',
@@ -121,13 +130,13 @@ export class TspDataProvider {
         };
     }
 
-    async getArrows(ids: number[], viewRange?: TimelineChart.TimeGraphRange, resolution?: number): Promise<TimelineChart.TimeGraphArrow[]> {
+    async getArrows(ids: number[], viewRange?: TimelineChart.TimeGraphRange, nbTimes?: number): Promise<TimelineChart.TimeGraphArrow[]> {
         let timeGraphArrows: TimeGraphArrow[] = [];
-        if (viewRange && resolution) {
+        if (viewRange && nbTimes) {
             const start = viewRange.start + this.timeGraphEntries[0].start;
             const end = viewRange.end + this.timeGraphEntries[0].start;
             const fetchParameters = QueryHelper.selectionTimeQuery(QueryHelper.splitRangeIntoEqualParts(
-                start, end, resolution), ids);
+                start, end, nbTimes), ids);
             const tspClientResponseArrows = await this.client.fetchTimeGraphArrows(this.traceUUID, this.outputId, fetchParameters);
             const stateResponseArrows = tspClientResponseArrows.getModel();
             if (tspClientResponseArrows.isOk() && stateResponseArrows && stateResponseArrows.model) {

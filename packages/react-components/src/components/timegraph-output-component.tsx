@@ -72,6 +72,11 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
         this.rowController = new TimeGraphRowController(this.props.style.rowHeight, this.totalHeight);
         this.horizontalContainer = React.createRef();
         const providers: TimeGraphChartProviders = {
+            /**
+             * @param range requested time range
+             * @param resolution requested time interval between samples
+             * @returns row models with the actual range and resolution
+             */
             dataProvider: async (range: TimelineChart.TimeGraphRange, resolution: number) => this.fetchTimegraphData(range, resolution),
             stateStyleProvider: (state: TimelineChart.TimeGraphState) => this.getStateStyle(state),
             rowAnnotationStyleProvider: (annotation: TimelineChart.TimeGraphAnnotation) => this.getAnnotationStyle(annotation),
@@ -366,21 +371,20 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
     private async fetchTimegraphData(range: TimelineChart.TimeGraphRange, resolution: number) {
         const treeNodes = listToTree(this.state.timegraphTree, this.state.columns);
         const orderedTreeIds = getAllExpandedNodeIds(treeNodes, this.state.collapsedNodes);
-        const length = range.end - range.start;
-        const overlap = ((length * BigInt(5)) - length) / BigInt(2);
+        const overlap = range.end - range.start;
         const start = range.start - overlap > 0 ? range.start - overlap : BigInt(0);
         const end = range.end + overlap < this.props.unitController.absoluteRange ? range.end + overlap : this.props.unitController.absoluteRange;
         const newRange: TimelineChart.TimeGraphRange = { start, end };
-        const newResolution: number = resolution * 0.8;
+        const nbTimes = Math.ceil(Number(end - start) / resolution) + 1;
         const timeGraphData: TimelineChart.TimeGraphModel = await this.tspDataProvider.getData(orderedTreeIds, this.state.timegraphTree,
-            this.props.range, newRange, this.props.style.chartWidth, this.annotationMarkers);
+            this.props.range, newRange, nbTimes, this.annotationMarkers);
         this.arrowLayer.addArrows(timeGraphData.arrows);
         this.rangeEventsLayer.addRangeEvents(timeGraphData.rangeEvents);
 
         return {
             rows: timeGraphData ? timeGraphData.rows : [],
             range: newRange,
-            resolution: newResolution
+            resolution: resolution
         };
     }
 
