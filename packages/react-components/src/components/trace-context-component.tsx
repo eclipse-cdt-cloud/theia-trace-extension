@@ -273,10 +273,27 @@ export class TraceContextComponent extends React.Component<TraceContextProps, Tr
     }
 
     render(): JSX.Element {
-        return <div className='trace-context-container' ref={this.traceContextContainer}>
+        return <div className='trace-context-container'
+                onKeyDown={event => this.onKeyDown(event)}
+                ref={this.traceContextContainer}>
             <TooltipComponent ref={this.tooltipComponent} />
             {this.props.outputs.length ? this.renderOutputs() : this.renderPlaceHolder()}
         </div>;
+    }
+
+    private onKeyDown(key: React.KeyboardEvent) {
+        switch (key.key) {
+            case '+':
+            case '=': {
+                this.zoomButton(true);
+                break;
+            }
+            case '-':
+            case '_': {
+                this.zoomButton(false);
+                break;
+            }
+        }
     }
 
     private renderOutputs() {
