@@ -5,7 +5,7 @@
   "build": {
     "electronVersion": "9.1.2"
   },
-  "version": "0.0.1",
+  "version": "0.1.0",
   "theia": {
     "target": "electron",
     "backend": {
@@ -18,29 +18,29 @@
         "applicationName": "Theia-Trace Example Application",
         "preferences": {
           "editor.autoSave": "on",
-          "trace-viewer.path" : "../../trace-compass-server/tracecompass-server",
-          "trace-viewer.port" : 8080
+          "trace-viewer.path": "../../trace-compass-server/tracecompass-server",
+          "trace-viewer.port": 8080
         }
       }
     }
   },
   "dependencies": {
     "@theia/core": "1.17.2",
+    "@theia/editor": "1.17.2",
+    "@theia/electron": "1.17.2",
     "@theia/filesystem": "1.17.2",
-    "@theia/workspace": "1.17.2",
-    "@theia/preferences": "1.17.2",
+    "@theia/getting-started": "1.17.2",
+    "@theia/keymaps": "1.17.2",
+    "@theia/markers": "1.17.2",
+    "@theia/messages": "1.17.2",
+    "@theia/monaco": "1.17.2",
     "@theia/navigator": "1.17.2",
+    "@theia/preferences": "1.17.2",
     "@theia/process": "1.17.2",
     "@theia/terminal": "1.17.2",
-    "@theia/editor": "1.17.2",
-    "@theia/markers": "1.17.2",
-    "@theia/monaco": "1.17.2",
-    "@theia/messages": "1.17.2",
     "@theia/vsx-registry": "1.17.2",
-    "@theia/keymaps": "1.17.2",
-    "@theia/getting-started": "1.17.2",
-    "@theia/electron": "1.17.2",
-    "theia-traceviewer": "0.0.1"
+    "@theia/workspace": "1.17.2",
+    "theia-traceviewer": "0.1.0"
   },
   "devDependencies": {
     "@theia/cli": "1.17.2",
