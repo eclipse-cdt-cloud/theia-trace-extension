@@ -1,19 +1,24 @@
-export const TraceServerUrlProvider = Symbol('TraceServerUrlProvider');
 export const TRACE_SERVER_DEFAULT_URL = 'http://localhost:{}/tsp/api';
 export const TRACE_SERVER_DEFAULT_PORT = '8080';
 
+export const TraceServerUrlProvider = Symbol('TraceServerUrlProvider');
 export interface TraceServerUrlProvider {
+    /**
+     * Get a promise that resolves once the Trace Server URL is initialized.
+     * @returns a new promise each time `.onDidChangeTraceServerUrl` fires.
+     */
+    getTraceServerUrlPromise(): Promise<string>;
 
     /**
-     * Get the default trace server URL from the server
+     * Get the default Trace Server URL from the server.
+     * Will throw if called before initialization. See `getTraceServerUrlPromise`
+     * to get a promise to the value.
      */
-    getTraceServerUrl(): Readonly<string>;
+    getTraceServerUrl(): string;
 
     /**
-     * Add a listener for trace server url changes
-     * @param listener The listener function to be called when the url is
-     * changed
+     * Get notified when the Trace Server URL changes.
+     * @param listener function to be called when the url is changed.
      */
-    addTraceServerUrlChangedListener(listener: (url: string) => void): void;
-
+    onDidChangeTraceServerUrl(listener: (url: string) => void): void;
 }
