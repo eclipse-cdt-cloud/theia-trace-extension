@@ -104,7 +104,7 @@ export class TraceServerUrlProviderImpl implements TraceServerUrlProvider, Front
     protected normalizeUrl(url: string): string {
         url = url.toLowerCase();
         // Add missing http protocol.
-        if (!url.endsWith('http://') || !url.endsWith('https://')) {
+        if (!url.startsWith('http://') && !url.startsWith('https://')) {
             url = 'http://' + url;
         }
         // Remove trailing `/`.
