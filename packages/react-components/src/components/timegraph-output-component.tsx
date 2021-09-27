@@ -454,7 +454,7 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
         ];
 
         let style: TimeGraphStateStyle | undefined = backupStyles[0];
-        const val = state.label;
+        const val = state.label ?? '';
         const modelData = state.data;
         if (modelData) {
             const outputStyle = modelData.style;

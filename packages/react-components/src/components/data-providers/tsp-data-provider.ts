@@ -200,7 +200,7 @@ export class TspDataProvider {
             if (state.style) {
                 states.push({
                     id: row.entryId + '-' + idx,
-                    label: state.label || '',
+                    label: state.label,
                     range: {
                         start: state.start - chartStart,
                         end
