@@ -28,8 +28,8 @@
     "react-virtualized": "^9.21.0",
     "semantic-ui-css": "^2.4.1",
     "semantic-ui-react": "^0.86.0",
-    "timeline-chart": "^0.2.0",
-    "tsp-typescript-client": "^0.3.0"
+    "timeline-chart": "next",
+    "tsp-typescript-client": "next"
   },
   "devDependencies": {
     "@testing-library/react": "^10.4.6",
