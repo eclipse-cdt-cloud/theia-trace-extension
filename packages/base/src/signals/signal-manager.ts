@@ -16,8 +16,8 @@ export declare interface SignalManager {
     fireSelectionChangedSignal(payload: { [key: string]: string }): void;
     fireCloseTraceViewerTabSignal(traceUUID: string): void;
     fireTraceViewerTabActivatedSignal(experiment: Experiment): void;
-    fireZoomTimeGraphSignal(hasZoomedIn: boolean): void;
-    fireResetTimeGraphSignal(): void;
+    fireUpdateZoomSignal(hasZoomedIn: boolean): void;
+    fireResetZoomSignal(): void;
     fireAnnotationFilterSignal(annotationMarkers?: string[]): void;
     fireAnnotationsFetchedSignal(annotationCategories: string[]): void;
 }
@@ -36,8 +36,8 @@ export const Signals = {
     SELECTION_CHANGED: 'selection changed',
     CLOSE_TRACEVIEWERTAB: 'tab closed',
     TRACEVIEWERTAB_ACTIVATED: 'widget activated',
-    TIMEGRAPH_ZOOMED: 'timegraph zoomed',
-    TIMEGRAPH_RESET: 'timegraph reset',
+    UPDATE_ZOOM: 'update zoom',
+    RESET_ZOOM: 'reset zoom',
     ANNOTATION_MARKERS_FILTERED: 'filter marker category',
     ANNOTATIONS_FETCHED: 'annotations fetched'
 };
@@ -79,11 +79,11 @@ export class SignalManager extends EventEmitter implements SignalManager {
     fireTraceViewerTabActivatedSignal(experiment: Experiment): void {
         this.emit(Signals.TRACEVIEWERTAB_ACTIVATED, experiment);
     }
-    fireZoomTimeGraphSignal(hasZoomedIn: boolean): void {
-        this.emit(Signals.TIMEGRAPH_ZOOMED, hasZoomedIn);
+    fireUpdateZoomSignal(hasZoomedIn: boolean): void {
+        this.emit(Signals.UPDATE_ZOOM, hasZoomedIn);
     }
-    fireResetTimeGraphSignal(): void {
-        this.emit(Signals.TIMEGRAPH_RESET);
+    fireResetZoomSignal(): void {
+        this.emit(Signals.RESET_ZOOM);
     }
     fireAnnotationFilterSignal(annotationMarkers?: string[]): void {
         this.emit(Signals.ANNOTATION_MARKERS_FILTERED, annotationMarkers);
