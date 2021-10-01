@@ -78,8 +78,8 @@ export class TraceContextComponent extends React.Component<TraceContextProps, Tr
         }
     };
 
-    private onTimeGraphZoomed = (hasZoomedIn: boolean) => this.doHandleTimeGraphZoomedSignal(hasZoomedIn);
-    private onTimeGraphReset = () => this.doHandleTimeGraphResetSignal();
+    private onUpdateZoom = (hasZoomedIn: boolean) => this.doHandleUpdateZoomSignal(hasZoomedIn);
+    private onResetZoom = () => this.doHandleResetZoomSignal();
 
     constructor(props: TraceContextProps) {
         super(props);
@@ -127,8 +127,8 @@ export class TraceContextComponent extends React.Component<TraceContextProps, Tr
         this.traceContextContainer = React.createRef();
         this.initialize();
         signalManager().on(Signals.THEME_CHANGED, this.onBackgroundThemeUpdated);
-        signalManager().on(Signals.TIMEGRAPH_ZOOMED, this.onTimeGraphZoomed);
-        signalManager().on(Signals.TIMEGRAPH_RESET, this.onTimeGraphReset);
+        signalManager().on(Signals.UPDATE_ZOOM, this.onUpdateZoom);
+        signalManager().on(Signals.RESET_ZOOM, this.onResetZoom);
     }
 
     private updateBackgroundTheme(theme: string): void {
@@ -197,8 +197,8 @@ export class TraceContextComponent extends React.Component<TraceContextProps, Tr
         this.props.messageManager.removeStatusMessage(this.INDEXING_STATUS_BAR_KEY);
         this.props.messageManager.removeStatusMessage(this.TIME_SELECTION_STATUS_BAR_KEY);
         this.props.removeResizeHandler(this.onResize);
-        signalManager().off(Signals.TIMEGRAPH_ZOOMED, this.onTimeGraphZoomed);
-        signalManager().off(Signals.TIMEGRAPH_RESET, this.onTimeGraphReset);
+        signalManager().off(Signals.UPDATE_ZOOM, this.onUpdateZoom);
+        signalManager().off(Signals.RESET_ZOOM, this.onResetZoom);
     }
 
     async componentDidUpdate(): Promise<void> {
@@ -206,11 +206,11 @@ export class TraceContextComponent extends React.Component<TraceContextProps, Tr
         ReactTooltip.rebuild();
     }
 
-    private doHandleTimeGraphZoomedSignal(hasZoomedIn: boolean) {
+    private doHandleUpdateZoomSignal(hasZoomedIn: boolean) {
         this.zoomButton(hasZoomedIn);
     }
 
-    private doHandleTimeGraphResetSignal() {
+    private doHandleResetZoomSignal() {
         this.unitController.viewRange = { start: 0, end: this.unitController.absoluteRange };
     }
 

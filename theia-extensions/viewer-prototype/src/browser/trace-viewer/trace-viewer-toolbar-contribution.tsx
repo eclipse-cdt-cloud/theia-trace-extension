@@ -45,21 +45,21 @@ export class TraceViewerToolbarContribution implements TabBarToolbarContribution
             TraceViewerToolbarCommands.ZOOM_IN, {
             isVisible: (w: Widget) => w instanceof TraceViewerWidget,
             execute: () => {
-                signalManager().fireZoomTimeGraphSignal(true);
+                signalManager().fireUpdateZoomSignal(true);
             }
         });
         registry.registerCommand(
             TraceViewerToolbarCommands.ZOOM_OUT, {
             isVisible: (w: Widget) => w instanceof TraceViewerWidget,
             execute: () => {
-                signalManager().fireZoomTimeGraphSignal(false);
+                signalManager().fireUpdateZoomSignal(false);
             }
         });
         registry.registerCommand(
             TraceViewerToolbarCommands.RESET, {
             isVisible: (w: Widget) => w instanceof TraceViewerWidget,
             execute: () => {
-                signalManager().fireResetTimeGraphSignal();
+                signalManager().fireResetZoomSignal();
             }
         });
     }
