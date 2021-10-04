@@ -206,38 +206,18 @@ export class TspDataProvider {
         let nextPossibleState = entry.end;
         row.states.forEach((state: TimeGraphState, idx: number) => {
             const end = state.end - chartStart;
-            if (state.style) {
-                states.push({
-                    id: row.entryId + '-' + idx,
-                    label: state.label,
-                    range: {
-                        start: state.start - chartStart,
-                        end
-                    },
-                    data: {
-                        style: state.style
-                    }
-                });
-                this.totalRange = this.totalRange < end ? end : this.totalRange;
-            } else {
-                const nextIndex = idx + 1;
-                const nextState = row.states[nextIndex];
-                if (nextState && nextState.start > state.end + BigInt(1)) {
-                    // Add gap state
-                    states.push({
-                        // TODO: We should probably remove id from state. We don't use it anywhere.
-                        id: row.entryId + '-' + idx,
-                        label: '',
-                        range: {
-                            start: end,
-                            end: nextState.start - chartStart
-                        },
-                        data: {
-                            style: gapStyle
-                        }
-                    });
+            states.push({
+                id: row.entryId + '-' + idx,
+                label: state.label,
+                range: {
+                    start: state.start - chartStart,
+                    end
+                },
+                data: {
+                    style: state.style
                 }
-            }
+            });
+            this.totalRange = this.totalRange < end ? end : this.totalRange;
             if (idx === 0) {
                 prevPossibleState = state.start - chartStart;
             }
@@ -256,7 +236,8 @@ export class TspDataProvider {
             states,
             annotations: [],
             prevPossibleState,
-            nextPossibleState
+            nextPossibleState,
+            gapStyle
         };
     }
 
