@@ -414,6 +414,7 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
                     borderColor: state.selected ? 0xeef20c : (borderColor ? borderColor.color : 0x000000)
                 };
             }
+            return undefined;
         }
         return this.getDefaultStateStyle(state);
     }
