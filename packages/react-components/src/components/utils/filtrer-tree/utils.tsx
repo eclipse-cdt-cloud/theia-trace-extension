@@ -31,7 +31,9 @@ export const listToTree = (list: Entry[], headers: ColumnHeader[]): TreeNode[] =
         if ((entry.parentId !== undefined) && (entry.parentId !== -1)) {
             const parent: TreeNode = lookup[entry.parentId];
             if (parent) {
-                parent.children.push(node);
+                if (parent.id !== node.id) {
+                    parent.children.push(node);
+                }
             } else {
                 // no parent available, treat is as root node
                 node.isRoot = true;
