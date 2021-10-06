@@ -25,6 +25,7 @@ import ReactTooltip from 'react-tooltip';
 import { TooltipComponent } from './tooltip-component';
 import { TooltipXYComponent } from './tooltip-xy-component';
 import { BIMath } from 'timeline-chart/lib/bigint-utils';
+import { DataTreeOutputComponent } from './datatree-output-component';
 
 const ResponsiveGridLayout = WidthProvider(Responsive);
 
@@ -315,8 +316,9 @@ export class TraceContextComponent extends React.Component<TraceContextProps, Tr
     private renderOutputs() {
         const layouts = this.generateGridLayout();
         const outputs = this.props.outputs;
+        const showTimeScale = outputs.filter(output => output.type === 'TIME_GRAPH' || output.type === 'TREE_TIME_XY').length > 0;
         return <React.Fragment>
-            {(outputs.length > 1 || outputs[0].type !== 'TABLE') &&
+            {showTimeScale &&
                 <div style={{ marginLeft: this.state.style.width - this.state.style.chartWidth }}>
                     <TimeAxisComponent unitController={this.unitController} style={this.state.style}
                         addWidgetResizeHandler={this.addWidgetResizeHandler} removeWidgetResizeHandler={this.removeWidgetResizeHandler} />
@@ -357,12 +359,14 @@ export class TraceContextComponent extends React.Component<TraceContextProps, Tr
                             return <XYOutputComponent key={output.id} {...outputProps} />;
                         case 'TABLE':
                             return <TableOutputComponent key={output.id} {...outputProps} />;
+                        case 'DATA_TREE':
+                            return <DataTreeOutputComponent key={output.id} {...outputProps} />;
                         default:
                             return <NullOutputComponent key={output.id} {...outputProps} />;
                     }
                 })}
             </ResponsiveGridLayout>
-            {(outputs.length > 1 || outputs[0].type !== 'TABLE') &&
+            {showTimeScale &&
                 <div style={{ marginLeft: this.state.style.width - this.state.style.chartWidth }}>
                     <TimeNavigatorComponent unitController={this.unitController} style={this.state.style}
                         addWidgetResizeHandler={this.addWidgetResizeHandler} removeWidgetResizeHandler={this.removeWidgetResizeHandler} />
