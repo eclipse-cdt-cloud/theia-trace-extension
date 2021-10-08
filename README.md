@@ -118,6 +118,28 @@ It's possible to package the repo's example application with `electron-builder`.
 
   The configured Linux packaging(s) will be generated in folder `examples/electron/dist`
 
+## Tests
+
+To run tests once, at the root of the project do:
+
+```shell
+yarn test --verbose
+```
+
+To keep tests running do:
+
+```shell
+yarn test --verbose --watch
+```
+
+### Test coverage
+
+The following command prints a coverage report to the terminal. As of now it covers all typescript files of the project, including those that are not supposed to have tests.
+
+```shell
+yarn test --coverage --collectCoverageFrom='src/**/*.ts'
+```
+
 ## Using the trace extension
 This section describes how to operate the Theia trace extension to view and analyze traces. The UI, view interactions, and UX are prelimiary and subject to revisions in the future.
 
