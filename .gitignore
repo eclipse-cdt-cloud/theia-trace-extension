@@ -2,6 +2,7 @@ node_modules
 .browser_modules
 lib
 *.log
+/packages/react-components/coverage/
 TraceCompassTutorialTraces
 trace-compass-server
 trace-compass-server.tar.gz

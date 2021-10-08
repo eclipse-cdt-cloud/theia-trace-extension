@@ -18,6 +18,7 @@
         "node"
     ],
     "setupFilesAfterEnv": [
+        "jest-canvas-mock",
         "./jestSetup.ts"
     ]
 }
