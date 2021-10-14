@@ -77,9 +77,11 @@ export class ReactOpenTracesWidget extends React.Component<ReactOpenTracesWidget
     }
 
     protected doHandleTracesWidgetActivatedSignal(experiment: Experiment): void {
-        this._selectedExperiment = experiment;
-        const selectedIndex = this.state.openedExperiments.findIndex(openedExperiment => openedExperiment.UUID === experiment.UUID);
-        this.selectExperiment(selectedIndex);
+        if (this._selectedExperiment?.UUID !== experiment.UUID) {
+            this._selectedExperiment = experiment;
+            const selectedIndex = this.state.openedExperiments.findIndex(openedExperiment => openedExperiment.UUID === experiment.UUID);
+            this.selectExperiment(selectedIndex);
+        }
     }
 
     protected doHandleContextMenuEvent(event: React.MouseEvent<HTMLDivElement>, traceUUID: string): void {
