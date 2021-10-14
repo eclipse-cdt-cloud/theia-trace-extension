@@ -1,5 +1,5 @@
 import { inject, injectable, postConstruct } from 'inversify';
-import { ReactWidget, Widget } from '@theia/core/lib/browser';
+import { ReactWidget, Widget, WidgetManager } from '@theia/core/lib/browser';
 import * as React from 'react';
 import { Experiment } from 'tsp-typescript-client/lib/models/experiment';
 import { ExperimentManager } from 'traceviewer-base/lib/experiment-manager';
@@ -11,6 +11,7 @@ import { ContextMenuRenderer } from '@theia/core/lib/browser';
 import { TraceViewerCommand } from '../../trace-viewer/trace-viewer-commands';
 import { ReactOpenTracesWidget} from 'traceviewer-react-components/lib/trace-explorer/trace-explorer-opened-traces-widget';
 import { TraceExplorerMenus } from '../trace-explorer-commands';
+import { TraceViewerWidget } from '../../trace-viewer/trace-viewer';
 
 @injectable()
 export class TraceExplorerOpenedTracesWidget extends ReactWidget {
@@ -23,6 +24,7 @@ export class TraceExplorerOpenedTracesWidget extends ReactWidget {
     @inject(TraceExplorerTooltipWidget) protected readonly tooltipWidget!: TraceExplorerTooltipWidget;
     @inject(ContextMenuRenderer) protected readonly contextMenuRenderer!: ContextMenuRenderer;
     @inject(CommandService) protected readonly commandService!: CommandService;
+    @inject(WidgetManager) protected readonly widgetManager!: WidgetManager;
 
     private _experimentManager!: ExperimentManager;
 
@@ -50,7 +52,12 @@ export class TraceExplorerOpenedTracesWidget extends ReactWidget {
     }
 
     public openExperiment(traceUUID: string): void {
-        this.commandService.executeCommand(TraceViewerCommand.id, { traceUUID });
+        const widgets = this.widgetManager.getWidgets(TraceViewerWidget.ID);
+        const widget = widgets.find(w => w.id === traceUUID);
+        // Don't execute command if widget is already open.
+        if (!widget) {
+            this.commandService.executeCommand(TraceViewerCommand.id, { traceUUID });
+        }
     }
 
     public closeExperiment(traceUUID: string): void {
