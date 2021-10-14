@@ -58,6 +58,8 @@ export class ReactTimeGraphContainer extends React.Component<ReactTimeGraphConta
     }
 
     private resize(): void {
-        if (this.container) { this.container.updateCanvas(this.props.options.width, this.props.options.height); }
+        if (this.container) {
+            this.container.updateCanvas(this.props.options.width, this.props.options.height, this.props.options.backgroundColor, this.props.options.lineColor);
+        }
     }
 }
