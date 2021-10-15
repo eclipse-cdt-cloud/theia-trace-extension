@@ -23,6 +23,7 @@ import * as Messages from 'traceviewer-base/lib/message-manager';
 import { signalManager, Signals } from 'traceviewer-base/lib/signals/signal-manager';
 import ReactTooltip from 'react-tooltip';
 import { TooltipComponent } from './tooltip-component';
+import { TooltipXYComponent } from './tooltip-xy-component';
 import { BIMath } from 'timeline-chart/lib/bigint-utils';
 
 const ResponsiveGridLayout = WidthProvider(Responsive);
@@ -62,11 +63,13 @@ export class TraceContextComponent extends React.Component<TraceContextProps, Tr
     private readonly DEFAULT_CHART_WIDTH: number = Math.floor(this.DEFAULT_COMPONENT_WIDTH * this.COMPONENT_WIDTH_PROPORTION);
     private readonly DEFAULT_COMPONENT_HEIGHT: number = 10;
     private readonly DEFAULT_COMPONENT_ROWHEIGHT: number = 20;
+    private readonly DEFAULT_COMPONENT_LEFT: number = 0;
     private readonly SCROLLBAR_PADDING: number = 12;
     private readonly Y_AXIS_WIDTH: number = 40;
 
     private unitController: TimeGraphUnitController;
     private tooltipComponent: React.RefObject<TooltipComponent>;
+    private tooltipXYComponent: React.RefObject<TooltipXYComponent>;
     private traceContextContainer: React.RefObject<HTMLDivElement>;
 
     protected widgetResizeHandlers: (() => void)[] = [];
@@ -105,6 +108,7 @@ export class TraceContextComponent extends React.Component<TraceContextProps, Tr
                 width: this.DEFAULT_COMPONENT_WIDTH, // 1245,
                 chartWidth: this.DEFAULT_CHART_WIDTH,
                 yAxisWidth: this.Y_AXIS_WIDTH,
+                componentLeft: this.DEFAULT_COMPONENT_LEFT,
                 height: this.DEFAULT_COMPONENT_HEIGHT,
                 rowHeight: this.DEFAULT_COMPONENT_ROWHEIGHT,
                 naviBackgroundColor: this.props.backgroundTheme === 'light' ? 0xf4f7fb : 0x3f3f3f,
@@ -129,6 +133,7 @@ export class TraceContextComponent extends React.Component<TraceContextProps, Tr
         this.unitController.onSelectionRangeChange(range => { this.handleTimeSelectionChange(range); });
         this.unitController.onViewRangeChanged(viewRangeParam => { this.handleViewRangeChange(viewRangeParam); });
         this.tooltipComponent = React.createRef();
+        this.tooltipXYComponent = React.createRef();
         this.traceContextContainer = React.createRef();
         this.onResize = this.onResize.bind(this);
         this.props.addResizeHandler(this.onResize);
@@ -252,7 +257,8 @@ export class TraceContextComponent extends React.Component<TraceContextProps, Tr
 
     private onResize() {
         const newWidth = this.traceContextContainer.current ? this.traceContextContainer.current.clientWidth - this.SCROLLBAR_PADDING : this.DEFAULT_COMPONENT_WIDTH;
-        this.setState(prevState => ({ style: { ...prevState.style, width: newWidth, chartWidth: this.getChartWidth(newWidth) } }));
+        const bounds = this.traceContextContainer.current ? this.traceContextContainer.current.getBoundingClientRect() : { left: this.DEFAULT_COMPONENT_LEFT };
+        this.setState(prevState => ({ style: { ...prevState.style, width: newWidth, chartWidth: this.getChartWidth(newWidth), componentLeft: bounds.left } }));
         this.widgetResizeHandlers.forEach(h => h());
     }
 
@@ -286,6 +292,7 @@ export class TraceContextComponent extends React.Component<TraceContextProps, Tr
             onKeyDown={event => this.onKeyDown(event)}
             ref={this.traceContextContainer}>
             <TooltipComponent ref={this.tooltipComponent} />
+            <TooltipXYComponent ref={this.tooltipXYComponent} />
             {this.props.outputs.length ? this.renderOutputs() : this.renderPlaceHolder()}
         </div>;
     }
@@ -327,6 +334,7 @@ export class TraceContextComponent extends React.Component<TraceContextProps, Tr
                     const outputProps: AbstractOutputProps = {
                         tspClient: this.props.tspClient,
                         tooltipComponent: this.tooltipComponent.current,
+                        tooltipXYComponent: this.tooltipXYComponent.current,
                         traceId: this.state.experiment.UUID,
                         outputDescriptor: output,
                         markerCategories: this.props.markerCategoriesMap.get(output.id),

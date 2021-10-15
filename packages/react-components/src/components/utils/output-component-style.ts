@@ -2,6 +2,7 @@ export interface OutputComponentStyle {
     width: number;
     chartWidth: number;
     yAxisWidth: number;
+    componentLeft: number,
     // react-grid-layout - The library used for resizing components
     // inserts new React components during compilation, and the dimensions
     // it returns are strings (pixels).

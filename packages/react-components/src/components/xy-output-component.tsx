@@ -42,6 +42,7 @@ export class XYOutputComponent extends AbstractTreeOutputComponent<AbstractOutpu
     private mouseIsDown = false;
     private positionXMove = 0;
     private isRightClick = false;
+    private isMouseMove = false;
     private posPixelSelect = 0;
     private isMouseLeave = false;
     private startPositionMouseRightClick = BigInt(0);
@@ -201,6 +202,11 @@ export class XYOutputComponent extends AbstractTreeOutputComponent<AbstractOutpu
             },
             maintainAspectRatio: false,
             legend: { display: false },
+            tooltips: {
+                intersect: false,
+                mode: 'index',
+                enabled: false,
+            },
             layout: {
                 padding: {
                     left: 0,
@@ -214,7 +220,7 @@ export class XYOutputComponent extends AbstractTreeOutputComponent<AbstractOutpu
                 yAxes: [{ display: false }]
             },
             animation: { duration: 0 },
-            events: [ 'mousedown' ],
+            events: [ 'mouseout' ],
         };
         // width={this.props.style.chartWidth}
         if (this.state.outputStatus === ResponseStatus.COMPLETED && this.state.xyTree.length === 0 ) {
@@ -237,9 +243,9 @@ export class XYOutputComponent extends AbstractTreeOutputComponent<AbstractOutpu
                     onContextMenu={event => event.preventDefault()}
                     onMouseLeave={event => this.onMouseLeave(event)}
                     onMouseDown={event => this.onMouseDown(event)}
-                    style={{ height: this.props.style.height }}
+                    style={{ height: this.props.style.height, position: 'relative' }}
                     ref={this.chartRef}
-                    >
+                >
                     <Line
                         data={this.state.xyData}
                         height={parseInt(this.props.style.height.toString())}
@@ -467,24 +473,108 @@ export class XYOutputComponent extends AbstractTreeOutputComponent<AbstractOutpu
         }
     }
 
+    private tooltip(x: number, y: number): void {
+        const xPos = this.positionXMove;
+        const timeForX = this.getTimeForX(xPos);
+        let timeLabel: string | undefined = timeForX.toString();
+        if (this.props.unitController.numberTranslator) {
+            timeLabel = this.props.unitController.numberTranslator(timeForX);
+        }
+        const chartWidth = this.lineChartRef.current.chartInstance.width;
+        const arraySize = this.state.xyData.labels.length;
+        const index = Math.max(Math.round((xPos / chartWidth) * (arraySize - 1)), 0);
+        const points: any = [];
+        let zeros = 0;
+
+        this.state.xyData.datasets.forEach((d: any) => {
+            // In case there are less data points than pixels in the chart,
+            // calculate nearest value.
+            const yValue = d.data[index];
+            const rounded = isNaN(yValue) ? 0 : (Math.round(Number(yValue) * 100) / 100);
+            // If there are less than 10 lines in the chart, show all values, even if they are equal to 0.
+            // If there are more than 10 lines in the chart, summarise the ones that are equal to 0.
+            if (this.state.xyData.datasets.length <= 10 || rounded > 0) {
+                const point: any = {
+                    label: d.label,
+                    color: d.borderColor,
+                    background: d.backgroundColor,
+                    value: rounded.toString(),
+                };
+                points.push(point);
+            }
+            else {
+                zeros += 1;
+            }
+        });
+        // Sort in decreasing order
+        points.sort((a: any, b: any) => Number(b.value) - Number(a.value));
+
+        // Adjust tooltip position if mouse is too close to the bottom of the window
+        let topPos = undefined;
+        let bottomPos = undefined;
+        if (y > window.innerHeight - 350) {
+            bottomPos = window.innerHeight - y;
+        }
+        else {
+            topPos = window.pageYOffset + y - 40;
+        }
+
+        // Adjust tooltip position if mouse is too close to the left edge of the chart
+        let leftPos = undefined;
+        let rightPos = undefined;
+        const xLocation = chartWidth - xPos;
+        if (xLocation > chartWidth * 0.8) {
+            leftPos = x - this.props.style.componentLeft;
+        }
+        else {
+            rightPos = xLocation;
+        }
+
+        const tooltipData = {
+            title: timeLabel,
+            dataPoints: points,
+            top: topPos,
+            bottom: bottomPos,
+            right: rightPos,
+            left: leftPos,
+            opacity: 1,
+            zeros
+        };
+
+        this.props.tooltipXYComponent?.setElement(tooltipData);
+    }
+
+    private hideTooltip() {
+        this.props.tooltipXYComponent?.setElement({
+            opacity: 0
+        });
+    }
+
     private onMouseMove(event: React.MouseEvent) {
+        this.isMouseMove = true;
         this.positionXMove = event.nativeEvent.offsetX;
         this.isMouseLeave = false;
+
         if (this.mouseIsDown && !this.isRightClick) {
             this.updateSelection();
         }
         if (this.mouseIsDown && this.isRightClick) {
             this.forceUpdate();
         }
+        if (this.state.xyData.labels.length > 0) {
+            this.tooltip(event.nativeEvent.x, event.nativeEvent.y);
+        }
     }
 
     private onMouseLeave(event: React.MouseEvent) {
+        this.isMouseMove = false;
         this.isMouseLeave = true;
         this.positionXMove = Math.max(0, Math.min(event.nativeEvent.offsetX, this.lineChartRef.current.chartInstance.width));
         this.forceUpdate();
         if (this.mouseIsDown && !this.isRightClick) {
             this.updateSelection();
         }
+        this.hideTooltip();
     }
 
     private applySelectionZoom() {
@@ -495,6 +585,7 @@ export class XYOutputComponent extends AbstractTreeOutputComponent<AbstractOutpu
     }
 
     private onKeyDown(key: React.KeyboardEvent) {
+        this.hideTooltip();
         if (!this.isMouseLeave) {
             switch (key.key) {
                 case 'W':
@@ -560,6 +651,7 @@ export class XYOutputComponent extends AbstractTreeOutputComponent<AbstractOutpu
                 label: series.seriesName,
                 fill: false,
                 borderColor: color,
+                backgroundColor: color,
                 borderWidth: 2,
                 data: series.yValues
             });
