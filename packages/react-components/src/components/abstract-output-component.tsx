@@ -8,10 +8,12 @@ import { TimeRange } from 'traceviewer-base/lib/utils/time-range';
 import { OutputComponentStyle } from './utils/output-component-style';
 import { OutputStyleModel } from 'tsp-typescript-client/lib/models/styles';
 import { TooltipComponent } from './tooltip-component';
+import { TooltipXYComponent } from './tooltip-xy-component';
 
 export interface AbstractOutputProps {
     tspClient: TspClient;
     tooltipComponent: TooltipComponent | null;
+    tooltipXYComponent: TooltipXYComponent | null;
     traceId: string;
     range: TimeRange;
     nbEvents: number;
