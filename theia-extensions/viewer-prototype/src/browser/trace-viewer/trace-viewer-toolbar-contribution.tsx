@@ -45,21 +45,39 @@ export class TraceViewerToolbarContribution implements TabBarToolbarContribution
     registerCommands(registry: CommandRegistry): void {
         registry.registerCommand(
             TraceViewerToolbarCommands.ZOOM_IN, {
-            isVisible: (w: Widget) => w instanceof TraceViewerWidget,
+            isVisible: (w: Widget) => {
+                if (w instanceof TraceViewerWidget) {
+                    const traceWidget = w as TraceViewerWidget;
+                    return traceWidget.isTimeRelatedChartOpened();
+                }
+                return false;
+            },
             execute: () => {
                 signalManager().fireUpdateZoomSignal(true);
             }
         });
         registry.registerCommand(
             TraceViewerToolbarCommands.ZOOM_OUT, {
-            isVisible: (w: Widget) => w instanceof TraceViewerWidget,
+            isVisible: (w: Widget) => {
+                if (w instanceof TraceViewerWidget) {
+                    const traceWidget = w as TraceViewerWidget;
+                    return traceWidget.isTimeRelatedChartOpened();
+                }
+                return false;
+            },
             execute: () => {
                 signalManager().fireUpdateZoomSignal(false);
             }
         });
         registry.registerCommand(
             TraceViewerToolbarCommands.RESET, {
-            isVisible: (w: Widget) => w instanceof TraceViewerWidget,
+            isVisible: (w: Widget) => {
+                if (w instanceof TraceViewerWidget) {
+                    const traceWidget = w as TraceViewerWidget;
+                    return traceWidget.isTimeRelatedChartOpened();
+                }
+                return false;
+            },
             execute: () => {
                 signalManager().fireResetZoomSignal();
             }

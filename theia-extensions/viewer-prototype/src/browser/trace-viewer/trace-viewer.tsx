@@ -471,4 +471,9 @@ export class TraceViewerWidget extends ReactWidget {
             this.update();
         }
     }
+
+    isTimeRelatedChartOpened(): boolean {
+        const timeRelatedOutputs = this.outputDescriptors.filter(output => output.type === 'TIME_GRAPH' || output.type === 'TREE_TIME_XY');
+        return timeRelatedOutputs.length > 0;
+    }
 }
