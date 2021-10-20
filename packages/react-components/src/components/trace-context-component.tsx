@@ -208,9 +208,19 @@ export class TraceContextComponent extends React.Component<TraceContextProps, Tr
         signalManager().off(Signals.RESET_ZOOM, this.onResetZoom);
     }
 
-    async componentDidUpdate(): Promise<void> {
+    async componentDidUpdate(prevProps: TraceContextProps): Promise<void> {
         // Rebuild enables tooltip on newly added output component
         ReactTooltip.rebuild();
+        if (prevProps.outputs.length < this.props.outputs.length) {
+            this.scrollToBottom();
+        }
+    }
+
+    private scrollToBottom(): void {
+        if (this.props.outputs.length) {
+            const bottomOutputId = this.props.outputs[this.props.outputs.length - 1].id;
+            document.getElementById(bottomOutputId)?.scrollIntoView();
+        }
     }
 
     private doHandleUpdateZoomSignal(hasZoomedIn: boolean) {
@@ -271,8 +281,8 @@ export class TraceContextComponent extends React.Component<TraceContextProps, Tr
 
     render(): JSX.Element {
         return <div className='trace-context-container'
-                onKeyDown={event => this.onKeyDown(event)}
-                ref={this.traceContextContainer}>
+            onKeyDown={event => this.onKeyDown(event)}
+            ref={this.traceContextContainer}>
             <TooltipComponent ref={this.tooltipComponent} />
             {this.props.outputs.length ? this.renderOutputs() : this.renderPlaceHolder()}
         </div>;

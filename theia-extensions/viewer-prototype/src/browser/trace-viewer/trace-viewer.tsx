@@ -310,9 +310,11 @@ export class TraceViewerWidget extends ReactWidget {
             const exist = this.outputDescriptors.find(output => output.id === payload.getOutputDescriptor().id);
             if (!exist) {
                 const output = payload.getOutputDescriptor();
-                this.outputDescriptors.push(output);
+                this.outputDescriptors =  this.outputDescriptors.concat(output);
                 await this.fetchAnnotationCategories(output);
                 this.update();
+            } else {
+                document.getElementById(exist.id)?.scrollIntoView();
             }
         }
     }
