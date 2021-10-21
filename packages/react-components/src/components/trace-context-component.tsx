@@ -54,6 +54,7 @@ interface TraceContextState {
 
 export class TraceContextComponent extends React.Component<TraceContextProps, TraceContextState> {
     private readonly INDEXING_RUNNING_STATUS: string = 'RUNNING';
+    private readonly INDEXING_CLOSED_STATUS: string = 'CLOSED';
     private readonly INDEXING_STATUS_BAR_KEY = 'indexing-status';
     private readonly TIME_SELECTION_STATUS_BAR_KEY = 'time-selection-range';
     private readonly COMPONENT_WIDTH_PROPORTION: number = 0.85;
@@ -99,7 +100,7 @@ export class TraceContextComponent extends React.Component<TraceContextProps, Tr
             currentViewRange: viewRange,
             currentTimeSelection: undefined,
             experiment: this.props.experiment,
-            traceIndexing: this.props.experiment.indexingStatus === this.INDEXING_RUNNING_STATUS,
+            traceIndexing: ((this.props.experiment.indexingStatus === this.INDEXING_RUNNING_STATUS) || (this.props.experiment.indexingStatus === this.INDEXING_CLOSED_STATUS)),
             style: {
                 width: this.DEFAULT_COMPONENT_WIDTH, // 1245,
                 chartWidth: this.DEFAULT_CHART_WIDTH,
@@ -115,7 +116,7 @@ export class TraceContextComponent extends React.Component<TraceContextProps, Tr
         const absoluteRange = traceRange.getDuration();
         this.unitController = new TimeGraphUnitController(absoluteRange, { start: BigInt(0), end: absoluteRange });
         this.unitController.numberTranslator = (theNumber: bigint) => {
-            const originalStart = traceRange.getStart();
+            const originalStart = this.state.currentRange.getStart();
             theNumber += originalStart;
             const zeroPad = (num: bigint) => String(num).padStart(3, '0');
             const seconds = theNumber / BigInt(1000000000);
