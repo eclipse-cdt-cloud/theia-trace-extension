@@ -93,7 +93,7 @@ export class TraceViewerWidget extends ReactWidget {
             this.experimentManager = this.tspClientProvider.getExperimentManager();
         });
         if (this.options.traceUUID) {
-            const experiment = await this.experimentManager.getExperiment(this.options.traceUUID);
+            const experiment = await this.experimentManager.updateExperiment(this.options.traceUUID);
             if (experiment) {
                 this.openedExperiment = experiment;
                 this.title.label = 'Trace: ' + experiment.name;
