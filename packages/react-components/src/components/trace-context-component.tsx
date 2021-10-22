@@ -68,8 +68,6 @@ export class TraceContextComponent extends React.Component<TraceContextProps, Tr
     private tooltipComponent: React.RefObject<TooltipComponent>;
     private traceContextContainer: React.RefObject<HTMLDivElement>;
 
-    private onBackgroundThemeUpdated = (theme: string): void => this.updateBackgroundTheme(theme);
-
     protected widgetResizeHandlers: (() => void)[] = [];
     protected readonly addWidgetResizeHandler = (h: () => void): void => {
         this.widgetResizeHandlers.push(h);
@@ -82,6 +80,7 @@ export class TraceContextComponent extends React.Component<TraceContextProps, Tr
         }
     };
 
+    private onBackgroundThemeChange = (theme: string): void => this.doHandleBackgroundThemeChange(theme);
     private onUpdateZoom = (hasZoomedIn: boolean) => this.doHandleUpdateZoomSignal(hasZoomedIn);
     private onResetZoom = () => this.doHandleResetZoomSignal();
 
@@ -129,24 +128,22 @@ export class TraceContextComponent extends React.Component<TraceContextProps, Tr
         this.unitController.onViewRangeChanged(viewRangeParam => { this.handleViewRangeChange(viewRangeParam); });
         this.tooltipComponent = React.createRef();
         this.traceContextContainer = React.createRef();
+        this.onResize = this.onResize.bind(this);
+        this.props.addResizeHandler(this.onResize);
         this.initialize();
         this.subscribeToEvents();
     }
 
-    private updateBackgroundTheme(theme: string): void {
-        this.setState({
+    private doHandleBackgroundThemeChange(theme: string): void {
+        this.setState(prevState => ({
             style: {
-                width: this.DEFAULT_COMPONENT_WIDTH,
-                chartWidth: this.DEFAULT_CHART_WIDTH,
-                height: this.DEFAULT_COMPONENT_HEIGHT,
-                rowHeight: this.DEFAULT_COMPONENT_ROWHEIGHT,
+                ...prevState.style,
                 naviBackgroundColor: theme === 'light' ? 0xf4f7fb : 0x3f3f3f,
                 chartBackgroundColor: theme === 'light' ? 0xf4f7fb : 0x232323,
-                cursorColor: 0x259fd8,
                 lineColor: theme === 'light' ? 0x757575 : 0xbbbbbb
             },
             backgroundTheme: theme
-        });
+        }));
     }
 
     private async initialize() {
@@ -189,8 +186,6 @@ export class TraceContextComponent extends React.Component<TraceContextProps, Tr
     }
 
     componentDidMount(): void {
-        this.onResize = this.onResize.bind(this);
-        this.props.addResizeHandler(this.onResize);
         this.onResize();
     }
 
@@ -202,13 +197,13 @@ export class TraceContextComponent extends React.Component<TraceContextProps, Tr
     }
 
     private subscribeToEvents() {
-        signalManager().on(Signals.THEME_CHANGED, this.onBackgroundThemeUpdated);
+        signalManager().on(Signals.THEME_CHANGED, this.onBackgroundThemeChange);
         signalManager().on(Signals.UPDATE_ZOOM, this.onUpdateZoom);
         signalManager().on(Signals.RESET_ZOOM, this.onResetZoom);
     }
 
     private unsubscribeToEvents() {
-        signalManager().off(Signals.THEME_CHANGED, this.onBackgroundThemeUpdated);
+        signalManager().off(Signals.THEME_CHANGED, this.onBackgroundThemeChange);
         signalManager().off(Signals.UPDATE_ZOOM, this.onUpdateZoom);
         signalManager().off(Signals.RESET_ZOOM, this.onResetZoom);
     }
