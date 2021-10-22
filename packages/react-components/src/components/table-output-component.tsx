@@ -599,8 +599,8 @@ export class TableOutputComponent extends AbstractOutputComponent<TableOutputPro
     private isValidRowSelection(rowNode: RowNode): boolean {
         if ((this.enableIndexSelection && this.selectStartIndex !== -1 && this.selectEndIndex !== -1 && rowNode.rowIndex >= Math.min(this.selectStartIndex, this.selectEndIndex)
             && rowNode.rowIndex <= Math.max(this.selectStartIndex, this.selectEndIndex)) || (!this.enableIndexSelection
-                && this.timestampCol && rowNode.data[this.timestampCol] >= (this.startTimestamp <= this.endTimestamp ? this.startTimestamp : this.endTimestamp)
-                && rowNode.data[this.timestampCol] <= (this.endTimestamp <= this.startTimestamp ? this.endTimestamp : this.startTimestamp))) {
+                && this.timestampCol && BigInt(rowNode.data[this.timestampCol]) >= (this.startTimestamp <= this.endTimestamp ? this.startTimestamp : this.endTimestamp)
+                && BigInt(rowNode.data[this.timestampCol]) <= (this.startTimestamp <= this.endTimestamp ? this.endTimestamp : this.startTimestamp))) {
             return true;
         }
         return false;
