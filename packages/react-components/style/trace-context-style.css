@@ -30,3 +30,8 @@
     width: 10px !important;
     height: 10px !important;
 }
+
+.react-grid-item > .react-resizable-handle::after {
+    border-right-color: var(--theia-ui-font-color0) !important;
+    border-bottom-color: var(--theia-ui-font-color0) !important;
+}
