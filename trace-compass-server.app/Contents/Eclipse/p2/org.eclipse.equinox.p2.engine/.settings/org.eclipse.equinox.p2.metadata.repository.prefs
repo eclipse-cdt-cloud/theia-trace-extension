@@ -1,0 +1,8 @@
+eclipse.preferences.version=1
+repositories/file\:_home_jenkins_agent_workspace_tracecompass-incubator-nightly_trace-server_org.eclipse.tracecompass.incubator.trace.server.product_target_repository/enabled=true
+repositories/file\:_home_jenkins_agent_workspace_tracecompass-incubator-nightly_trace-server_org.eclipse.tracecompass.incubator.trace.server.product_target_repository/isSystem=false
+repositories/file\:_home_jenkins_agent_workspace_tracecompass-incubator-nightly_trace-server_org.eclipse.tracecompass.incubator.trace.server.product_target_repository/name=Trace Compass Server Product
+repositories/file\:_home_jenkins_agent_workspace_tracecompass-incubator-nightly_trace-server_org.eclipse.tracecompass.incubator.trace.server.product_target_repository/suffix=content.xml.xz
+repositories/file\:_home_jenkins_agent_workspace_tracecompass-incubator-nightly_trace-server_org.eclipse.tracecompass.incubator.trace.server.product_target_repository/type=org.eclipse.equinox.internal.p2.metadata.repository.LocalMetadataRepository
+repositories/file\:_home_jenkins_agent_workspace_tracecompass-incubator-nightly_trace-server_org.eclipse.tracecompass.incubator.trace.server.product_target_repository/uri=file\:/home/jenkins/agent/workspace/tracecompass-incubator-nightly/trace-server/org.eclipse.tracecompass.incubator.trace.server.product/target/repository/
+repositories/file\:_home_jenkins_agent_workspace_tracecompass-incubator-nightly_trace-server_org.eclipse.tracecompass.incubator.trace.server.product_target_repository/version=1.0.0

@@ -90,6 +90,7 @@ export class ReactAvailableViewsWidget extends React.Component<ReactAvailableVie
             traceContainerClassName = traceContainerClassName + ' theia-mod-selected';
         }
         return <div className={traceContainerClassName}
+            title={outputName + ': ' + outputDescription}
             id={`${traceContainerClassName}-${props.index}`}
             key={props.key}
             style={props.style}
@@ -103,6 +104,7 @@ export class ReactAvailableViewsWidget extends React.Component<ReactAvailableVie
             <div className='outputs-element-description child-element'>
                 {outputDescription}
             </div>
+
         </div>;
     }
 

@@ -1,59 +1,60 @@
 :root {
-    --trace-extension-list-line-height: 16px;
+  --trace-extension-list-line-height: 16px;
 }
 
 #trace-explorer-views-widget,
 #trace-explorer-opened-traces-widget {
-    height: 100%;
+  height: 100%;
 }
 
 .trace-explorer-tab-icon {
-    -webkit-mask: url('chart-line-solid.svg');
-    mask: url('chart-line-solid.svg');
+  -webkit-mask: url("chart-line-solid.svg");
+  mask: url("chart-line-solid.svg");
 }
 
 .trace-explorer-opened,
 .trace-explorer-views,
 .trace-explorer-tooltip {
-    margin: 0 2px;
+  margin: 0 2px;
 }
 
 .trace-explorer-panel-title {
-    grid-row-start: 1;
-    background-color: var(--theia-layout-color4);
-    /* background-color: rgba(97, 97, 97, 0.5); */
-    /* color: white; */
-    text-align: center;
-    line-height: 25px;
+  grid-row-start: 1;
+  background-color: var(--theia-layout-color4);
+  /* background-color: rgba(97, 97, 97, 0.5); */
+  /* color: white; */
+  text-align: center;
+  line-height: 100px;
 }
 
 .trace-explorer-panel-content {
-    grid-row-start: 2;
-    border: 1px solid var(--theia-layout-color4);
-    /* color: white; */
-    white-space: nowrap;
+  grid-row-start: 2;
+  border: 1px solid var(--theia-layout-color4);
+  /* color: white; */
+  white-space: nowrap;
 }
 
-.trace-explorer-panel-content>ul {
-    list-style-type: none;
-    padding-inline-start: 0px;
+.trace-explorer-panel-content > ul {
+  list-style-type: none;
+  padding-inline-start: 0px;
 }
 
-.trace-list-container, .outputs-list-container {
-    /* color: white; */
-    overflow-x: hidden;
-    white-space: nowrap;
+.trace-list-container,
+.outputs-list-container {
+  /* color: white; */
+  overflow-x: hidden;
+  white-space: nowrap;
 }
 
 .trace-list-container:hover,
 .outputs-list-container:hover {
-    background-color: var(--theia-list-hoverBackground);
-    cursor: pointer;
+  background-color: var(--theia-list-hoverBackground);
+  cursor: pointer;
 }
 
 .trace-list-container.theia-mod-selected,
 .outputs-list-container.theia-mod-selected {
-    background-color: var(--theia-selection-background);
+  background-color: var(--theia-selection-background);
 }
 
 /* Share options have been commented out, grid is disabled to optimize horizontal space */
@@ -65,102 +66,108 @@
 
 /* Remove focus outline on grid when selected */
 .ReactVirtualized__Grid {
-    outline: none;
+  outline: none;
 }
 
 .trace-element-info {
-    overflow-x: hidden;
-    grid-column-start: 1;
+  overflow-x: hidden;
+  grid-column-start: 1;
 }
 
-.trace-element-name, .outputs-element-name {
-    font-weight: bold;
-    margin: unset;
-    height: var(--trace-extension-list-line-height);
+.trace-element-name,
+.outputs-element-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-weight: bold;
+  margin: unset;
+  height: var(--trace-extension-list-line-height);
 }
 
-.trace-element-path-container, .outputs-element-description {
-    margin: unset;
-    color: var(--theia-ui-font-color2);
-    /* color: rgb(160, 160, 160); */
-    white-space: pre;
-    font-size: .95em;
+.trace-element-path-container,
+.outputs-element-description {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin: unset;
+  color: var(--theia-ui-font-color2);
+  /* color: rgb(160, 160, 160); */
+  white-space: pre;
+  font-size: 0.95em;
 }
 
 .child-element {
-    height: var(--trace-extension-list-line-height);
+  height: var(--trace-extension-list-line-height);
 }
 
 .trace-element-options {
-    grid-column-start: 2;
-    padding-left: 10px;
+  grid-column-start: 2;
+  padding-left: 10px;
 }
 
 .share-context-button {
-    width: 100%;
-    height: 100%;
-    min-width: 10px;
-    margin-left: 0px;
+  width: 100%;
+  height: 100%;
+  min-width: 10px;
+  margin-left: 0px;
 }
 
 .sharing-modal {
-    position: absolute;
-    top: 400px;
-    left: 600px;
-    right: 600px;
-    bottom: 550px; /*470px;*/
-    background-color: rgb(30, 30, 30);
+  position: absolute;
+  top: 400px;
+  left: 600px;
+  right: 600px;
+  bottom: 550px; /*470px;*/
+  background-color: rgb(30, 30, 30);
 }
 
 .sharing-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background-color: rgba(0, 0, 0, 0.6)
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.6);
 }
 
 .sharing-container {
-    margin: 10px;
+  margin: 10px;
 }
 
 .sharing-description {
-    color: white;
-    padding-bottom: 15px;
+  color: white;
+  padding-bottom: 15px;
 }
 
 .sharing-link-info {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) 50px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 50px;
 }
 
 .sharing-link {
-    grid-column-start: 1;
+  grid-column-start: 1;
 }
 
-.sharing-link>textarea {
-    color: white;
-    background-color: rgb(50, 50, 50);
-    border-color: var(--theia-ui-button-color);
-    min-width: 100%;
-    min-height: 100%;
-    resize: none;
-    box-sizing: border-box;
+.sharing-link > textarea {
+  color: white;
+  background-color: rgb(50, 50, 50);
+  border-color: var(--theia-ui-button-color);
+  min-width: 100%;
+  min-height: 100%;
+  resize: none;
+  box-sizing: border-box;
 }
 
 .sharing-link-copy {
-    grid-column-start: 2;
-    padding-left: 10px;
+  grid-column-start: 2;
+  padding-left: 10px;
 }
 
 .copy-link-button {
-    width: 100%;
-    height: 100%;
-    min-width: 10px;
-    margin-left: 0px;
+  width: 100%;
+  height: 100%;
+  min-width: 10px;
+  margin-left: 0px;
 }
 
 .source-code-tooltip {
-    text-decoration: underline;
+  text-decoration: underline;
 }
