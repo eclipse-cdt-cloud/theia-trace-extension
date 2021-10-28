@@ -8,6 +8,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCopy } from '@fortawesome/free-solid-svg-icons';
 import { OpenedTracesUpdatedSignalPayload } from 'traceviewer-base/lib/signals/opened-traces-updated-signal-payload';
 import { ITspClientProvider } from 'traceviewer-base/lib/tsp-client-provider';
+import { faTimes } from '@fortawesome/free-solid-svg-icons';
 
 export interface ReactOpenTracesWidgetProps {
     id: string,
@@ -165,6 +166,13 @@ export class ReactOpenTracesWidget extends React.Component<ReactOpenTracesWidget
                     <h4 className='trace-element-name'>{traceName}</h4>
                     {this.renderTracesForExperiment(props.index)}
                 </div>
+                <div className='remove-trace-button-container' title='Remove traces from Trace Viewer'>
+                    <button data-tip data-for="removeTip" className='remove-trace-button'
+                        onClick={event => {this.handleOnExperimentDeleted(event,traceUUID);}}
+                    >
+                        <FontAwesomeIcon icon={faTimes} />
+                    </button>
+                </div>
                 {/* <div className='trace-element-options'>
                     <button className='share-context-button' onClick={this.handleShareButtonClick.bind(this, props.index)}>
                         <FontAwesomeIcon icon={faShareSquare} />
@@ -172,6 +180,13 @@ export class ReactOpenTracesWidget extends React.Component<ReactOpenTracesWidget
                 </div> */}
             </div>
         </div>;
+    }
+
+    protected doHandleOnExperimentDeleted(e: React.MouseEvent<HTMLButtonElement>, traceUUID: string): void {
+        this._experimentManager.closeExperiment(traceUUID);
+        signalManager().fireCloseTraceViewerTabSignal(traceUUID);
+        e.preventDefault();
+        e.stopPropagation();
     }
 
     protected renderTracesForExperiment(index: number): React.ReactNode {
@@ -258,6 +273,7 @@ export class ReactOpenTracesWidget extends React.Component<ReactOpenTracesWidget
     protected handleOnExperimentSelected = (e: React.MouseEvent<HTMLDivElement>): void => this.doHandleOnExperimentSelected(e);
     protected handleContextMenuEvent = (e: React.MouseEvent<HTMLDivElement>, traceUUID: string): void => this.doHandleContextMenuEvent(e, traceUUID);
     protected handleClickEvent = (e: React.MouseEvent<HTMLDivElement>, traceUUID: string): void => this.dohandleClickEvent(e, traceUUID);
+    protected handleOnExperimentDeleted = (e: React.MouseEvent<HTMLButtonElement>, traceUUID: string): void => this.doHandleOnExperimentDeleted(e, traceUUID);
 
     protected doHandleOnExperimentSelected(e: React.MouseEvent<HTMLDivElement>): void {
         const index = Number(e.currentTarget.getAttribute('data-id'));
