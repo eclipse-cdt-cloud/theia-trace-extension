@@ -105,20 +105,16 @@ export class ExperimentManager {
 
     /**
      * Update the experiment with the latest info from the server.
-     * @param experimentName experiment name to update
-     * @returns The updated experiment or undefined if the experiment was not open previously
+     * @param experimentUUID experiment UUID
+     * @returns The updated experiment or undefined if the experiment failed to update
      */
     async updateExperiment(experimentUUID: string): Promise<Experiment | undefined> {
-        const currentExperiment = this.fOpenExperiments.get(experimentUUID);
-        if (currentExperiment) {
-            const experimentResponse = await this.fTspClient.fetchExperiment(currentExperiment.UUID);
-            const experiment = experimentResponse.getModel();
-            if (experiment && experimentResponse.isOk) {
-                this.fOpenExperiments.set(experimentUUID, experiment);
-                return experiment;
-            }
+        const experimentResponse = await this.fTspClient.fetchExperiment(experimentUUID);
+        const experiment = experimentResponse.getModel();
+        if (experiment && experimentResponse.isOk) {
+            this.fOpenExperiments.set(experimentUUID, experiment);
+            return experiment;
         }
-
         return undefined;
     }
 
