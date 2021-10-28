@@ -63,6 +63,44 @@
     grid-template-rows: auto;
 } */
 
+.remove-trace-button-container {
+    margin-right: 2px;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+}
+
+.remove-trace-button-container.theia-mod-selected {
+    background-color: var(--theia-selection-background);
+}
+
+.remove-trace-button-container :hover {
+    background-color: var(--theia-scrollbarSlider-background);
+    cursor: pointer; 
+}
+
+.remove-trace-button {
+    background: none;
+    border: none;
+    visibility: hidden;
+    margin-top: 2px;
+    color: var(--theia-ui-font-color0)
+}
+
+.remove-trace-button :hover {
+    background: none;
+}
+
+.trace-element-container {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+}
+
+.trace-element-container:hover .remove-trace-button {
+    visibility: visible;
+}
+
 /* Remove focus outline on grid when selected */
 .ReactVirtualized__Grid {
     outline: none;
