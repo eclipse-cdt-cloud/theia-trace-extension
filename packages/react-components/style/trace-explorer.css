@@ -164,3 +164,8 @@
 .source-code-tooltip {
     text-decoration: underline;
 }
+
+.ag-react-container {
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
