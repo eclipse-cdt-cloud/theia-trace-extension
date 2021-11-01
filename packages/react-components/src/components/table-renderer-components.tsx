@@ -42,7 +42,7 @@ export class CellRenderer extends React.Component<CellRendererProps> {
         if (this.props.filterModel.size > 0) {
             if (isMatched) {
                 cellElement = <>
-                    {currFieldVal.split(searchTerm).map((tag: string, index: number, array: string[]) =>
+                    {currFieldVal.split(new RegExp(searchTerm)).map((tag: string, index: number, array: string[]) =>
                         <span key={index.toString()}>
                             <>
                                 {tag}
@@ -50,7 +50,7 @@ export class CellRenderer extends React.Component<CellRendererProps> {
                             <>
                                 {
                                     index < array.length - 1 ?
-                                        <span style={{ backgroundColor: this.props.searchResultsColor }}>{searchTerm}</span>
+                                        <span style={{ backgroundColor: this.props.searchResultsColor }}>{currFieldVal.match(new RegExp(searchTerm))[0]}</span>
                                         : <></>
                                 }
                             </>

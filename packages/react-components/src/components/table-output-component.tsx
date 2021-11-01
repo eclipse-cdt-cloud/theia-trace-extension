@@ -490,7 +490,7 @@ export class TableOutputComponent extends AbstractOutputComponent<TableOutputPro
             this.gridApi.forEachNode(rowNode => {
                 let isMatched = true;
                 this.filterModel.forEach((value, key) => {
-                    if (!rowNode.data[key].includes(value)) {
+                    if ((rowNode.data[key].search(new RegExp(value)) === -1)) {
                         isMatched = false;
                     }
                 });
