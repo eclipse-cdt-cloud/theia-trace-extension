@@ -19,6 +19,7 @@ import { TraceServerConfigService, traceServerPath } from '../../common/trace-se
 import { TabBarToolbarContribution } from '@theia/core/lib/browser/shell/tab-bar-toolbar';
 import { TraceViewerToolbarContribution } from './trace-viewer-toolbar-contribution';
 import { LazyTspClientFactory } from 'traceviewer-base/lib/lazy-tsp-client';
+import { BackendFileService, backendFileServicePath } from '../../common/backend-file-service';
 
 export default new ContainerModule(bind => {
     bind(TraceServerUrlProviderImpl).toSelf().inSingletonScope();
@@ -61,6 +62,12 @@ export default new ContainerModule(bind => {
         return connection.createProxy<TraceServerConfigService>(traceServerPath);
     }).inSingletonScope();
     bindTraceServerPreferences(bind);
+
+    bind(BackendFileService).toDynamicValue(ctx => {
+        const connection = ctx.container.get(WebSocketConnectionProvider);
+        return connection.createProxy<BackendFileService>(backendFileServicePath);
+    }).inSingletonScope();
+
     // bindViewContribution(bind, TracePropertiesContribution);
     // bind(TracePropertiesWidget).toSelf();
     // bind(WidgetFactory).toDynamicValue(context => ({
