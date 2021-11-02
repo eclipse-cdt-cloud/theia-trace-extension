@@ -5,7 +5,7 @@ import { CommandService } from '@theia/core';
 import { OpenTraceCommand } from '../../trace-viewer/trace-viewer-commands';
 import { PortBusy, TraceServerConfigService } from '../../../common/trace-server-config';
 import { PreferenceService } from '@theia/core/lib/browser';
-import { TRACE_PATH, TRACE_PORT } from '../../trace-server-preference';
+import { TRACE_PATH, TRACE_PORT, TRACE_HELP_INTRO, TRACE_HELP_EXAMPLE } from '../../trace-server-preference';
 import { TspClient } from 'tsp-typescript-client/lib/protocol/tsp-client';
 import { TspClientProvider } from '../../tsp-client-provider-impl';
 import { TspClientResponse } from 'tsp-typescript-client/lib/protocol/tsp-client-response';
@@ -72,6 +72,15 @@ export class TraceExplorerPlaceholderWidget extends ReactWidget {
                     {loading && <span>Connecting to trace server</span>}
                     {!loading && <span>Open Trace</span>}
                 </button>
+            </div>
+            <div className='center' style={{ marginTop: '20px'}}>
+                <span>Need some help?</span><br />
+            </div>
+            <div className='center' style={{ marginTop: '10px'}}>
+                <a href={TRACE_HELP_INTRO} className='trace-help-link'>What is tracing?</a><br />
+            </div>
+            <div className='center' style={{ marginTop: '5px'}}>
+                <a href={TRACE_HELP_EXAMPLE} className='trace-help-link'>How to record a trace</a>
             </div>
         </div>;
     }

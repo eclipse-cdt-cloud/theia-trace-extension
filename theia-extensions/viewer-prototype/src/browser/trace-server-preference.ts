@@ -3,6 +3,8 @@ import { TRACE_SERVER_DEFAULT_PORT } from '../common/trace-server-url-provider';
 
 export const TRACE_PATH = 'trace-viewer.path';
 export const TRACE_PORT = 'trace-viewer.port';
+export const TRACE_HELP_INTRO = 'https://github.com/dorsal-lab/Tracevizlab/tree/master/labs/001-what-is-tracing';
+export const TRACE_HELP_EXAMPLE = 'https://github.com/dorsal-lab/Tracevizlab/tree/master/labs/004-record-kernel-trace-ftrace';
 
 export const ServerSchema: PreferenceSchema = {
     scope: PreferenceScope.Folder,

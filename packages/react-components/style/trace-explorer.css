@@ -164,3 +164,9 @@
 .source-code-tooltip {
     text-decoration: underline;
 }
+
+.trace-help-link {
+    color: var(--theia-textLink-foreground);
+    text-decoration: none;
+    font-weight: bold;
+}
