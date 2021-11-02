@@ -85,7 +85,7 @@ export abstract class AbstractOutputComponent<P extends AbstractOutputProps, S e
             <button className='remove-component-button' onClick={this.closeComponent}>
                 <FontAwesomeIcon icon={faTimes} />
             </button>
-            <div className='title-bar-label'>
+            <div className='title-bar-label' title={outputName}>
                 {outputName}
             </div>
         </React.Fragment>;
