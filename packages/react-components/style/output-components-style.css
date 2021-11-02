@@ -17,12 +17,14 @@
     text-align: center;
     writing-mode: vertical-rl;
     height: 100%;
-    min-height: 150px;
     transform: rotate(180deg);
     user-select: none;
     align-self: center;
     justify-self: center;
     cursor: move;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 .remove-component-button {
     background: none;
