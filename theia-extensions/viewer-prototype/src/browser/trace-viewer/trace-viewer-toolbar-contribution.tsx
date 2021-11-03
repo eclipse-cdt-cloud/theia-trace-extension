@@ -104,7 +104,7 @@ export class TraceViewerToolbarContribution implements TabBarToolbarContribution
                     let index = 0;
                     const traceViewerWidget = widget as TraceViewerWidget;
                     const markerCategories = traceViewerWidget.getMarkerCategories();
-                    markerCategories.forEach((categoryInfo, categoryName, self) => {
+                    markerCategories.forEach((categoryInfo, categoryName) => {
                         const toggleInd = categoryInfo.toggleInd;
                         index += 1;
                         toDisposeOnHide.push(this.menus.registerMenuAction(menuPath, {
