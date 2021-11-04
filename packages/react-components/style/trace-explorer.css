@@ -74,12 +74,16 @@
 }
 
 .trace-element-name, .outputs-element-name {
+    overflow: hidden;
+    text-overflow: ellipsis;
     font-weight: bold;
     margin: unset;
     height: var(--trace-extension-list-line-height);
 }
 
 .trace-element-path-container, .outputs-element-description {
+    overflow: hidden;
+    text-overflow: ellipsis;
     margin: unset;
     color: var(--theia-ui-font-color2);
     /* color: rgb(160, 160, 160); */
