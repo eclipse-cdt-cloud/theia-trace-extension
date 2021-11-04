@@ -1,8 +1,8 @@
 import { injectable, inject, postConstruct, interfaces, Container } from 'inversify';
-import { TraceExplorerViewsWidget } from './trace-explorer-sub-widgets/trace-explorer-views-widget';
+import { TraceExplorerViewsWidget } from './trace-explorer-sub-widgets/theia-trace-explorer-views-widget';
 import { ViewContainer, BaseWidget, Message, PanelLayout } from '@theia/core/lib/browser';
 import { TraceExplorerTooltipWidget } from './trace-explorer-sub-widgets/trace-explorer-tooltip-widget';
-import { TraceExplorerOpenedTracesWidget } from './trace-explorer-sub-widgets/trace-explorer-opened-traces-widget';
+import { TraceExplorerOpenedTracesWidget } from './trace-explorer-sub-widgets/theia-trace-explorer-opened-traces-widget';
 import { TraceExplorerPlaceholderWidget } from './trace-explorer-sub-widgets/trace-explorer-placeholder-widget';
 import { signalManager, Signals } from 'traceviewer-base/lib/signals/signal-manager';
 import { OpenedTracesUpdatedSignalPayload } from 'traceviewer-base/src/signals/opened-traces-updated-signal-payload';
