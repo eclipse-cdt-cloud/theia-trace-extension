@@ -90,6 +90,7 @@ export class ReactAvailableViewsWidget extends React.Component<ReactAvailableVie
             traceContainerClassName = traceContainerClassName + ' theia-mod-selected';
         }
         return <div className={traceContainerClassName}
+            title={outputName + ':\n' + outputDescription}
             id={`${traceContainerClassName}-${props.index}`}
             key={props.key}
             style={props.style}
@@ -137,7 +138,7 @@ export class ReactAvailableViewsWidget extends React.Component<ReactAvailableVie
     protected doExperimentSelected(experiment: Experiment | undefined): void {
         if (this._selectedExperiment?.UUID !== experiment?.UUID) {
             this._selectedExperiment = experiment;
-            this.setState({availableOutputDescriptors: []});
+            this.setState({ availableOutputDescriptors: [] });
             this.updateAvailableViews();
         }
     }
