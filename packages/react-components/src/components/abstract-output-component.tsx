@@ -57,21 +57,22 @@ export abstract class AbstractOutputComponent<P extends AbstractOutputProps, S e
     }
 
     render(): JSX.Element {
-        const localStyle = Object.assign({},this.props.style);
+        const localStyle = Object.assign({}, this.props.style);
         localStyle.width = this.props.widthWPBugWorkaround;
         return <div style={localStyle}
-            className={'output-container '+this.props.className}
+            id={this.props.outputDescriptor.id}
+            className={'output-container ' + this.props.className}
             onMouseUp={this.props.onMouseUp}
             onMouseDown={this.props.onMouseDown}
             onTouchStart={this.props.onTouchStart}
             onTouchEnd={this.props.onTouchEnd}
             data-tip=''
             data-for="tooltip-component">
-            <div className='widget-handle' style={{ width: this.HANDLE_WIDTH, height:this.props.style.height }}>
+            <div className='widget-handle' style={{ width: this.HANDLE_WIDTH, height: this.props.style.height }}>
                 {this.renderTitleBar()}
             </div>
             <div className='main-output-container' ref={this.mainAreaContainer}
-                style={{ width: this.props.widthWPBugWorkaround - this.HANDLE_WIDTH, height:this.props.style.height }}>
+                style={{ width: this.props.widthWPBugWorkaround - this.HANDLE_WIDTH, height: this.props.style.height }}>
                 {this.renderMainArea()}
             </div>
             {this.props.children}

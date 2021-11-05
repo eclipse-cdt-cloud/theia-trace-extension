@@ -108,6 +108,7 @@ export class TableOutputComponent extends AbstractOutputComponent<TableOutputPro
                 onModelUpdated={this.onModelUpdated}
                 onCellKeyDown={this.onKeyDown}
                 frameworkComponents={this.frameworkComponents}
+                enableBrowserTooltips={true}
             >
             </AgGridReact>
         </div>;
@@ -320,12 +321,13 @@ export class TableOutputComponent extends AbstractOutputComponent<TableOutputPro
                         suppressFilterButton: true,
                         onFilterChange: this.searchEvents,
                         onclickNext: () => this.findMatchedEvent(Direction.NEXT),
-                        onclickPrevious: () =>  this.findMatchedEvent(Direction.PREVIOUS),
+                        onclickPrevious: () => this.findMatchedEvent(Direction.PREVIOUS),
                         colName: columnHeader.id.toString()
                     },
                     icons: {
                         filter: ''
-                    }
+                    },
+                    tooltipField: columnHeader.id.toString()
                 });
             });
         }
@@ -384,7 +386,7 @@ export class TableOutputComponent extends AbstractOutputComponent<TableOutputPro
 
                 const index = await this.fetchTableIndex(this.startTimestamp > this.endTimestamp ? this.startTimestamp + BigInt(1) : this.startTimestamp);
                 if (index) {
-                    const startIndex = this.startTimestamp > this.endTimestamp ? index-1 : index;
+                    const startIndex = this.startTimestamp > this.endTimestamp ? index - 1 : index;
                     this.selectStartIndex = this.selectStartIndex === -1 ? startIndex : this.selectStartIndex;
                     this.selectEndIndex = (this.enableIndexSelection && this.selectEndIndex === -1) ? startIndex : this.selectEndIndex;
                     this.gridApi.ensureIndexVisible(this.selectStartIndex);
@@ -488,7 +490,7 @@ export class TableOutputComponent extends AbstractOutputComponent<TableOutputPro
             this.gridApi.forEachNode(rowNode => {
                 let isMatched = true;
                 this.filterModel.forEach((value, key) => {
-                    if (!rowNode.data[key].includes(value)) {
+                    if ((rowNode.data[key].search(new RegExp(value)) === -1)) {
                         isMatched = false;
                     }
                 });
