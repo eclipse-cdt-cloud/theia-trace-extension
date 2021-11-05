@@ -15,7 +15,8 @@ export interface ReactAvailableViewsProps {
 }
 
 export interface ReactAvailableViewsState {
-    availableOutputDescriptors: OutputDescriptor[];
+    availableOutputDescriptors: OutputDescriptor[],
+    lastSelectedOutputIndex: number;
 }
 
 export class ReactAvailableViewsWidget extends React.Component<ReactAvailableViewsProps, ReactAvailableViewsState> {
@@ -24,7 +25,6 @@ export class ReactAvailableViewsWidget extends React.Component<ReactAvailableVie
     static ROW_HEIGHT = (2 * ReactAvailableViewsWidget.LINE_HEIGHT) + ReactAvailableViewsWidget.LIST_MARGIN;
 
     private _forceUpdateKey = false;
-    private _lastSelectedOutputIndex = -1;
     private _selectedExperiment: Experiment | undefined;
     private _experimentManager: ExperimentManager;
 
@@ -37,7 +37,7 @@ export class ReactAvailableViewsWidget extends React.Component<ReactAvailableVie
             this._experimentManager = this.props.tspClientProvider.getExperimentManager();
         });
         signalManager().on(Signals.EXPERIMENT_SELECTED, this.doHandleExperimentSelectedSignal);
-        this.state = { availableOutputDescriptors: [] };
+        this.state = { availableOutputDescriptors: [], lastSelectedOutputIndex: -1 };
     }
 
     componentWillUnmount(): void {
@@ -86,7 +86,7 @@ export class ReactAvailableViewsWidget extends React.Component<ReactAvailableVie
             outputDescription = output.description;
         }
         let traceContainerClassName = 'outputs-list-container';
-        if (props.index === this._lastSelectedOutputIndex) {
+        if (props.index === this.state.lastSelectedOutputIndex) {
             traceContainerClassName = traceContainerClassName + ' theia-mod-selected';
         }
         return <div className={traceContainerClassName}
@@ -119,11 +119,13 @@ export class ReactAvailableViewsWidget extends React.Component<ReactAvailableVie
 
     private doHandleOutputClicked(e: React.MouseEvent<HTMLDivElement>) {
         const index = Number(e.currentTarget.getAttribute('data-id'));
-        this._lastSelectedOutputIndex = index;
+        this.setState({ lastSelectedOutputIndex: index });
         const outputs = this.state.availableOutputDescriptors;
+
         if (outputs && this._selectedExperiment) {
             signalManager().fireExperimentSelectedSignal(this._selectedExperiment);
             signalManager().fireOutputAddedSignal(new OutputAddedSignalPayload(outputs[index], this._selectedExperiment));
+
         }
     }
 
@@ -138,7 +140,7 @@ export class ReactAvailableViewsWidget extends React.Component<ReactAvailableVie
     protected doExperimentSelected(experiment: Experiment | undefined): void {
         if (this._selectedExperiment?.UUID !== experiment?.UUID) {
             this._selectedExperiment = experiment;
-            this.setState({ availableOutputDescriptors: [] });
+            this.setState({ availableOutputDescriptors: [], lastSelectedOutputIndex: -1 });
             this.updateAvailableViews();
         }
     }
