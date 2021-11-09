@@ -1,8 +1,8 @@
 import { PreferenceSchema, PreferenceProxy, PreferenceScope } from '@theia/core/lib/browser';
 import { TRACE_SERVER_DEFAULT_PORT } from '../common/trace-server-url-provider';
 
-export const TRACE_PATH = 'trace-viewer.path';
-export const TRACE_PORT = 'trace-viewer.port';
+export const TRACE_PATH = 'trace Viewer.path';
+export const TRACE_PORT = 'trace Viewer.port';
 
 export const ServerSchema: PreferenceSchema = {
     scope: PreferenceScope.Folder,
