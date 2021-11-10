@@ -35,31 +35,31 @@ export const sortNodes = (nodes: TreeNode[], sortConfig: SortConfig[]): TreeNode
     if (orderToSort) {
         sortedNodes.sort((node1: TreeNode, node2: TreeNode) => {
             const index = orderToSort.columnIndex;
-            const order = (orderToSort.sortState === sortState.asc) ? 'asc' : 'desc';
-            const value1 = node1.labels[index];
-            const value2 = node2.labels[index];
-            let result = 0;
+            const value1: string = node1.labels[index];
+            const value2: string = node2.labels[index];
+            let comp = 0;
             if (!value1 && value2) {
-                result = -1;
+                comp = -1;
             } else if (value1 && !value2) {
-                result = 1;
+                comp = 1;
             } else if (!value1 && !value2) {
-                result = 0;
+                comp = 0;
             } else {
-                if (typeof value1 === 'string' && typeof value2 === 'string') {
-                    const comp = (value1 as string).localeCompare(value2);
-                    result = (order === 'asc') ? -comp : comp;
-                } else {
-                    if (value1 < value2) {
-                        result = (order === 'asc') ? -1 : 1;
-                    } else if (value1 > value2) {
-                        result = (order === 'asc') ? 1 : -1;
+                const number1 = parseValue(value1);
+                const number2 = parseValue(value2);
+                if (number1 !== undefined && number2 !== undefined) {
+                    if (number1 < number2) {
+                        comp = -1;
+                    } else if (number1 > number2) {
+                        comp = 1;
                     } else {
-                        result = 0;
+                        comp = 0;
                     }
+                } else {
+                    comp = value1.localeCompare(value2);
                 }
             }
-            return result;
+            return (orderToSort.sortState === sortState.asc) ? comp : -comp;
         });
         sortedNodes.forEach((node: TreeNode) => {
             if (node.children.length) {
@@ -69,3 +69,33 @@ export const sortNodes = (nodes: TreeNode[], sortConfig: SortConfig[]): TreeNode
     }
     return sortedNodes;
 };
+
+const parseValue = (valueString: string): number | undefined => {
+    let floatNumber = NaN;
+    let factor = -1;
+    const valueArray = valueString.split(' ');
+    if (valueArray.length === 1) {
+        floatNumber = Number.parseFloat(valueString);
+        factor = 1;
+    } else if (valueArray.length === 2) {
+        const value = valueArray[0];
+        const unit = valueArray[1];
+        if (unit === 'ns' || unit === '%') {
+            factor = 1;
+        } else if (unit === 'us' || unit === ('\u00B5' + 's')) {
+            factor = 1000;
+        } else if (unit === 'ms') {
+            factor = 1000 * 1000;
+        } else if (unit === 's') {
+            factor = 1000 * 1000 * 1000;
+        } else {
+            return undefined;
+        }
+        floatNumber = Number.parseFloat(value);
+    }
+    if (!Number.isNaN(floatNumber)) {
+        return floatNumber * factor;
+    }
+    return undefined;
+};
+
