@@ -13,6 +13,9 @@ import { getAllExpandedNodeIds } from './utils/filtrer-tree/utils';
 import { TreeNode } from './utils/filtrer-tree/tree-node';
 import ColumnHeader from './utils/filtrer-tree/column-header';
 import { BIMath } from 'timeline-chart/lib/bigint-utils';
+import { scaleLinear } from 'd3-scale';
+import { axisLeft } from 'd3-axis';
+import { select } from 'd3-selection';
 
 type XYOuputState = AbstractOutputState & {
     selectedSeriesId: number[];
@@ -35,6 +38,7 @@ export class XYOutputComponent extends AbstractTreeOutputComponent<AbstractOutpu
     private colorMap: Map<string, number> = new Map();
     private lineChartRef: any;
     private chartRef: any;
+    private yAxisRef: any;
     private mouseIsDown = false;
     private positionXMove = 0;
     private isRightClick = false;
@@ -71,6 +75,7 @@ export class XYOutputComponent extends AbstractTreeOutputComponent<AbstractOutpu
         this.afterChartDraw = this.afterChartDraw.bind(this);
         this.lineChartRef = React.createRef();
         this.chartRef = React.createRef();
+        this.yAxisRef = React.createRef();
     }
 
     componentDidMount(): void {
@@ -149,6 +154,42 @@ export class XYOutputComponent extends AbstractTreeOutputComponent<AbstractOutpu
             />
             : undefined
             ;
+    }
+
+    renderYAxis(): React.ReactNode {
+        // Y axis with D3
+        const chartHeight = parseInt(this.props.style.height.toString());
+        const margin = { top: 15, right: 0, bottom: 5, left: this.props.style.yAxisWidth };
+        let allMax = 0;
+        let allMin = 0;
+        this.state.xyData?.datasets?.forEach((dSet: any, i: number) => {
+            const rowMax = Math.max(...dSet.data);
+            const rowMin = Math.min(...dSet.data);
+            allMax = Math.max(allMax, rowMax);
+            allMin = i === 0 ? rowMin : Math.min(allMin, rowMin);
+        });
+        const yScale = scaleLinear()
+            .domain([allMin, Math.max(allMax, 1)])
+            .range([chartHeight - margin.bottom, margin.top]);
+        const yTransform = `translate(${margin.left}, 0)`;
+        // Abbreviate large numbers
+        const scaleYLabel = (d: number) => (
+            d >= 1000000000000 ? d / 1000000000000 + 'G' :
+            d >= 1000000000 ? d / 1000000000  + 'B':
+            d >= 1000000 ? d / 1000000 + 'M' :
+            d >= 1000 ? d / 1000 + 'K':
+            d
+        );
+        if (allMax > 0) {
+            select(this.yAxisRef.current).call(axisLeft(yScale).tickSizeOuter(0).ticks(4)).call(g => g.select('.domain').remove());
+            select(this.yAxisRef.current).selectAll('.tick text').style('font-size', '11px').text((d: any) => scaleYLabel(d));
+        }
+
+        return <React.Fragment>
+            <svg height={chartHeight} width={margin.left}>
+                <g className='y-axis' ref={this.yAxisRef} transform={yTransform} />
+            </svg>
+        </React.Fragment>;
     }
 
     renderChart(): React.ReactNode {

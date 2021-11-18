@@ -4,13 +4,21 @@ import { ResponseStatus } from 'tsp-typescript-client/lib/models/response/respon
 
 export abstract class AbstractTreeOutputComponent<P extends AbstractOutputProps, S extends AbstractOutputState> extends AbstractOutputComponent<P, S> {
     renderMainArea(): React.ReactNode {
-        const treeWidth = this.props.widthWPBugWorkaround - this.getHandleWidth() - this.props.style.chartWidth;
+        // Make tree thiner when chart has a y-axis
+        const yAxisBuffer = this.props.outputDescriptor.type === 'TREE_TIME_XY' ? this.props.style.yAxisWidth: 0;
+        const treeWidth = this.props.widthWPBugWorkaround - this.getHandleWidth() - this.props.style.chartWidth - yAxisBuffer;
         return <React.Fragment>
             <div ref={this.treeRef} className='output-component-tree'
                 onScroll={_ev => { this.synchronizeTreeScroll(); }}
                 style={{ width: treeWidth, height: this.props.style.height }}
             >
                 {this.renderTree()}
+            </div>
+            <div className='output-component-y-axis' style={{
+                height: this.props.style.height,
+                backgroundColor: '#' + this.props.style.chartBackgroundColor.toString(16)
+            }}>
+                {this.renderYAxis()}
             </div>
             <div className='output-component-chart' style={{
                 width: this.props.style.chartWidth, height: this.props.style.height,
@@ -24,6 +32,8 @@ export abstract class AbstractTreeOutputComponent<P extends AbstractOutputProps,
     treeRef: React.RefObject<HTMLDivElement> = React.createRef();
 
     abstract renderTree(): React.ReactNode;
+
+    abstract renderYAxis(): React.ReactNode;
 
     abstract renderChart(): React.ReactNode;
 

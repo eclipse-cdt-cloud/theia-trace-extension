@@ -13,6 +13,7 @@ describe('Time axis component', () => {
     const style: OutputComponentStyle = {
       width: 50,
       chartWidth: 60,
+      yAxisWidth: 30,
       height: 100,
       rowHeight: 100,
       naviBackgroundColor: 0xf4f7fb,
@@ -30,6 +31,7 @@ describe('Time axis component', () => {
     const style: OutputComponentStyle = {
       width: 50,
       chartWidth: 60,
+      yAxisWidth: 30,
       height: 100,
       rowHeight: 100,
       naviBackgroundColor: 0xf4f7fb,
