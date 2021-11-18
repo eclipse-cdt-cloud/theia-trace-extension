@@ -63,6 +63,7 @@ export class TraceContextComponent extends React.Component<TraceContextProps, Tr
     private readonly DEFAULT_COMPONENT_HEIGHT: number = 10;
     private readonly DEFAULT_COMPONENT_ROWHEIGHT: number = 20;
     private readonly SCROLLBAR_PADDING: number = 12;
+    private readonly Y_AXIS_WIDTH: number = 40;
 
     private unitController: TimeGraphUnitController;
     private tooltipComponent: React.RefObject<TooltipComponent>;
@@ -103,6 +104,7 @@ export class TraceContextComponent extends React.Component<TraceContextProps, Tr
             style: {
                 width: this.DEFAULT_COMPONENT_WIDTH, // 1245,
                 chartWidth: this.DEFAULT_CHART_WIDTH,
+                yAxisWidth: this.Y_AXIS_WIDTH,
                 height: this.DEFAULT_COMPONENT_HEIGHT,
                 rowHeight: this.DEFAULT_COMPONENT_ROWHEIGHT,
                 naviBackgroundColor: this.props.backgroundTheme === 'light' ? 0xf4f7fb : 0x3f3f3f,

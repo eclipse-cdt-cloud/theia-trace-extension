@@ -313,6 +313,10 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
         </>;
     }
 
+    renderYAxis(): React.ReactNode {
+        return undefined;
+    }
+
     renderChart(): React.ReactNode {
         return <React.Fragment>
             {this.state.outputStatus === ResponseStatus.COMPLETED ?
