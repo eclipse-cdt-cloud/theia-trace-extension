@@ -1,5 +1,5 @@
 import { DisposableCollection, MessageService, Path } from '@theia/core';
-import { ApplicationShell, Message, StatusBar } from '@theia/core/lib/browser';
+import { ApplicationShell, Message, StatusBar, WidgetManager } from '@theia/core/lib/browser';
 import { ReactWidget } from '@theia/core/lib/browser/widgets/react-widget';
 import { inject, injectable, postConstruct } from 'inversify';
 import * as React from 'react';
@@ -71,6 +71,7 @@ export class TraceViewerWidget extends ReactWidget {
     @inject(TheiaMessageManager) protected readonly _signalHandler: TheiaMessageManager;
     @inject(MessageService) protected readonly messageService: MessageService;
     @inject(TraceExplorerContribution) protected readonly traceExplorerContribution: TraceExplorerContribution;
+    @inject(WidgetManager) protected readonly widgetManager!: WidgetManager;
 
     @postConstruct()
     async init(): Promise<void> {
@@ -204,14 +205,23 @@ export class TraceViewerWidget extends ReactWidget {
                     } else {
                         const experiment = await this.experimentManager.openExperiment(this.uri.name + this.uri.ext, traces);
                         if (experiment) {
-                            this.openedExperiment = experiment;
-                            this.title.label = 'Trace: ' + experiment.name;
-                            this.id = experiment.UUID;
-
-                            if (this.isVisible) {
+                            const widgets = this.widgetManager.getWidgets(TraceViewerWidget.ID);
+                            const widget = widgets.find(w => w.id === experiment.UUID);
+                            let sendSignal = true;
+                            if (widget) {
+                                // Close widget if it had been opened previously.
+                                cancellation.cancel();
+                                this.dispose();
+                            } else {
+                                this.openedExperiment = experiment;
+                                this.title.label = 'Trace: ' + experiment.name;
+                                this.id = experiment.UUID;
+                                sendSignal = this.isVisible;
+                                this.fetchMarkerSets(experiment.UUID);
+                            }
+                            if (sendSignal) {
                                 signalManager().fireTraceViewerTabActivatedSignal(experiment);
                             }
-                            this.fetchMarkerSets(experiment.UUID);
                             this.traceExplorerContribution.openView({
                                 activate: true
                             });
