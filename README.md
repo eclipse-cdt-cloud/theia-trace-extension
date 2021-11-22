@@ -23,6 +23,8 @@ Prerequisites: A GitHub account (for logging into Gitpod)
     * Head to the trace viewer tab in the left side menu to get started.
     * The tool is loaded with the example traces from a set of [Trace Visualisation Labs](https://github.com/tuxology/tracevizlab). To analyse your own traces, [download the application](https://github.com/theia-ide/theia-trace-extension#download-the-application) for Linux.
 
+🍉🍋 **How was your tool taste test?** Let us know your thoughts in this quick [User Survey](https://forms.gle/716YQZZGwbMHEFMf7) 📝 (8 minutes) 
+
 ![gitpod-live-demo-setup](https://raw.githubusercontent.com/theia-ide/theia-trace-extension/master/doc/images/gitpod-live-demo-setup-0.0.2.gif)
 
 ## Download an external build of the application 
