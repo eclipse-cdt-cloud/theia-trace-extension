@@ -215,13 +215,17 @@ Other commit information:
 * [Example commit message](https://github.com/theia-ide/theia-trace-extension/commit/bc18fcd110d7b8433293692421f2e4fb49f89bd6)
 
 ## Related code
-This trace viewer depends on code from several other repos. Sometimes resolving issues in the trace viewer repo requires making changes in these code bases:
+This trace viewer depends on code from several other repos. This is one way these projects can work together:
+
+![Related projects diagram](https://raw.githubusercontent.com/ebugden/theia-trace-extension/add-related-code-diagram/doc/images/related-projects-diagram-0.0.2.png)
+
+Sometimes resolving issues in the trace viewer repo requires making changes in these code bases:
 
 | Project | Description | Related issues  | Links |
 |---------------|----|--------------------------|---|
 | [Theia](https://theia-ide.org/) | Theia is a framework for making custom IDEs. It provides reusable components (ex. Text editor, terminal, etc.) and is extensible. For example, this trace viewer is an extension for Theia-based IDEs. | | [Code](https://github.com/eclipse-theia/theia), [Ecosystem](https://github.com/theia-ide) |
 | [Trace Compass](https://www.eclipse.org/tracecompass/) | Trace analysis tool and precursor to this trace viewer. | [label:"Trace Compass"](https://github.com/theia-ide/theia-trace-extension/labels/Trace%20Compass) | [Dev info](https://wiki.eclipse.org/Trace_Compass), [Dev setup](https://wiki.eclipse.org/Trace_Compass/Development_Environment_Setup) |
 | [Trace Compass Server](https://download.eclipse.org/tracecompass.incubator/trace-server/rcp/?d) | A reference implementation of a Trace Server. Manages and analyzes trace files and provides this data to the trace viewer over the [Trace Server Protocol (TSP)](https://github.com/theia-ide/trace-server-protocol). This Trace Server implementation was originally part of Trace Compass so it requires the same dev setup. Because a protocol is used for communication (TSP), it is possible to develop alternative Trace Servers that are independent of Trace Compass. | [label:"Trace Server"](https://github.com/theia-ide/theia-trace-extension/labels/Trace%20Server) | [Dev setup](https://wiki.eclipse.org/Trace_Compass/Development_Environment_Setup) (same as Trace Compass), [Code](https://git.eclipse.org/r/admin/repos/tracecompass.incubator/org.eclipse.tracecompass.incubator) (same repo as Trace Compass incubator) |
-| [Trace Server Protocol (TSP)](https://github.com/theia-ide/trace-server-protocol) | Protocol used by the trace viewer to communicate with the trace server. | [label:"trace server protocol"](https://github.com/theia-ide/theia-trace-extension/labels/trace%20server%20protocol) |
-| [Client-side Trace Server Protocol implementation](https://github.com/theia-ide/tsp-typescript-client) | A client-side implementation of the Trace Server Protocol. Allows the trace viewer to communicate with the server. |  |   |
+| [Trace Server Protocol (TSP)](https://github.com/theia-ide/trace-server-protocol) | RESTful protocol used by the trace viewer to communicate with the trace server. | [label:"trace server protocol"](https://github.com/theia-ide/theia-trace-extension/labels/trace%20server%20protocol) |
+| [Trace Server Protocol Client](https://github.com/theia-ide/tsp-typescript-client) | A.k.a. tsp-typescript-client. A client-side Typescript implementation of the Trace Server Protocol. Allows the trace viewer to communicate with the server. |  |   |
 | [Timeline Chart](https://github.com/theia-ide/timeline-chart) | Implements the Gantt charts used in this trace viewer.  | [label:timeline-chart](https://github.com/theia-ide/theia-trace-extension/labels/timeline-chart) |   |
