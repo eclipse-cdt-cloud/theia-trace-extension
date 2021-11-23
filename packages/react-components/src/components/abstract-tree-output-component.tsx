@@ -4,6 +4,10 @@ import { ResponseStatus } from 'tsp-typescript-client/lib/models/response/respon
 
 export abstract class AbstractTreeOutputComponent<P extends AbstractOutputProps, S extends AbstractOutputState> extends AbstractOutputComponent<P, S> {
     renderMainArea(): React.ReactNode {
+        if (this.state.outputStatus === ResponseStatus.FAILED) {
+            return this.analysisFailedMessage();
+        }
+
         // Make tree thiner when chart has a y-axis
         const yAxisBuffer = this.props.outputDescriptor.type === 'TREE_TIME_XY' ? this.props.style.yAxisWidth: 0;
         const treeWidth = this.getMainAreaWidth() - this.props.style.chartWidth - yAxisBuffer;

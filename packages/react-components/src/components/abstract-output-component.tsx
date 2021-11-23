@@ -109,4 +109,12 @@ export abstract class AbstractOutputComponent<P extends AbstractOutputProps, S e
     }
 
     abstract renderMainArea(): React.ReactNode;
+
+    protected analysisFailedMessage(): React.ReactFragment {
+        return <React.Fragment>
+            <div className='analysis-failed-message'>
+                Trace analysis failed.
+            </div>
+        </React.Fragment>;
+    }
 }
