@@ -9,11 +9,14 @@ import { faCopy } from '@fortawesome/free-solid-svg-icons';
 import { OpenedTracesUpdatedSignalPayload } from 'traceviewer-base/lib/signals/opened-traces-updated-signal-payload';
 import { ITspClientProvider } from 'traceviewer-base/lib/tsp-client-provider';
 import { faTimes } from '@fortawesome/free-solid-svg-icons';
+import { WidgetManager } from '@theia/core/lib/browser';
 
 export interface ReactOpenTracesWidgetProps {
     id: string,
     title: string,
     tspClientProvider: ITspClientProvider,
+    widgetManager: WidgetManager,
+    traceViewerWidgetID: string,
     contextMenuRenderer?: (event: React.MouseEvent<HTMLDivElement>, experiment: Experiment) => void,
     onClick?: (event: React.MouseEvent<HTMLDivElement>, experiment: Experiment) => void
 }
@@ -38,12 +41,14 @@ export class ReactOpenTracesWidget extends React.Component<ReactOpenTracesWidget
     private _onExperimentOpened = (openedExperiment: Experiment): Promise<void> => this.doHandleExperimentOpenedSignal(openedExperiment);
     private _onExperimentClosed = (closedExperiment: Experiment): Promise<void> => this.doHandleExperimentClosedSignal(closedExperiment);
     private _onOpenedTracesWidgetActivated = (experiment: Experiment): void => this.doHandleTracesWidgetActivatedSignal(experiment);
+    private _onOpenedTracesUpdated = (): void => this.doHandleOpenedTracesUpdatedSignal();
 
     constructor(props: ReactOpenTracesWidgetProps) {
         super(props);
         signalManager().on(Signals.EXPERIMENT_OPENED, this._onExperimentOpened);
         signalManager().on(Signals.EXPERIMENT_CLOSED, this._onExperimentClosed);
         signalManager().on(Signals.TRACEVIEWERTAB_ACTIVATED, this._onOpenedTracesWidgetActivated);
+        signalManager().on(Signals.OPENED_TRACES_UPDATED, this._onOpenedTracesUpdated);
 
         this._experimentManager = this.props.tspClientProvider.getExperimentManager();
         this.props.tspClientProvider.addTspClientChangeListener(() => {
@@ -60,6 +65,7 @@ export class ReactOpenTracesWidget extends React.Component<ReactOpenTracesWidget
         signalManager().off(Signals.EXPERIMENT_OPENED, this._onExperimentOpened);
         signalManager().off(Signals.EXPERIMENT_CLOSED, this._onExperimentClosed);
         signalManager().off(Signals.TRACEVIEWERTAB_ACTIVATED, this._onOpenedTracesWidgetActivated);
+        signalManager().off(Signals.OPENED_TRACES_UPDATED, this._onOpenedTracesUpdated);
     }
 
     async initialize(): Promise<void> {
@@ -103,6 +109,12 @@ export class ReactOpenTracesWidget extends React.Component<ReactOpenTracesWidget
         }
         event.preventDefault();
         event.stopPropagation();
+    }
+
+    protected doHandleOpenedTracesUpdatedSignal(): void {
+        if (!this.props.widgetManager.getWidgets(this.props.traceViewerWidgetID).length){
+            this.setState({ selectedExperimentIndex: 0 });
+        }
     }
 
     private getExperiment(traceUUID: string): Experiment | undefined {
@@ -151,7 +163,7 @@ export class ReactOpenTracesWidget extends React.Component<ReactOpenTracesWidget
         const traceUUID = this.state.openedExperiments.length && props.index < this.state.openedExperiments.length
             ? this.state.openedExperiments[props.index].UUID : '';
         let traceContainerClassName = 'trace-list-container';
-        if (props.index === this.state.selectedExperimentIndex) {
+        if (props.index === this.state.selectedExperimentIndex && this.props.widgetManager.getWidgets(this.props.traceViewerWidgetID).length) {
             traceContainerClassName = traceContainerClassName + ' theia-mod-selected';
         }
         return <div className={traceContainerClassName}

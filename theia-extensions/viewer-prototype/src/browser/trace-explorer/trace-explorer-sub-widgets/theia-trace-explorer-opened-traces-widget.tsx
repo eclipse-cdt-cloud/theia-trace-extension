@@ -77,6 +77,8 @@ export class TraceExplorerOpenedTracesWidget extends ReactWidget {
                 tspClientProvider={this.tspClientProvider}
                 contextMenuRenderer={(event, experiment) => this.doHandleContextMenuEvent(event, experiment) }
                 onClick={(event, experiment) => this.doHandleClickEvent(event, experiment) }
+                widgetManager={this.widgetManager}
+                traceViewerWidgetID={TraceViewerWidget.ID}
             ></ReactOpenTracesWidget>
             }
         </div>);
