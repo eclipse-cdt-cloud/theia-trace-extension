@@ -6,11 +6,14 @@ import { OutputDescriptor } from 'tsp-typescript-client/lib/models/output-descri
 import { Experiment } from 'tsp-typescript-client/lib/models/experiment';
 import { ITspClientProvider } from 'traceviewer-base/lib/tsp-client-provider';
 import { ExperimentManager } from 'traceviewer-base/lib/experiment-manager';
+import { WidgetManager } from '@theia/core/lib/browser';
 
 export interface ReactAvailableViewsProps {
     id: string,
     title: string,
     tspClientProvider: ITspClientProvider,
+    widgetManager: WidgetManager,
+    traceViewerWidgetID: string,
     contextMenuRenderer?: (event: React.MouseEvent<HTMLDivElement>, output: OutputDescriptor) => void,
 }
 
@@ -29,6 +32,7 @@ export class ReactAvailableViewsWidget extends React.Component<ReactAvailableVie
     private _experimentManager: ExperimentManager;
 
     protected doHandleExperimentSelectedSignal = (experiment: Experiment): void => this.doExperimentSelected(experiment);
+    protected doHandleOpenedTracesUpdatedSignal = (): void => this.doCheckOpenWidgets();
 
     constructor(props: ReactAvailableViewsProps) {
         super(props);
@@ -37,11 +41,13 @@ export class ReactAvailableViewsWidget extends React.Component<ReactAvailableVie
             this._experimentManager = this.props.tspClientProvider.getExperimentManager();
         });
         signalManager().on(Signals.EXPERIMENT_SELECTED, this.doHandleExperimentSelectedSignal);
+        signalManager().on(Signals.OPENED_TRACES_UPDATED, this.doHandleOpenedTracesUpdatedSignal);
         this.state = { availableOutputDescriptors: [], lastSelectedOutputIndex: -1 };
     }
 
     componentWillUnmount(): void {
         signalManager().off(Signals.EXPERIMENT_SELECTED, this.doHandleExperimentSelectedSignal);
+        signalManager().off(Signals.OPENED_TRACES_UPDATED, this.doHandleOpenedTracesUpdatedSignal);
     }
 
     render(): React.ReactNode {
@@ -138,10 +144,16 @@ export class ReactAvailableViewsWidget extends React.Component<ReactAvailableVie
     }
 
     protected doExperimentSelected(experiment: Experiment | undefined): void {
-        if (this._selectedExperiment?.UUID !== experiment?.UUID) {
+        if ((this._selectedExperiment?.UUID !== experiment?.UUID) || this.state.availableOutputDescriptors.length === 0) {
             this._selectedExperiment = experiment;
             this.setState({ availableOutputDescriptors: [], lastSelectedOutputIndex: -1 });
             this.updateAvailableViews();
+        }
+    }
+
+    protected doCheckOpenWidgets(): void {
+        if (!this.props.widgetManager.getWidgets(this.props.traceViewerWidgetID).length){
+            this.setState({availableOutputDescriptors: []});
         }
     }
 
@@ -150,7 +162,7 @@ export class ReactAvailableViewsWidget extends React.Component<ReactAvailableVie
     protected async doUpdateAvailableViews(): Promise<void> {
         let outputs: OutputDescriptor[] | undefined;
         const signalExperiment: Experiment | undefined = this._selectedExperiment;
-        if (signalExperiment) {
+        if (signalExperiment && this.props.widgetManager.getWidgets(this.props.traceViewerWidgetID).length) {
             outputs = await this.getOutputDescriptors(signalExperiment);
             this.setState({ availableOutputDescriptors: outputs });
         } else {
@@ -177,4 +189,3 @@ export class ReactAvailableViewsWidget extends React.Component<ReactAvailableVie
         return outputs;
     }
 }
-

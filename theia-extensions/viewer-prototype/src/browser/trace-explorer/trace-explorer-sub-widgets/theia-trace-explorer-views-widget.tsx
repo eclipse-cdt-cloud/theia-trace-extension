@@ -1,8 +1,9 @@
 import { inject, injectable, postConstruct } from 'inversify';
-import { ReactWidget, Widget, Message } from '@theia/core/lib/browser';
+import { ReactWidget, Widget, Message, WidgetManager } from '@theia/core/lib/browser';
 import { TspClientProvider } from '../../tsp-client-provider-impl';
 import * as React from 'react';
 import { ReactAvailableViewsWidget} from 'traceviewer-react-components/lib/trace-explorer/trace-explorer-views-widget';
+import { TraceViewerWidget } from '../../trace-viewer/trace-viewer';
 
 @injectable()
 export class TraceExplorerViewsWidget extends ReactWidget {
@@ -10,6 +11,7 @@ export class TraceExplorerViewsWidget extends ReactWidget {
     static LABEL = 'Available Views';
 
     @inject(TspClientProvider) protected readonly tspClientProvider!: TspClientProvider;
+    @inject(WidgetManager) protected readonly widgetManager!: WidgetManager;
 
     @postConstruct()
     init(): void {
@@ -28,6 +30,8 @@ export class TraceExplorerViewsWidget extends ReactWidget {
                 id={this.id}
                 title={this.title.label}
                 tspClientProvider={this.tspClientProvider}
+                widgetManager={this.widgetManager}
+                traceViewerWidgetID={TraceViewerWidget.ID}
             ></ReactAvailableViewsWidget>
             }
         </div>);

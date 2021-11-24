@@ -20,6 +20,7 @@ import { TraceExplorerContribution } from '../trace-explorer/trace-explorer-cont
 import { MarkerSet } from 'tsp-typescript-client/lib/models/markerset';
 import { BackendFileService } from '../../common/backend-file-service';
 import { CancellationTokenSource } from '@theia/core';
+import { OpenedTracesUpdatedSignalPayload } from 'traceviewer-base/lib/signals/opened-traces-updated-signal-payload';
 
 export const TraceViewerWidgetOptions = Symbol('TraceViewerWidgetOptions');
 export interface TraceViewerWidgetOptions {
@@ -239,9 +240,11 @@ export class TraceViewerWidget extends ReactWidget {
         }
     }
 
-    onCloseRequest(msg: Message): void {
+    async onCloseRequest(msg: Message): Promise<void> {
         this.statusBar.removeElement('time-selection-range');
         super.onCloseRequest(msg);
+        const remoteExperiments = await this.experimentManager.getOpenedExperiments();
+        signalManager().fireOpenedTracesChangedSignal(new OpenedTracesUpdatedSignalPayload(remoteExperiments ? remoteExperiments.length : 0));
     }
 
     onAfterShow(msg: Message): void {
