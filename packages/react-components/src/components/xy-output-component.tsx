@@ -98,7 +98,6 @@ export class XYOutputComponent extends AbstractTreeOutputComponent<AbstractOutpu
                 } else {
                     columns.push({title: 'Name', sortable: true});
                 }
-                columns.push({title: 'Legend', sortable: false});
                 this.setState({
                     outputStatus: treeResponse.status,
                     xyTree: treeResponse.model.entries,
