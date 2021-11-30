@@ -30,7 +30,8 @@
     "semantic-ui-react": "^0.86.0",
     "timeline-chart": "next",
     "traceviewer-base": "0.1.0",
-    "tsp-typescript-client": "next"
+    "tsp-typescript-client": "next",
+    "json-bigint": "sidorares/json-bigint#2c0a5f896d7888e68e5f4ae3c7ea5cd42fd54473"
   },
   "devDependencies": {
     "@testing-library/react": "^10.4.6",
