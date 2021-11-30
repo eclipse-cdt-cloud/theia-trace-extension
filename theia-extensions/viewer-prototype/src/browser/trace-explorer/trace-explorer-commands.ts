@@ -13,8 +13,8 @@ export namespace TraceExplorerCommands {
         label: 'Close Trace'
     };
 
-    export const DELETE_TRACE: Command = {
-        id: 'trace-explorer:delete-trace',
-        label: 'Delete Trace'
+    export const REMOVE_TRACE: Command = {
+        id: 'trace-explorer:remove-trace',
+        label: 'Remove Trace'
     };
 }

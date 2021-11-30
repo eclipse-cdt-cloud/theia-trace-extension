@@ -37,8 +37,8 @@ export class TraceExplorerContribution extends AbstractViewContribution<TraceExp
         });
 
         menus.registerMenuAction(TraceExplorerMenus.PREFERENCE_EDITOR_CONTEXT_MENU, {
-            commandId: TraceExplorerCommands.DELETE_TRACE.id,
-            label: TraceExplorerCommands.DELETE_TRACE.label,
+            commandId: TraceExplorerCommands.REMOVE_TRACE.id,
+            label: TraceExplorerCommands.REMOVE_TRACE.label,
             order: 'c'
         });
     }
@@ -59,7 +59,7 @@ export class TraceExplorerContribution extends AbstractViewContribution<TraceExp
             }
         });
 
-        registry.registerCommand(TraceExplorerCommands.DELETE_TRACE, {
+        registry.registerCommand(TraceExplorerCommands.REMOVE_TRACE, {
             execute: (traceUUID: string) => {
                 explorerWidget.deleteExperiment(traceUUID);
             }
