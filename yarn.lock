@@ -944,9 +944,9 @@
     ajv-keywords "^3.4.1"
 
 "@discoveryjs/json-ext@^0.5.0":
-  version "0.5.5"
-  resolved "https://registry.yarnpkg.com/@discoveryjs/json-ext/-/json-ext-0.5.5.tgz#9283c9ce5b289a3c4f61c12757469e59377f81f3"
-  integrity sha512-6nFkfkmSeV/rqSaS4oWHgmpnYw194f6hmWF5is6b0J1naJZoiD0NTc9AiUwPHvWsowkjuHErCZT1wa0jg+BLIA==
+  version "0.5.6"
+  resolved "https://registry.yarnpkg.com/@discoveryjs/json-ext/-/json-ext-0.5.6.tgz#d5e0706cf8c6acd8c6032f8d54070af261bbbb2f"
+  integrity sha512-ws57AidsDvREKrZKYffXddNkyaF14iHNHm8VQnZH6t99E8gczjNN0GpvcGny0imC80yQ0tHz1xVUKk/KFQSUyA==
 
 "@electron/get@^1.0.1", "@electron/get@^1.12.4":
   version "1.13.1"
@@ -11640,9 +11640,9 @@ istanbul-lib-source-maps@^4.0.0:
     source-map "^0.6.1"
 
 istanbul-reports@^3.0.2:
-  version "3.0.5"
-  resolved "https://registry.yarnpkg.com/istanbul-reports/-/istanbul-reports-3.0.5.tgz#a2580107e71279ea6d661ddede929ffc6d693384"
-  integrity sha512-5+19PlhnGabNWB7kOFnuxT8H3T/iIyQzIbQMxXsURmmvKg86P2sbkrGOT77VnHw0Qr0gc2XzRaRfMZYYbSQCJQ==
+  version "3.1.0"
+  resolved "https://registry.yarnpkg.com/istanbul-reports/-/istanbul-reports-3.1.0.tgz#57a32bff7ab4b315e401daa08fe2934e0c0b1ec2"
+  integrity sha512-rgeP8yMlXeH4mfd9K/sQXZv1lvcS7xo379zntcotPDdMwkcGYwMxGHGZYo0/+YW5B/nor2YGKz2BH5ume405ow==
   dependencies:
     html-escaper "^2.0.0"
     istanbul-lib-report "^3.0.0"
@@ -12208,7 +12208,7 @@ jsesc@~0.5.0:
   resolved "https://registry.yarnpkg.com/jsesc/-/jsesc-0.5.0.tgz#e7dee66e35d6fc16f710fe91d5cf69f70f08911d"
   integrity sha1-597mbjXW/Bb3EP6R1c9p9w8IkR0=
 
-json-bigint@sidorares/json-bigint#2c0a5f896d7888e68e5f4ae3c7ea5cd42fd54473:
+"json-bigint@github:sidorares/json-bigint#2c0a5f896d7888e68e5f4ae3c7ea5cd42fd54473":
   version "1.0.0"
   resolved "https://codeload.github.com/sidorares/json-bigint/tar.gz/2c0a5f896d7888e68e5f4ae3c7ea5cd42fd54473"
   dependencies:
@@ -18034,10 +18034,11 @@ tslib@^2.2.0, tslib@^2.3.1:
   integrity sha512-77EbyPPpMz+FRFRuAFlWMtmgUWGe9UOG2Z25NqCwiIjRhOf5iKGuzSe5P2w1laq+FkRy4p+PCuVkJSGkzTEKVw==
 
 tsp-typescript-client@next:
-  version "0.4.0-next.de3d2bc.0"
-  resolved "https://registry.yarnpkg.com/tsp-typescript-client/-/tsp-typescript-client-0.4.0-next.de3d2bc.0.tgz#6f656201c8c534e2d3a291b9c5c6d111d3b7f2e3"
-  integrity sha512-rUl1VMv9E9Z6l5bTYAxZZc3NvSRLq7jHNLk6887cGucGb9Q60SO+zUZvUyrtgrlVEzI38/PwLEShETHEOB5gpQ==
+  version "0.4.0-next.4d094b0.0"
+  resolved "https://registry.yarnpkg.com/tsp-typescript-client/-/tsp-typescript-client-0.4.0-next.4d094b0.0.tgz#9300a69505ccb9353ec014f1ee11608b932a2a6e"
+  integrity sha512-pUTB72wNr07UGkT8m5h7HY1yPrxYcYFhKViMhdZLa+haFMdygdjRsjyGER2BUcjuC07j6OfK1EoV3uenLUmPYw==
   dependencies:
+    json-bigint sidorares/json-bigint#2c0a5f896d7888e68e5f4ae3c7ea5cd42fd54473
     node-fetch "^2.5.0"
     rimraf latest
 
