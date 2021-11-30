@@ -178,7 +178,7 @@ export class ReactOpenTracesWidget extends React.Component<ReactOpenTracesWidget
                     <h4 className='trace-element-name'>{traceName}</h4>
                     {this.renderTracesForExperiment(props.index)}
                 </div>
-                <div className='remove-trace-button-container' title='Remove traces from Trace Viewer'>
+                <div className='remove-trace-button-container' title='Remove trace from Trace Viewer'>
                     <button data-tip data-for="removeTip" className='remove-trace-button'
                         onClick={event => {this.handleOnExperimentDeleted(event,traceUUID);}}
                     >
