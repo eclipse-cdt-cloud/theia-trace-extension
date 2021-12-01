@@ -41,7 +41,8 @@
   "devDependencies": {
     "@theia/cli": "1.10.0",
     "jsonc-parser": "^3.0.0",
-    "lerna": "^4.0.0"
+    "lerna": "^4.0.0",
+    "typescript": "latest"
   },
   "workspaces": [
     "examples/*",
