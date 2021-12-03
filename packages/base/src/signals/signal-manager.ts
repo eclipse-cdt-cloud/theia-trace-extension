@@ -5,9 +5,10 @@ import { OpenedTracesUpdatedSignalPayload } from './opened-traces-updated-signal
 import { OutputAddedSignalPayload } from './output-added-signal-payload';
 export declare interface SignalManager {
     fireTraceOpenedSignal(trace: Trace): void;
-    fireTraceClosedSignal(trace: Trace): void;
+    fireTraceDeletedSignal(trace: Trace): void;
     fireExperimentExperimentSignal(experiment: Experiment): void;
     fireExperimentClosedSignal(experiment: Experiment): void;
+    fireExperimentDeletedSignal(experiment: Experiment): void;
     fireExperimentSelectedSignal(experiment: Experiment | undefined): void;
     fireOpenedTracesChangedSignal(payload: OpenedTracesUpdatedSignalPayload): void;
     fireOutputAddedSignal(payload: OutputAddedSignalPayload): void;
@@ -25,9 +26,10 @@ export declare interface SignalManager {
 
 export const Signals = {
     TRACE_OPENED: 'trace opened',
-    TRACE_CLOSED: 'trace closed',
+    TRACE_DELETED: 'trace deleted',
     EXPERIMENT_OPENED: 'experiment opened',
     EXPERIMENT_CLOSED: 'experiment closed',
+    EXPERIMENT_DELETED: 'experiment deleted',
     EXPERIMENT_SELECTED: 'experiment selected',
     OPENED_TRACES_UPDATED: 'opened traces updated',
     AVAILABLE_OUTPUTS_CHANGED: 'available outputs changed',
@@ -48,14 +50,17 @@ export class SignalManager extends EventEmitter implements SignalManager {
     fireTraceOpenedSignal(trace: Trace): void {
         this.emit(Signals.TRACE_OPENED, trace);
     }
-    fireTraceClosedSignal(trace: Trace): void {
-        this.emit(Signals.TRACE_CLOSED, { trace });
+    fireTraceDeletedSignal(trace: Trace): void {
+        this.emit(Signals.TRACE_DELETED, { trace });
     }
     fireExperimentOpenedSignal(experiment: Experiment): void {
         this.emit(Signals.EXPERIMENT_OPENED, experiment);
     }
     fireExperimentClosedSignal(experiment: Experiment): void {
         this.emit(Signals.EXPERIMENT_CLOSED, experiment);
+    }
+    fireExperimentDeletedSignal(experiment: Experiment): void {
+        this.emit(Signals.EXPERIMENT_DELETED, experiment);
     }
     fireExperimentSelectedSignal(experiment: Experiment | undefined): void {
         this.emit(Signals.EXPERIMENT_SELECTED, experiment);

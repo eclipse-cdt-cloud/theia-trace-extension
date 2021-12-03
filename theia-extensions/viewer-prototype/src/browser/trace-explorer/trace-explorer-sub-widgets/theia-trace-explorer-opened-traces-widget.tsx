@@ -65,7 +65,7 @@ export class TraceExplorerOpenedTracesWidget extends ReactWidget {
     }
 
     public deleteExperiment(traceUUID: string): void {
-        this._experimentManager.closeExperiment(traceUUID);
+        this._experimentManager.deleteExperiment(traceUUID);
         this.closeExperiment(traceUUID);
     }
 
@@ -77,8 +77,6 @@ export class TraceExplorerOpenedTracesWidget extends ReactWidget {
                 tspClientProvider={this.tspClientProvider}
                 contextMenuRenderer={(event, experiment) => this.doHandleContextMenuEvent(event, experiment) }
                 onClick={(event, experiment) => this.doHandleClickEvent(event, experiment) }
-                widgetManager={this.widgetManager}
-                traceViewerWidgetID={TraceViewerWidget.ID}
             ></ReactOpenTracesWidget>
             }
         </div>);

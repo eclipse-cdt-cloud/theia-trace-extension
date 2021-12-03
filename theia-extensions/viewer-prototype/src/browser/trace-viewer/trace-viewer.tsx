@@ -20,7 +20,6 @@ import { TraceExplorerContribution } from '../trace-explorer/trace-explorer-cont
 import { MarkerSet } from 'tsp-typescript-client/lib/models/markerset';
 import { BackendFileService } from '../../common/backend-file-service';
 import { CancellationTokenSource } from '@theia/core';
-import { OpenedTracesUpdatedSignalPayload } from 'traceviewer-base/lib/signals/opened-traces-updated-signal-payload';
 
 export const TraceViewerWidgetOptions = Symbol('TraceViewerWidgetOptions');
 export interface TraceViewerWidgetOptions {
@@ -191,7 +190,7 @@ export class TraceViewerWidget extends ReactWidget {
                         // Rollback traces
                         progress.report({ message: 'Rolling back traces', work: { done: 50, total: 100 } });
                         for (let i = 0; i < traces.length; i++) {
-                            await this.traceManager.closeTrace(traces[i].UUID);
+                            await this.traceManager.deleteTrace(traces[i].UUID);
                         }
                         progress.report({ message: 'Complete', work: { done: 100, total: 100 } });
                         this.dispose();
@@ -253,8 +252,9 @@ export class TraceViewerWidget extends ReactWidget {
     async onCloseRequest(msg: Message): Promise<void> {
         this.statusBar.removeElement('time-selection-range');
         super.onCloseRequest(msg);
-        const remoteExperiments = await this.experimentManager.getOpenedExperiments();
-        signalManager().fireOpenedTracesChangedSignal(new OpenedTracesUpdatedSignalPayload(remoteExperiments ? remoteExperiments.length : 0));
+        if (this.openedExperiment) {
+            signalManager().fireExperimentClosedSignal(this.openedExperiment);
+        }
     }
 
     onAfterShow(msg: Message): void {

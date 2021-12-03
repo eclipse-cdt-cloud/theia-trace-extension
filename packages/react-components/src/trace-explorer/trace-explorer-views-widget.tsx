@@ -6,14 +6,11 @@ import { OutputDescriptor } from 'tsp-typescript-client/lib/models/output-descri
 import { Experiment } from 'tsp-typescript-client/lib/models/experiment';
 import { ITspClientProvider } from 'traceviewer-base/lib/tsp-client-provider';
 import { ExperimentManager } from 'traceviewer-base/lib/experiment-manager';
-import { WidgetManager } from '@theia/core/lib/browser';
 
 export interface ReactAvailableViewsProps {
     id: string,
     title: string,
     tspClientProvider: ITspClientProvider,
-    widgetManager: WidgetManager,
-    traceViewerWidgetID: string,
     contextMenuRenderer?: (event: React.MouseEvent<HTMLDivElement>, output: OutputDescriptor) => void,
 }
 
@@ -31,8 +28,8 @@ export class ReactAvailableViewsWidget extends React.Component<ReactAvailableVie
     private _selectedExperiment: Experiment | undefined;
     private _experimentManager: ExperimentManager;
 
-    protected doHandleExperimentSelectedSignal = (experiment: Experiment): void => this.doExperimentSelected(experiment);
-    protected doHandleOpenedTracesUpdatedSignal = (): void => this.doCheckOpenWidgets();
+    private _onExperimentSelected = (experiment: Experiment): void => this.doHandleExperimentSelectedSignal(experiment);
+    private _onExperimentClosed = (experiment: Experiment): void => this.doHandleExperimentClosedSignal(experiment);
 
     constructor(props: ReactAvailableViewsProps) {
         super(props);
@@ -40,14 +37,14 @@ export class ReactAvailableViewsWidget extends React.Component<ReactAvailableVie
         this.props.tspClientProvider.addTspClientChangeListener(() => {
             this._experimentManager = this.props.tspClientProvider.getExperimentManager();
         });
-        signalManager().on(Signals.EXPERIMENT_SELECTED, this.doHandleExperimentSelectedSignal);
-        signalManager().on(Signals.OPENED_TRACES_UPDATED, this.doHandleOpenedTracesUpdatedSignal);
+        signalManager().on(Signals.EXPERIMENT_SELECTED, this._onExperimentSelected);
+        signalManager().on(Signals.EXPERIMENT_CLOSED, this._onExperimentClosed);
         this.state = { availableOutputDescriptors: [], lastSelectedOutputIndex: -1 };
     }
 
     componentWillUnmount(): void {
-        signalManager().off(Signals.EXPERIMENT_SELECTED, this.doHandleExperimentSelectedSignal);
-        signalManager().off(Signals.OPENED_TRACES_UPDATED, this.doHandleOpenedTracesUpdatedSignal);
+        signalManager().off(Signals.EXPERIMENT_SELECTED, this._onExperimentSelected);
+        signalManager().off(Signals.EXPERIMENT_CLOSED, this._onExperimentClosed);
     }
 
     render(): React.ReactNode {
@@ -143,7 +140,7 @@ export class ReactAvailableViewsWidget extends React.Component<ReactAvailableVie
         event.stopPropagation();
     }
 
-    protected doExperimentSelected(experiment: Experiment | undefined): void {
+    protected doHandleExperimentSelectedSignal(experiment: Experiment | undefined): void {
         if ((this._selectedExperiment?.UUID !== experiment?.UUID) || this.state.availableOutputDescriptors.length === 0) {
             this._selectedExperiment = experiment;
             this.setState({ availableOutputDescriptors: [], lastSelectedOutputIndex: -1 });
@@ -151,8 +148,8 @@ export class ReactAvailableViewsWidget extends React.Component<ReactAvailableVie
         }
     }
 
-    protected doCheckOpenWidgets(): void {
-        if (!this.props.widgetManager.getWidgets(this.props.traceViewerWidgetID).length){
+    protected doHandleExperimentClosedSignal(experiment: Experiment | undefined): void {
+        if (this._selectedExperiment?.UUID === experiment?.UUID) {
             this.setState({availableOutputDescriptors: []});
         }
     }
@@ -162,7 +159,7 @@ export class ReactAvailableViewsWidget extends React.Component<ReactAvailableVie
     protected async doUpdateAvailableViews(): Promise<void> {
         let outputs: OutputDescriptor[] | undefined;
         const signalExperiment: Experiment | undefined = this._selectedExperiment;
-        if (signalExperiment && this.props.widgetManager.getWidgets(this.props.traceViewerWidgetID).length) {
+        if (signalExperiment) {
             outputs = await this.getOutputDescriptors(signalExperiment);
             this.setState({ availableOutputDescriptors: outputs });
         } else {
