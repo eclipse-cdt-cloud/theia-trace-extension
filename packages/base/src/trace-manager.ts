@@ -115,17 +115,17 @@ export class TraceManager {
     }
 
     /**
-     * Close the given on the server
+     * Delete the given trace on the server
      * @param traceUUID Trace UUID
      */
-    async closeTrace(traceUUID: string): Promise<void> {
+    async deleteTrace(traceUUID: string): Promise<void> {
         const traceToClose = this.fOpenTraces.get(traceUUID);
         if (traceToClose) {
             const deleteResponse = await this.fTspClient.deleteTrace(traceUUID);
             if (deleteResponse.getStatusCode() !== 409) {
                 const deletedTrace = this.removeTrace(traceUUID);
                 if (deletedTrace) {
-                    signalManager().fireTraceClosedSignal(deletedTrace);
+                    signalManager().fireTraceDeletedSignal(deletedTrace);
                 }
             }
         }

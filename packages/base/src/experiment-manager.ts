@@ -19,7 +19,7 @@ export class ExperimentManager {
     ) {
         this.fTspClient = tspClient;
         this.fTraceManager = traceManager;
-        signalManager().on(Signals.EXPERIMENT_CLOSED, (experiment: Experiment) => this.onExperimentClosed(experiment));
+        signalManager().on(Signals.EXPERIMENT_DELETED, (experiment: Experiment) => this.onExperimentDeleted(experiment));
     }
 
     /**
@@ -119,28 +119,28 @@ export class ExperimentManager {
     }
 
     /**
-     * Close the given on the server
+     * Delete the given experiment from the server
      * @param experimentUUID experiment UUID
      */
-    async closeExperiment(experimentUUID: string): Promise<void> {
-        const experimentToClose = this.fOpenExperiments.get(experimentUUID);
-        if (experimentToClose) {
+    async deleteExperiment(experimentUUID: string): Promise<void> {
+        const experimentToDelete = this.fOpenExperiments.get(experimentUUID);
+        if (experimentToDelete) {
             await this.fTspClient.deleteExperiment(experimentUUID);
             const deletedExperiment = this.removeExperiment(experimentUUID);
             if (deletedExperiment) {
-                signalManager().fireExperimentClosedSignal(deletedExperiment);
+                signalManager().fireExperimentDeletedSignal(deletedExperiment);
             }
         }
     }
 
-    private onExperimentClosed(experiment: Experiment) {
+    private onExperimentDeleted(experiment: Experiment) {
         /*
          * TODO: Do not close traces used by another experiment
          */
         // Close each trace
         const traces = experiment.traces;
         for (let i = 0; i < traces.length; i++) {
-            this.fTraceManager.closeTrace(traces[i].UUID);
+            this.fTraceManager.deleteTrace(traces[i].UUID);
         }
     }
 
