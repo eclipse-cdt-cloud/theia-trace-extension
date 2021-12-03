@@ -186,6 +186,7 @@ Currently, the **Time Graph Tooltip** is populated when selecting a state in a T
 ### Explore the project context
 * **Check out the [tracevizlabs](https://github.com/dorsal-lab/Tracevizlab).** You don't need to complete all of them, but reading a couple is good context. Lab sets 0 and 1 are especially useful.
 * **Browse recent conference presentations.** They give an overview of the trace viewer's goals, architecture, and functionality.
+  * _Trace Compass Cloud: Eclipse Trace Compass's migration towards Theia_, [slides](https://www.eclipsecon.org/sites/default/files/slides/EclipseCon2021-TraceCompassCloud.pdf), [video](https://www.youtube.com/watch?v=DFxWXE4A-uQ) - Bernd Hufmann, Ericsson AB (EclipseCon 2021)
   * _Using Theia to take trace analysis and visualization to the next level_, [slides](https://www.eclipsecon.org/sites/default/files/slides/EclipseConEurope2019-TraceCompass-Theia.pdf), [video](https://www.youtube.com/watch?v=Fysg1mOadik) - Bernd Hufmann, Ericsson AB (EclipseCon 2019)
   * _A New Flexible Architecture for Trace Compass_, [slides](https://tracingsummit.org/ts/2019/files/Tracingsummit2019-theia-dagenais.pdf), [video](https://www.youtube.com/watch?v=8s5vGf45e-g) - Michel Dagenais, Polytechnique Montréal ([Tracing Summit 2019](https://tracingsummit.org/ts/2019/))
 * **Get an [overview of external components](https://github.com/theia-ide/theia-trace-extension#related-code)** used by this trace viewer. See how they interact.
