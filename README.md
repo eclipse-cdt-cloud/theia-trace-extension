@@ -185,7 +185,7 @@ Currently, the **Time Graph Tooltip** is populated when selecting a state in a T
 
 ### Explore the project context
 * **Check out the [tracevizlabs](https://github.com/dorsal-lab/Tracevizlab).** You don't need to complete all of them, but reading a couple is good context. Lab sets 0 and 1 are especially useful.
-* **Browse recent conference presentations.** They give an overview of the trace viewer's goals, architecture, and functionality.
+* **Browse recent conference presentations.** They give an overview of the trace viewer's goals, [architecture](https://github.com/theia-ide/theia-trace-extension#architecture), and functionality.
   * _Trace Compass Cloud: Eclipse Trace Compass's migration towards Theia_, [slides](https://www.eclipsecon.org/sites/default/files/slides/EclipseCon2021-TraceCompassCloud.pdf), [video](https://www.youtube.com/watch?v=DFxWXE4A-uQ) - Bernd Hufmann, Ericsson AB (EclipseCon 2021)
   * _Using Theia to take trace analysis and visualization to the next level_, [slides](https://www.eclipsecon.org/sites/default/files/slides/EclipseConEurope2019-TraceCompass-Theia.pdf), [video](https://www.youtube.com/watch?v=Fysg1mOadik) - Bernd Hufmann, Ericsson AB (EclipseCon 2019)
   * _A New Flexible Architecture for Trace Compass_, [slides](https://tracingsummit.org/ts/2019/files/Tracingsummit2019-theia-dagenais.pdf), [video](https://www.youtube.com/watch?v=8s5vGf45e-g) - Michel Dagenais, Polytechnique Montréal ([Tracing Summit 2019](https://tracingsummit.org/ts/2019/))
@@ -226,3 +226,9 @@ This trace viewer depends on code from several other repos. Sometimes resolving 
 | [Trace Server Protocol (TSP)](https://github.com/theia-ide/trace-server-protocol) | Protocol used by the trace viewer to communicate with the trace server. | [label:"trace server protocol"](https://github.com/theia-ide/theia-trace-extension/labels/trace%20server%20protocol) |
 | [Client-side Trace Server Protocol implementation](https://github.com/theia-ide/tsp-typescript-client) | A client-side implementation of the Trace Server Protocol. Allows the trace viewer to communicate with the server. |  |   |
 | [Timeline Chart](https://github.com/theia-ide/timeline-chart) | Implements the Gantt charts used in this trace viewer.  | [label:timeline-chart](https://github.com/theia-ide/theia-trace-extension/labels/timeline-chart) |   |
+
+## Architecture
+The diagram below shows the main parts of the Trace Viewer's front end (left side) and back end (right side) as well as how they exchange information.
+
+![Trace viewer architecture diagram](https://raw.githubusercontent.com/theia-ide/theia-trace-extension/master/doc/images/theia-trace-viewer-architecture.PNG)
+Source: [EclipseCon 2021 Presentation](https://www.eclipsecon.org/sites/default/files/slides/EclipseCon2021-TraceCompassCloud.pdf) (slide 18), Bernd Hufmann
