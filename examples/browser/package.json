@@ -9,7 +9,6 @@
         "applicationName": "Theia-Trace Example Application",
         "preferences": {
           "editor.autoSave": "on",
-          "trace-viewer.path": "../../trace-compass-server/tracecompass-server",
           "trace-viewer.port": 8080
         }
       }
@@ -37,7 +36,7 @@
   },
   "scripts": {
     "prepare": "theia build --mode development",
-    "start": "theia start --plugins=local-dir:../plugins",
+    "start": "TRACE_SERVER_PATH=../../trace-compass-server/tracecompass-server theia start --plugins=local-dir:../plugins",
     "watch": "theia build --watch --mode development"
   },
   "engines": {

@@ -42,7 +42,11 @@
   "theiaExtensions": [
     {
       "frontend": "lib/browser/trace-viewer/trace-viewer-frontend-module",
-      "backend": "lib/node/trace-server-backend-module"
+      "backend": "lib/node/viewer-prototype-backend-module"
+    },
+    {
+      "backend": "lib/node/trace-server/trace-server-module",
+      "backendElectron": "lib/electron-node/trace-server/electron-trace-server-module"
     }
   ]
 }

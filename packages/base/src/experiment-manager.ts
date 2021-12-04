@@ -61,7 +61,7 @@ export class ExperimentManager {
      */
     async getAvailableOutputs(experimentUUID: string): Promise<OutputDescriptor[] | undefined> {
         const outputsResponse = await this.fTspClient.experimentOutputs(experimentUUID);
-        if (outputsResponse && outputsResponse.getStatusCode() === 200) {
+        if (outputsResponse && outputsResponse.isOk()) {
             return outputsResponse.getModel();
         }
         return undefined;
@@ -111,7 +111,7 @@ export class ExperimentManager {
     async updateExperiment(experimentUUID: string): Promise<Experiment | undefined> {
         const experimentResponse = await this.fTspClient.fetchExperiment(experimentUUID);
         const experiment = experimentResponse.getModel();
-        if (experiment && experimentResponse.isOk) {
+        if (experiment && experimentResponse.isOk()) {
             this.fOpenExperiments.set(experimentUUID, experiment);
             return experiment;
         }

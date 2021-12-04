@@ -19,19 +19,14 @@ export class TraceExplorerViewsWidget extends ReactWidget {
         this.update();
     }
 
-    dispose(): void {
-        super.dispose();
-    }
-
     render(): React.ReactNode {
-        return (<div>
-            { <ReactAvailableViewsWidget
+        return <div>
+            <ReactAvailableViewsWidget
                 id={this.id}
                 title={this.title.label}
                 tspClientProvider={this.tspClientProvider}
             ></ReactAvailableViewsWidget>
-            }
-        </div>);
+        </div>;
     }
 
     protected onResize(msg: Widget.ResizeMessage): void {
