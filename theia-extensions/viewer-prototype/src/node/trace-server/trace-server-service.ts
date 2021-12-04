@@ -1,20 +1,26 @@
-import { spawn, ChildProcess } from 'child_process';
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/no-non-null-assertion */
+/* eslint-disable no-null/no-null */
+import { ChildProcess, spawn } from 'child_process';
+import fs = require('fs');
 import { injectable } from 'inversify';
-import { PortBusy, TraceServerConfigService } from '../common/trace-server-config';
+import { PortBusy, StartTraceServerOptions, TraceServerConfigService } from '../../common/trace-server-config';
 import treeKill = require('tree-kill');
 
 const SUCCESS = 'success';
 
+export interface ChildProcessWithPid extends ChildProcess {
+    pid: number
+}
+
 @injectable()
 export class TraceServerServiceImpl implements TraceServerConfigService {
 
-    private server?: ChildProcess;
-    private port?: number;
+    protected server?: ChildProcess;
+    protected port?: number;
 
-    async startTraceServer(path?: string, port?: number): Promise<string> {
-        if (path === undefined) {
-            throw new Error('no Trace Server path specified');
-        } else if (port === undefined) {
+    async startTraceServer({ path, port }: StartTraceServerOptions = {}): Promise<string> {
+        if (typeof port !== 'number') {
             throw new Error('no Trace Server port specified');
         } else if (this.isServerRunning(this.server)) {
             if (this.port === port) {
@@ -23,6 +29,12 @@ export class TraceServerServiceImpl implements TraceServerConfigService {
                 throw new Error('the Trace Server is already running on a different port');
             }
         }
+        path = path?.trim() || await this.findTraceServerPath();
+        if (!path) {
+            throw new Error('no Trace Server path found');
+        } else if (!await this.validateTraceServerPath(path)) {
+            throw new Error(`could not find the Trace Server file at the specified path: ${path}`);
+        }
         const server = spawn(path, ['-vmargs', `-Dtraceserver.port=${port}`]);
         if (server.pid === undefined) {
             // When pid is undefined it usually means we're about to get an error.
@@ -30,7 +42,6 @@ export class TraceServerServiceImpl implements TraceServerConfigService {
         }
         this.server = server;
         this.port = port;
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         let timeout: any;
         try {
             await new Promise<void>((resolve, reject) => {
@@ -57,20 +68,18 @@ export class TraceServerServiceImpl implements TraceServerConfigService {
     }
 
     async stopTraceServer(): Promise<string> {
-        if (!this.isServerRunning(this.server)) {
+        const { server } = this;
+        if (!this.isServerRunning(server)) {
             return SUCCESS;
         }
         await new Promise<void>((resolve, reject) => {
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             let exitTimeout: any;
             // Use `server.on('exit', ...)` as source of truth to detect if the server was successfully killed or not.
-            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-            this.server!.once('exit', () => {
+            server.once('exit', () => {
                 clearTimeout(exitTimeout);
                 resolve();
             });
-            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-            treeKill(this.server!.pid!, error => {
+            treeKill(server.pid, error => {
                 if (error) {
                     reject(error);
                 } else {
@@ -82,10 +91,18 @@ export class TraceServerServiceImpl implements TraceServerConfigService {
         return SUCCESS;
     }
 
-    protected isServerRunning(server?: ChildProcess): boolean {
-        return server !== undefined &&
-            // When the process stops, one of `exitCode` or `signalCode` is set.
-            // eslint-disable-next-line no-null/no-null
-            server.exitCode === null && server.signalCode === null;
+    protected async findTraceServerPath(): Promise<string | undefined> {
+        const traceServerPath = process.env.TRACE_SERVER_PATH?.trim();
+        if (traceServerPath) { return traceServerPath; }
+    }
+
+    protected async validateTraceServerPath(traceServerPath: string): Promise<boolean> {
+        const stat = await fs.promises.stat(traceServerPath);
+        return stat.isFile() && (stat.mode & fs.constants.R_OK) !== 0;
+    }
+
+    protected isServerRunning(server?: ChildProcess): server is ChildProcessWithPid {
+        // When the process stops, one of `exitCode` or `signalCode` is set.
+        return server !== undefined && server.exitCode === null && server.signalCode === null;
     }
 }

@@ -7,12 +7,9 @@ import { FileDialogService, OpenFileDialogProps } from '@theia/filesystem/lib/br
 import { WorkspaceService } from '@theia/workspace/lib/browser/workspace-service';
 import { OpenTraceCommand, StartServerCommand, StopServerCommand, TraceViewerCommand } from './trace-viewer-commands';
 import { PortBusy, TraceServerConfigService } from '../../common/trace-server-config';
-import { PreferenceService } from '@theia/core/lib/browser';
-import { TRACE_PATH, TRACE_PORT } from '../trace-server-preference';
+import { TracePreferences, TRACE_PATH, TRACE_PORT } from '../trace-server-preference';
 import { TspClient } from 'tsp-typescript-client/lib/protocol/tsp-client';
 import { TspClientProvider } from '../tsp-client-provider-impl';
-import { TspClientResponse } from 'tsp-typescript-client/lib/protocol/tsp-client-response';
-import { HealthStatus } from 'tsp-typescript-client/lib/models/health';
 
 interface TraceViewerWidgetOpenerOptions extends WidgetOpenerOptions {
     traceUUID: string;
@@ -31,11 +28,9 @@ export class TraceViewerContribution extends WidgetOpenHandler<TraceViewerWidget
         this.tspClientProvider.addTspClientChangeListener(tspClient => this.tspClient = tspClient);
     }
 
-    @inject(FileDialogService)
-    protected readonly fileDialogService!: FileDialogService;
-    @inject(WorkspaceService)
-    protected readonly workspaceService!: WorkspaceService;
-    @inject(PreferenceService) protected readonly preferenceService: PreferenceService;
+    @inject(FileDialogService) protected readonly fileDialogService: FileDialogService;
+    @inject(WorkspaceService) protected readonly workspaceService: WorkspaceService;
+    @inject(TracePreferences) protected tracePreferences: TracePreferences;
     @inject(TraceServerConfigService) protected readonly traceServerConfigService: TraceServerConfigService;
     @inject(MessageService) protected readonly messageService: MessageService;
 
@@ -43,11 +38,11 @@ export class TraceViewerContribution extends WidgetOpenHandler<TraceViewerWidget
     readonly label = 'Trace Viewer';
 
     protected get path(): string | undefined {
-        return this.preferenceService.get(TRACE_PATH);
+        return this.tracePreferences[TRACE_PATH];
     }
 
     protected get port(): number | undefined {
-        return this.preferenceService.get(TRACE_PORT);
+        return this.tracePreferences[TRACE_PORT];
     }
 
     protected createWidgetOptions(uri: URI, options?: TraceViewerWidgetOpenerOptions): TraceViewerWidgetOptions {
@@ -60,38 +55,35 @@ export class TraceViewerContribution extends WidgetOpenHandler<TraceViewerWidget
     protected async launchTraceServer(): Promise<void> {
         try {
             const healthResponse = await this.tspClient.checkHealth();
-            if ((healthResponse as TspClientResponse<HealthStatus>).getModel()?.status === 'UP') {
+            if (healthResponse.getModel()?.status === 'UP') {
                 this.openDialog();
             }
-        } catch (e) {
-            this.messageService.showProgress({
-                text: ''
-            }).then(async progress => {
-                progress.report({ message: 'Launching trace server... ', work: { done: 10, total: 100 } });
-                try {
-                    const resolve = await this.traceServerConfigService.startTraceServer(this.path, this.port);
-                    if (resolve === 'success') {
-                        progress.report({ message: `Trace server started on port: ${this.port}.`, work: { done: 100, total: 100 } });
-                        progress.cancel();
-                        this.openDialog();
-                    }
-                }
-                catch (err) {
-                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                    if (PortBusy.is(err as any)) {
-                        this.messageService.error(
-                            `Error opening serial port ${this.port}. (Port busy)`);
-                    } else {
-                        this.messageService.error(
-                            'Failed to start the trace server: no such file or directory. Please make sure that the path is correct in Trace Viewer settings and retry');
-                    }
+        } catch (outer) {
+            const progress = await this.messageService.showProgress({ text: '' });
+            progress.report({ message: 'Launching trace server... ', work: { done: 10, total: 100 } });
+            const { path, port } = this;
+            try {
+                const resolve = await this.traceServerConfigService.startTraceServer({ path, port });
+                if (resolve === 'success') {
+                    progress.report({ message: `Trace server started on port: ${port}.`, work: { done: 100, total: 100 } });
                     progress.cancel();
+                    this.openDialog();
                 }
-            });
+            } catch (inner) {
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                if (PortBusy.is(inner as any)) {
+                    this.messageService.error(`Error opening serial port ${port}. (Port busy)`);
+                } else {
+                    this.messageService.error(
+                        'Failed to start the trace server: no such file or directory. Please make sure that the path is correct in Trace Viewer settings and retry'
+                    );
+                }
+                progress.cancel();
+            }
         }
     }
 
-    public async openDialog(): Promise<void> {
+    async openDialog(): Promise<void> {
         const props: OpenFileDialogProps = {
             title: 'Open Trace',
             // Only support selecting folders, both folders and file doesn't work in Electron (issue #227)
@@ -105,76 +97,69 @@ export class TraceViewerContribution extends WidgetOpenHandler<TraceViewerWidget
         }
     }
 
-    public async open(traceURI: URI, traceUUID?: TraceViewerWidgetOpenerOptions): Promise<TraceViewerWidget> {
+    async open(traceURI: URI, options?: TraceViewerWidgetOpenerOptions): Promise<TraceViewerWidget> {
         try {
             const healthResponse = await this.tspClient.checkHealth();
-            if ((healthResponse as TspClientResponse<HealthStatus>).getModel()?.status === 'UP') {
-                const widget = super.open(traceURI, traceUUID);
-                return widget;
+            if (healthResponse.getModel()?.status === 'UP') {
+                return super.open(traceURI, options);
             }
-        }
-        catch (e) {
-            this.messageService.showProgress({
-                text: ''
-            }).then(async progress => {
-                const { path, port } = this;
+        } catch (outer) {
+            return this.messageService.showProgress({ text: '' }).then(async progress => {
                 progress.report({ message: 'Launching trace server... ', work: { done: 10, total: 100 } });
+                const { path, port } = this;
                 try {
-                    const resolve = await this.traceServerConfigService.startTraceServer(path, port);
+                    const resolve = await this.traceServerConfigService.startTraceServer({ path, port });
                     if (resolve === 'success') {
+                        await this.waitForTraceServer(10_000);
                         progress.report({ message: `Trace server started on port: ${port}.`, work: { done: 100, total: 100 } });
-                        progress.cancel();
-                        const widget = super.open(traceURI, traceUUID);
-                        return widget;
+                        return super.open(traceURI, options);
                     }
-                }
-                catch (err) {
+                } catch (inner) {
                     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                    if (PortBusy.is(err as any)) {
-                        this.messageService.error(
-                            `Error opening serial port ${port}. (Port busy)`);
+                    if (PortBusy.is(inner as any)) {
+                        this.messageService.error(`Error opening serial port ${port}. (Port busy)`);
                     } else {
                         this.messageService.error(
-                            'Failed to start the trace server: no such file or directory. Please make sure that the path is correct in Trace Viewer settings and retry');
+                            'Failed to start the trace server: no such file or directory. Please make sure that the path is correct in Trace Viewer settings and retry'
+                        );
                     }
+                    throw inner;
+                } finally {
                     progress.cancel();
                 }
+                throw outer;
             });
         }
-        return Promise.reject('error opening widget');
-
+        throw new Error('Could not open TraceViewerWidget');
     }
 
     registerCommands(registry: CommandRegistry): void {
         registry.registerCommand(OpenTraceCommand, {
-            execute: async () => {
-                await this.launchTraceServer();
-            }
+            execute: () => this.launchTraceServer()
         });
-
         registry.registerCommand(TraceViewerCommand, {
-            execute: async traceUUID => { await this.open(new URI(''), traceUUID); }
+            execute: (options: TraceViewerWidgetOpenerOptions) => this.open(new URI(''), options)
         });
-
         registry.registerCommand(StartServerCommand, {
             execute: async () => {
+                const { path, port } = this;
                 try {
-                    await this.traceServerConfigService.startTraceServer(this.path, this.port);
-                    this.messageService.info(`Trace server started successfully on port: ${this.port}.`);
-                } catch (err) {
+                    await this.traceServerConfigService.startTraceServer({ path, port });
+                    this.messageService.info(`Trace server started successfully on port: ${port}.`);
+                } catch (error) {
                     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                    if (PortBusy.is(err as any)) {
-                        this.messageService.error(
-                            `Error opening serial port ${this.port}. (Port busy)`);
+                    if (PortBusy.is(error as any)) {
+                        this.messageService.error(`Error opening serial port ${port}. (Port busy)`);
                     } else {
+                        console.error(error);
                         this.messageService.error(
-                            'Failed to start the trace server: no such file or directory. Please make sure that the path is correct in Trace Viewer settings and retry');
+                            'Failed to start the trace server: no such file or directory. Please make sure that the path is correct in Trace Viewer settings and retry'
+                        );
                     }
 
                 }
             }
         });
-
         registry.registerCommand(StopServerCommand, {
             execute: async () => {
                 try {
@@ -185,10 +170,28 @@ export class TraceViewerContribution extends WidgetOpenHandler<TraceViewerWidget
                 }
             }
         });
-
     }
 
     canHandle(_uri: URI): number {
         return 100;
+    }
+
+    protected async waitForTraceServer(timeoutMs: number): Promise<void> {
+        let timeout = false;
+        const timeoutHandle = setTimeout(() => timeout = true, timeoutMs);
+        // Try fetching the Trace Server health, repeat on error only.
+        // If we get a response of some sort, it means the HTTP server is up somehow.
+        while (true) {
+            try {
+                await this.tspClient.checkHealth();
+                clearTimeout(timeoutHandle);
+                return;
+            } catch (error) {
+                if (timeout) {
+                    throw error;
+                }
+                console.error(error);
+            }
+        }
     }
 }

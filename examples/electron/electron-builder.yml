@@ -1,4 +1,5 @@
-electronDist: node_modules/electron/dist
+electronVersion: 9.4.4
+electronDist: ../../node_modules/electron/dist
 productName: Theia Trace Example Application
 appId: theia-trace-example
 
@@ -14,6 +15,8 @@ files:
 extraResources:
   - from: plugins
     to: app/plugins
+  - from: ../../trace-compass-server
+    to: trace-compass-server
 
 linux:
   target:

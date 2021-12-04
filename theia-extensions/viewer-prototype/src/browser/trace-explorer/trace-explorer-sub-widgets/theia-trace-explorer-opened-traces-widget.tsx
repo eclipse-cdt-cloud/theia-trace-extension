@@ -70,16 +70,15 @@ export class TraceExplorerOpenedTracesWidget extends ReactWidget {
     }
 
     render(): React.ReactNode {
-        return (<div>
-            { <ReactOpenTracesWidget
+        return <div>
+            <ReactOpenTracesWidget
                 id={this.id}
                 title={this.title.label}
                 tspClientProvider={this.tspClientProvider}
                 contextMenuRenderer={(event, experiment) => this.doHandleContextMenuEvent(event, experiment) }
                 onClick={(event, experiment) => this.doHandleClickEvent(event, experiment) }
             ></ReactOpenTracesWidget>
-            }
-        </div>);
+        </div>;
     }
 
     protected onResize(msg: Widget.ResizeMessage): void {

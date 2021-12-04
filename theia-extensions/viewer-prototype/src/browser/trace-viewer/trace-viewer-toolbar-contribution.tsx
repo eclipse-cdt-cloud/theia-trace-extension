@@ -47,10 +47,9 @@ export class TraceViewerToolbarContribution implements TabBarToolbarContribution
     registerCommands(registry: CommandRegistry): void {
         registry.registerCommand(
             TraceViewerToolbarCommands.ZOOM_IN, {
-            isVisible: (w: Widget) => {
-                if (w instanceof TraceViewerWidget) {
-                    const traceWidget = w as TraceViewerWidget;
-                    return traceWidget.isTimeRelatedChartOpened();
+            isVisible: (widget: Widget) => {
+                if (widget instanceof TraceViewerWidget) {
+                    return widget.isTimeRelatedChartOpened();
                 }
                 return false;
             },
@@ -73,10 +72,9 @@ export class TraceViewerToolbarContribution implements TabBarToolbarContribution
         });
         registry.registerCommand(
             TraceViewerToolbarCommands.RESET, {
-            isVisible: (w: Widget) => {
-                if (w instanceof TraceViewerWidget) {
-                    const traceWidget = w as TraceViewerWidget;
-                    return traceWidget.isTimeRelatedChartOpened();
+            isVisible: (widget: Widget) => {
+                if (widget instanceof TraceViewerWidget) {
+                    return widget.isTimeRelatedChartOpened();
                 }
                 return false;
             },
@@ -169,10 +167,9 @@ export class TraceViewerToolbarContribution implements TabBarToolbarContribution
         });
         registry.registerItem({
             id: TraceViewerToolbarCommands.MARKER_SETS.id,
-            isVisible: w => {
-                if (w instanceof TraceViewerWidget) {
-                    const traceViewerWidget = w as TraceViewerWidget;
-                    return traceViewerWidget.getMarkerSets().size > 0;
+            isVisible: widget => {
+                if (widget instanceof TraceViewerWidget) {
+                    return widget.getMarkerSets().size > 0;
                 }
                 return false;
             },

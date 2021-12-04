@@ -3,15 +3,12 @@ import { ReactWidget } from '@theia/core/lib/browser';
 import * as React from 'react';
 import { CommandService } from '@theia/core';
 import { OpenTraceCommand } from '../../trace-viewer/trace-viewer-commands';
-import { PreferenceService } from '@theia/core/lib/browser';
-import { TRACE_PATH, TRACE_PORT } from '../../trace-server-preference';
 
 @injectable()
 export class TraceExplorerPlaceholderWidget extends ReactWidget {
+
     static ID = 'trace-explorer-placeholder-widget';
     static LABEL = 'Trace Exploerer Placeholder Widget';
-    protected path: string | undefined;
-    protected port: number | undefined;
 
     state = {
         loading: false
@@ -22,22 +19,9 @@ export class TraceExplorerPlaceholderWidget extends ReactWidget {
     }
 
     @inject(CommandService) protected readonly commandService!: CommandService;
-    @inject(PreferenceService) protected readonly preferenceService: PreferenceService;
 
     @postConstruct()
     init(): void {
-        this.preferenceService.onPreferenceChanged(event => {
-            if (event.preferenceName === TRACE_PORT) {
-                this.port = event.newValue;
-            }
-            if (event.preferenceName === TRACE_PATH) {
-                this.path = event.newValue;
-            }
-        });
-
-        this.path = this.preferenceService.get(TRACE_PATH);
-        this.port = this.preferenceService.get(TRACE_PORT);
-
         this.id = TraceExplorerPlaceholderWidget.ID;
         this.title.label = TraceExplorerPlaceholderWidget.LABEL;
         this.update();

@@ -1,8 +1,9 @@
 export const TRACE_SERVER_DEFAULT_URL = 'http://localhost:{}/tsp/api';
-export const TRACE_SERVER_DEFAULT_PORT = '8080';
+export const TRACE_SERVER_DEFAULT_PORT = 8080;
 
 export const TraceServerUrlProvider = Symbol('TraceServerUrlProvider');
 export interface TraceServerUrlProvider {
+
     /**
      * Get a promise that resolves once the Trace Server URL is initialized.
      * @returns a new promise each time `.onDidChangeTraceServerUrl` fires.
