@@ -32,13 +32,12 @@ export class TableRow extends React.Component<TableRowProps> {
     };
 
     renderToggleCollapse = (): React.ReactNode => {
-        const marginLeft = this.props.level * 15 + 'px';
+        const width = (this.props.level + 1) * 12;
         return (
             (this.props.node.children.length === 0)
-                ? <span style={{ marginLeft: marginLeft, paddingLeft: 20 }}></span>
-                : <span style={{ marginLeft: marginLeft, paddingRight: 5 }} onClick={this.handleCollapse}>
-                    {(this.isCollapsed() ? icons.expand : icons.collapse)}
-                </span>
+                ? <div style={{ width, paddingRight: 5, display: 'inline-block' }} />
+                : <div style={{ width, paddingRight: 5, textAlign: 'right', display: 'inline-block' }} onClick={this.handleCollapse}>
+                    {(this.isCollapsed() ? icons.expand : icons.collapse)}</div>
         );
     };
 
@@ -51,25 +50,21 @@ export class TableRow extends React.Component<TableRowProps> {
                 checkedStatus={checkedStatus}
                 onToggleCheck={this.props.onToggleCheck}
             />
-            : <span style={{ marginLeft: 5 }}></span>;
+            : undefined;
     };
 
-    renderClose = (): React.ReactNode => <span style={{ padding: 5 }} onClick={this.handleClose}>{this.props.isClosable ? icons.close : ''}</span>;
+    renderCloseButton = (): React.ReactNode =>
+        (this.props.isClosable && this.props.node.id)
+            ? <div style={{ paddingRight: 5, display: 'inline' }} onClick={this.handleClose}>{icons.close}</div>
+            : undefined;
 
-    renderRow = (): React.ReactNode => this.props.node.labels.map((_label: string, index) => {
-        let toggleCollapse: React.ReactNode;
-        let toggleCheck: React.ReactNode;
-        if (index === 0) {
-            toggleCollapse = this.renderToggleCollapse();
-            toggleCheck = this.renderCheckbox();
-        }
-
-        return <TableCell key={this.props.node.id + '-' + index} index={index} node={this.props.node}>
-            {toggleCollapse}
-            {toggleCheck}
-            {this.props.node.id ? this.renderClose() : <></>}
-        </TableCell>;
-    });
+    renderRow = (): React.ReactNode => this.props.node.labels.map((_label: string, index) =>
+        <TableCell key={this.props.node.id + '-' + index} index={index} node={this.props.node}>
+            { (index === 0) ? this.renderToggleCollapse() : undefined }
+            { (index === 0) ? this.renderCheckbox() : undefined }
+            { (index === 0) ? this.renderCloseButton() : undefined }
+        </TableCell>
+    );
 
     renderChildren = (): React.ReactNode | undefined => {
         if (this.props.node.children.length && !this.isCollapsed()) {

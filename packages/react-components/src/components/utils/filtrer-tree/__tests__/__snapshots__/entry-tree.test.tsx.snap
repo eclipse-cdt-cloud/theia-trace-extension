@@ -58,12 +58,14 @@ exports[`Entry with children All unchecked 1`] = `
     <tbody>
       <tr>
         <td>
-          <span
+          <div
             onClick={[Function]}
             style={
               Object {
-                "marginLeft": "0px",
+                "display": "inline-block",
                 "paddingRight": 5,
+                "textAlign": "right",
+                "width": 12,
               }
             }
           >
@@ -84,12 +86,13 @@ exports[`Entry with children All unchecked 1`] = `
                 style={Object {}}
               />
             </svg>
-          </span>
-          <span
+          </div>
+          <div
             onClick={[Function]}
             style={
               Object {
-                "padding": 5,
+                "display": "inline",
+                "paddingRight": 5,
               }
             }
           >
@@ -110,7 +113,7 @@ exports[`Entry with children All unchecked 1`] = `
                 style={Object {}}
               />
             </svg>
-          </span>
+          </div>
           parent
         </td>
         <td>
@@ -119,19 +122,21 @@ exports[`Entry with children All unchecked 1`] = `
       </tr>
       <tr>
         <td>
-          <span
+          <div
             style={
               Object {
-                "marginLeft": "15px",
-                "paddingLeft": 20,
+                "display": "inline-block",
+                "paddingRight": 5,
+                "width": 24,
               }
             }
           />
-          <span
+          <div
             onClick={[Function]}
             style={
               Object {
-                "padding": 5,
+                "display": "inline",
+                "paddingRight": 5,
               }
             }
           >
@@ -152,41 +157,23 @@ exports[`Entry with children All unchecked 1`] = `
                 style={Object {}}
               />
             </svg>
-          </span>
-          <span
-            onClick={[Function]}
-            style={
-              Object {
-                "padding": 5,
-              }
-            }
-          >
-            
-          </span>
+          </div>
           child1
         </td>
         <td>
-          <span
-            onClick={[Function]}
-            style={
-              Object {
-                "padding": 5,
-              }
-            }
-          >
-            
-          </span>
           child1 second column
         </td>
       </tr>
       <tr>
         <td>
-          <span
+          <div
             onClick={[Function]}
             style={
               Object {
-                "marginLeft": "15px",
+                "display": "inline-block",
                 "paddingRight": 5,
+                "textAlign": "right",
+                "width": 24,
               }
             }
           >
@@ -207,12 +194,13 @@ exports[`Entry with children All unchecked 1`] = `
                 style={Object {}}
               />
             </svg>
-          </span>
-          <span
+          </div>
+          <div
             onClick={[Function]}
             style={
               Object {
-                "padding": 5,
+                "display": "inline",
+                "paddingRight": 5,
               }
             }
           >
@@ -233,48 +221,30 @@ exports[`Entry with children All unchecked 1`] = `
                 style={Object {}}
               />
             </svg>
-          </span>
-          <span
-            onClick={[Function]}
-            style={
-              Object {
-                "padding": 5,
-              }
-            }
-          >
-            
-          </span>
+          </div>
           child2
         </td>
         <td>
-          <span
-            onClick={[Function]}
-            style={
-              Object {
-                "padding": 5,
-              }
-            }
-          >
-            
-          </span>
           child2 second column
         </td>
       </tr>
       <tr>
         <td>
-          <span
+          <div
             style={
               Object {
-                "marginLeft": "30px",
-                "paddingLeft": 20,
+                "display": "inline-block",
+                "paddingRight": 5,
+                "width": 36,
               }
             }
           />
-          <span
+          <div
             onClick={[Function]}
             style={
               Object {
-                "padding": 5,
+                "display": "inline",
+                "paddingRight": 5,
               }
             }
           >
@@ -295,48 +265,30 @@ exports[`Entry with children All unchecked 1`] = `
                 style={Object {}}
               />
             </svg>
-          </span>
-          <span
-            onClick={[Function]}
-            style={
-              Object {
-                "padding": 5,
-              }
-            }
-          >
-            
-          </span>
+          </div>
           grandchild1
         </td>
         <td>
-          <span
-            onClick={[Function]}
-            style={
-              Object {
-                "padding": 5,
-              }
-            }
-          >
-            
-          </span>
           grandchild1 second column
         </td>
       </tr>
       <tr>
         <td>
-          <span
+          <div
             style={
               Object {
-                "marginLeft": "30px",
-                "paddingLeft": 20,
+                "display": "inline-block",
+                "paddingRight": 5,
+                "width": 36,
               }
             }
           />
-          <span
+          <div
             onClick={[Function]}
             style={
               Object {
-                "padding": 5,
+                "display": "inline",
+                "paddingRight": 5,
               }
             }
           >
@@ -357,30 +309,10 @@ exports[`Entry with children All unchecked 1`] = `
                 style={Object {}}
               />
             </svg>
-          </span>
-          <span
-            onClick={[Function]}
-            style={
-              Object {
-                "padding": 5,
-              }
-            }
-          >
-            
-          </span>
+          </div>
           grandchild2
         </td>
         <td>
-          <span
-            onClick={[Function]}
-            style={
-              Object {
-                "padding": 5,
-              }
-            }
-          >
-            
-          </span>
           grandchild2 second column
         </td>
       </tr>
@@ -441,12 +373,14 @@ exports[`Entry with children Check one grandchild 1`] = `
     <tbody>
       <tr>
         <td>
-          <span
+          <div
             onClick={[Function]}
             style={
               Object {
-                "marginLeft": "0px",
+                "display": "inline-block",
                 "paddingRight": 5,
+                "textAlign": "right",
+                "width": 12,
               }
             }
           >
@@ -467,12 +401,13 @@ exports[`Entry with children Check one grandchild 1`] = `
                 style={Object {}}
               />
             </svg>
-          </span>
-          <span
+          </div>
+          <div
             onClick={[Function]}
             style={
               Object {
-                "padding": 5,
+                "display": "inline",
+                "paddingRight": 5,
               }
             }
           >
@@ -493,7 +428,7 @@ exports[`Entry with children Check one grandchild 1`] = `
                 style={Object {}}
               />
             </svg>
-          </span>
+          </div>
           parent
         </td>
         <td>
@@ -502,19 +437,21 @@ exports[`Entry with children Check one grandchild 1`] = `
       </tr>
       <tr>
         <td>
-          <span
+          <div
             style={
               Object {
-                "marginLeft": "15px",
-                "paddingLeft": 20,
+                "display": "inline-block",
+                "paddingRight": 5,
+                "width": 24,
               }
             }
           />
-          <span
+          <div
             onClick={[Function]}
             style={
               Object {
-                "padding": 5,
+                "display": "inline",
+                "paddingRight": 5,
               }
             }
           >
@@ -535,41 +472,23 @@ exports[`Entry with children Check one grandchild 1`] = `
                 style={Object {}}
               />
             </svg>
-          </span>
-          <span
-            onClick={[Function]}
-            style={
-              Object {
-                "padding": 5,
-              }
-            }
-          >
-            
-          </span>
+          </div>
           child1
         </td>
         <td>
-          <span
-            onClick={[Function]}
-            style={
-              Object {
-                "padding": 5,
-              }
-            }
-          >
-            
-          </span>
           child1 second column
         </td>
       </tr>
       <tr>
         <td>
-          <span
+          <div
             onClick={[Function]}
             style={
               Object {
-                "marginLeft": "15px",
+                "display": "inline-block",
                 "paddingRight": 5,
+                "textAlign": "right",
+                "width": 24,
               }
             }
           >
@@ -590,12 +509,13 @@ exports[`Entry with children Check one grandchild 1`] = `
                 style={Object {}}
               />
             </svg>
-          </span>
-          <span
+          </div>
+          <div
             onClick={[Function]}
             style={
               Object {
-                "padding": 5,
+                "display": "inline",
+                "paddingRight": 5,
               }
             }
           >
@@ -616,48 +536,30 @@ exports[`Entry with children Check one grandchild 1`] = `
                 style={Object {}}
               />
             </svg>
-          </span>
-          <span
-            onClick={[Function]}
-            style={
-              Object {
-                "padding": 5,
-              }
-            }
-          >
-            
-          </span>
+          </div>
           child2
         </td>
         <td>
-          <span
-            onClick={[Function]}
-            style={
-              Object {
-                "padding": 5,
-              }
-            }
-          >
-            
-          </span>
           child2 second column
         </td>
       </tr>
       <tr>
         <td>
-          <span
+          <div
             style={
               Object {
-                "marginLeft": "30px",
-                "paddingLeft": 20,
+                "display": "inline-block",
+                "paddingRight": 5,
+                "width": 36,
               }
             }
           />
-          <span
+          <div
             onClick={[Function]}
             style={
               Object {
-                "padding": 5,
+                "display": "inline",
+                "paddingRight": 5,
               }
             }
           >
@@ -678,48 +580,30 @@ exports[`Entry with children Check one grandchild 1`] = `
                 style={Object {}}
               />
             </svg>
-          </span>
-          <span
-            onClick={[Function]}
-            style={
-              Object {
-                "padding": 5,
-              }
-            }
-          >
-            
-          </span>
+          </div>
           grandchild1
         </td>
         <td>
-          <span
-            onClick={[Function]}
-            style={
-              Object {
-                "padding": 5,
-              }
-            }
-          >
-            
-          </span>
           grandchild1 second column
         </td>
       </tr>
       <tr>
         <td>
-          <span
+          <div
             style={
               Object {
-                "marginLeft": "30px",
-                "paddingLeft": 20,
+                "display": "inline-block",
+                "paddingRight": 5,
+                "width": 36,
               }
             }
           />
-          <span
+          <div
             onClick={[Function]}
             style={
               Object {
-                "padding": 5,
+                "display": "inline",
+                "paddingRight": 5,
               }
             }
           >
@@ -740,30 +624,10 @@ exports[`Entry with children Check one grandchild 1`] = `
                 style={Object {}}
               />
             </svg>
-          </span>
-          <span
-            onClick={[Function]}
-            style={
-              Object {
-                "padding": 5,
-              }
-            }
-          >
-            
-          </span>
+          </div>
           grandchild2
         </td>
         <td>
-          <span
-            onClick={[Function]}
-            style={
-              Object {
-                "padding": 5,
-              }
-            }
-          >
-            
-          </span>
           grandchild2 second column
         </td>
       </tr>
@@ -824,12 +688,14 @@ exports[`Entry with children Collapse one child 1`] = `
     <tbody>
       <tr>
         <td>
-          <span
+          <div
             onClick={[Function]}
             style={
               Object {
-                "marginLeft": "0px",
+                "display": "inline-block",
                 "paddingRight": 5,
+                "textAlign": "right",
+                "width": 12,
               }
             }
           >
@@ -850,12 +716,13 @@ exports[`Entry with children Collapse one child 1`] = `
                 style={Object {}}
               />
             </svg>
-          </span>
-          <span
+          </div>
+          <div
             onClick={[Function]}
             style={
               Object {
-                "padding": 5,
+                "display": "inline",
+                "paddingRight": 5,
               }
             }
           >
@@ -876,7 +743,7 @@ exports[`Entry with children Collapse one child 1`] = `
                 style={Object {}}
               />
             </svg>
-          </span>
+          </div>
           parent
         </td>
         <td>
@@ -885,19 +752,21 @@ exports[`Entry with children Collapse one child 1`] = `
       </tr>
       <tr>
         <td>
-          <span
+          <div
             style={
               Object {
-                "marginLeft": "15px",
-                "paddingLeft": 20,
+                "display": "inline-block",
+                "paddingRight": 5,
+                "width": 24,
               }
             }
           />
-          <span
+          <div
             onClick={[Function]}
             style={
               Object {
-                "padding": 5,
+                "display": "inline",
+                "paddingRight": 5,
               }
             }
           >
@@ -918,41 +787,23 @@ exports[`Entry with children Collapse one child 1`] = `
                 style={Object {}}
               />
             </svg>
-          </span>
-          <span
-            onClick={[Function]}
-            style={
-              Object {
-                "padding": 5,
-              }
-            }
-          >
-            
-          </span>
+          </div>
           child1
         </td>
         <td>
-          <span
-            onClick={[Function]}
-            style={
-              Object {
-                "padding": 5,
-              }
-            }
-          >
-            
-          </span>
           child1 second column
         </td>
       </tr>
       <tr>
         <td>
-          <span
+          <div
             onClick={[Function]}
             style={
               Object {
-                "marginLeft": "15px",
+                "display": "inline-block",
                 "paddingRight": 5,
+                "textAlign": "right",
+                "width": 24,
               }
             }
           >
@@ -973,12 +824,13 @@ exports[`Entry with children Collapse one child 1`] = `
                 style={Object {}}
               />
             </svg>
-          </span>
-          <span
+          </div>
+          <div
             onClick={[Function]}
             style={
               Object {
-                "padding": 5,
+                "display": "inline",
+                "paddingRight": 5,
               }
             }
           >
@@ -999,30 +851,10 @@ exports[`Entry with children Collapse one child 1`] = `
                 style={Object {}}
               />
             </svg>
-          </span>
-          <span
-            onClick={[Function]}
-            style={
-              Object {
-                "padding": 5,
-              }
-            }
-          >
-            
-          </span>
+          </div>
           child2
         </td>
         <td>
-          <span
-            onClick={[Function]}
-            style={
-              Object {
-                "padding": 5,
-              }
-            }
-          >
-            
-          </span>
           child2 second column
         </td>
       </tr>
@@ -1093,12 +925,14 @@ Array [
       <tbody>
         <tr>
           <td>
-            <span
+            <div
               onClick={[Function]}
               style={
                 Object {
-                  "marginLeft": "0px",
+                  "display": "inline-block",
                   "paddingRight": 5,
+                  "textAlign": "right",
+                  "width": 12,
                 }
               }
             >
@@ -1119,12 +953,13 @@ Array [
                   style={Object {}}
                 />
               </svg>
-            </span>
-            <span
+            </div>
+            <div
               onClick={[Function]}
               style={
                 Object {
-                  "padding": 5,
+                  "display": "inline",
+                  "paddingRight": 5,
                 }
               }
             >
@@ -1145,7 +980,7 @@ Array [
                   style={Object {}}
                 />
               </svg>
-            </span>
+            </div>
             parent
           </td>
           <td>
@@ -1154,19 +989,21 @@ Array [
         </tr>
         <tr>
           <td>
-            <span
+            <div
               style={
                 Object {
-                  "marginLeft": "15px",
-                  "paddingLeft": 20,
+                  "display": "inline-block",
+                  "paddingRight": 5,
+                  "width": 24,
                 }
               }
             />
-            <span
+            <div
               onClick={[Function]}
               style={
                 Object {
-                  "padding": 5,
+                  "display": "inline",
+                  "paddingRight": 5,
                 }
               }
             >
@@ -1187,41 +1024,23 @@ Array [
                   style={Object {}}
                 />
               </svg>
-            </span>
-            <span
-              onClick={[Function]}
-              style={
-                Object {
-                  "padding": 5,
-                }
-              }
-            >
-              
-            </span>
+            </div>
             child1
           </td>
           <td>
-            <span
-              onClick={[Function]}
-              style={
-                Object {
-                  "padding": 5,
-                }
-              }
-            >
-              
-            </span>
             child1 second column
           </td>
         </tr>
         <tr>
           <td>
-            <span
+            <div
               onClick={[Function]}
               style={
                 Object {
-                  "marginLeft": "15px",
+                  "display": "inline-block",
                   "paddingRight": 5,
+                  "textAlign": "right",
+                  "width": 24,
                 }
               }
             >
@@ -1242,12 +1061,13 @@ Array [
                   style={Object {}}
                 />
               </svg>
-            </span>
-            <span
+            </div>
+            <div
               onClick={[Function]}
               style={
                 Object {
-                  "padding": 5,
+                  "display": "inline",
+                  "paddingRight": 5,
                 }
               }
             >
@@ -1268,48 +1088,30 @@ Array [
                   style={Object {}}
                 />
               </svg>
-            </span>
-            <span
-              onClick={[Function]}
-              style={
-                Object {
-                  "padding": 5,
-                }
-              }
-            >
-              
-            </span>
+            </div>
             child2
           </td>
           <td>
-            <span
-              onClick={[Function]}
-              style={
-                Object {
-                  "padding": 5,
-                }
-              }
-            >
-              
-            </span>
             child2 second column
           </td>
         </tr>
         <tr>
           <td>
-            <span
+            <div
               style={
                 Object {
-                  "marginLeft": "30px",
-                  "paddingLeft": 20,
+                  "display": "inline-block",
+                  "paddingRight": 5,
+                  "width": 36,
                 }
               }
             />
-            <span
+            <div
               onClick={[Function]}
               style={
                 Object {
-                  "padding": 5,
+                  "display": "inline",
+                  "paddingRight": 5,
                 }
               }
             >
@@ -1330,48 +1132,30 @@ Array [
                   style={Object {}}
                 />
               </svg>
-            </span>
-            <span
-              onClick={[Function]}
-              style={
-                Object {
-                  "padding": 5,
-                }
-              }
-            >
-              
-            </span>
+            </div>
             grandchild1
           </td>
           <td>
-            <span
-              onClick={[Function]}
-              style={
-                Object {
-                  "padding": 5,
-                }
-              }
-            >
-              
-            </span>
             grandchild1 second column
           </td>
         </tr>
         <tr>
           <td>
-            <span
+            <div
               style={
                 Object {
-                  "marginLeft": "30px",
-                  "paddingLeft": 20,
+                  "display": "inline-block",
+                  "paddingRight": 5,
+                  "width": 36,
                 }
               }
             />
-            <span
+            <div
               onClick={[Function]}
               style={
                 Object {
-                  "padding": 5,
+                  "display": "inline",
+                  "paddingRight": 5,
                 }
               }
             >
@@ -1392,30 +1176,10 @@ Array [
                   style={Object {}}
                 />
               </svg>
-            </span>
-            <span
-              onClick={[Function]}
-              style={
-                Object {
-                  "padding": 5,
-                }
-              }
-            >
-              
-            </span>
+            </div>
             grandchild2
           </td>
           <td>
-            <span
-              onClick={[Function]}
-              style={
-                Object {
-                  "padding": 5,
-                }
-              }
-            >
-              
-            </span>
             grandchild2 second column
           </td>
         </tr>
@@ -1477,18 +1241,12 @@ exports[`one level of entries 1`] = `
     <tbody>
       <tr>
         <td>
-          <span
+          <div
             style={
               Object {
-                "marginLeft": "0px",
-                "paddingLeft": 20,
-              }
-            }
-          />
-          <span
-            style={
-              Object {
-                "marginLeft": 5,
+                "display": "inline-block",
+                "paddingRight": 5,
+                "width": 12,
               }
             }
           />
@@ -1500,44 +1258,18 @@ exports[`one level of entries 1`] = `
       </tr>
       <tr>
         <td>
-          <span
+          <div
             style={
               Object {
-                "marginLeft": "0px",
-                "paddingLeft": 20,
+                "display": "inline-block",
+                "paddingRight": 5,
+                "width": 12,
               }
             }
           />
-          <span
-            style={
-              Object {
-                "marginLeft": 5,
-              }
-            }
-          />
-          <span
-            onClick={[Function]}
-            style={
-              Object {
-                "padding": 5,
-              }
-            }
-          >
-            
-          </span>
           entry2
         </td>
         <td>
-          <span
-            onClick={[Function]}
-            style={
-              Object {
-                "padding": 5,
-              }
-            }
-          >
-            
-          </span>
           entry2 column2
         </td>
       </tr>
@@ -1598,19 +1330,21 @@ exports[`one level of entries 2`] = `
     <tbody>
       <tr>
         <td>
-          <span
+          <div
             style={
               Object {
-                "marginLeft": "0px",
-                "paddingLeft": 20,
+                "display": "inline-block",
+                "paddingRight": 5,
+                "width": 12,
               }
             }
           />
-          <span
+          <div
             onClick={[Function]}
             style={
               Object {
-                "padding": 5,
+                "display": "inline",
+                "paddingRight": 5,
               }
             }
           >
@@ -1631,7 +1365,7 @@ exports[`one level of entries 2`] = `
                 style={Object {}}
               />
             </svg>
-          </span>
+          </div>
           entry1
         </td>
         <td>
@@ -1640,19 +1374,21 @@ exports[`one level of entries 2`] = `
       </tr>
       <tr>
         <td>
-          <span
+          <div
             style={
               Object {
-                "marginLeft": "0px",
-                "paddingLeft": 20,
+                "display": "inline-block",
+                "paddingRight": 5,
+                "width": 12,
               }
             }
           />
-          <span
+          <div
             onClick={[Function]}
             style={
               Object {
-                "padding": 5,
+                "display": "inline",
+                "paddingRight": 5,
               }
             }
           >
@@ -1673,30 +1409,10 @@ exports[`one level of entries 2`] = `
                 style={Object {}}
               />
             </svg>
-          </span>
-          <span
-            onClick={[Function]}
-            style={
-              Object {
-                "padding": 5,
-              }
-            }
-          >
-            
-          </span>
+          </div>
           entry2
         </td>
         <td>
-          <span
-            onClick={[Function]}
-            style={
-              Object {
-                "padding": 5,
-              }
-            }
-          >
-            
-          </span>
           entry2 column2
         </td>
       </tr>
@@ -1718,19 +1434,21 @@ exports[`one level of entries 3`] = `
     <tbody>
       <tr>
         <td>
-          <span
+          <div
             style={
               Object {
-                "marginLeft": "0px",
-                "paddingLeft": 20,
+                "display": "inline-block",
+                "paddingRight": 5,
+                "width": 12,
               }
             }
           />
-          <span
+          <div
             onClick={[Function]}
             style={
               Object {
-                "padding": 5,
+                "display": "inline",
+                "paddingRight": 5,
               }
             }
           >
@@ -1751,7 +1469,7 @@ exports[`one level of entries 3`] = `
                 style={Object {}}
               />
             </svg>
-          </span>
+          </div>
           entry1
         </td>
         <td>
@@ -1760,19 +1478,21 @@ exports[`one level of entries 3`] = `
       </tr>
       <tr>
         <td>
-          <span
+          <div
             style={
               Object {
-                "marginLeft": "0px",
-                "paddingLeft": 20,
+                "display": "inline-block",
+                "paddingRight": 5,
+                "width": 12,
               }
             }
           />
-          <span
+          <div
             onClick={[Function]}
             style={
               Object {
-                "padding": 5,
+                "display": "inline",
+                "paddingRight": 5,
               }
             }
           >
@@ -1793,30 +1513,10 @@ exports[`one level of entries 3`] = `
                 style={Object {}}
               />
             </svg>
-          </span>
-          <span
-            onClick={[Function]}
-            style={
-              Object {
-                "padding": 5,
-              }
-            }
-          >
-            
-          </span>
+          </div>
           entry2
         </td>
         <td>
-          <span
-            onClick={[Function]}
-            style={
-              Object {
-                "padding": 5,
-              }
-            }
-          >
-            
-          </span>
           entry2 column2
         </td>
       </tr>

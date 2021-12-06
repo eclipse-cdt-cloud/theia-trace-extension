@@ -30,8 +30,8 @@ export class CheckboxComponent extends React.Component<CheckboxProps> {
     };
 
     render(): JSX.Element {
-        return <span style={{padding: 5}} onClick={this.handleClick}>
+        return <div style={{ paddingRight: 5, display: 'inline' }} onClick={this.handleClick}>
                 {this.renderCheckbox(this.props.checkedStatus)}
-            </span>;
+            </div>;
     }
 }
