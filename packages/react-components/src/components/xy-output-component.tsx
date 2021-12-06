@@ -122,6 +122,9 @@ export class XYOutputComponent extends AbstractTreeOutputComponent<AbstractOutpu
             }
             return treeResponse.status;
         }
+        this.setState({
+            outputStatus: ResponseStatus.FAILED
+        });
         return ResponseStatus.FAILED;
     }
 
