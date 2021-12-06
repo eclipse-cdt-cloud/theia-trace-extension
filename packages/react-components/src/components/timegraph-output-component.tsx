@@ -186,11 +186,18 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
                 this.setState({
                     outputStatus: treeResponse.status,
                     timegraphTree: treeResponse.model.entries,
-                    columns,
+                    columns
                 }, this.updateTotalHeight);
+            } else {
+                this.setState({
+                    outputStatus: treeResponse.status
+                });
             }
             return treeResponse.status;
         }
+        this.setState({
+            outputStatus: ResponseStatus.FAILED
+        });
         return ResponseStatus.FAILED;
     }
 
