@@ -99,7 +99,7 @@ export class SearchFilterRenderer extends React.Component<SearchFilterRendererPr
 
     render(): JSX.Element {
         return (
-            <div onMouseEnter={this.onMouseEnterHandler} onMouseLeave={this.onMouseLeaveHandler} onClick={this.onClickHandler}>
+            <div data-testid="search-filter-element-parent" onMouseEnter={this.onMouseEnterHandler} onMouseLeave={this.onMouseLeaveHandler} onClick={this.onClickHandler}>
                 {!this.state.hasClicked && !this.state.hasHovered &&
                     <FontAwesomeIcon style={{ marginLeft: '10px' }} icon={faSearch} />}
                 {!this.state.hasClicked && this.state.hasHovered &&
@@ -109,7 +109,13 @@ export class SearchFilterRenderer extends React.Component<SearchFilterRendererPr
                     </div>}
                 {this.state.hasClicked &&
                     <div>
-                        <input type="text" autoFocus={true} onKeyDown={this.onKeyDownEvent} onInput={this.onInputBoxChanged} style={{ width: '50%', margin: '10px' }} />
+                        <input
+                            data-testid="search-filter-element-input"
+                            type="text" autoFocus={true}
+                            onKeyDown={this.onKeyDownEvent}
+                            onInput={this.onInputBoxChanged}
+                            style={{ width: '50%', margin: '10px' }}
+                        />
                         <FontAwesomeIcon className='hoverClass' icon={faTimes} style={{ marginTop: '20px' }} onClick={this.onCloseClickHandler} />
                         <FontAwesomeIcon className='hoverClass' icon={faAngleDown} style={{ marginLeft: '10px', marginTop: '20px' }} onClick={this.onDownClickHandler} />
                         <FontAwesomeIcon className='hoverClass' icon={faAngleUp} style={{ marginLeft: '10px', marginTop: '20px' }} onClick={this.onUpClickHandler} />
