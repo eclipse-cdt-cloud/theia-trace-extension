@@ -177,10 +177,8 @@ export class ReactAvailableViewsWidget extends React.Component<ReactAvailableVie
          * Remove outputs of type DATA_TREE since the view is not supported in theia-traceviewer
          */
         let outputs = outputDescriptors.filter(value => (value.type !== 'DATA_TREE'));
-        /*
-         * Remove certain scatter specific outputs since they are not supported in the theia-traceviewer
-         * There is no generic way to identify such outputs. This is not ideal because other server
-         * implementations are not covered.
+        /**
+         * Remove outputs of id "scatter" until the tooltip is implemented
          */
         outputs = outputs.filter(value => !value.id.includes('scatter'));
         return outputs;
