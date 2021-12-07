@@ -59,7 +59,8 @@ export class TraceExplorerPlaceholderWidget extends ReactWidget {
     render(): React.ReactNode {
         const { loading } = this.state;
         return <div className='theia-navigator-container' tabIndex={0}>
-            <div className='center'>{'You have not yet opened a trace.'}</div>
+            <div className='center'>{'You have not yet opened a trace.'}</div><br />
+            <div className='center'>{'Select the root directory to begin recursive search for trace files.'}</div>
             <div className='open-workspace-button-container'>
                 <button className='theia-button open-workspace-button' title='Select a trace to open'
                     onClick={this.handleOpenTrace} disabled={loading}>
