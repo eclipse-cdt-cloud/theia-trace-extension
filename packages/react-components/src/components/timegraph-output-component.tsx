@@ -133,6 +133,18 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
             },
             mouseout: () => {
                 this.props.tooltipComponent?.setElement(undefined);
+            },
+            click: (el, ev, clickCount) => {
+                if (clickCount === 2) {
+                    const start = el.model.range.start;
+                    const end = el.model.range.end;
+                    if (start !== end) {
+                        this.props.unitController.viewRange = {
+                            start,
+                            end
+                        };
+                    }
+                }
             }
         });
         signalManager().on(Signals.SELECTION_CHANGED, this.onSelectionChanged);
