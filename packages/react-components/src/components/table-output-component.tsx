@@ -10,6 +10,7 @@ import { TimelineChart } from 'timeline-chart/lib/time-graph-model';
 import { CellKeyDownEvent } from 'ag-grid-community/dist/lib/events';
 import { Line } from 'tsp-typescript-client/lib/models/table';
 import { SearchFilterRenderer, CellRenderer, LoadingRenderer } from './table-renderer-components';
+import { ResponseStatus } from 'tsp-typescript-client';
 
 type TableOuputState = AbstractOutputState & {
     tableColumns: ColDef[];
@@ -61,6 +62,10 @@ export class TableOutputComponent extends AbstractOutputComponent<TableOutputPro
 
     constructor(props: TableOutputProps) {
         super(props);
+        this.state = {
+            outputStatus: ResponseStatus.RUNNING,
+            tableColumns: []
+        };
 
         this.frameworkComponents = {
             searchFilterRenderer: SearchFilterRenderer,
@@ -92,6 +97,10 @@ export class TableOutputComponent extends AbstractOutputComponent<TableOutputPro
     }
 
     renderMainArea(): React.ReactNode {
+        if (this.state.outputStatus === ResponseStatus.FAILED) {
+            return this.analysisFailedMessage();
+        }
+
         return <div id='events-table'
             className={this.props.backgroundTheme === 'light' ? 'ag-theme-balham' : 'ag-theme-balham-dark'}
             style={{ height: this.props.style.height, width: this.props.widthWPBugWorkaround }}>
@@ -299,6 +308,9 @@ export class TableOutputComponent extends AbstractOutputComponent<TableOutputPro
         }
 
         if (tspClientResponse.isOk() && columnsResponse) {
+            this.setState({
+                outputStatus: columnsResponse.status
+            });
             const columnEntries = columnsResponse.model;
             columnEntries.forEach(columnHeader => {
                 const id = this.showIndexColumn ? ++columnHeader.id : columnHeader.id;
@@ -329,6 +341,10 @@ export class TableOutputComponent extends AbstractOutputComponent<TableOutputPro
                     },
                     tooltipField: columnHeader.id.toString()
                 });
+            });
+        } else {
+            this.setState({
+                outputStatus: ResponseStatus.FAILED
             });
         }
 
