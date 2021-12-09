@@ -20,10 +20,10 @@ export interface SortConfig {
 }
 
 export const nextSortState = (currentState: React.ReactNode): React.ReactNode => {
-    if (currentState === sortState.default || currentState === sortState.asc) {
-        return sortState.desc;
-    } else if (currentState === sortState.desc) {
+    if (currentState === sortState.default || currentState === sortState.desc) {
         return sortState.asc;
+    } else if (currentState === sortState.asc) {
+        return sortState.desc;
     } else {
         return sortState.default;
     }
