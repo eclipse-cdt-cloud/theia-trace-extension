@@ -105,7 +105,7 @@ export class XYOutputComponent extends AbstractTreeOutputComponent<AbstractOutpu
                 const columns = [];
                 if (headers && headers.length > 0) {
                     headers.forEach(header => {
-                        columns.push({title: header.name, sortable: true, tooltip: header.tooltip});
+                        columns.push({title: header.name, sortable: true, resizable: true, tooltip: header.tooltip});
                     });
                 } else {
                     columns.push({title: 'Name', sortable: true});

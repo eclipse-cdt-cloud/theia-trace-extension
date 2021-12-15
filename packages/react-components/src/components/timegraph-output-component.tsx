@@ -178,7 +178,7 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
                 const columns = [];
                 if (headers && headers.length > 0) {
                     headers.forEach(header => {
-                        columns.push({ title: header.name, sortable: true, tooltip: header.tooltip });
+                        columns.push({ title: header.name, sortable: true, resizable: true, tooltip: header.tooltip });
                     });
                 } else {
                     columns.push({ title: 'Name', sortable: true });
@@ -301,7 +301,7 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
                     showCheckboxes={false}
                     onToggleCollapse={this.onToggleCollapse}
                     showHeader={false}
-                    className="timegraph-tree"
+                    className="table-tree timegraph-tree"
                 />
             </div>
             <div ref={this.markerTreeRef} className='scrollable'
@@ -315,7 +315,7 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
                     onToggleCollapse={this.onToggleAnnotationCollapse}
                     onClose={this.onMarkerCategoryRowClose}
                     showHeader={false}
-                    className="timegraph-tree"
+                    className="table-tree timegraph-tree"
                 />
             </div>
         </>;
