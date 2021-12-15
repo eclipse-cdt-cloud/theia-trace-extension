@@ -6,10 +6,9 @@ export abstract class AbstractTreeOutputComponent<P extends AbstractOutputProps,
     renderMainArea(): React.ReactNode {
         // Make tree thiner when chart has a y-axis
         const yAxisBuffer = this.props.outputDescriptor.type === 'TREE_TIME_XY' ? this.props.style.yAxisWidth: 0;
-        const treeWidth = this.props.widthWPBugWorkaround - this.getHandleWidth() - this.props.style.chartWidth - yAxisBuffer;
+        const treeWidth = this.getMainAreaWidth() - this.props.style.chartWidth - yAxisBuffer;
         return <React.Fragment>
             <div ref={this.treeRef} className='output-component-tree'
-                onScroll={_ev => { this.synchronizeTreeScroll(); }}
                 style={{ width: treeWidth, height: this.props.style.height }}
             >
                 {this.renderTree()}
@@ -36,8 +35,6 @@ export abstract class AbstractTreeOutputComponent<P extends AbstractOutputProps,
     abstract renderYAxis(): React.ReactNode;
 
     abstract renderChart(): React.ReactNode;
-
-    abstract synchronizeTreeScroll(): void;
 
     abstract fetchTree(): Promise<ResponseStatus>;
 

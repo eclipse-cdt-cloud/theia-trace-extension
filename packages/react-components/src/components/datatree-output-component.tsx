@@ -70,14 +70,16 @@ export class DataTreeOutputComponent extends AbstractOutputComponent<AbstractOut
         this.onToggleCollapse = this.onToggleCollapse.bind(this);
         this.onOrderChange = this.onOrderChange.bind(this);
         return this.state.xyTree.length
-            ? <EntryTree
-                entries={this.state.xyTree}
-                showCheckboxes={false}
-                collapsedNodes={this.state.collapsedNodes}
-                onToggleCollapse={this.onToggleCollapse}
-                onOrderChange={this.onOrderChange}
-                headers={this.state.columns}
-            />
+            ? <div className='scrollable' style={{ height: this.props.style.height, width: this.getMainAreaWidth() }}>
+                <EntryTree
+                    entries={this.state.xyTree}
+                    showCheckboxes={false}
+                    collapsedNodes={this.state.collapsedNodes}
+                    onToggleCollapse={this.onToggleCollapse}
+                    onOrderChange={this.onOrderChange}
+                    headers={this.state.columns}
+                />
+            </div>
             : undefined
             ;
     }

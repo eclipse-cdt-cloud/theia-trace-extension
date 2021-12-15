@@ -37,16 +37,20 @@
 
 .main-output-container {
     display: flex;
+    overflow: hidden;
 }
 
 .output-component-tree {
-    overflow-y: scroll;
     white-space: pre-wrap;
 }
 
 .output-component-chart {
     align-self: center;
     text-align: center;
+}
+
+.scrollable {
+    overflow: auto;
 }
 
 #timegraph-main {

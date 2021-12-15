@@ -154,9 +154,6 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
         if (this.timeGraphTreeRef.current) {
             this.rowController.verticalOffset = this.timeGraphTreeRef.current.scrollTop;
         }
-        if (this.markerTreeRef.current) {
-            this.markerRowController.verticalOffset = this.markerTreeRef.current.scrollTop;
-        }
     }
 
     async componentDidMount(): Promise<void> {
@@ -285,18 +282,18 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
     }
 
     private getMarkersLayerHeight() {
-        return (this.state.markerCategoryEntries.length <= 1 ? 0 : (this.state.collapsedMarkerNodes.length ? 1 :
-            this.state.markerCategoryEntries.length) + 0.6) * 20;
+        const rowHeight = 20;
+        const scrollbarHeight = 10;
+        return this.state.markerCategoryEntries.length <= 1 ? 0 :
+            this.state.collapsedMarkerNodes.length ? rowHeight :
+            this.state.markerCategoryEntries.length * rowHeight + scrollbarHeight;
     }
 
     renderTree(): React.ReactNode {
         // TODO Show header, when we can have entries in-line with timeline-chart
         return <>
-            <div ref={this.timeGraphTreeRef} onScroll={_ev => { this.synchronizeTreeScroll(); }}
-                className='output-component-tree'
-                style={{
-                    height: parseInt(this.props.style.height.toString()) - this.getMarkersLayerHeight()
-                }}>
+            <div ref={this.timeGraphTreeRef} className='scrollable' onScroll={() => this.synchronizeTreeScroll()}
+                style={{ height: parseInt(this.props.style.height.toString()) - this.getMarkersLayerHeight() }}>
                 <EntryTree
                     collapsedNodes={this.state.collapsedNodes}
                     showFilter={false}
@@ -307,8 +304,7 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
                     className="timegraph-tree"
                 />
             </div>
-            <div ref={this.markerTreeRef} onScroll={_ev => { this.synchronizeTreeScroll(); }}
-                className='output-component-tree'
+            <div ref={this.markerTreeRef} className='scrollable'
                 style={{ height: this.getMarkersLayerHeight() }}>
                 <EntryTree
                     collapsedNodes={this.state.collapsedMarkerNodes}
@@ -531,25 +527,27 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
             states.push(state);
         });
 
-        const defaultRow = {
-            id: 1,
-            name: '',
-            range: {
-                start: this.props.viewRange.getStart(),
-                end: this.props.viewRange.getStart() + this.props.unitController.absoluteRange
-            },
-            states: [],
-            annotations: [],
-            prevPossibleState: BigInt(Number.MIN_SAFE_INTEGER),
-            nextPossibleState: BigInt(Number.MAX_SAFE_INTEGER)
-        };
-        rows.push(defaultRow);
+        if (markers.size > 0) {
+            const defaultRow = {
+                id: 1,
+                name: '',
+                range: {
+                    start: this.props.viewRange.getStart(),
+                    end: this.props.viewRange.getStart() + this.props.unitController.absoluteRange
+                },
+                states: [],
+                annotations: [],
+                prevPossibleState: BigInt(Number.MIN_SAFE_INTEGER),
+                nextPossibleState: BigInt(Number.MAX_SAFE_INTEGER)
+            };
+            rows.push(defaultRow);
 
-        annotationEntries.push({
-            id: 0,
-            labels: [''],
-            parentId: -1
-        });
+            annotationEntries.push({
+                id: 0,
+                labels: [''],
+                parentId: -1
+            });
+        }
 
         Array.from(markers.entries()).forEach((value, index) => {
             annotationEntries.push({
