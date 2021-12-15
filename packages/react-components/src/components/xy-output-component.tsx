@@ -147,23 +147,23 @@ export class XYOutputComponent extends AbstractTreeOutputComponent<AbstractOutpu
         }
     }
 
-    synchronizeTreeScroll(): void { /* Nothing to do by default */ }
-
     renderTree(): React.ReactNode | undefined {
         this.onToggleCheck = this.onToggleCheck.bind(this);
         this.onToggleCollapse = this.onToggleCollapse.bind(this);
         this.onOrderChange = this.onOrderChange.bind(this);
         return this.state.xyTree.length ?
-            <EntryTree
-                entries={this.state.xyTree}
-                showCheckboxes={true}
-                collapsedNodes={this.state.collapsedNodes}
-                checkedSeries={this.state.checkedSeries}
-                onToggleCheck={this.onToggleCheck}
-                onToggleCollapse={this.onToggleCollapse}
-                onOrderChange={this.onOrderChange}
-                headers={this.state.columns}
-            />
+            <div className='scrollable' style={{ height: this.props.style.height }}>
+                <EntryTree
+                    entries={this.state.xyTree}
+                    showCheckboxes={true}
+                    collapsedNodes={this.state.collapsedNodes}
+                    checkedSeries={this.state.checkedSeries}
+                    onToggleCheck={this.onToggleCheck}
+                    onToggleCollapse={this.onToggleCollapse}
+                    onOrderChange={this.onOrderChange}
+                    headers={this.state.columns}
+                />
+            </div>
         : undefined
         ;
     }

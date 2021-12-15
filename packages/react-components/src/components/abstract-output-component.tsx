@@ -101,7 +101,7 @@ export abstract class AbstractOutputComponent<P extends AbstractOutputProps, S e
         if (this.mainAreaContainer.current) {
             return this.mainAreaContainer.current.clientWidth;
         }
-        return 1000;
+        return 0;
     }
 
     public getHandleWidth(): number {
