@@ -55,9 +55,10 @@ export class Table extends React.Component<TableProps> {
     };
 
     render(): JSX.Element {
+        const gridTemplateColumns = this.props.headers.map(() => 'max-content').join(' ').concat(' minmax(0px, 1fr)');
         return (
             <div>
-                <table style={{ borderCollapse: 'collapse' }} className={this.props.className}>
+                <table style={{ gridTemplateColumns: gridTemplateColumns }} className={this.props.className}>
                     {this.props.showHeader && <TableHeader
                         columns={this.props.headers}
                         sortableColumns={this.sortableColumns}

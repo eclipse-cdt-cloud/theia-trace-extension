@@ -15,8 +15,10 @@ export class TableCell extends React.Component<TableCellProps> {
         const content = this.props.node.labels[this.props.index];
         return (
             <td key={this.props.index+'-td-'+this.props.node.id}>
-                {this.props.children}
-                {content}
+                <span>
+                    {this.props.children}
+                    {content}
+                </span>
             </td>
         );
     }

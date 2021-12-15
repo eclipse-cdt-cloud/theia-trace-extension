@@ -97,27 +97,84 @@ canvas {
     align-self: center;
 }
 
-.table-tree>tbody>tr:nth-child(1)>th {
-    background-color: var(--theia-editor-background);
-    position: sticky;
-    top: 0;
+.table-tree {
+    display: grid;
+    border-collapse: collapse;
+    border-left: 1px solid var(--theia-tree-inactiveIndentGuidesStroke);
 }
 
-.table-tree th, .table-tree td {
-    padding: 3px 5px;
+.table-tree thead, .table-tree tbody, .table-tree tr {
+    display: contents;
+}
+
+.table-tree th {
+    position: relative;
+    padding: 3px 0px 3px 5px;
+    background-color: var(--theia-list-hoverBackground) !important;
+    border-top: 1px solid var(--theia-tree-inactiveIndentGuidesStroke);
+    border-bottom: 1px solid var(--theia-tree-inactiveIndentGuidesStroke);
     text-align: left;
-    border-bottom: 1px solid #333;
-    border-right: 1px solid #333;
+}
+
+.table-tree tr:hover td {
+    background-color: var(--theia-list-hoverBackground) !important;
+}
+
+.table-tree td {
+    padding: 3px 5px;
+    border-bottom: 1px solid var(--theia-tree-inactiveIndentGuidesStroke);
+    border-right: 1px solid var(--theia-tree-inactiveIndentGuidesStroke);
+    text-align: left;
+}
+
+.table-tree th span {
+    overflow: hidden;
     white-space: nowrap;
-    min-width: 50px;
+    display: block;
+}
+
+.table-tree td span {
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
+    display: block;
+}
+
+.resize-handle {
+    float: right;
+    position: absolute;
+    top: 1px;
+    right: 0px;
+    color: var(--theia-tree-inactiveIndentGuidesStroke);
+    background-color: var(--theia-list-hoverBackground);
+    cursor: col-resize;
+}
+
+.sort-icon {
+    position: absolute;
+    top: 3px;
+    right: 3px;
+    padding: 0px 3px;
+    background-color: var(--theia-list-hoverBackground) !important;
+}
+
+.filler {
+    padding: 0px !important;
+    border-right: 1px solid var(--theia-tree-inactiveIndentGuidesStroke);
+}
+
+.timegraph-tree {
+    border: 0px; 
 }
 
 .timegraph-tree tr {
     /* TODO: Fix row alignment, this number is arbitrary, it works [on my machine], but it should match line height in timeline-chart */
     line-height: 18px;
-    position: relative;
-    white-space: nowrap;
-    padding: 0 0;
+}
+
+.timegraph-tree td {
+    padding: 1px;
+    border: 0px; 
 }
 
 #input-filter-tree {

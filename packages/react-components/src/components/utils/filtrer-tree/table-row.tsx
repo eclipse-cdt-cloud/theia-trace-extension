@@ -58,13 +58,17 @@ export class TableRow extends React.Component<TableRowProps> {
             ? <div style={{ paddingRight: 5, display: 'inline' }} onClick={this.handleClose}>{icons.close}</div>
             : undefined;
 
-    renderRow = (): React.ReactNode => this.props.node.labels.map((_label: string, index) =>
-        <TableCell key={this.props.node.id + '-' + index} index={index} node={this.props.node}>
-            { (index === 0) ? this.renderToggleCollapse() : undefined }
-            { (index === 0) ? this.renderCheckbox() : undefined }
-            { (index === 0) ? this.renderCloseButton() : undefined }
-        </TableCell>
-    );
+    renderRow = (): React.ReactNode => {
+        const row = this.props.node.labels.map((_label: string, index) =>
+            <TableCell key={this.props.node.id + '-' + index} index={index} node={this.props.node}>
+                { (index === 0) ? this.renderToggleCollapse() : undefined }
+                { (index === 0) ? this.renderCheckbox() : undefined }
+                { (index === 0) ? this.renderCloseButton() : undefined }
+            </TableCell>
+        );
+        row.push(<td key={this.props.node.id + '-filler'} className='filler'/>);
+        return row;
+    };
 
     renderChildren = (): React.ReactNode | undefined => {
         if (this.props.node.children.length && !this.isCollapsed()) {
