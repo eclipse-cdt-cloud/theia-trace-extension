@@ -51,7 +51,7 @@ export class ReactOpenTracesWidget extends React.Component<ReactOpenTracesWidget
         this.props.tspClientProvider.addTspClientChangeListener(() => {
             this._experimentManager = this.props.tspClientProvider.getExperimentManager();
         });
-        this.state = { openedExperiments: [], selectedExperimentIndex: 0 };
+        this.state = { openedExperiments: [], selectedExperimentIndex: -1 };
     }
 
     componentDidMount(): void {
@@ -267,7 +267,7 @@ export class ReactOpenTracesWidget extends React.Component<ReactOpenTracesWidget
         });
         const selectedIndex = remoteExperiments.findIndex(experiment => this._selectedExperiment &&
             experiment.UUID === this._selectedExperiment.UUID);
-        this.setState({ openedExperiments: remoteExperiments, selectedExperimentIndex: selectedIndex !== -1 ? selectedIndex : 0 });
+        this.setState({ openedExperiments: remoteExperiments, selectedExperimentIndex: selectedIndex });
         signalManager().fireOpenedTracesChangedSignal(new OpenedTracesUpdatedSignalPayload(remoteExperiments ? remoteExperiments.length : 0));
     }
 
