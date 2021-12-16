@@ -158,6 +158,7 @@ export class TraceContextComponent extends React.Component<TraceContextProps, Tr
         await this.updateTrace();
         this.unitController.absoluteRange = this.state.experiment.end - this.state.timeOffset;
         this.unitController.viewRange = { start: BigInt(0), end: this.state.experiment.end - this.state.timeOffset };
+        this.unitController.offset = this.state.timeOffset;
     }
 
     private async updateTrace() {
