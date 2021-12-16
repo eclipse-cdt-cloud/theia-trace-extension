@@ -52,7 +52,14 @@ interface TraceContextState {
     backgroundTheme: string;
 }
 
-export class TraceContextComponent extends React.Component<TraceContextProps, TraceContextState> {
+interface UndoRedoFunctionality {
+    undoStack: bigint[][];
+    redoStack: bigint[][];
+    undo: () => void;
+    redo: () => void;
+}
+
+export class TraceContextComponent extends React.Component<TraceContextProps, TraceContextState, UndoRedoFunctionality> {
     private readonly INDEXING_RUNNING_STATUS: string = 'RUNNING';
     private readonly INDEXING_CLOSED_STATUS: string = 'CLOSED';
     private readonly INDEXING_STATUS_BAR_KEY = 'indexing-status';
@@ -67,6 +74,8 @@ export class TraceContextComponent extends React.Component<TraceContextProps, Tr
     private unitController: TimeGraphUnitController;
     private tooltipComponent: React.RefObject<TooltipComponent>;
     private traceContextContainer: React.RefObject<HTMLDivElement>;
+
+    protected undoRedo: UndoRedoFunctionality;
 
     protected widgetResizeHandlers: (() => void)[] = [];
     protected readonly addWidgetResizeHandler = (h: () => void): void => {
@@ -132,6 +141,48 @@ export class TraceContextComponent extends React.Component<TraceContextProps, Tr
         this.props.addResizeHandler(this.onResize);
         this.initialize();
         this.subscribeToEvents();
+        const self = this;
+        this.undoRedo = {
+            undoStack: [],
+            redoStack: [],
+            undo: function () {
+                if (this.undoStack.length > 0) {
+                    const lastUndo = this.undoStack.pop();
+                    if (lastUndo !== undefined) {
+                        console.log('undo');
+                        this.redoStack.push(lastUndo);
+                        const prevStart = lastUndo[0];
+                        const prevEnd = lastUndo[1];
+                        self.unitController.viewRange = { start: prevStart, end: prevEnd };
+                    }
+                    else {
+                        console.log('undefined', lastUndo);
+                    }
+                }
+                else {
+                    console.log('can\'t undo anymore');
+                }
+            },
+            redo: function () {
+                if (this.redoStack.length > 0) {
+                    const lastRedo = this.redoStack.pop();
+                    if (lastRedo !== undefined) {
+                        console.log('redo');
+                        this.undoStack.push(lastRedo);
+                        const prevStart = lastRedo[0];
+                        const prevEnd = lastRedo[1];
+                        self.unitController.viewRange = { start: prevStart, end: prevEnd };
+                    }
+                    else {
+                        console.log('undefined', lastRedo);
+                    }
+
+                }
+                else {
+                    console.log('can\'t redo anymore');
+                }
+            }
+        };
     }
 
     private doHandleBackgroundThemeChange(theme: string): void {
@@ -246,6 +297,7 @@ export class TraceContextComponent extends React.Component<TraceContextProps, Tr
         const newStartRange = BIMath.max(0, position - BIMath.round(Number(startDistance) * zoomFactor));
         const newEndRange = newStartRange + newDuration;
         this.unitController.viewRange = { start: newStartRange, end: newEndRange };
+        this.undoRedo.undoStack.push([newStartRange, newEndRange]);
     }
 
     private onResize() {
@@ -298,6 +350,18 @@ export class TraceContextComponent extends React.Component<TraceContextProps, Tr
             case '-':
             case '_': {
                 this.zoomButton(false);
+                break;
+            }
+            case 'z': {
+                if (key.ctrlKey) {
+                    this.undoRedo.undo();
+                }
+                break;
+            }
+            case 'y': {
+                if (key.ctrlKey) {
+                    this.undoRedo.redo();
+                }
                 break;
             }
         }
