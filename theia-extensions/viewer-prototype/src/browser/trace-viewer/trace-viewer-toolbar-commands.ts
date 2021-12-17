@@ -31,6 +31,11 @@ export namespace TraceViewerToolbarCommands {
         label: 'Markers',
         iconClass: 'fa fa-bars fa-lg',
     };
+    export const OPEN_TRACE: Command = {
+        id: 'trace.viewer.openTrace',
+        label: 'Open Trace',
+        iconClass: 'fa fa-folder-open-o fa-lg',
+    };
 }
 
 export namespace TraceViewerToolbarMenus {
