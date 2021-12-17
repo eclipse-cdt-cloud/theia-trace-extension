@@ -8,6 +8,8 @@ import { signalManager, Signals } from 'traceviewer-base/lib/signals/signal-mana
 import { TraceViewerWidget } from './trace-viewer';
 import { TspClientProvider } from '../tsp-client-provider-impl';
 import { ContextMenuRenderer } from '@theia/core/lib/browser';
+import { TraceExplorerOpenedTracesWidget } from '../trace-explorer/trace-explorer-sub-widgets/theia-trace-explorer-opened-traces-widget';
+import { OpenTraceCommand } from './trace-viewer-commands';
 
 @injectable()
 export class TraceViewerToolbarContribution implements TabBarToolbarContribution, CommandContribution {
@@ -80,6 +82,18 @@ export class TraceViewerToolbarContribution implements TabBarToolbarContribution
             },
             execute: () => {
                 signalManager().fireResetZoomSignal();
+            }
+        });
+        registry.registerCommand(
+            TraceViewerToolbarCommands.OPEN_TRACE, {
+            isVisible: (w: Widget) => {
+                if (w instanceof TraceExplorerOpenedTracesWidget) {
+                    return true;
+                }
+                return false;
+            },
+            execute: async () => {
+                await registry.executeCommand(OpenTraceCommand.id);
             }
         });
     }
@@ -201,6 +215,12 @@ export class TraceViewerToolbarContribution implements TabBarToolbarContribution
             priority: 5,
             group: 'navigation',
             onDidChange: this.onMakerSetsChangedEvent,
+        });
+        registry.registerItem({
+            id: TraceViewerToolbarCommands.OPEN_TRACE.id,
+            command: TraceViewerToolbarCommands.OPEN_TRACE.id,
+            tooltip: TraceViewerToolbarCommands.OPEN_TRACE.label,
+            priority: 6,
         });
     }
 }
