@@ -57,6 +57,40 @@ export class TraceViewerContribution extends WidgetOpenHandler<TraceViewerWidget
         };
     }
 
+    protected async launchTraceServer(): Promise<void> {
+        try {
+            const healthResponse = await this.tspClient.checkHealth();
+            if ((healthResponse as TspClientResponse<HealthStatus>).getModel()?.status === 'UP') {
+                this.openDialog();
+            }
+        } catch (e) {
+            this.messageService.showProgress({
+                text: ''
+            }).then(async progress => {
+                progress.report({ message: 'Launching trace server... ', work: { done: 10, total: 100 } });
+                try {
+                    const resolve = await this.traceServerConfigService.startTraceServer(this.path, this.port);
+                    if (resolve === 'success') {
+                        progress.report({ message: `Trace server started on port: ${this.port}.`, work: { done: 100, total: 100 } });
+                        progress.cancel();
+                        this.openDialog();
+                    }
+                }
+                catch (err) {
+                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                    if (PortBusy.is(err as any)) {
+                        this.messageService.error(
+                            `Error opening serial port ${this.port}. (Port busy)`);
+                    } else {
+                        this.messageService.error(
+                            'Failed to start the trace server: no such file or directory. Please make sure that the path is correct in Trace Viewer settings and retry');
+                    }
+                    progress.cancel();
+                }
+            });
+        }
+    }
+
     public async openDialog(): Promise<void> {
         const props: OpenFileDialogProps = {
             title: 'Open Trace',
@@ -113,7 +147,9 @@ export class TraceViewerContribution extends WidgetOpenHandler<TraceViewerWidget
 
     registerCommands(registry: CommandRegistry): void {
         registry.registerCommand(OpenTraceCommand, {
-            execute: () => { this.openDialog(); }
+            execute: async () => {
+                await this.launchTraceServer();
+            }
         });
 
         registry.registerCommand(TraceViewerCommand, {
