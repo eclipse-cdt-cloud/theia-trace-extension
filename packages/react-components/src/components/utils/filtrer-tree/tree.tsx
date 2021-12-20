@@ -243,10 +243,7 @@ export class FilterTree extends React.Component<FilterTreeProps, FilterTreeState
 
     renderFilterTree = (): JSX.Element => <React.Fragment>
         <Filter onChange={(e: React.ChangeEvent<HTMLInputElement>) => this.handleFilterChanged(e.target.value)} />
-        {this.state.filteredNodes.length
-            ? this.renderTable(this.state.filteredNodes)
-            : <span>No entries found</span>
-        }
+        {this.renderTable(this.state.filteredNodes)}
     </React.Fragment>;
 
     renderTable = (nodes: TreeNode[]): JSX.Element =>

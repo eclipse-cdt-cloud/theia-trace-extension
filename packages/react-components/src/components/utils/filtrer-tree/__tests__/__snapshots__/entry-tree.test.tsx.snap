@@ -971,6 +971,11 @@ Array [
     <input
       id="input-filter-tree"
       placeholder="Filter"
+      style={
+        Object {
+          "width": 0,
+        }
+      }
       type="text"
     />
   </div>,

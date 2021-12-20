@@ -84,6 +84,12 @@ test('one level of entries', () => {
     expect(treeWithoutHeaders).toMatchSnapshot();
 });
 
+window.ResizeObserver = window.ResizeObserver || jest.fn().mockImplementation(() => ({
+    disconnect: jest.fn(),
+    observe: jest.fn(),
+    unobserve: jest.fn(),
+}));
+
 describe('Entry with children', () => {
     const parent = {
         id: 0,
