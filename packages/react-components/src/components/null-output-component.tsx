@@ -11,6 +11,7 @@ export class NullOutputComponent extends AbstractOutputComponent<NullOutputProps
     constructor(props: NullOutputProps) {
         super(props);
     }
+
     renderMainArea(): React.ReactNode {
         const treeWidth = Math.min(this.getMainAreaWidth(), this.props.style.sashOffset + this.props.style.sashWidth);
         const chartWidth = this.getMainAreaWidth() - treeWidth;
@@ -28,5 +29,9 @@ export class NullOutputComponent extends AbstractOutputComponent<NullOutputProps
 
     resultsAreEmpty(): boolean {
         return true;
+    }
+
+    setFocus(): void {
+        return;
     }
   }

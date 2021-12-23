@@ -300,7 +300,9 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
         // TODO Show header, when we can have entries in-line with timeline-chart
         return <>
             <div ref={this.timeGraphTreeRef} className='scrollable' onScroll={() => this.synchronizeTreeScroll()}
-                style={{ height: parseInt(this.props.style.height.toString()) - this.getMarkersLayerHeight() }}>
+                style={{ height: parseInt(this.props.style.height.toString()) - this.getMarkersLayerHeight() }}
+                tabIndex={0}
+                >
                 <EntryTree
                     collapsedNodes={this.state.collapsedNodes}
                     showFilter={false}
@@ -447,7 +449,7 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
         return <ReactTimeGraphContainer
             options={
                 {
-                    id: 'timegraph-chart',
+                    id: this.props.traceId + this.props.outputDescriptor.id + 'focusContainer',
                     height: parseInt(this.props.style.height.toString()) - this.getMarkersLayerHeight(),
                     width: this.getChartWidth(),
                     backgroundColor: this.props.style.chartBackgroundColor,
@@ -458,12 +460,20 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
             addWidgetResizeHandler={this.props.addWidgetResizeHandler}
             removeWidgetResizeHandler={this.props.removeWidgetResizeHandler}
             unitController={this.props.unitController}
-            id='timegraph-chart'
+            id={this.props.traceId + this.props.outputDescriptor.id + 'focusContainer'}
             layers={[
                 grid, this.chartLayer, selectionRange, this.chartCursors, this.arrowLayer, this.rangeEventsLayer
             ]}
         >
         </ReactTimeGraphContainer>;
+    }
+
+    setFocus(): void {
+        if (document.getElementById(this.props.traceId + this.props.outputDescriptor.id + 'focusContainer')) {
+            document.getElementById(this.props.traceId + this.props.outputDescriptor.id + 'focusContainer')?.focus();
+        } else {
+            document.getElementById(this.props.traceId + this.props.outputDescriptor.id)?.focus();
+        }
     }
 
     protected getVerticalScrollbar(): JSX.Element {

@@ -20,7 +20,8 @@
     "@theia/filesystem": "1.19.0",
     "traceviewer-base": "0.1.0",
     "traceviewer-react-components": "0.1.0",
-    "tree-kill": "latest"
+    "tree-kill": "latest",
+    "animate.css": "^4.1.1"
   },
   "devDependencies": {
     "@typescript-eslint/eslint-plugin": "^3.4.0",

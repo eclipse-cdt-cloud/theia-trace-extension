@@ -324,7 +324,10 @@ export class XYOutputComponent extends AbstractTreeOutputComponent<AbstractOutpu
         }
         return <React.Fragment>
             {this.state.outputStatus === ResponseStatus.COMPLETED ?
-                <div id='xy-main' tabIndex={0}
+                <div
+                    id={this.props.traceId + this.props.outputDescriptor.id + 'focusContainer'}
+                    className='xy-main'
+                    tabIndex={0}
                     onKeyDown={event => this.onKeyDown(event)}
                     onWheel={event => this.onWheel(event)}
                     onMouseMove={event => this.onMouseMove(event)}
@@ -336,7 +339,10 @@ export class XYOutputComponent extends AbstractTreeOutputComponent<AbstractOutpu
                 >
                     {this.chooseChart()}
                 </div> :
-                <div className='analysis-running'>
+                <div
+                    id={this.props.traceId + this.props.outputDescriptor.id + 'focusContainer'}
+                    className='analysis-running'
+                >
                     <i className='fa fa-refresh fa-spin' style={{ marginRight: '5px' }} />
                     <span>Analysis running</span>
                 </div>
@@ -372,6 +378,14 @@ export class XYOutputComponent extends AbstractTreeOutputComponent<AbstractOutpu
             allMax: localMax * 1.01,
             allMin: localMin * 0.99
         });
+    }
+
+    setFocus(): void {
+        if (document.getElementById(this.props.traceId + this.props.outputDescriptor.id + 'focusContainer')) {
+            document.getElementById(this.props.traceId + this.props.outputDescriptor.id + 'focusContainer')?.focus();
+        } else {
+            document.getElementById(this.props.traceId + this.props.outputDescriptor.id)?.focus();
+        }
     }
 
     private afterChartDraw(chart: Chart) {
