@@ -2,7 +2,6 @@ import { DisposableCollection, MessageService, Path } from '@theia/core';
 import { ApplicationShell, Message, StatusBar, WidgetManager } from '@theia/core/lib/browser';
 import { ReactWidget } from '@theia/core/lib/browser/widgets/react-widget';
 import { inject, injectable, postConstruct } from 'inversify';
-import * as React from 'react';
 import { OutputDescriptor } from 'tsp-typescript-client/lib/models/output-descriptor';
 import { Trace } from 'tsp-typescript-client/lib/models/trace';
 import { TspClient } from 'tsp-typescript-client/lib/protocol/tsp-client';
@@ -20,6 +19,8 @@ import { TraceExplorerContribution } from '../trace-explorer/trace-explorer-cont
 import { MarkerSet } from 'tsp-typescript-client/lib/models/markerset';
 import { BackendFileService } from '../../common/backend-file-service';
 import { CancellationTokenSource } from '@theia/core';
+import * as React from 'react';
+import 'animate.css';
 
 export const TraceViewerWidgetOptions = Symbol('TraceViewerWidgetOptions');
 export interface TraceViewerWidgetOptions {
@@ -316,7 +317,22 @@ export class TraceViewerWidget extends ReactWidget {
                 await this.fetchAnnotationCategories(output);
                 this.update();
             } else {
-                document.getElementById(exist.id)?.scrollIntoView();
+                const traceId = this.openedExperiment.UUID;
+                if (document.getElementById(traceId + exist.id + 'focusContainer')) {
+                    document.getElementById(traceId + exist.id + 'focusContainer')?.focus();
+                } else {
+                    document.getElementById(traceId + exist.id)?.focus();
+                }
+
+                await new Promise(resolve => {
+                    const titleHandle = document.getElementById(traceId + exist.id + 'handle');
+                    titleHandle?.classList.add('animate__animated', 'animate__pulse');
+                    titleHandle?.addEventListener('animationend', event => {
+                        event.stopPropagation();
+                        titleHandle?.classList.remove('animate__animated', 'animate__pulse');
+                        resolve('Animation ended');
+                    }, {once: true});
+                });
             }
         }
     }

@@ -231,7 +231,7 @@ export class TraceContextComponent extends React.Component<TraceContextProps, Tr
     private scrollToBottom(): void {
         if (this.props.outputs.length) {
             const bottomOutputId = this.props.outputs[this.props.outputs.length - 1].id;
-            document.getElementById(bottomOutputId)?.scrollIntoView();
+            document.getElementById(this.state.experiment.UUID+bottomOutputId)?.focus();
         }
     }
 

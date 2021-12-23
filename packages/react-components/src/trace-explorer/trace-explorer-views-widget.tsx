@@ -126,9 +126,7 @@ export class ReactAvailableViewsWidget extends React.Component<ReactAvailableVie
         const outputs = this.state.availableOutputDescriptors;
 
         if (outputs && this._selectedExperiment) {
-            signalManager().fireExperimentSelectedSignal(this._selectedExperiment);
             signalManager().fireOutputAddedSignal(new OutputAddedSignalPayload(outputs[index], this._selectedExperiment));
-
         }
     }
 

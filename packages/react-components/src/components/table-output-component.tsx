@@ -88,16 +88,18 @@ export class TableOutputComponent extends AbstractOutputComponent<TableOutputPro
                 params.successCallback(rowsThisPage, this.props.nbEvents);
             }
         };
-
         this.onEventClick = this.onEventClick.bind(this);
         this.onModelUpdated = this.onModelUpdated.bind(this);
         this.onKeyDown = this.onKeyDown.bind(this);
         this.searchEvents = this.searchEvents.bind(this);
         this.findMatchedEvent = this.findMatchedEvent.bind(this);
+        this.checkFocus = this.checkFocus.bind(this);
     }
 
     renderMainArea(): React.ReactNode {
-        return <div id='events-table'
+        return <div id={this.props.traceId + this.props.outputDescriptor.id + 'focusContainer'}
+            tabIndex={-1}
+            onFocus={event=>this.checkFocus(event)}
             className={this.props.backgroundTheme === 'light' ? 'ag-theme-balham' : 'ag-theme-balham-dark'}
             style={{ height: this.props.style.height, width: this.props.widthWPBugWorkaround }}>
             <AgGridReact
@@ -125,6 +127,20 @@ export class TableOutputComponent extends AbstractOutputComponent<TableOutputPro
 
     componentDidMount(): void {
         this.props.unitController.onSelectionRangeChange(range => { this.handleTimeSelectionChange(range); });
+    }
+
+    private checkFocus(event: React.FocusEvent<HTMLDivElement, Element>): void {
+        if (!event.currentTarget?.contains(event.relatedTarget as Node)) {
+            this.setFocus();
+        }
+    }
+
+    setFocus(): void {
+        if (document.getElementById(this.props.traceId + this.props.outputDescriptor.id + 'focusContainer')) {
+            document.getElementById(this.props.traceId + this.props.outputDescriptor.id + 'focusContainer')?.focus();
+        } else {
+            document.getElementById(this.props.traceId + this.props.outputDescriptor.id)?.focus();
+        }
     }
 
     componentWillUnmount(): void {

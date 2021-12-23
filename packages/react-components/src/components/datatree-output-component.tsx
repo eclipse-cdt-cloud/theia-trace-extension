@@ -81,7 +81,11 @@ export class DataTreeOutputComponent extends AbstractOutputComponent<AbstractOut
         this.onToggleCollapse = this.onToggleCollapse.bind(this);
         this.onOrderChange = this.onOrderChange.bind(this);
         return this.state.xyTree.length
-            ? <div className='scrollable' style={{ height: this.props.style.height, width: this.getMainAreaWidth() }}>
+            ?   <div
+                    tabIndex={0}
+                    id={this.props.traceId + this.props.outputDescriptor.id + 'focusContainer'}
+                    className='scrollable' style={{ height: this.props.style.height, width: this.getMainAreaWidth() }}
+                >
                 <EntryTree
                     entries={this.state.xyTree}
                     showCheckboxes={false}
@@ -94,6 +98,7 @@ export class DataTreeOutputComponent extends AbstractOutputComponent<AbstractOut
             : undefined
             ;
     }
+
     renderMainArea(): React.ReactNode {
         return <React.Fragment>
             {this.state.outputStatus === ResponseStatus.COMPLETED ?
@@ -102,13 +107,22 @@ export class DataTreeOutputComponent extends AbstractOutputComponent<AbstractOut
                 >
                     {this.renderTree()}
                 </div> :
-                <div className='analysis-running-main-area'>
+                <div tabIndex={0} id={this.props.traceId + this.props.outputDescriptor.id + 'focusContainer'} className='analysis-running-main-area'>
                     <i className='fa fa-refresh fa-spin' style={{ marginRight: '5px' }} />
                     <span>Analysis running</span>
                 </div>
             }
         </React.Fragment>;
     }
+
+    setFocus(): void {
+        if (document.getElementById(this.props.traceId + this.props.outputDescriptor.id + 'focusContainer')) {
+            document.getElementById(this.props.traceId + this.props.outputDescriptor.id + 'focusContainer')?.focus();
+        } else {
+            document.getElementById(this.props.traceId + this.props.outputDescriptor.id)?.focus();
+        }
+    }
+
     private onToggleCollapse(id: number, nodes: TreeNode[]) {
         let newList = [...this.state.collapsedNodes];
 
@@ -122,6 +136,7 @@ export class DataTreeOutputComponent extends AbstractOutputComponent<AbstractOut
         const orderedIds = getAllExpandedNodeIds(nodes, newList);
         this.setState({collapsedNodes: newList, orderedNodes: orderedIds});
     }
+
     private onOrderChange(ids: number[]) {
         this.setState({orderedNodes: ids});
     }
