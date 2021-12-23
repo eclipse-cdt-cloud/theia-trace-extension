@@ -13,8 +13,8 @@ import { EntryTree } from './utils/filtrer-tree/entry-tree';
 import { getAllExpandedNodeIds } from './utils/filtrer-tree/utils';
 import { TreeNode } from './utils/filtrer-tree/tree-node';
 import ColumnHeader from './utils/filtrer-tree/column-header';
+import { signalManager, Signals } from 'traceviewer-base/lib/signals/signal-manager';
 import { BIMath } from 'timeline-chart/lib/bigint-utils';
-import { ChangeEvent } from 'react';
 import { scaleLinear } from 'd3-scale';
 import { axisLeft } from 'd3-axis';
 import { select } from 'd3-selection';
@@ -72,6 +72,8 @@ export class XYOutputComponent extends AbstractTreeOutputComponent<AbstractOutpu
 
     private preventDefaultHandler: ((event: WheelEvent) => void) | undefined;
 
+    private onSelectionChanged = (payload: { [key: string]: string; }) => this.doHandleSelectionChangedSignal(payload);
+
     constructor(props: AbstractOutputProps) {
         super(props);
         this.state = {
@@ -89,6 +91,22 @@ export class XYOutputComponent extends AbstractTreeOutputComponent<AbstractOutpu
         this.chartRef = React.createRef();
         this.yAxisRef = React.createRef();
         this.divRef = React.createRef();
+
+        signalManager().on(Signals.SELECTION_CHANGED, this.onSelectionChanged);
+    }
+
+    private doHandleSelectionChangedSignal(payload: { [key: string]: string }) {
+        const offset = this.props.viewRange.getOffset() || BigInt(0);
+        const startTimestamp = payload['startTimestamp'];
+        const endTimestamp = payload['endTimestamp'];
+        if (startTimestamp !== undefined && endTimestamp !== undefined) {
+            const selectionRangeStart = BigInt(startTimestamp) - offset;
+            const selectionRangeEnd = BigInt(endTimestamp) - offset;
+            this.props.unitController.selectionRange = {
+                start: selectionRangeStart,
+                end: selectionRangeEnd
+            };
+        }
     }
 
     componentDidMount(): void {
@@ -145,6 +163,11 @@ export class XYOutputComponent extends AbstractTreeOutputComponent<AbstractOutpu
             }
             this.chartRef.current.chartInstance.render();
         }
+    }
+
+    componentWillUnmount(): void {
+        super.componentWillUnmount();
+        signalManager().off(Signals.SELECTION_CHANGED, this.onSelectionChanged);
     }
 
     renderTree(): React.ReactNode | undefined {
