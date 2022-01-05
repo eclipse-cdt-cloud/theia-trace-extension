@@ -85,11 +85,17 @@ export class DataTreeOutputComponent extends AbstractOutputComponent<AbstractOut
     }
     renderMainArea(): React.ReactNode {
         return <React.Fragment>
-            <div ref={this.treeRef} className='output-component-tree'
-                style={{ height: this.props.style.height, width: this.props.widthWPBugWorkaround }}
-            >
-                {this.renderTree()}
-            </div>
+            {this.state.outputStatus === ResponseStatus.COMPLETED ?
+                <div ref={this.treeRef} className='output-component-tree'
+                    style={{ height: this.props.style.height, width: this.props.widthWPBugWorkaround }}
+                >
+                    {this.renderTree()}
+                </div> :
+                <div className='analysis-running-main-area'>
+                    <i className='fa fa-refresh fa-spin' style={{ marginRight: '5px' }} />
+                    <span>Analysis running</span>
+                </div>
+            }
         </React.Fragment>;
     }
     private onToggleCollapse(id: number, nodes: TreeNode[]) {
@@ -117,6 +123,7 @@ export class DataTreeOutputComponent extends AbstractOutputComponent<AbstractOut
             await new Promise(resolve => setTimeout(resolve, timeout));
         }
     }
+
     componentWillUnmount(): void {
         // fix Warning: Can't perform a React state update on an unmounted component
         this.setState = (_state, _callback) => undefined;
