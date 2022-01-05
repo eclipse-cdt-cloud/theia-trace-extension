@@ -87,6 +87,11 @@ canvas {
     align-self: center;
 }
 
+.analysis-running-main-area {
+    font-size: 24px;
+    margin: auto;
+}
+
 .no-data {
     font-size: 24px;
     text-align: center;
