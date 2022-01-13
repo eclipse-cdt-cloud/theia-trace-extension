@@ -1,5 +1,5 @@
 import { ContainerModule, Container } from 'inversify';
-import { WidgetFactory, OpenHandler, FrontendApplicationContribution, bindViewContribution, WebSocketConnectionProvider } from '@theia/core/lib/browser';
+import { WidgetFactory, OpenHandler, FrontendApplicationContribution, bindViewContribution, WebSocketConnectionProvider, KeybindingContribution } from '@theia/core/lib/browser';
 import { TraceViewerWidget, TraceViewerWidgetOptions } from './trace-viewer';
 import { TraceViewerContribution } from './trace-viewer-contribution';
 import { TraceServerUrlProvider } from '../../common/trace-server-url-provider';
@@ -20,6 +20,7 @@ import { TabBarToolbarContribution } from '@theia/core/lib/browser/shell/tab-bar
 import { TraceViewerToolbarContribution } from './trace-viewer-toolbar-contribution';
 import { LazyTspClientFactory } from 'traceviewer-base/lib/lazy-tsp-client';
 import { BackendFileService, backendFileServicePath } from '../../common/backend-file-service';
+import { ChartShortcutsDialog, ChartShortcutsDialogProps } from '../trace-explorer/trace-explorer-sub-widgets/trace-explorer-keyboard-shortcuts/charts-cheatsheet-component';
 
 export default new ContainerModule(bind => {
     bind(TraceServerUrlProviderImpl).toSelf().inSingletonScope();
@@ -27,6 +28,8 @@ export default new ContainerModule(bind => {
     bind(TraceServerUrlProvider).toService(TraceServerUrlProviderImpl);
     bind(LazyTspClientFactory).toFunction(LazyTspClientFactory);
     bind(TspClientProvider).toSelf().inSingletonScope();
+    bind(ChartShortcutsDialog).toSelf().inSingletonScope();
+    bind(ChartShortcutsDialogProps).toConstantValue({ title: 'Trace Viewer Keyboard and Mouse Shortcuts' });
     bind(TheiaMessageManager).toSelf().inSingletonScope();
 
     bind(TraceViewerToolbarContribution).toSelf().inSingletonScope();
@@ -46,7 +49,7 @@ export default new ContainerModule(bind => {
     })).inSingletonScope();
 
     bind(TraceViewerContribution).toSelf().inSingletonScope();
-    [CommandContribution, OpenHandler, FrontendApplicationContribution].forEach(serviceIdentifier =>
+    [CommandContribution, OpenHandler, FrontendApplicationContribution, KeybindingContribution].forEach(serviceIdentifier =>
         bind(serviceIdentifier).toService(TraceViewerContribution)
     );
 

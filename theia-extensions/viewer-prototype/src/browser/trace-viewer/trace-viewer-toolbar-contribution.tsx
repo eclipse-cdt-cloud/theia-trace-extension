@@ -8,19 +8,16 @@ import { signalManager, Signals } from 'traceviewer-base/lib/signals/signal-mana
 import { TraceViewerWidget } from './trace-viewer';
 import { TspClientProvider } from '../tsp-client-provider-impl';
 import { ContextMenuRenderer } from '@theia/core/lib/browser';
-import { TraceExplorerOpenedTracesWidget } from '../trace-explorer/trace-explorer-sub-widgets/theia-trace-explorer-opened-traces-widget';
-import { OpenTraceCommand } from './trace-viewer-commands';
+import { ChartShortcutsDialog  } from '../trace-explorer/trace-explorer-sub-widgets/trace-explorer-keyboard-shortcuts/charts-cheatsheet-component';
 
 @injectable()
 export class TraceViewerToolbarContribution implements TabBarToolbarContribution, CommandContribution {
     @inject(ApplicationShell) protected readonly shell: ApplicationShell;
     @inject(ContextMenuRenderer) protected readonly contextMenuRenderer!: ContextMenuRenderer;
     @inject(TspClientProvider) protected readonly tspClientProvider!: TspClientProvider;
-    @inject(MenuModelRegistry)
-    protected readonly menus: MenuModelRegistry;
-
-    @inject(CommandRegistry)
-    protected readonly commands: CommandRegistry;
+    @inject(MenuModelRegistry) protected readonly menus: MenuModelRegistry;
+    @inject(CommandRegistry) protected readonly commands: CommandRegistry;
+    @inject(ChartShortcutsDialog) protected readonly chartShortcuts: ChartShortcutsDialog;
 
     private onMarkerCategoriesFetchedSignal = () => this.doHandleMarkerCategoriesFetchedSignal();
     private onMarkerSetsFetchedSignal = () => this.doHandleMarkerSetsFetchedSignal();
@@ -83,15 +80,16 @@ export class TraceViewerToolbarContribution implements TabBarToolbarContribution
             }
         });
         registry.registerCommand(
-            TraceViewerToolbarCommands.OPEN_TRACE, {
+            TraceViewerToolbarCommands.CHARTS_CHEATSHEET, {
             isVisible: (w: Widget) => {
-                if (w instanceof TraceExplorerOpenedTracesWidget) {
-                    return true;
+                if (w instanceof TraceViewerWidget) {
+                    const traceWidget = w as TraceViewerWidget;
+                    return traceWidget.isTimeRelatedChartOpened();
                 }
                 return false;
             },
-            execute: async () => {
-                await registry.executeCommand(OpenTraceCommand.id);
+            execute: () => {
+                this.chartShortcuts.open();
             }
         });
     }
@@ -214,10 +212,10 @@ export class TraceViewerToolbarContribution implements TabBarToolbarContribution
             onDidChange: this.onMakerSetsChangedEvent,
         });
         registry.registerItem({
-            id: TraceViewerToolbarCommands.OPEN_TRACE.id,
-            command: TraceViewerToolbarCommands.OPEN_TRACE.id,
-            tooltip: TraceViewerToolbarCommands.OPEN_TRACE.label,
-            priority: 6,
+            id: TraceViewerToolbarCommands.CHARTS_CHEATSHEET.id,
+            command: TraceViewerToolbarCommands.CHARTS_CHEATSHEET.id,
+            tooltip: TraceViewerToolbarCommands.CHARTS_CHEATSHEET.label,
+            priority: 7,
         });
     }
 }

@@ -1,22 +1,23 @@
 import { injectable, inject } from 'inversify';
 import { CommandRegistry, CommandContribution, MessageService } from '@theia/core';
-import { WidgetOpenerOptions, WidgetOpenHandler } from '@theia/core/lib/browser';
+import { WidgetOpenerOptions, WidgetOpenHandler, KeybindingContribution, KeybindingRegistry } from '@theia/core/lib/browser';
 import URI from '@theia/core/lib/common/uri';
 import { TraceViewerWidget, TraceViewerWidgetOptions } from './trace-viewer';
 import { FileDialogService, OpenFileDialogProps } from '@theia/filesystem/lib/browser';
 import { WorkspaceService } from '@theia/workspace/lib/browser/workspace-service';
-import { OpenTraceCommand, StartServerCommand, StopServerCommand, TraceViewerCommand } from './trace-viewer-commands';
+import { OpenTraceCommand, StartServerCommand, StopServerCommand, TraceViewerCommand, KeyboardShortcutsCommand } from './trace-viewer-commands';
 import { PortBusy, TraceServerConfigService } from '../../common/trace-server-config';
 import { TracePreferences, TRACE_PATH, TRACE_ARGS } from '../trace-server-preference';
 import { TspClient } from 'tsp-typescript-client/lib/protocol/tsp-client';
 import { TspClientProvider } from '../tsp-client-provider-impl';
+import { ChartShortcutsDialog } from './../trace-explorer/trace-explorer-sub-widgets/trace-explorer-keyboard-shortcuts/charts-cheatsheet-component';
 
 interface TraceViewerWidgetOpenerOptions extends WidgetOpenerOptions {
     traceUUID: string;
 }
 
 @injectable()
-export class TraceViewerContribution extends WidgetOpenHandler<TraceViewerWidget> implements CommandContribution {
+export class TraceViewerContribution extends WidgetOpenHandler<TraceViewerWidget> implements CommandContribution, KeybindingContribution {
 
     private tspClient: TspClient;
 
@@ -33,6 +34,7 @@ export class TraceViewerContribution extends WidgetOpenHandler<TraceViewerWidget
     @inject(TracePreferences) protected tracePreferences: TracePreferences;
     @inject(TraceServerConfigService) protected readonly traceServerConfigService: TraceServerConfigService;
     @inject(MessageService) protected readonly messageService: MessageService;
+    @inject(ChartShortcutsDialog) protected readonly chartShortcuts: ChartShortcutsDialog;
 
     readonly id = TraceViewerWidget.ID;
     readonly label = 'Trace Viewer';
@@ -151,6 +153,13 @@ export class TraceViewerContribution extends WidgetOpenHandler<TraceViewerWidget
         throw new Error('Could not open TraceViewerWidget');
     }
 
+    registerKeybindings(keybindings: KeybindingRegistry): void {
+        keybindings.registerKeybinding({
+            keybinding: 'ctrlcmd+f1',
+            command: KeyboardShortcutsCommand.id,
+        });
+    }
+
     registerCommands(registry: CommandRegistry): void {
         registry.registerCommand(OpenTraceCommand, {
             execute: () => this.launchTraceServer()
@@ -195,6 +204,11 @@ export class TraceViewerContribution extends WidgetOpenHandler<TraceViewerWidget
                 } catch (err) {
                     this.messageService.error('Failed to stop the trace server.');
                 }
+            }
+        });
+        registry.registerCommand(KeyboardShortcutsCommand, {
+            execute: () => {
+                this.chartShortcuts.open();
             }
         });
     }
