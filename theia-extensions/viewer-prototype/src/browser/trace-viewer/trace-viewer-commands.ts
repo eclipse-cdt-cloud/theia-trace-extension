@@ -20,3 +20,7 @@ export const StopServerCommand: Command = {
     label: 'Stop Trace Server'
 };
 
+export const KeyboardShortcutsCommand: Command = {
+    id: 'trace-viewer-keyboard-shortcuts',
+    label: 'Trace Viewer Keyboard and Mouse Shortcuts'
+};
