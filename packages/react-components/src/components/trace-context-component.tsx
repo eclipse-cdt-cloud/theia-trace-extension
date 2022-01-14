@@ -59,14 +59,14 @@ export class TraceContextComponent extends React.Component<TraceContextProps, Tr
     private readonly INDEXING_CLOSED_STATUS: string = 'CLOSED';
     private readonly INDEXING_STATUS_BAR_KEY = 'indexing-status';
     private readonly TIME_SELECTION_STATUS_BAR_KEY = 'time-selection-range';
-    private readonly COMPONENT_WIDTH_PROPORTION: number = 0.85;
-    private readonly DEFAULT_COMPONENT_WIDTH: number = 1500;
-    private readonly DEFAULT_CHART_WIDTH: number = Math.floor(this.DEFAULT_COMPONENT_WIDTH * this.COMPONENT_WIDTH_PROPORTION);
     private readonly DEFAULT_COMPONENT_HEIGHT: number = 10;
     private readonly DEFAULT_COMPONENT_ROWHEIGHT: number = 20;
     private readonly DEFAULT_COMPONENT_LEFT: number = 0;
     private readonly SCROLLBAR_PADDING: number = 12;
+    private readonly HANDLE_WIDTH = 30;
     private readonly Y_AXIS_WIDTH: number = 40;
+    private readonly DEFAULT_SASH_OFFSET = 200;
+    private readonly SASH_WIDTH = 4;
 
     private unitController: TimeGraphUnitController;
     private tooltipComponent: React.RefObject<TooltipComponent>;
@@ -106,8 +106,10 @@ export class TraceContextComponent extends React.Component<TraceContextProps, Tr
             experiment: this.props.experiment,
             traceIndexing: ((this.props.experiment.indexingStatus === this.INDEXING_RUNNING_STATUS) || (this.props.experiment.indexingStatus === this.INDEXING_CLOSED_STATUS)),
             style: {
-                width: this.DEFAULT_COMPONENT_WIDTH, // 1245,
-                chartWidth: this.DEFAULT_CHART_WIDTH,
+                width: this.HANDLE_WIDTH + this.DEFAULT_SASH_OFFSET + this.SASH_WIDTH,
+                handleWidth: this.HANDLE_WIDTH,
+                sashOffset: this.DEFAULT_SASH_OFFSET,
+                sashWidth: this.SASH_WIDTH,
                 yAxisWidth: this.Y_AXIS_WIDTH,
                 componentLeft: this.DEFAULT_COMPONENT_LEFT,
                 height: this.DEFAULT_COMPONENT_HEIGHT,
@@ -137,6 +139,7 @@ export class TraceContextComponent extends React.Component<TraceContextProps, Tr
         this.tooltipXYComponent = React.createRef();
         this.traceContextContainer = React.createRef();
         this.onResize = this.onResize.bind(this);
+        this.setSashOffset = this.setSashOffset.bind(this);
         this.props.addResizeHandler(this.onResize);
         this.initialize();
         this.subscribeToEvents();
@@ -258,14 +261,15 @@ export class TraceContextComponent extends React.Component<TraceContextProps, Tr
     }
 
     private onResize() {
-        const newWidth = this.traceContextContainer.current ? this.traceContextContainer.current.clientWidth - this.SCROLLBAR_PADDING : this.DEFAULT_COMPONENT_WIDTH;
+        const newWidth = this.traceContextContainer.current ? this.traceContextContainer.current.clientWidth - this.SCROLLBAR_PADDING : 0;
         const bounds = this.traceContextContainer.current ? this.traceContextContainer.current.getBoundingClientRect() : { left: this.DEFAULT_COMPONENT_LEFT };
-        this.setState(prevState => ({ style: { ...prevState.style, width: newWidth, chartWidth: this.getChartWidth(newWidth), componentLeft: bounds.left } }));
+        this.setState(prevState => ({ style: { ...prevState.style, width: newWidth, componentLeft: bounds.left } }));
         this.widgetResizeHandlers.forEach(h => h());
     }
 
-    private getChartWidth(totalWidth: number): number {
-        return Math.floor(totalWidth * this.COMPONENT_WIDTH_PROPORTION);
+    private setSashOffset(sashOffset: number) {
+        this.setState(prevState => ({ style: { ...prevState.style, sashOffset: sashOffset } }));
+        this.widgetResizeHandlers.forEach(h => h());
     }
 
     private handleTimeSelectionChange(range?: TimelineChart.TimeGraphRange) {
@@ -320,7 +324,7 @@ export class TraceContextComponent extends React.Component<TraceContextProps, Tr
         const showTimeScale = outputs.filter(output => output.type === 'TIME_GRAPH' || output.type === 'TREE_TIME_XY').length > 0;
         return <React.Fragment>
             {showTimeScale &&
-                <div style={{ marginLeft: this.state.style.width - this.state.style.chartWidth }}>
+                <div style={{ marginLeft: this.state.style.handleWidth + this.state.style.sashOffset + this.state.style.sashWidth }}>
                     <TimeAxisComponent unitController={this.unitController} style={this.state.style}
                         addWidgetResizeHandler={this.addWidgetResizeHandler} removeWidgetResizeHandler={this.removeWidgetResizeHandler} />
                 </div>
@@ -350,7 +354,8 @@ export class TraceContextComponent extends React.Component<TraceContextProps, Tr
                         onOutputRemove: this.props.onOutputRemove,
                         unitController: this.unitController,
                         widthWPBugWorkaround: this.state.style.width,
-                        backgroundTheme: this.state.backgroundTheme
+                        backgroundTheme: this.state.backgroundTheme,
+                        setSashOffset: this.setSashOffset
                     };
                     switch (responseType) {
                         case 'TIME_GRAPH':
@@ -368,7 +373,7 @@ export class TraceContextComponent extends React.Component<TraceContextProps, Tr
                 })}
             </ResponsiveGridLayout>
             {showTimeScale &&
-                <div style={{ marginLeft: this.state.style.width - this.state.style.chartWidth }}>
+                <div style={{ marginLeft: this.state.style.handleWidth + this.state.style.sashOffset + this.state.style.sashWidth }}>
                     <TimeNavigatorComponent unitController={this.unitController} style={this.state.style}
                         addWidgetResizeHandler={this.addWidgetResizeHandler} removeWidgetResizeHandler={this.removeWidgetResizeHandler} />
                 </div>

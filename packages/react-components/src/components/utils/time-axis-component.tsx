@@ -19,7 +19,7 @@ export class TimeAxisComponent extends React.Component<TimeAxisProps> {
             options={{
                 id: 'timegraph-axis',
                 height: 30,
-                width: this.props.style.chartWidth,
+                width: this.props.style.width - this.props.style.handleWidth - this.props.style.sashOffset - this.props.style.sashWidth,
                 backgroundColor: this.props.style.chartBackgroundColor,
                 lineColor: this.props.style.lineColor,
                 classNames: 'horizontal-canvas'

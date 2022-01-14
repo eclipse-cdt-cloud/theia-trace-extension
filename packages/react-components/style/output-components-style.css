@@ -44,6 +44,15 @@
     white-space: pre-wrap;
 }
 
+.output-component-sash {
+    background-color: var(--theia-list-hoverBackground);
+    cursor: col-resize;
+}
+
+.output-component-sash:hover {
+    background-color: steelblue;
+}
+
 .output-component-chart {
     align-self: center;
     text-align: center;

@@ -150,7 +150,7 @@ export class XYOutputComponent extends AbstractTreeOutputComponent<AbstractOutpu
         const viewRangeChanged = this.props.viewRange !== prevProps.viewRange;
         const checkedSeriesChanged = this.state.checkedSeries !== prevState.checkedSeries;
         const collapsedNodesChanged = this.state.collapsedNodes !== prevState.collapsedNodes;
-        const chartWidthChanged = this.props.style.chartWidth !== prevProps.style.chartWidth;
+        const chartWidthChanged = this.props.style.width !== prevProps.style.width || this.props.style.sashOffset !== prevProps.style.sashOffset;
         const needToUpdate = viewRangeChanged || checkedSeriesChanged || collapsedNodesChanged || chartWidthChanged;
         if (needToUpdate || prevState.outputStatus === ResponseStatus.RUNNING) {
             this.updateXY();
@@ -730,7 +730,7 @@ export class XYOutputComponent extends AbstractTreeOutputComponent<AbstractOutpu
         }
 
         const xyDataParameters = QueryHelper.selectionTimeQuery(
-            QueryHelper.splitRangeIntoEqualParts(start, end, this.props.style.chartWidth), this.state.checkedSeries);
+            QueryHelper.splitRangeIntoEqualParts(start, end, this.getChartWidth()), this.state.checkedSeries);
 
         const tspClientResponse = await this.props.tspClient.fetchXY(this.props.traceId, this.props.outputDescriptor.id, xyDataParameters);
         const xyDataResponse = tspClientResponse.getModel();
