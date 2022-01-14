@@ -315,20 +315,18 @@ export class XYOutputComponent extends AbstractTreeOutputComponent<AbstractOutpu
         // width={this.props.style.chartWidth}
         if (this.state.outputStatus === ResponseStatus.COMPLETED && this.state.xyTree.length === 0) {
             return <React.Fragment>
-                <div className='no-data'>
-                    Trace analysis completed.
+                <div className='chart-message'>
+                    Trace analysis complete.
                     <br />
                     No results: Trace missing required events.
                 </div>
             </React.Fragment>;
         }
-        if (this.state.outputStatus === ResponseStatus.COMPLETED && this.state.xyData?.datasets?.length===0 ) {
+        if (this.state.outputStatus === ResponseStatus.COMPLETED && this.state.xyData?.datasets?.length === 0) {
             return <React.Fragment>
-                {
-                    <p className='no-data' style={{fontSize: 20, marginRight: '5px', marginLeft: '5px', justifyContent:'center', alignItems:'center'}}>
-                        Select a checkbox to see analysis results
-                    </p>
-                }
+                <div className='chart-message'>
+                    Select a checkbox to see analysis results
+                </div>
             </React.Fragment>;
         }
         return <React.Fragment>
