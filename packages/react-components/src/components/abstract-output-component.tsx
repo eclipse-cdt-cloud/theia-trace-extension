@@ -112,7 +112,7 @@ export abstract class AbstractOutputComponent<P extends AbstractOutputProps, S e
 
     protected analysisFailedMessage(): React.ReactFragment {
         return <React.Fragment>
-            <div className='analysis-failed-message'>
+            <div className='message-main-area'>
                 Trace analysis failed.
             </div>
         </React.Fragment>;
@@ -120,7 +120,7 @@ export abstract class AbstractOutputComponent<P extends AbstractOutputProps, S e
 
     protected emptyResultsMessage(): React.ReactFragment {
         return <React.Fragment>
-                <div className='chart-message'>
+                <div className='message-main-area'>
                     Trace analysis complete.
                     <br />
                     No results: Trace missing required events.

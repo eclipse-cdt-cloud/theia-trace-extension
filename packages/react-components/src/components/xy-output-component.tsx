@@ -313,9 +313,6 @@ export class XYOutputComponent extends AbstractTreeOutputComponent<AbstractOutpu
 
     renderChart(): React.ReactNode {
         // width={this.props.style.chartWidth}
-        if (this.state.outputStatus === ResponseStatus.COMPLETED && this.state.xyTree.length === 0) {
-            return this.emptyResultsMessage();
-        }
         if (this.state.outputStatus === ResponseStatus.COMPLETED && this.state.xyData?.datasets?.length === 0) {
             return <React.Fragment>
                 <div className='chart-message'>
@@ -349,6 +346,10 @@ export class XYOutputComponent extends AbstractTreeOutputComponent<AbstractOutpu
                     }
                 </div>}
         </React.Fragment>;
+    }
+
+    resultsAreEmpty(): boolean {
+        return this.state.xyTree.length === 0;
     }
 
     private afterChartDraw(chart: Chart) {
