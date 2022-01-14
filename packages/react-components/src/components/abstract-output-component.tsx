@@ -117,4 +117,14 @@ export abstract class AbstractOutputComponent<P extends AbstractOutputProps, S e
             </div>
         </React.Fragment>;
     }
+
+    protected emptyResultsMessage(): React.ReactFragment {
+        return <React.Fragment>
+                <div className='chart-message'>
+                    Trace analysis complete.
+                    <br />
+                    No results: Trace missing required events.
+                </div>
+        </React.Fragment>;
+    }
 }
