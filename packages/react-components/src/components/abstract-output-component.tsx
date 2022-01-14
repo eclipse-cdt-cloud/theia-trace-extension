@@ -39,6 +39,7 @@ export interface AbstractOutputProps {
     onMouseDown?: VoidFunction;
     onTouchStart?: VoidFunction;
     onTouchEnd?: VoidFunction;
+    setSashOffset?: (sashOffset: number) => void;
 }
 
 export interface AbstractOutputState {
@@ -49,7 +50,6 @@ export interface AbstractOutputState {
 export abstract class AbstractOutputComponent<P extends AbstractOutputProps, S extends AbstractOutputState> extends React.Component<P, S> {
 
     private mainAreaContainer: React.RefObject<HTMLDivElement>;
-    private readonly HANDLE_WIDTH = 30;
 
     constructor(props: P) {
         super(props);
@@ -70,11 +70,11 @@ export abstract class AbstractOutputComponent<P extends AbstractOutputProps, S e
             onTouchEnd={this.props.onTouchEnd}
             data-tip=''
             data-for="tooltip-component">
-            <div className='widget-handle' style={{ width: this.HANDLE_WIDTH, height: this.props.style.height }}>
+            <div className='widget-handle' style={{ width: this.props.style.handleWidth, height: this.props.style.height }}>
                 {this.renderTitleBar()}
             </div>
             <div className='main-output-container' ref={this.mainAreaContainer}
-                style={{ width: this.props.widthWPBugWorkaround - this.HANDLE_WIDTH, height: this.props.style.height }}>
+                style={{ width: this.props.widthWPBugWorkaround - this.props.style.handleWidth, height: this.props.style.height }}>
                 {this.renderMainArea()}
             </div>
             {this.props.children}
@@ -101,11 +101,11 @@ export abstract class AbstractOutputComponent<P extends AbstractOutputProps, S e
         if (this.mainAreaContainer.current) {
             return this.mainAreaContainer.current.clientWidth;
         }
-        return 0;
+        return this.props.widthWPBugWorkaround - this.props.style.handleWidth;
     }
 
     public getHandleWidth(): number {
-        return this.HANDLE_WIDTH;
+        return this.props.style.handleWidth;
     }
 
     abstract renderMainArea(): React.ReactNode;

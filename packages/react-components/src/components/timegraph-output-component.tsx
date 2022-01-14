@@ -421,7 +421,7 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
                 {
                     id: 'timegraph-chart-1',
                     height: this.getMarkersLayerHeight(),
-                    width: this.props.style.chartWidth,
+                    width: this.getChartWidth(),
                     backgroundColor: this.props.style.chartBackgroundColor,
                     lineColor: this.props.style.lineColor,
                     classNames: 'horizontal-canvas'
@@ -445,7 +445,7 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
                 {
                     id: 'timegraph-chart',
                     height: parseInt(this.props.style.height.toString()) - this.getMarkersLayerHeight(),
-                    width: this.props.style.chartWidth, // this.props.style.mainWidth,
+                    width: this.getChartWidth(),
                     backgroundColor: this.props.style.chartBackgroundColor,
                     lineColor: this.props.backgroundTheme === 'light' ? 0xdddddd : 0x34383C,
                     classNames: 'horizontal-canvas'
