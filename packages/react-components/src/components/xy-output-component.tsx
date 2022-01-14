@@ -314,13 +314,7 @@ export class XYOutputComponent extends AbstractTreeOutputComponent<AbstractOutpu
     renderChart(): React.ReactNode {
         // width={this.props.style.chartWidth}
         if (this.state.outputStatus === ResponseStatus.COMPLETED && this.state.xyTree.length === 0) {
-            return <React.Fragment>
-                <div className='chart-message'>
-                    Trace analysis complete.
-                    <br />
-                    No results: Trace missing required events.
-                </div>
-            </React.Fragment>;
+            return this.emptyResultsMessage();
         }
         if (this.state.outputStatus === ResponseStatus.COMPLETED && this.state.xyData?.datasets?.length === 0) {
             return <React.Fragment>
