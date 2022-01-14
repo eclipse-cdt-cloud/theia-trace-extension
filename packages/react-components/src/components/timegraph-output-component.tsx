@@ -353,6 +353,10 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
         </React.Fragment>;
     }
 
+    resultsAreEmpty(): boolean {
+        return this.state.timegraphTree.length === 0;
+    }
+
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     private async fetchTooltip(element: TimeGraphComponent<any>): Promise<{ [key: string]: string } | undefined> {
         if (element instanceof TimeGraphStateComponent) {

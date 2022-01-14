@@ -19,6 +19,10 @@ export abstract class AbstractTreeOutputComponent<P extends AbstractOutputProps,
             return this.analysisFailedMessage();
         }
 
+        if (this.state.outputStatus === ResponseStatus.COMPLETED && this.resultsAreEmpty()) {
+            return this.emptyResultsMessage();
+        }
+
         return <React.Fragment>
             <div ref={this.treeRef} className='output-component-tree'
                 style={{ width: this.getTreeWidth(), height: this.props.style.height }}
@@ -74,6 +78,8 @@ export abstract class AbstractTreeOutputComponent<P extends AbstractOutputProps,
     abstract renderChart(): React.ReactNode;
 
     abstract fetchTree(): Promise<ResponseStatus>;
+
+    abstract resultsAreEmpty(): boolean;
 
     protected async waitAnalysisCompletion(): Promise<void> {
         let outputStatus = this.state.outputStatus;
