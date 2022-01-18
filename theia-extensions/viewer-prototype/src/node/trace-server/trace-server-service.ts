@@ -17,13 +17,13 @@ export interface ChildProcessWithPid extends ChildProcess {
 export class TraceServerServiceImpl implements TraceServerConfigService {
 
     protected server?: ChildProcess;
-    protected port?: number;
+    private cliArgs?: string;
 
-    async startTraceServer({ path, port }: StartTraceServerOptions = {}): Promise<string> {
-        if (typeof port !== 'number') {
-            throw new Error('no Trace Server port specified');
+    async startTraceServer({ path, args }: StartTraceServerOptions = {}): Promise<string> {
+        if (!args) {
+            args = '';
         } else if (this.isServerRunning(this.server)) {
-            if (this.port === port) {
+            if (this.cliArgs === args) {
                 return SUCCESS;
             } else {
                 throw new Error('the Trace Server is already running on a different port');
@@ -35,13 +35,14 @@ export class TraceServerServiceImpl implements TraceServerConfigService {
         } else if (!await this.validateTraceServerPath(path)) {
             throw new Error(`could not find the Trace Server file at the specified path: ${path}`);
         }
-        const server = spawn(path, ['-vmargs', `-Dtraceserver.port=${port}`]);
+        const argsArray: Array<string> | undefined = args?.split(' ');
+        const server = spawn(path, argsArray);
         if (server.pid === undefined) {
             // When pid is undefined it usually means we're about to get an error.
             return new Promise<never>((_, reject) => server.once('error', reject));
         }
         this.server = server;
-        this.port = port;
+        this.cliArgs = args;
         let timeout: any;
         try {
             await new Promise<void>((resolve, reject) => {
@@ -54,7 +55,7 @@ export class TraceServerServiceImpl implements TraceServerConfigService {
             });
         } catch (error) {
             this.server = undefined;
-            this.port = undefined;
+            this.cliArgs = undefined;
             throw error;
         } finally {
             server.removeAllListeners();
@@ -62,7 +63,7 @@ export class TraceServerServiceImpl implements TraceServerConfigService {
         }
         server.once('exit', () => {
             this.server = undefined;
-            this.port = undefined;
+            this.cliArgs = undefined;
         });
         return SUCCESS;
     }
