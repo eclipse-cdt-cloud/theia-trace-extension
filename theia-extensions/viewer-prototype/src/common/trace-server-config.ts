@@ -8,7 +8,7 @@ export const PortBusy = ApplicationError.declare(-32650, code => ({
 
 export interface StartTraceServerOptions {
     path?: string
-    port?: number
+    args?: string
 }
 
 export const TraceServerConfigService = Symbol('TraceServerConfigService');
