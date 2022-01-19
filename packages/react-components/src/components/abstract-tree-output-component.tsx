@@ -15,14 +15,6 @@ export abstract class AbstractTreeOutputComponent<P extends AbstractOutputProps,
     }
 
     renderMainArea(): React.ReactNode {
-        if (this.state.outputStatus === ResponseStatus.FAILED) {
-            return this.analysisFailedMessage();
-        }
-
-        if (this.state.outputStatus === ResponseStatus.COMPLETED && this.resultsAreEmpty()) {
-            return this.emptyResultsMessage();
-        }
-
         return <React.Fragment>
             <div ref={this.treeRef} className='output-component-tree'
                 style={{ width: this.getTreeWidth(), height: this.props.style.height }}

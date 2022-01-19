@@ -97,14 +97,6 @@ export class TableOutputComponent extends AbstractOutputComponent<TableOutputPro
     }
 
     renderMainArea(): React.ReactNode {
-        if (this.state.outputStatus === ResponseStatus.FAILED) {
-            return this.analysisFailedMessage();
-        }
-
-        if (this.state.outputStatus === ResponseStatus.COMPLETED && this.state.tableColumns.length === 0) {
-            return this.emptyResultsMessage();
-        }
-
         return <div id='events-table'
             className={this.props.backgroundTheme === 'light' ? 'ag-theme-balham' : 'ag-theme-balham-dark'}
             style={{ height: this.props.style.height, width: this.props.widthWPBugWorkaround }}>
@@ -125,6 +117,10 @@ export class TableOutputComponent extends AbstractOutputComponent<TableOutputPro
             >
             </AgGridReact>
         </div>;
+    }
+
+    resultsAreEmpty(): boolean {
+        return this.state.tableColumns.length === 0;
     }
 
     componentDidMount(): void {

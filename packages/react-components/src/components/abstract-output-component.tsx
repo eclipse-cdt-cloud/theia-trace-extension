@@ -9,6 +9,7 @@ import { OutputComponentStyle } from './utils/output-component-style';
 import { OutputStyleModel } from 'tsp-typescript-client/lib/models/styles';
 import { TooltipComponent } from './tooltip-component';
 import { TooltipXYComponent } from './tooltip-xy-component';
+import { ResponseStatus } from 'tsp-typescript-client/lib/models/response/responses';
 
 export interface AbstractOutputProps {
     tspClient: TspClient;
@@ -49,11 +50,11 @@ export interface AbstractOutputState {
 
 export abstract class AbstractOutputComponent<P extends AbstractOutputProps, S extends AbstractOutputState> extends React.Component<P, S> {
 
-    private mainAreaContainer: React.RefObject<HTMLDivElement>;
+    private mainOutputContainer: React.RefObject<HTMLDivElement>;
 
     constructor(props: P) {
         super(props);
-        this.mainAreaContainer = React.createRef();
+        this.mainOutputContainer = React.createRef();
         this.closeComponent = this.closeComponent.bind(this);
         this.renderTitleBar = this.renderTitleBar.bind(this);
     }
@@ -73,9 +74,9 @@ export abstract class AbstractOutputComponent<P extends AbstractOutputProps, S e
             <div className='widget-handle' style={{ width: this.props.style.handleWidth, height: this.props.style.height }}>
                 {this.renderTitleBar()}
             </div>
-            <div className='main-output-container' ref={this.mainAreaContainer}
+            <div className='main-output-container' ref={this.mainOutputContainer}
                 style={{ width: this.props.widthWPBugWorkaround - this.props.style.handleWidth, height: this.props.style.height }}>
-                {this.renderMainArea()}
+                {this.renderMainOutputContainer()}
             </div>
             {this.props.children}
         </div>;
@@ -98,8 +99,8 @@ export abstract class AbstractOutputComponent<P extends AbstractOutputProps, S e
     }
 
     public getMainAreaWidth(): number {
-        if (this.mainAreaContainer.current) {
-            return this.mainAreaContainer.current.clientWidth;
+        if (this.mainOutputContainer.current) {
+            return this.mainOutputContainer.current.clientWidth;
         }
         return this.props.widthWPBugWorkaround - this.props.style.handleWidth;
     }
@@ -108,7 +109,21 @@ export abstract class AbstractOutputComponent<P extends AbstractOutputProps, S e
         return this.props.style.handleWidth;
     }
 
+    private renderMainOutputContainer(): React.ReactNode {
+        if (this.state.outputStatus === ResponseStatus.FAILED) {
+            return this.analysisFailedMessage();
+        }
+
+        if (this.state.outputStatus === ResponseStatus.COMPLETED && this.resultsAreEmpty()) {
+            return this.emptyResultsMessage();
+        }
+
+        return this.renderMainArea();
+    }
+
     abstract renderMainArea(): React.ReactNode;
+
+    abstract resultsAreEmpty(): boolean;
 
     protected analysisFailedMessage(): React.ReactFragment {
         return <React.Fragment>

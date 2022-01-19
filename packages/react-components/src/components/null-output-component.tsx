@@ -25,4 +25,8 @@ export class NullOutputComponent extends AbstractOutputComponent<NullOutputProps
             </div>
         </React.Fragment>;
     }
+
+    resultsAreEmpty(): boolean {
+        return true;
+    }
   }
