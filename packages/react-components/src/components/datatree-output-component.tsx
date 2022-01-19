@@ -60,9 +60,16 @@ export class DataTreeOutputComponent extends AbstractOutputComponent<AbstractOut
                     xyTree: treeResponse.model.entries,
                     columns
                 });
+            } else {
+                this.setState({
+                    outputStatus: treeResponse.status
+                });
             }
             return treeResponse.status;
         }
+        this.setState({
+            outputStatus: ResponseStatus.FAILED
+        });
         return ResponseStatus.FAILED;
     }
 
