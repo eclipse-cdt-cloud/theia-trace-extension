@@ -73,6 +73,10 @@ export class DataTreeOutputComponent extends AbstractOutputComponent<AbstractOut
         return ResponseStatus.FAILED;
     }
 
+    resultsAreEmpty(): boolean {
+        return this.state.xyTree.length === 0;
+    }
+
     renderTree(): React.ReactNode | undefined {
         this.onToggleCollapse = this.onToggleCollapse.bind(this);
         this.onOrderChange = this.onOrderChange.bind(this);
