@@ -11,6 +11,7 @@ import { TracePreferences, TRACE_PATH, TRACE_ARGS } from '../trace-server-prefer
 import { TspClient } from 'tsp-typescript-client/lib/protocol/tsp-client';
 import { TspClientProvider } from '../tsp-client-provider-impl';
 import { ChartShortcutsDialog } from './../trace-explorer/trace-explorer-sub-widgets/trace-explorer-keyboard-shortcuts/charts-cheatsheet-component';
+import { signalManager } from 'traceviewer-base/lib/signals/signal-manager';
 
 interface TraceViewerWidgetOpenerOptions extends WidgetOpenerOptions {
     traceUUID: string;
@@ -177,6 +178,7 @@ export class TraceViewerContribution extends WidgetOpenHandler<TraceViewerWidget
                     } else {
                         this.messageService.info('Trace server started.');
                     }
+                    signalManager().fireTraceServerStartedSignal();
                 } catch (error) {
                     // eslint-disable-next-line @typescript-eslint/no-explicit-any
                     if (PortBusy.is(error as any)) {
