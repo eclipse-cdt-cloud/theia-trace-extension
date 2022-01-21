@@ -173,9 +173,7 @@ export class ReactAvailableViewsWidget extends React.Component<ReactAvailableVie
         if (descriptors && descriptors.length) {
             outputDescriptors.push(...descriptors);
         }
-        /*
-         * Remove outputs of id "scatter" until the tooltip is implemented
-         */
-        return outputDescriptors.filter(value => !value.id.includes('scatter'));
+
+        return outputDescriptors;
     }
 }
