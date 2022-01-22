@@ -111,11 +111,11 @@ export abstract class AbstractOutputComponent<P extends AbstractOutputProps, S e
 
     private renderMainOutputContainer(): React.ReactNode {
         if (this.state.outputStatus === ResponseStatus.FAILED) {
-            return this.analysisFailedMessage();
+            return this.renderAnalysisFailed();
         }
 
         if (this.state.outputStatus === ResponseStatus.COMPLETED && this.resultsAreEmpty()) {
-            return this.emptyResultsMessage();
+            return this.renderEmptyResults();
         }
 
         return this.renderMainArea();
@@ -125,7 +125,7 @@ export abstract class AbstractOutputComponent<P extends AbstractOutputProps, S e
 
     abstract resultsAreEmpty(): boolean;
 
-    protected analysisFailedMessage(): React.ReactFragment {
+    protected renderAnalysisFailed(): React.ReactFragment {
         return <React.Fragment>
             <div className='message-main-area'>
                 Trace analysis failed.
@@ -133,7 +133,7 @@ export abstract class AbstractOutputComponent<P extends AbstractOutputProps, S e
         </React.Fragment>;
     }
 
-    protected emptyResultsMessage(): React.ReactFragment {
+    protected renderEmptyResults(): React.ReactFragment {
         return <React.Fragment>
                 <div className='message-main-area'>
                     Trace analysis complete.
