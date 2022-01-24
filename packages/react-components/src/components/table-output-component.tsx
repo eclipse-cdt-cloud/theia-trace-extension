@@ -298,6 +298,14 @@ export class TableOutputComponent extends AbstractOutputComponent<TableOutputPro
         // Fetch columns
         const tspClientResponse = await tspClient.fetchTableColumns(traceUUID, outputId, QueryHelper.timeQuery([BigInt(0), BigInt(1)]));
         const columnsResponse = tspClientResponse.getModel();
+
+        if (!tspClientResponse.isOk() || !columnsResponse) {
+            this.setState({
+                outputStatus: ResponseStatus.FAILED
+            });
+            return;
+        }
+
         const colIds: Array<number> = [];
         const columnsArray = new Array<any>();
 
@@ -311,46 +319,37 @@ export class TableOutputComponent extends AbstractOutputComponent<TableOutputPro
             colIds.push(0);
         }
 
-        if (tspClientResponse.isOk() && columnsResponse) {
-            this.setState({
-                outputStatus: columnsResponse.status
+        const columnEntries = columnsResponse.model;
+        columnEntries.forEach(columnHeader => {
+            const id = this.showIndexColumn ? ++columnHeader.id : columnHeader.id;
+            colIds.push(id);
+            columnsArray.push({
+                headerName: columnHeader.name,
+                field: columnHeader.id.toString(),
+                width: this.props.columnWidth,
+                resizable: true,
+                cellRenderer: 'cellRenderer',
+                cellRendererParams: {
+                    filterModel: this.filterModel,
+                    searchResultsColor: this.props.backgroundTheme === 'light' ? '#cccc00' : '#008000'
+                },
+                suppressMenu: true,
+                filter: 'agTextColumnFilter',
+                floatingFilter: true,
+                floatingFilterComponent: 'searchFilterRenderer',
+                floatingFilterComponentParams: {
+                    suppressFilterButton: true,
+                    onFilterChange: this.searchEvents,
+                    onclickNext: () => this.findMatchedEvent(Direction.NEXT),
+                    onclickPrevious: () => this.findMatchedEvent(Direction.PREVIOUS),
+                    colName: columnHeader.id.toString()
+                },
+                icons: {
+                    filter: ''
+                },
+                tooltipField: columnHeader.id.toString()
             });
-            const columnEntries = columnsResponse.model;
-            columnEntries.forEach(columnHeader => {
-                const id = this.showIndexColumn ? ++columnHeader.id : columnHeader.id;
-                colIds.push(id);
-                columnsArray.push({
-                    headerName: columnHeader.name,
-                    field: columnHeader.id.toString(),
-                    width: this.props.columnWidth,
-                    resizable: true,
-                    cellRenderer: 'cellRenderer',
-                    cellRendererParams: {
-                        filterModel: this.filterModel,
-                        searchResultsColor: this.props.backgroundTheme === 'light' ? '#cccc00' : '#008000'
-                    },
-                    suppressMenu: true,
-                    filter: 'agTextColumnFilter',
-                    floatingFilter: true,
-                    floatingFilterComponent: 'searchFilterRenderer',
-                    floatingFilterComponentParams: {
-                        suppressFilterButton: true,
-                        onFilterChange: this.searchEvents,
-                        onclickNext: () => this.findMatchedEvent(Direction.NEXT),
-                        onclickPrevious: () => this.findMatchedEvent(Direction.PREVIOUS),
-                        colName: columnHeader.id.toString()
-                    },
-                    icons: {
-                        filter: ''
-                    },
-                    tooltipField: columnHeader.id.toString()
-                });
-            });
-        } else {
-            this.setState({
-                outputStatus: ResponseStatus.FAILED
-            });
-        }
+        });
 
         if (!this.showIndexColumn) {
             columnsArray[0].cellRenderer = 'cellRenderer';
@@ -360,6 +359,7 @@ export class TableOutputComponent extends AbstractOutputComponent<TableOutputPro
         this.columnArray = columnsArray;
 
         this.setState({
+            outputStatus: columnsResponse.status,
             tableColumns: this.columnArray
         });
 
