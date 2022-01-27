@@ -346,6 +346,13 @@ ADRs are [Architectural Decision Records][adr].
 * These aforementioned `adr-` commands are [meant to be executed from this root directory][tools].
 * ADRs should be preferred to [design documents][docs] for their structure and reviewability.
 
+[This script][render] is used to generate ADR's Mermaid diagram images for GitHub rendering.
+
+* One may need to disable its use of the `in-container` argument for that script to work locally.
+* The image file names end with a manually versioned suffix to work-around GitHub's own caching.
+* There is no issue in either git-removing previous versioned files or keeping them few in git.
+* It is otherwise possible to render such diagrams when in VS Code using [this extension](ext).
+
 ### Python setup
 
 To initialize a local virtual environment, type the following commands in the root directory:
@@ -361,4 +368,6 @@ pip install -r requirements.txt
 
 [adr]: https://adr.github.io
 [docs]: https://wiki.eclipse.org/Trace_Compass/Design_Documents
+[ext]: https://marketplace.visualstudio.com/items?itemName=bierner.markdown-mermaid
+[render]: https://github.com/nielsvaneck/render-md-mermaid#render-md-mermaidsh
 [tools]: https://pypi.org/project/adr-tools-python/
