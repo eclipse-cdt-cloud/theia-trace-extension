@@ -6,6 +6,7 @@ import { TraceExplorerOpenedTracesWidget } from './trace-explorer-sub-widgets/th
 import { TraceExplorerPlaceholderWidget } from './trace-explorer-sub-widgets/trace-explorer-placeholder-widget';
 import { signalManager, Signals } from 'traceviewer-base/lib/signals/signal-manager';
 import { OpenedTracesUpdatedSignalPayload } from 'traceviewer-base/src/signals/opened-traces-updated-signal-payload';
+import { TraceServerConnectionStatusService } from '../trace-server-status';
 
 @injectable()
 export class TraceExplorerWidget extends BaseWidget {
@@ -18,6 +19,7 @@ export class TraceExplorerWidget extends BaseWidget {
     @inject(TraceExplorerTooltipWidget) protected readonly tooltipWidget!: TraceExplorerTooltipWidget;
     @inject(TraceExplorerPlaceholderWidget) protected readonly placeholderWidget!: TraceExplorerPlaceholderWidget;
     @inject(ViewContainer.Factory) protected readonly viewContainerFactory!: ViewContainer.Factory;
+    @inject(TraceServerConnectionStatusService) protected readonly connectionStatusService: TraceServerConnectionStatusService;
 
     openExperiment(traceUUID: string): void {
         return this.openedTracesWidget.openExperiment(traceUUID);
@@ -93,6 +95,14 @@ export class TraceExplorerWidget extends BaseWidget {
     protected onActivateRequest(msg: Message): void {
         super.onActivateRequest(msg);
         this.node.focus();
+    }
+
+    protected onAfterShow(): void {
+        this.connectionStatusService.addConnectionStatusListener();
+    }
+
+    protected onAfterHide(): void {
+        this.connectionStatusService.removeConnectionStatusListener();
     }
 
 }
