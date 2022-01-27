@@ -1,4 +1,4 @@
-## Description
+# Description
 
 The Theia trace viewer extension is providing a trace viewing front-end to Trace Server applications implementing the Trace Server protocol.
 
