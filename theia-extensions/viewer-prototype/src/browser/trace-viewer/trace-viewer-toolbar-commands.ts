@@ -42,6 +42,12 @@ export namespace TraceViewerToolbarCommands {
         label: 'Keyboard Shortcuts (CTRL / command + F1)',
         iconClass: 'fa fa-info-circle fa-lg',
     };
+
+    export const SERVER_CHECK: Command = {
+        id: 'trace.viewer.serverCheck',
+        label: 'Server health and latency are good. No known issues',
+        iconClass: 'fa fa-check-circle-o fa-lg',
+    };
 }
 
 export namespace TraceViewerToolbarMenus {

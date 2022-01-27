@@ -285,3 +285,8 @@
     align-items: center;
     justify-content: flex-end !important;
 }
+
+#trace\.viewer\.serverCheck {
+    cursor: default;
+    color: green;
+}
