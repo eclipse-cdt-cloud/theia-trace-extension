@@ -1,4 +1,4 @@
-## Description
+# Description
 
 The Trace Viewer react-components package contains views and utilities for visualizing traces and logs via the Trace Server Protocol connected a Trace Server applications. While being initially used within the Theia Trace Viewer extension, its code base is independent to any Theia APIs and hence can be integrated in other web applications.
 
