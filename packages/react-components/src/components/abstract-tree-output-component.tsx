@@ -16,7 +16,7 @@ export abstract class AbstractTreeOutputComponent<P extends AbstractOutputProps,
 
     renderMainArea(): React.ReactNode {
         return <React.Fragment>
-            <div ref={this.treeRef} className='output-component-tree'
+            <div ref={this.treeRef} className='output-component-tree disable-select'
                 style={{ width: this.getTreeWidth(), height: this.props.style.height }}
             >
                 {this.renderTree()}
