@@ -58,7 +58,7 @@ export class ReactAvailableViewsWidget extends React.Component<ReactAvailableVie
         const totalHeight = this.getTotalHeight();
         return (
             <div className='trace-explorer-views'>
-                <div className='trace-explorer-panel-content'>
+                <div className='trace-explorer-panel-content disable-select'>
                     <AutoSizer>
                         {({ width }) =>
                             <List

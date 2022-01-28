@@ -16,7 +16,7 @@ export class NullOutputComponent extends AbstractOutputComponent<NullOutputProps
         const treeWidth = Math.min(this.getMainAreaWidth(), this.props.style.sashOffset + this.props.style.sashWidth);
         const chartWidth = this.getMainAreaWidth() - treeWidth;
         return <React.Fragment>
-            <div className='output-component-tree'
+            <div className='output-component-tree disable-select'
                 style={{ width: treeWidth, height: this.props.style.height }}
             >
                 {''}

@@ -102,7 +102,7 @@ export class DataTreeOutputComponent extends AbstractOutputComponent<AbstractOut
     renderMainArea(): React.ReactNode {
         return <React.Fragment>
             {this.state.outputStatus === ResponseStatus.COMPLETED ?
-                <div ref={this.treeRef} className='output-component-tree'
+                <div ref={this.treeRef} className='output-component-tree disable-select'
                     style={{ height: this.props.style.height, width: this.props.widthWPBugWorkaround }}
                 >
                     {this.renderTree()}

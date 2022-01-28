@@ -47,6 +47,13 @@
     z-index: -1;
 }
 
+.disable-select {
+    -webkit-user-select: none;  
+    -moz-user-select: none;    
+    -ms-user-select: none;      
+    user-select: none;
+}
+
 .output-component-tree {
     white-space: pre-wrap;
 }
