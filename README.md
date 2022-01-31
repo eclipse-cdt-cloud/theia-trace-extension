@@ -96,8 +96,8 @@ You can find those example applications under `examples/`.
 In order to open traces, you need a trace server running on the same machine as the trace extension. You can download the [Eclipse Trace Compass server](https://download.eclipse.org/tracecompass.incubator/trace-server/rcp/?d) or let `yarn` download and run it:
 
 ```bash
- $ yarn download:server
- $ yarn start:server
+yarn download:server
+yarn start:server
 ```
 
 You can also build the trace-server yourself using Trace Compass and the Incubator. Take a look at the [instructions here](https://www.eclipse.org/tracecompass/download.html#trace-server).
@@ -107,7 +107,7 @@ You can also build the trace-server yourself using Trace Compass and the Incubat
 From the repo root, run either
 
 ```bash
-  $ yarn start:browser
+yarn start:browser
 ```
 
 and go to `http://localhost:3000`.
@@ -115,7 +115,7 @@ and go to `http://localhost:3000`.
 Or, run
 
 ```bash
-  $ yarn start:electron
+yarn start:electron
 ```
 
 and use the Electron application.
@@ -127,7 +127,7 @@ By default, the application expects the trace server to be responding at `http:/
 For example, to start the browser example app with a specific URL, one can run
 
 ```bash
- $ TRACE_SERVER_URL=https://my.trace.server:port/tsp/api yarn start:browser
+TRACE_SERVER_URL=https://my.trace.server:port/tsp/api yarn start:browser
 ```
 
 ## Package the Example Theia Trace Viewer Application
@@ -135,11 +135,11 @@ For example, to start the browser example app with a specific URL, one can run
 It is possible to package the repository's example application with `electron-builder`. After running `yarn` in the repo root, run:
 
 ```bash
- $ cd examples/electron
- $ yarn package
+cd examples/electron
+yarn package
 ```
 
- The configured Linux package(s) will be generated in the folder `examples/electron/dist`
+The configured Linux package(s) will be generated in the folder `examples/electron/dist`
 
 ## Using the trace extension
 This section describes how to operate the Theia trace extension to view and analyze traces. The UI and view interactions are preliminary and subject to revisions in the future.
