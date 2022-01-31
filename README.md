@@ -39,12 +39,12 @@ Prerequisites: A GitHub account (for logging into Gitpod)
 
 ![gitpod-live-demo-setup](https://raw.githubusercontent.com/theia-ide/theia-trace-extension/master/doc/images/gitpod-live-demo-setup-0.0.2.gif)
 
-## Download an external build of the application 
+## Download an external build of the application
 If you'd like to explore your own traces, you can **[download a Theia IDE build with this trace viewer extension here](https://www.dorsal.polymtl.ca/files/other/electron-theia-trace-example-app-0.0.1.AppImage)!**
 
 * **For Linux systems only**
 * **Prerequisite: Java 11** (required since this tool reuses the [Eclipse Trace Compass server](https://download.eclipse.org/tracecompass.incubator/trace-server/rcp/?d) which runs on Java)
-   * If you get a confusing error "Error opening serial port ${this.port}. (Port busy)" when you try to run the app, it's likely that Java is missing.  
+  * If you get a confusing error "Error opening serial port ${this.port}. (Port busy)" when you try to run the app, it's likely that Java is missing.
 * **No compilation or additional downloads necessary!** Just change the AppImage file's permissions to make it executable (command: `chmod +x <filename>`) and run it.
 
 ## Consume the trace viewer extension from npm
@@ -71,23 +71,23 @@ You can also run two scripts to watch for changes and rebuild automatically:
 
 1. From the root, run:
 
-```sh
-yarn tswatch # to compile TypeScript files
-```
+   ```sh
+   yarn tswatch # to compile TypeScript files
+   ```
 
 2. In parallel, run:
 
-```sh
-cd examples/<browser or electron>
-yarn watch # to update the frontend bundles (loaded by the browser)
-```
+   ```sh
+   cd examples/<browser or electron>
+   yarn watch # to update the frontend bundles (loaded by the browser)
+   ```
 
 ## Try the trace extension
 
 This repository contains an example trace-viewer application that includes the trace extension. It has two versions:
 
-- _browser_: a "browser" application, accessed with a web browser
-- _electron_: a native desktop application
+* _browser_: a "browser" application, accessed with a web browser
+* _electron_: a native desktop application
 
 You can find those example applications under `examples/`.
 
@@ -282,8 +282,8 @@ When the project is opened in Gitpod, it should build automatically and then pop
 If there is no notification, you can open the application directly in the **Remote Explorer** view.
 
 1. The **Remote Explorer** view can be opened:
-  * Via the Ports section in the bottom bar (see screenshot below), or
-  * Via the Command palette or Open View menu (type "view remote explorer")
+   * Via the Ports section in the bottom bar (see screenshot below), or
+   * Via the Command palette or Open View menu (type "view remote explorer")
 2. Once in the **Remote Explorer**, select "Open Browser" for the port 3000. By default, the application is hosted on port 3000.
 
 ![Open Browser](https://raw.githubusercontent.com/theia-ide/theia-trace-extension/master/doc/images/theia-trace-extension-open-browser.png)
