@@ -75,13 +75,13 @@ You can also run two scripts to watch for changes and rebuild automatically:
 
 1. From the root, run:
 
-   ```sh
+   ```bash
    yarn tswatch # to compile TypeScript files
    ```
 
 2. In parallel, run:
 
-   ```sh
+   ```bash
    cd examples/<browser or electron>
    yarn watch # to update the frontend bundles (loaded by the browser)
    ```
@@ -317,13 +317,13 @@ If there is no notification, you can open the application directly in the **Remo
 
 To run tests once, at the root of the project, run:
 
-```shell
+```bash
 yarn test --verbose
 ```
 
 To keep tests running, use:
 
-```shell
+```bash
 yarn test --verbose --watch
 ```
 
@@ -331,6 +331,6 @@ yarn test --verbose --watch
 
 The following command prints a coverage report to the terminal. As of now, it covers all typescript files of the project, including those that are not supposed to have tests.
 
-```shell
+```bash
 yarn test --coverage --collectCoverageFrom='src/**/*.ts'
 ```
