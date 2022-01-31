@@ -90,8 +90,8 @@ You can also run two scripts to watch for changes and rebuild automatically:
 
 This repository contains an example trace-viewer application that includes the trace extension. It has two versions:
 
-* _browser_: a "browser" application, accessed with a web browser
-* _electron_: a native desktop application
+* *browser*: a "browser" application, accessed with a web browser
+* *electron*: a native desktop application
 
 You can find those example applications under `examples/`.
 
@@ -243,9 +243,9 @@ This section shows detailed information about a selected:
 
 * **Check out the [tracevizlabs](https://github.com/dorsal-lab/Tracevizlab).** You don't need to complete all of them, but reading a couple is good for context. Lab sets 0 and 1 are especially useful.
 * **Browse recent conference presentations.** They give an overview of the trace viewer's goals, [architecture](https://github.com/theia-ide/theia-trace-extension#architecture), and functionality.
-  * _Trace Compass Cloud: Eclipse Trace Compass's migration towards Theia_, [slides](https://www.eclipsecon.org/sites/default/files/slides/EclipseCon2021-TraceCompassCloud.pdf), [video](https://www.youtube.com/watch?v=DFxWXE4A-uQ) - Bernd Hufmann, Ericsson AB (EclipseCon 2021)
-  * _Using Theia to take trace analysis and visualization to the next level_, [slides](https://www.eclipsecon.org/sites/default/files/slides/EclipseConEurope2019-TraceCompass-Theia.pdf), [video](https://www.youtube.com/watch?v=Fysg1mOadik) - Bernd Hufmann, Ericsson AB (EclipseCon 2019)
-  * _A New Flexible Architecture for Trace Compass_, [slides](https://tracingsummit.org/ts/2019/files/Tracingsummit2019-theia-dagenais.pdf), [video](https://www.youtube.com/watch?v=8s5vGf45e-g) - Michel Dagenais, Polytechnique Montréal ([Tracing Summit 2019](https://tracingsummit.org/ts/2019/))
+  * *Trace Compass Cloud: Eclipse Trace Compass's migration towards Theia*, [slides](https://www.eclipsecon.org/sites/default/files/slides/EclipseCon2021-TraceCompassCloud.pdf), [video](https://www.youtube.com/watch?v=DFxWXE4A-uQ) - Bernd Hufmann, Ericsson AB (EclipseCon 2021)
+  * *Using Theia to take trace analysis and visualization to the next level*, [slides](https://www.eclipsecon.org/sites/default/files/slides/EclipseConEurope2019-TraceCompass-Theia.pdf), [video](https://www.youtube.com/watch?v=Fysg1mOadik) - Bernd Hufmann, Ericsson AB (EclipseCon 2019)
+  * *A New Flexible Architecture for Trace Compass*, [slides](https://tracingsummit.org/ts/2019/files/Tracingsummit2019-theia-dagenais.pdf), [video](https://www.youtube.com/watch?v=8s5vGf45e-g) - Michel Dagenais, Polytechnique Montréal ([Tracing Summit 2019](https://tracingsummit.org/ts/2019/))
 * **Get an [overview of external components](https://github.com/theia-ide/theia-trace-extension#related-code)** used by this trace viewer. See how they interact.
 
 ### Start with a small change
@@ -253,8 +253,8 @@ This section shows detailed information about a selected:
 * **Explore the [Gitpod demo](https://github.com/theia-ide/theia-trace-extension#try-a-live-demo-via-gitpod).** Experiment with the trace viewer. Start exploring its code via Gitpod's in-browser IDE.
 * **Start with a small frontend improvement.** A relevant change can be [less than 5 lines of code](https://github.com/theia-ide/theia-trace-extension/pull/369/files). The Theia-based frontend repo is much less complex than the Trace Server's, so by starting in the frontend you'll learn high-level context about the project's different components without being overwhelmed with complexity.
   * [Good first issues](https://github.com/theia-ide/theia-trace-extension/issues?q=is%3Aopen+is%3Aissue+label%3A%22good+first+issue%22)
-  * _Develop with Gitpod to initially avoid dev setup._ Put `gitpod.io/#` before your project fork's GitHub URL to open an in-browser IDE and initially avoid any local dev setup. This dev approach works best for small changes because Gitpod workspaces are volatile.
-  * _Learn [how to contribute code](https://github.com/theia-ide/theia-trace-extension#how-to-contribute-code)._ Starting with a tiny change means you can first focus on exploring the code as well as learning the submission and review process (which is a significant learning step if you've never submitted a PR before).
+  * *Develop with Gitpod to initially avoid dev setup.* Put `gitpod.io/#` before your project fork's GitHub URL to open an in-browser IDE and initially avoid any local dev setup. This dev approach works best for small changes because Gitpod workspaces are volatile.
+  * *Learn [how to contribute code](https://github.com/theia-ide/theia-trace-extension#how-to-contribute-code).* Starting with a tiny change means you can first focus on exploring the code as well as learning the submission and review process (which is a significant learning step if you've never submitted a PR before).
 
 ## How to contribute code
 
@@ -265,11 +265,11 @@ This section shows detailed information about a selected:
 
 **Good commit messages** make it easier to review code and understand why the changes were made. Please include a:
 
-* _Title:_ Concise and complete title written in imperative (e.g. "Update Gitpod demo screenshots" or "Single-click to select or open trace")
-* _Problem:_ What is the situation that needs to be resolved? Why does the problem need fixing? Link to related issues (e.g. "Fixes [#317](https://github.com/theia-ide/theia-trace-extension/issues/317)").
-* _Solution:_ What changes were made to resolve the situation? Why are these changes the right fix?
-* _Impact:_ What impact do these changes have? (e.g. Numbers to show a performance improvement, screenshots or a video for a UI change)
-* [_Sign-off:_](https://git-scm.com/docs/git-commit#Documentation/git-commit.txt---signoff) Use your full name and a long-term email address. This certifies that you have written the code and that, from a licensing perspective, the code is appropriate for use in open-source.
+* *Title:* Concise and complete title written in imperative (e.g. "Update Gitpod demo screenshots" or "Single-click to select or open trace")
+* *Problem:* What is the situation that needs to be resolved? Why does the problem need fixing? Link to related issues (e.g. "Fixes [#317](https://github.com/theia-ide/theia-trace-extension/issues/317)").
+* *Solution:* What changes were made to resolve the situation? Why are these changes the right fix?
+* *Impact:* What impact do these changes have? (e.g. Numbers to show a performance improvement, screenshots or a video for a UI change)
+* [*Sign-off:*](https://git-scm.com/docs/git-commit#Documentation/git-commit.txt---signoff) Use your full name and a long-term email address. This certifies that you have written the code and that, from a licensing perspective, the code is appropriate for use in open-source.
 
 Other commit information:
 
