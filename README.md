@@ -8,7 +8,9 @@ Prerequisites for running this extension are the same as those for [running the 
 ⚠️ Apart from the live demo, the application and its development environment only work on Linux operating systems.
 
 ## What is Tracing?
+
 Tracing is another tool in the developer or sysadmin's toolbox. It is best used to understand very complex systems, or even simple ones, but the real added value comes when trying to **understand complexity when all other approaches fail**.
+
 * Read more about [when tracing is required for understanding a problem](https://github.com/dorsal-lab/Tracevizlab/tree/master/labs/001-what-is-tracing#when-to-trace).
 
 `Tracing` consists in recording specific information during a program's or operating system's execution to better understand what is happening on the system. Every location in the code that we want to trace is called a `tracepoint` and every time a tracepoint is hit is called an `event`.
@@ -19,7 +21,8 @@ The `tracing` we're discussing here is high speed, low overhead tracing. With su
 
 Source: Text adapted from tracevizlab [001-what-is-tracing](https://github.com/dorsal-lab/Tracevizlab/tree/master/labs/001-what-is-tracing)
 
-## Try a live demo via Gitpod!
+## Try a live demo via Gitpod
+
 Click the Gitpod button below to access a live demo of the trace viewer. In a couple of clicks and around 2 minutes, you'll be on your way!
 
 [![Gitpod ready-to-code](https://img.shields.io/badge/Gitpod-ready--to--code-blue?logo=gitpod)](https://gitpod.io/#https://github.com/theia-ide/theia-trace-extension)
@@ -40,6 +43,7 @@ Prerequisites: A GitHub account (for logging into Gitpod)
 ![gitpod-live-demo-setup](https://raw.githubusercontent.com/theia-ide/theia-trace-extension/master/doc/images/gitpod-live-demo-setup-0.0.2.gif)
 
 ## Download an external build of the application
+
 If you'd like to explore your own traces, you can **[download a Theia IDE build with this trace viewer extension here](https://www.dorsal.polymtl.ca/files/other/electron-theia-trace-example-app-0.0.1.AppImage)!**
 
 * **For Linux systems only**
@@ -142,21 +146,25 @@ yarn package
 The configured Linux package(s) will be generated in the folder `examples/electron/dist`
 
 ## Using the trace extension
+
 This section describes how to operate the Theia trace extension to view and analyze traces. The UI and view interactions are preliminary and subject to revisions in the future.
 
 ![theia-trace-extension](https://raw.githubusercontent.com/theia-ide/theia-trace-extension/master/doc/images/theia-trace-extension-0.0.3.png)
 
 ### Open the Trace Viewer
+
 To open the **Trace Viewer**, select the **Trace Viewer** icon in the left sidebar:
 
 ![Trace Viewer Icon](https://raw.githubusercontent.com/theia-ide/theia-trace-extension/master/doc/images/theia-trace-extension-icon.png)
 
 #### Add Trace Viewer to sidebar
+
 If the **Trace Viewer** icon is not in the left sidebar, select menu **View** from the top-level menu and then select **Trace Viewer** in the list of views. The **Trace Viewer** icon will appear on the left, below the **File Explorer** Icon.
 
 ![Add Trace Viewer to sidebar](https://raw.githubusercontent.com/theia-ide/theia-trace-extension/master/doc/images/theia-trace-extension-open-trace-viewer.gif)
 
 ### Open a trace
+
 There are a few ways to open traces. The main ones are using the **Open Trace Dialog** or the **File Explorer**. There are still some inconsistencies between them.
 
 | Desired action                                 | via Open Trace Dialog | via File Explorer |
@@ -170,7 +178,9 @@ Regardless of the opening method used, if the selection is a folder, the tool wi
 The example Trace Compass trace server above supports LTTng Kernel and UST traces. Example LTTng traces can be retrieved from the [Trace Compass Tutorials](https://github.com/dorsal-lab/tracevizlab). Just download the archive [TraceCompassTutorialTraces](https://github.com/dorsal-lab/tracevizlab/blob/master/labs/TraceCompassTutorialTraces.tgz), extract them into a local directory on your computer. They can also be automatically downloaded by running `yarn download:sample-traces` from the repository's root.
 
 #### Via the Open Trace dialog (folders only)
+
 This is the most intuitive way to open traces and trace groups, but it can only works with folders. So this dialog works for opening:
+
 * **Single Common Trace Format (CTF) traces**
 * Folders containing several CTF traces
 
@@ -179,16 +189,19 @@ This is the most intuitive way to open traces and trace groups, but it can only 
 ![Open Trace Dialog](https://raw.githubusercontent.com/theia-ide/theia-trace-extension/master/doc/images/theia-trace-extension-open-trace-dialog.gif)
 
 #### Via the File Explorer
+
 You can open any supported trace format via the file explorer context menu. For a single trace, right-click on the trace file, or folder (for a CTF trace), then select **Open With → Open Trace**. To open several CTF trace files as a group, right-click on the parent folder instead.
 
 ![Open With Trace Viewer](https://raw.githubusercontent.com/theia-ide/theia-trace-extension/master/doc/images/theia-trace-extension-open-with-trace-viewer.gif)
 
 ### Open a view
+
 To open a view, in the **Trace Viewer** select an opened trace in the **Opened Traces** widget, then click on a view in the **Available Views** list to open it.
 
 ![Open View](https://raw.githubusercontent.com/theia-ide/theia-trace-extension/master/doc/images/theia-trace-extension-open-view.gif)
 
 ⚠️ **An available view can display empty results, even if the analysis completes correctly.** The **Available Views** widget lists all the views that could be used with the selected trace(s) based on their trace format (regardless of the event types that were enabled in the trace or the events present in the trace). The tool cannot yet inform the user whether results are empty because of:
+
 * A bad reason: Some events required for the analysis were not enabled in the trace. [#322](https://github.com/theia-ide/theia-trace-extension/issues/322)
 * A neutral reason: All required events are enabled in the trace, but there are no instances of these events in the trace.
 
@@ -209,20 +222,25 @@ To open a view, in the **Trace Viewer** select an opened trace in the **Opened T
 * WASD keys: 'A' pans left, 'D' pans right
 
 #### Important limitations
+
 * XY Charts can be painfully laggy to navigate even with reasonable trace sizes. [#470](https://github.com/theia-ide/theia-trace-extension/issues/470)
 * There is no visual indication when chart data is still loading. Data can pop into existence several seconds after the chart is opened or after navigation.
 
 ### Item properties
+
 This section shows detailed information about a selected:
+
 * Time Graph State (Bar section in a Gantt chart), or
 * Event in the Events Table
 
 ![Trace Viewer Item Properties](https://raw.githubusercontent.com/theia-ide/theia-trace-extension/master/doc/images/theia-trace-extension-item-properties-0.0.2.png)
 
 ## New contributors
+
 ⚠️ **Linux only!** Currently, the development environment for this project only works on Linux.
 
 ### Explore the project context
+
 * **Check out the [tracevizlabs](https://github.com/dorsal-lab/Tracevizlab).** You don't need to complete all of them, but reading a couple is good for context. Lab sets 0 and 1 are especially useful.
 * **Browse recent conference presentations.** They give an overview of the trace viewer's goals, [architecture](https://github.com/theia-ide/theia-trace-extension#architecture), and functionality.
   * _Trace Compass Cloud: Eclipse Trace Compass's migration towards Theia_, [slides](https://www.eclipsecon.org/sites/default/files/slides/EclipseCon2021-TraceCompassCloud.pdf), [video](https://www.youtube.com/watch?v=DFxWXE4A-uQ) - Bernd Hufmann, Ericsson AB (EclipseCon 2021)
@@ -231,6 +249,7 @@ This section shows detailed information about a selected:
 * **Get an [overview of external components](https://github.com/theia-ide/theia-trace-extension#related-code)** used by this trace viewer. See how they interact.
 
 ### Start with a small change
+
 * **Explore the [Gitpod demo](https://github.com/theia-ide/theia-trace-extension#try-a-live-demo-via-gitpod).** Experiment with the trace viewer. Start exploring its code via Gitpod's in-browser IDE.
 * **Start with a small frontend improvement.** A relevant change can be [less than 5 lines of code](https://github.com/theia-ide/theia-trace-extension/pull/369/files). The Theia-based frontend repo is much less complex than the Trace Server's, so by starting in the frontend you'll learn high-level context about the project's different components without being overwhelmed with complexity.
   * [Good first issues](https://github.com/theia-ide/theia-trace-extension/issues?q=is%3Aopen+is%3Aissue+label%3A%22good+first+issue%22)
@@ -238,12 +257,14 @@ This section shows detailed information about a selected:
   * _Learn [how to contribute code](https://github.com/theia-ide/theia-trace-extension#how-to-contribute-code)._ Starting with a tiny change means you can first focus on exploring the code as well as learning the submission and review process (which is a significant learning step if you've never submitted a PR before).
 
 ## How to contribute code
+
 **Changes to the project** are made by submitting code with a pull request (PR).
 
 * [How to write and submit changes](https://www.dataschool.io/how-to-contribute-on-github/)
 * [Example pull request](https://github.com/theia-ide/theia-trace-extension/pull/402)
 
 **Good commit messages** make it easier to review code and understand why the changes were made. Please include a:
+
 * _Title:_ Concise and complete title written in imperative (e.g. "Update Gitpod demo screenshots" or "Single-click to select or open trace")
 * _Problem:_ What is the situation that needs to be resolved? Why does the problem need fixing? Link to related issues (e.g. "Fixes [#317](https://github.com/theia-ide/theia-trace-extension/issues/317)").
 * _Solution:_ What changes were made to resolve the situation? Why are these changes the right fix?
@@ -251,10 +272,12 @@ This section shows detailed information about a selected:
 * [_Sign-off:_](https://git-scm.com/docs/git-commit#Documentation/git-commit.txt---signoff) Use your full name and a long-term email address. This certifies that you have written the code and that, from a licensing perspective, the code is appropriate for use in open-source.
 
 Other commit information:
+
 * [How to format the message](https://tbaggery.com/2008/04/19/a-note-about-git-commit-messages.html)
 * [Example commit message](https://github.com/theia-ide/theia-trace-extension/commit/bc18fcd110d7b8433293692421f2e4fb49f89bd6)
 
 ## Related code
+
 This trace viewer depends on code from several other repos. Sometimes resolving issues in the trace viewer repo requires making changes in these code bases:
 
 | Project | Description | Related issues | Links |
@@ -267,6 +290,7 @@ This trace viewer depends on code from several other repos. Sometimes resolving 
 | [Timeline Chart](https://github.com/theia-ide/timeline-chart) | Implements the Gantt charts used in this trace viewer. | [label:timeline-chart](https://github.com/theia-ide/theia-trace-extension/labels/timeline-chart) | |
 
 ## Architecture
+
 The diagram below shows the main parts of the Trace Viewer's front end (left side) and back end (right side), as well as how they exchange information.
 
 ![Trace viewer architecture diagram](https://raw.githubusercontent.com/theia-ide/theia-trace-extension/master/doc/images/theia-trace-viewer-architecture.PNG)
@@ -279,6 +303,7 @@ When the project is opened in Gitpod, it should build automatically and then pop
 ![gitpod-service-ready-notification](https://raw.githubusercontent.com/theia-ide/theia-trace-extension/master/doc/images/gitpod-service-ready-notification-0.0.2.PNG)
 
 ### Open via Remote Explorer
+
 If there is no notification, you can open the application directly in the **Remote Explorer** view.
 
 1. The **Remote Explorer** view can be opened:
