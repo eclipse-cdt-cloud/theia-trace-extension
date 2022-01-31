@@ -6,6 +6,7 @@
 *.log
 *.tsbuildinfo
 .browser_modules/
+/.venv/
 /packages/react-components/coverage/
 TraceCompassTutorialTraces
 TraceCompassTutorialTraces.tgz

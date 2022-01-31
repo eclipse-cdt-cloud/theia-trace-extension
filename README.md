@@ -334,3 +334,31 @@ The following command prints a coverage report to the terminal. As of now, it co
 ```bash
 yarn test --coverage --collectCoverageFrom='src/**/*.ts'
 ```
+
+## About ADRs
+
+ADRs are [Architectural Decision Records][adr].
+
+* The `./doc/adr` directory was initialized using `adr-init` based on [adr-tools-python][tools].
+* The `adr-new` command (from [adr-tools-python][tools]) is used to add new ADRs further.
+* That tool can be installed locally (only once) using [the instructions below](#python-setup).
+* The latter also shows how to activate a Python virtual environment to locally run commands.
+* These aforementioned `adr-` commands are [meant to be executed from this root directory][tools].
+* ADRs should be preferred to [design documents][docs] for their structure and reviewability.
+
+### Python setup
+
+To initialize a local virtual environment, type the following commands in the root directory:
+
+```bash
+python3 -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+````
+
+* The virtual environment can be replaced with another setup locally.
+* Above, the `./requirements.txt` file has [the ADR tool][tools] to install.
+
+[adr]: https://adr.github.io
+[docs]: https://wiki.eclipse.org/Trace_Compass/Design_Documents
+[tools]: https://pypi.org/project/adr-tools-python/
