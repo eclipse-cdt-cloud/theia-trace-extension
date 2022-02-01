@@ -55,8 +55,8 @@ interface TraceContextState {
 interface UndoRedoFunctionality {
     undoStack: bigint[][];
     redoStack: bigint[][];
-    undo: () => void;
-    redo: () => void;
+    undo: () => (bigint[] | undefined);
+    redo: () => (bigint[] | undefined);
 }
 
 export class TraceContextComponent extends React.Component<TraceContextProps, TraceContextState, UndoRedoFunctionality> {
@@ -141,7 +141,6 @@ export class TraceContextComponent extends React.Component<TraceContextProps, Tr
         this.props.addResizeHandler(this.onResize);
         this.initialize();
         this.subscribeToEvents();
-        const self = this;
         this.undoRedo = {
             undoStack: [],
             redoStack: [],
@@ -151,9 +150,7 @@ export class TraceContextComponent extends React.Component<TraceContextProps, Tr
                     if (lastUndo !== undefined) {
                         console.log('undo');
                         this.redoStack.push(lastUndo);
-                        const prevStart = lastUndo[0];
-                        const prevEnd = lastUndo[1];
-                        self.unitController.viewRange = { start: prevStart, end: prevEnd };
+                        return lastUndo;
                     }
                     else {
                         console.log('undefined', lastUndo);
@@ -162,6 +159,7 @@ export class TraceContextComponent extends React.Component<TraceContextProps, Tr
                 else {
                     console.log('can\'t undo anymore');
                 }
+                return undefined;
             },
             redo: function () {
                 if (this.redoStack.length > 0) {
@@ -169,9 +167,7 @@ export class TraceContextComponent extends React.Component<TraceContextProps, Tr
                     if (lastRedo !== undefined) {
                         console.log('redo');
                         this.undoStack.push(lastRedo);
-                        const prevStart = lastRedo[0];
-                        const prevEnd = lastRedo[1];
-                        self.unitController.viewRange = { start: prevStart, end: prevEnd };
+                        return lastRedo;
                     }
                     else {
                         console.log('undefined', lastRedo);
@@ -181,6 +177,7 @@ export class TraceContextComponent extends React.Component<TraceContextProps, Tr
                 else {
                     console.log('can\'t redo anymore');
                 }
+                return undefined;
             }
         };
     }
@@ -354,7 +351,10 @@ export class TraceContextComponent extends React.Component<TraceContextProps, Tr
             }
             case 'z': {
                 if (key.ctrlKey) {
-                    this.undoRedo.undo();
+                    const currViewRange = this.undoRedo.undo();
+                    if (currViewRange !== undefined) {
+                        this.unitController.viewRange = { start: currViewRange[0], end: currViewRange[1] };
+                    }
                 }
                 break;
             }
