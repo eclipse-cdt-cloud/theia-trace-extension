@@ -4,6 +4,9 @@ import { ResponseStatus } from 'tsp-typescript-client/lib/models/response/respon
 
 export abstract class AbstractTreeOutputComponent<P extends AbstractOutputProps, S extends AbstractOutputState> extends AbstractOutputComponent<P, S> {
 
+    private readonly DEFAULT_Y_AXIS_WIDTH = 40;
+    private readonly DEFAULT_SASH_WIDTH = 4;
+
     private sashDownX = -1;
     private sashDownOffset = -1;
 
@@ -28,7 +31,7 @@ export abstract class AbstractTreeOutputComponent<P extends AbstractOutputProps,
                 {this.renderYAxis()}
             </div>
             <div className='output-component-sash' onMouseDown={event => this.onSashDown(event)} style={{
-                width: this.props.style.sashWidth, height: this.props.style.height
+                width: this.getSashWidth(), height: this.props.style.height
             }}/>
             <div className='output-component-chart' style={{
                 width: this.getChartWidth(), height: this.props.style.height,
@@ -41,15 +44,16 @@ export abstract class AbstractTreeOutputComponent<P extends AbstractOutputProps,
 
     private onSashDown(event: React.MouseEvent<HTMLDivElement, MouseEvent>): void {
         this.sashDownX = event.clientX;
-        this.sashDownOffset = this.props.style.sashOffset;
+        this.sashDownOffset = this.props.style.chartOffset;
         window.addEventListener('mousemove', this.onSashMove);
         window.addEventListener('mouseup', this.onSashUp);
 }
 
     private onSashMove(ev: MouseEvent): void {
-        if (this.sashDownX !== -1 && this.props?.setSashOffset) {
-            const sashOffset = Math.max(this.props.style.yAxisWidth, this.sashDownOffset + (ev.clientX - this.sashDownX));
-            this.props.setSashOffset(sashOffset);
+        if (this.sashDownX !== -1 && this.props?.setChartOffset) {
+            const chartOffset = Math.max(this.sashDownOffset + (ev.clientX - this.sashDownX),
+                this.getHandleWidth() + this.getYAxisWidth() + this.getSashWidth());
+            this.props.setChartOffset(chartOffset);
             ev.preventDefault();
         }
     }
@@ -88,13 +92,21 @@ export abstract class AbstractTreeOutputComponent<P extends AbstractOutputProps,
 
     }
 
+    protected getYAxisWidth(): number {
+        return this.props.style.yAxisWidth || this.DEFAULT_Y_AXIS_WIDTH;
+    }
+
+    protected getSashWidth(): number {
+        return this.props.style.sashWidth || this.DEFAULT_SASH_WIDTH;
+    }
+
     public getTreeWidth(): number {
         // Make tree thinner when chart has a y-axis
-        const yAxisBuffer = this.props.outputDescriptor.type === 'TREE_TIME_XY' ? this.props.style.yAxisWidth: 0;
-        return Math.min(this.getMainAreaWidth(), this.props.style.sashOffset - yAxisBuffer);
+        const yAxisWidth = this.props.outputDescriptor.type === 'TREE_TIME_XY' ? this.getYAxisWidth(): 0;
+        return Math.max(0, this.props.style.chartOffset - this.getHandleWidth() - yAxisWidth - this.getSashWidth());
     }
 
     public getChartWidth(): number {
-        return Math.max(0, this.getMainAreaWidth() - this.props.style.sashOffset - this.props.style.sashWidth);
+        return Math.max(0, this.props.outputWidth - this.props.style.chartOffset);
     }
 }

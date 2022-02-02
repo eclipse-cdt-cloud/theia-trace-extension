@@ -63,10 +63,7 @@ export class TraceContextComponent extends React.Component<TraceContextProps, Tr
     private readonly DEFAULT_COMPONENT_ROWHEIGHT: number = 20;
     private readonly DEFAULT_COMPONENT_LEFT: number = 0;
     private readonly SCROLLBAR_PADDING: number = 12;
-    private readonly HANDLE_WIDTH = 30;
-    private readonly Y_AXIS_WIDTH: number = 40;
-    private readonly DEFAULT_SASH_OFFSET = 200;
-    private readonly SASH_WIDTH = 4;
+    private readonly DEFAULT_CHART_OFFSET = 200;
 
     private unitController: TimeGraphUnitController;
     private tooltipComponent: React.RefObject<TooltipComponent>;
@@ -106,11 +103,8 @@ export class TraceContextComponent extends React.Component<TraceContextProps, Tr
             experiment: this.props.experiment,
             traceIndexing: ((this.props.experiment.indexingStatus === this.INDEXING_RUNNING_STATUS) || (this.props.experiment.indexingStatus === this.INDEXING_CLOSED_STATUS)),
             style: {
-                width: this.HANDLE_WIDTH + this.DEFAULT_SASH_OFFSET + this.SASH_WIDTH,
-                handleWidth: this.HANDLE_WIDTH,
-                sashOffset: this.DEFAULT_SASH_OFFSET,
-                sashWidth: this.SASH_WIDTH,
-                yAxisWidth: this.Y_AXIS_WIDTH,
+                width: 0, // width will be set by resize handler
+                chartOffset: this.DEFAULT_CHART_OFFSET,
                 componentLeft: this.DEFAULT_COMPONENT_LEFT,
                 height: this.DEFAULT_COMPONENT_HEIGHT,
                 rowHeight: this.DEFAULT_COMPONENT_ROWHEIGHT,
@@ -139,7 +133,7 @@ export class TraceContextComponent extends React.Component<TraceContextProps, Tr
         this.tooltipXYComponent = React.createRef();
         this.traceContextContainer = React.createRef();
         this.onResize = this.onResize.bind(this);
-        this.setSashOffset = this.setSashOffset.bind(this);
+        this.setChartOffset = this.setChartOffset.bind(this);
         this.props.addResizeHandler(this.onResize);
         this.initialize();
         this.subscribeToEvents();
@@ -267,8 +261,8 @@ export class TraceContextComponent extends React.Component<TraceContextProps, Tr
         this.widgetResizeHandlers.forEach(h => h());
     }
 
-    private setSashOffset(sashOffset: number) {
-        this.setState(prevState => ({ style: { ...prevState.style, sashOffset: sashOffset } }));
+    private setChartOffset(chartOffset: number) {
+        this.setState(prevState => ({ style: { ...prevState.style, chartOffset: chartOffset } }));
         this.widgetResizeHandlers.forEach(h => h());
     }
 
@@ -327,10 +321,11 @@ export class TraceContextComponent extends React.Component<TraceContextProps, Tr
         const layouts = this.generateGridLayout();
         const outputs = this.props.outputs;
         const showTimeScale = outputs.filter(output => output.type === 'TIME_GRAPH' || output.type === 'TREE_TIME_XY').length > 0;
+        const chartWidth = Math.max(0, this.state.style.width - this.state.style.chartOffset);
         return <React.Fragment>
             {showTimeScale &&
-                <div style={{ marginLeft: this.state.style.handleWidth + this.state.style.sashOffset + this.state.style.sashWidth }}>
-                    <TimeAxisComponent unitController={this.unitController} style={this.state.style}
+                <div style={{ marginLeft: this.state.style.chartOffset, marginRight: this.SCROLLBAR_PADDING }}>
+                    <TimeAxisComponent unitController={this.unitController} style={{ ...this.state.style, width: chartWidth }}
                         addWidgetResizeHandler={this.addWidgetResizeHandler} removeWidgetResizeHandler={this.removeWidgetResizeHandler} />
                 </div>
             }
@@ -339,8 +334,7 @@ export class TraceContextComponent extends React.Component<TraceContextProps, Tr
                 // https://github.com/STRML/react-grid-layout/issues/299#issuecomment-524959229
             }
             <ResponsiveGridLayout className='outputs-grid-layout' margin={[0, 5]} isResizable={true} isDraggable={true} resizeHandles={['se', 's', 'sw']}
-                layouts={{ lg: layouts }} cols={{ lg: 1 }} breakpoints={{ lg: 1200 }} rowHeight={this.DEFAULT_COMPONENT_ROWHEIGHT} draggableHandle={'.title-bar-label'}
-                style={{ paddingRight: this.SCROLLBAR_PADDING }}>
+                layouts={{ lg: layouts }} cols={{ lg: 1 }} breakpoints={{ lg: 1200 }} rowHeight={this.DEFAULT_COMPONENT_ROWHEIGHT} draggableHandle={'.title-bar-label'}>
                 {outputs.map(output => {
                     const responseType = output.type;
                     const outputProps: AbstractOutputProps = {
@@ -358,9 +352,9 @@ export class TraceContextComponent extends React.Component<TraceContextProps, Tr
                         style: this.state.style,
                         onOutputRemove: this.props.onOutputRemove,
                         unitController: this.unitController,
-                        widthWPBugWorkaround: this.state.style.width,
+                        outputWidth: this.state.style.width,
                         backgroundTheme: this.state.backgroundTheme,
-                        setSashOffset: this.setSashOffset
+                        setChartOffset: this.setChartOffset
                     };
                     switch (responseType) {
                         case 'TIME_GRAPH':
@@ -378,8 +372,8 @@ export class TraceContextComponent extends React.Component<TraceContextProps, Tr
                 })}
             </ResponsiveGridLayout>
             {showTimeScale &&
-                <div style={{ marginLeft: this.state.style.handleWidth + this.state.style.sashOffset + this.state.style.sashWidth }}>
-                    <TimeNavigatorComponent unitController={this.unitController} style={this.state.style}
+                <div style={{ marginLeft: this.state.style.chartOffset, marginRight: this.SCROLLBAR_PADDING }}>
+                    <TimeNavigatorComponent unitController={this.unitController} style={{ ...this.state.style, width: chartWidth }}
                         addWidgetResizeHandler={this.addWidgetResizeHandler} removeWidgetResizeHandler={this.removeWidgetResizeHandler} />
                 </div>
             }
