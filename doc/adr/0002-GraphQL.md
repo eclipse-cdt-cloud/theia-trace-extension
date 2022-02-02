@@ -1,6 +1,6 @@
 # 2. GraphQL
 
-Date: 2022-01-27
+Date: 2022-02-02
 
 ## Status
 
@@ -238,6 +238,25 @@ graph TD
 1. Scaling (only if needed) depending on trace-server scaling accordingly.
 1. Without scaling, deploying GraphQL Server using containers may still help.
 
+#### Apollo Server trial
+
+1. Apollo's [Getting-started][svr-start] steps were tried once, locally, while preparing this ADR.
+1. Those steps simply show how a GraphQL query may request data based on a schema (`index.js`).
+1. For server to know how to provide that data, a `resolver` function was part of `index.js`, then.
+1. [Apollo][svr-start] is [OSS][svr-open], with [***optional*** commercial add-ons][svr-opt].
+   * It is [a TypeScript server based on Node.js][svr-open].
+   * It has [built-in][svr-rest], [REST](#GraphQL-for-TSP-API-(over-REST)) resolver data support.
+   * Should that support not fit TSP's endpoints, [tsp-typescript-client][client-ts] could be used.
+1. Server doesn't require Kubernetes or a container-based deployment, which then remains optional.
+1. Server doesn't require using the [potentially licensed Apollo Studio][svr-opt] either.
+
+#### Apollo Client: optional
+
+* [Apollo Client][svr-client] seems to be mainly [open-source][svr-client-open] too.
+* It is mostly intended as [a caching aid][svr-client-caching]; to be referred to, maybe, later on.
+* It is [based on React][svr-client], but [other integrations are listed][svr-client-open].
+* This ADR doesn't require a deeper analysis yet, given TSP's current clients to integrate first.
+
 #### Testability
 
 [Testing a GraphQL Server using Jest][jest]?
@@ -327,6 +346,13 @@ Each number referring to an aforementioned (previously numbered) risk.
 [py]: https://graphql.org/code/#python
 [relay]: https://www.apollographql.com/blog/graphql/pagination/understanding-pagination-rest-graphql-and-relay/
 [rh]: https://www.redhat.com/en/topics/api/what-is-graphql#pros-and-cons
+[svr-client]: https://www.apollographql.com/docs/react/
+[svr-client-caching]: https://www.apollographql.com/docs/react/caching/overview/
+[svr-client-open]: https://github.com/apollographql/apollo-client
+[svr-open]: https://github.com/apollographql/apollo-server
+[svr-opt]: https://www.apollographql.com/pricing/
+[svr-rest]: https://www.apollographql.com/docs/apollo-server/data/data-sources/#restdatasource-reference
+[svr-start]: https://www.apollographql.com/docs/apollo-server/getting-started/
 [tsp]: https://github.com/theia-ide/trace-server-protocol
 [var]: https://medium.com/the-graphqlhub/graphql-tour-variables-58c6abd10f56
 [vers]: https://graphql.org/learn/best-practices/#versioning
