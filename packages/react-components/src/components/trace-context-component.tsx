@@ -293,8 +293,13 @@ export class TraceContextComponent extends React.Component<TraceContextProps, Tr
         }));
     }
 
+    private onContextMenu(event: React.MouseEvent) {
+        event.preventDefault();
+    }
+
     render(): JSX.Element {
         return <div className='trace-context-container'
+            onContextMenu={event => this.onContextMenu(event)}
             onKeyDown={event => this.onKeyDown(event)}
             ref={this.traceContextContainer}>
             <TooltipComponent ref={this.tooltipComponent} />
