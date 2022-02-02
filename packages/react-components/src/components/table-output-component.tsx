@@ -101,7 +101,7 @@ export class TableOutputComponent extends AbstractOutputComponent<TableOutputPro
             tabIndex={-1}
             onFocus={event=>this.checkFocus(event)}
             className={this.props.backgroundTheme === 'light' ? 'ag-theme-balham' : 'ag-theme-balham-dark'}
-            style={{ height: this.props.style.height, width: this.props.widthWPBugWorkaround }}>
+            style={{ height: this.props.style.height, width: this.props.outputWidth }}>
             <AgGridReact
                 columnDefs={this.columnArray}
                 rowModelType='infinite'

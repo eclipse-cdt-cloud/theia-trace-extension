@@ -60,7 +60,7 @@ export class XYOutputComponent extends AbstractTreeOutputComponent<AbstractOutpu
     private posPixelSelect = 0;
     private isMouseLeave = false;
     private startPositionMouseRightClick = BigInt(0);
-    private margin = { top: 15, right: 0, bottom: 5, left: this.props.style.yAxisWidth };
+    private margin = { top: 15, right: 0, bottom: 5, left: this.getYAxisWidth() };
     private isScatterPlot: boolean = this.props.outputDescriptor.id.includes('scatter');
     private plugin = {
         afterDraw: (chartInstance: Chart, _easing: Chart.Easing, _options?: any) => { this.afterChartDraw(chartInstance); }
@@ -156,7 +156,7 @@ export class XYOutputComponent extends AbstractTreeOutputComponent<AbstractOutpu
         const viewRangeChanged = this.props.viewRange !== prevProps.viewRange;
         const checkedSeriesChanged = this.state.checkedSeries !== prevState.checkedSeries;
         const collapsedNodesChanged = this.state.collapsedNodes !== prevState.collapsedNodes;
-        const chartWidthChanged = this.props.style.width !== prevProps.style.width || this.props.style.sashOffset !== prevProps.style.sashOffset;
+        const chartWidthChanged = this.props.style.width !== prevProps.style.width || this.props.style.chartOffset !== prevProps.style.chartOffset;
         const needToUpdate = viewRangeChanged || checkedSeriesChanged || collapsedNodesChanged || chartWidthChanged;
         if (needToUpdate || prevState.outputStatus === ResponseStatus.RUNNING) {
             this.updateXY();
