@@ -1,0 +1,16 @@
+#!/bin/bash
+# Assumes [1] below, which assumes a running trace-server; based on [2].
+# POST is used for the curl request, but GET [3] can be used although less readable.
+# Any combinations of the supported fields can be queried, which is why GraphQL.
+# This example is a simple one that barely shows how far such queries can get.
+#
+# [1] https://www.apollographql.com/docs/apollo-server/getting-started/#step-7-start-the-server
+# [2] https://www.apollographql.com/docs/apollo-server/getting-started/#step-8-execute-your-first-query
+# [3] https://www.apollographql.com/docs/apollo-server/requests/#get-requests
+
+curl --request POST \
+  --header 'content-type: application/json' \
+  --url http://localhost:4000/ \
+  --data '{"query": "{status, traces}"}'
+ #--data '{"query": "{status}"}'
+ #--data '{"query": "{traces}"}'

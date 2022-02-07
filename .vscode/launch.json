@@ -132,7 +132,19 @@
             "program": "test",
             "console": "integratedTerminal",
             "internalConsoleOptions": "neverOpen",
-            "disableOptimisticBPs": true,
+            "disableOptimisticBPs": true
+        },
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "Apollo Server (GraphQL ADR)",
+            "cwd": "${workspaceFolder}/doc/adr/0002/graphql-server-prototype",
+            "args": [
+                "index.js"
+            ],
+            "console": "integratedTerminal",
+            "internalConsoleOptions": "neverOpen",
+            "disableOptimisticBPs": true
         }
     ]
 }

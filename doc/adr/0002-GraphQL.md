@@ -193,7 +193,7 @@ graph TD
 </details>
 
 1. GraphQL would be offered as a TSP option alongside current REST endpoints.
-1. Resolver functions in GraphQL Server would rely on current REST endpoints.
+1. Resolver functions in GraphQL Server would [rely on current REST endpoints][rest].
 1. Clients may then gradually benefit from the emerging GraphQL, through TSP.
 1. GraphQL Server may then hide more and more endpoints less used by clients.
 
@@ -256,6 +256,23 @@ graph TD
 * It is mostly intended as [a caching aid][svr-client-caching]; to be referred to, maybe, later on.
 * It is [based on React][svr-client], but [other integrations are listed][svr-client-open].
 * This ADR doesn't require a deeper analysis yet, given TSP's current clients to integrate first.
+
+#### Apollo Server prototype (TSP)
+
+* Initialized based on the aforementioned trial [steps][svr-start].
+* Showing a few small JavaScript resolvers in `index.js` for TSP `/health` and `/traces` endpoints.
+* Which then relies on [tsp-typescript-client][client-ts] already part of this repository.
+* Allowing this currently small prototype to potentially expand with more resolvers or trials.
+* The steps below that exercise this prototype depend on a locally running, default `trace-server`.
+
+```bash
+cd ./0002/graphql-server-prototype
+node index.js
+./test
+````
+
+* Above, the `test` script is to be run from another terminal, after having launched the server.
+* There is a VS Code launch configuration in this repository that can also run `node index.js`.
 
 #### Testability
 
@@ -345,6 +362,7 @@ Each number referring to an aforementioned (previously numbered) risk.
 [proto]: https://github.com/chentsulin/awesome-graphql#tools---prototyping
 [py]: https://graphql.org/code/#python
 [relay]: https://www.apollographql.com/blog/graphql/pagination/understanding-pagination-rest-graphql-and-relay/
+[rest]: https://graphql.org/faq/#does-graphql-replace-rest
 [rh]: https://www.redhat.com/en/topics/api/what-is-graphql#pros-and-cons
 [svr-client]: https://www.apollographql.com/docs/react/
 [svr-client-caching]: https://www.apollographql.com/docs/react/caching/overview/
