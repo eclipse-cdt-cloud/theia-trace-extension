@@ -4,17 +4,25 @@ import { Dirent } from 'fs';
 import { Path } from '@theia/core/lib/common/path';
 import { CancellationToken } from '@theia/core';
 import { BackendFileService } from '../common/backend-file-service';
+import { FileUri } from '@theia/core/lib/node';
 
 @injectable()
 export class BackendFileServiceImpl implements BackendFileService {
 
     async findTraces(path: string, cancellationToken: CancellationToken): Promise<string[]> {
+        /*
+        * On Windows, Theia returns a path that starts with "/" (e.g "/c:/"), causing fsPromise.stat
+        * to fail. FileUri.fsPath returns the platform specific path of the orginal Theia path
+        * that fixes this issue.
+        */
+        const cleanedPath = FileUri.fsPath(path);
+
         const traces: string[] = [];
-        const stats = await fs.promises.stat(path);
+        const stats = await fs.promises.stat(cleanedPath);
         if (stats.isDirectory()) {
-            await this.deepFindTraces(path, traces, cancellationToken);
+            await this.deepFindTraces(cleanedPath, traces, cancellationToken);
         } else if (stats.isFile()) {
-            traces.push(path);
+            traces.push(cleanedPath);
         }
         if (cancellationToken.isCancellationRequested) {
             return [];
