@@ -42,7 +42,13 @@ Expected [TSP][tsp] features support.
 
 #### Server-side filtering
 
-We need to envision which REST endpoints would this be, to then fully check GraphQL feasibility.
+* Current TSP `/table/{outputId}/lines` is the main endpoint supporting [trace-server][inc] filtering.
+* Such filtering is optionally requested by clients through TSP [Query Parameters](#query-parameters).
+* A model tagging the matching table lines and columns (or cells) gets returned as a response.
+* Server may also deduce the [applicable actions](#executing-actions) from those tags.
+* This is captured by `trace-server`'s `TableLine` abstractions and implementations.
+* GraphQL's ability to support these (e.g., event) table search filters is therefore discussed below.
+* Filtering or searching an event table is based on the requested search expressions and direction.
 
 #### Executing actions
 
