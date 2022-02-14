@@ -1,14 +1,15 @@
-import { injectable, inject, postConstruct } from 'inversify';
-import * as React from 'react';
-import { ApplicationShell, Widget } from '@theia/core/lib/browser';
-import { TabBarToolbarContribution, TabBarToolbarRegistry } from '@theia/core/lib/browser/shell/tab-bar-toolbar';
 import { CommandContribution, CommandRegistry, DisposableCollection, Emitter, MenuModelRegistry } from '@theia/core';
-import { TraceViewerToolbarCommands, TraceViewerToolbarMenus } from './trace-viewer-toolbar-commands';
+import { ApplicationShell, ContextMenuRenderer, Widget } from '@theia/core/lib/browser';
+import { TabBarToolbarContribution, TabBarToolbarRegistry } from '@theia/core/lib/browser/shell/tab-bar-toolbar';
+import { inject, injectable, postConstruct } from 'inversify';
+import * as React from 'react';
 import { signalManager, Signals } from 'traceviewer-base/lib/signals/signal-manager';
-import { TraceViewerWidget } from './trace-viewer';
+import { TraceExplorerOpenedTracesWidget } from '../trace-explorer/trace-explorer-sub-widgets/theia-trace-explorer-opened-traces-widget';
+import { ChartShortcutsDialog } from '../trace-explorer/trace-explorer-sub-widgets/trace-explorer-keyboard-shortcuts/charts-cheatsheet-component';
 import { TspClientProvider } from '../tsp-client-provider-impl';
-import { ContextMenuRenderer } from '@theia/core/lib/browser';
-import { ChartShortcutsDialog  } from '../trace-explorer/trace-explorer-sub-widgets/trace-explorer-keyboard-shortcuts/charts-cheatsheet-component';
+import { TraceViewerWidget } from './trace-viewer';
+import { OpenTraceCommand } from './trace-viewer-commands';
+import { TraceViewerToolbarCommands, TraceViewerToolbarMenus } from './trace-viewer-toolbar-commands';
 
 @injectable()
 export class TraceViewerToolbarContribution implements TabBarToolbarContribution, CommandContribution {
@@ -79,6 +80,19 @@ export class TraceViewerToolbarContribution implements TabBarToolbarContribution
                 signalManager().fireResetZoomSignal();
             }
         });
+        registry.registerCommand(
+            TraceViewerToolbarCommands.OPEN_TRACE, {
+                isVisible: (w: Widget) => {
+                    if (w instanceof TraceExplorerOpenedTracesWidget) {
+                        return true;
+                    }
+                    return false;
+                },
+                execute: async () => {
+                    await registry.executeCommand(OpenTraceCommand.id);
+                }
+            });
+
         registry.registerCommand(
             TraceViewerToolbarCommands.CHARTS_CHEATSHEET, {
             isVisible: (w: Widget) => {
@@ -210,6 +224,12 @@ export class TraceViewerToolbarContribution implements TabBarToolbarContribution
             priority: 5,
             group: 'navigation',
             onDidChange: this.onMakerSetsChangedEvent,
+        });
+        registry.registerItem({
+            id: TraceViewerToolbarCommands.OPEN_TRACE.id,
+            command: TraceViewerToolbarCommands.OPEN_TRACE.id,
+            tooltip: TraceViewerToolbarCommands.OPEN_TRACE.label,
+            priority: 6,
         });
         registry.registerItem({
             id: TraceViewerToolbarCommands.CHARTS_CHEATSHEET.id,
