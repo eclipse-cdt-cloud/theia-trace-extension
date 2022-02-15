@@ -1,6 +1,6 @@
 # 2. GraphQL
 
-Date: 2022-02-02
+Date: 2022-02-15
 
 ## Status
 
@@ -135,10 +135,6 @@ Based on [Mermaid][mermaid] used [in VS Code][ext].
 
 #### Current architecture
 
-<!-- markdownlint-disable MD033 -->
-![current](0002/current-0.0.1.png)
-<details>
-
 ```mermaid
 graph LR
   REST/http --> trace-server
@@ -158,8 +154,6 @@ graph LR
   end
 ```
 
-</details>
-
 Component names above are based on their repository names or directory:
 
   1. [trace-server][inc]; reference implementation only, could be more servers.
@@ -168,9 +162,6 @@ Component names above are based on their repository names or directory:
   1. [tsp-typescript-client][client-ts]; TSP implementation used in clients written in TypeScript.
 
 #### GraphQL for TSP API (over REST)
-
-![graphql](0002/graphql-0.0.1.png)
-<details>
 
 ```mermaid
 graph TD
@@ -196,17 +187,12 @@ graph TD
   end
 ```
 
-</details>
-
 1. GraphQL would be offered as a TSP option alongside current REST endpoints.
 1. Resolver functions in GraphQL Server would [rely on current REST endpoints][rest].
 1. Clients may then gradually benefit from the emerging GraphQL, through TSP.
 1. GraphQL Server may then hide more and more endpoints less used by clients.
 
 #### GraphQL containerized (option)
-
-![containerized](0002/containerized-0.0.1.png)
-<details>
 
 ```mermaid
 graph TD
@@ -236,8 +222,6 @@ graph TD
     trace-server
   end
 ```
-
-</details>
 
 1. Deploying a GraphQL Server using Kubernetes might be more efficient.
 1. More than just one Server could be configured also, yet optionally.
