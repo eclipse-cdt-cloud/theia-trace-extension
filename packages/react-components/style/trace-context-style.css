@@ -21,9 +21,10 @@
 }
 
 .outputs-grid-layout {
-    flex-grow: 1;
     overflow-y: scroll;
     overflow-x: hidden;
+    position: relative;
+    flex-grow: 1;
 }
 
 .react-grid-item > .react-resizable-handle {
@@ -34,4 +35,9 @@
 .react-grid-item > .react-resizable-handle::after {
     border-right-color: var(--theia-ui-font-color0) !important;
     border-bottom-color: var(--theia-ui-font-color0) !important;
+}
+
+.sticky-div {
+    position: sticky;
+    bottom: 0;
 }
