@@ -8,6 +8,8 @@ import { EntryTree } from './utils/filter-tree/entry-tree';
 import { getAllExpandedNodeIds } from './utils/filter-tree/utils';
 import { TreeNode } from './utils/filter-tree/tree-node';
 import ColumnHeader from './utils/filter-tree/column-header';
+import { cloneDeep } from 'lodash';
+import debounce from 'lodash.debounce';
 
 type DataTreeOutputProps = AbstractOutputProps & {
 };
@@ -22,6 +24,8 @@ type DataTreeOuputState = AbstractOutputState & {
 
 export class DataTreeOutputComponent extends AbstractOutputComponent<AbstractOutputProps, DataTreeOuputState> {
     treeRef: React.RefObject<HTMLDivElement> = React.createRef();
+
+    private _debouncedFetchSelectionData = debounce(() => this.fetchSelectionData(), 500);
 
     constructor(props: AbstractOutputProps) {
         super(props);
@@ -153,5 +157,36 @@ export class DataTreeOutputComponent extends AbstractOutputComponent<AbstractOut
     componentWillUnmount(): void {
         // fix Warning: Can't perform a React state update on an unmounted component
         this.setState = (_state, _callback) => undefined;
+    }
+
+    protected async fetchSelectionData(): Promise<void> {
+        if (this.props.selectionRange) {
+            let payload: any;
+            if (this.props.selectionRange.getStart() < this.props.selectionRange.getEnd()) {
+                payload = QueryHelper.timeQuery([this.props.selectionRange.getStart(), this.props.selectionRange.getEnd()]);
+            } else {
+                payload = QueryHelper.timeQuery([this.props.selectionRange.getEnd(), this.props.selectionRange.getStart()]);
+            }
+
+            payload.parameters.isFiltered = true;
+
+            // TODO: use the data tree endpoint instead of the xy tree endpoint
+            const tspClientResponse = await this.props.tspClient.fetchXYTree(this.props.traceId, this.props.outputDescriptor.id, payload);
+            const treeResponse = tspClientResponse.getModel();
+            if (tspClientResponse.isOk() && treeResponse) {
+                if (treeResponse.model) {
+                    this.setState({
+                        outputStatus: treeResponse.status,
+                        xyTree: treeResponse.model.entries,
+                    });
+                }
+            }
+        }
+    }
+
+    async componentDidUpdate(prevProps: DataTreeOutputProps): Promise<void> {
+        if (this.props.selectionRange && this.props.selectionRange !== prevProps.selectionRange) {
+            this._debouncedFetchSelectionData();
+        }
     }
 }
