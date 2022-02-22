@@ -30,6 +30,8 @@ type XYOuputState = AbstractOutputState & {
     columns: ColumnHeader[];
     allMax: number;
     allMin: number;
+    cursor?: string;
+    shiftKey: boolean;
 };
 const RIGHT_CLICK_NUMBER = 2;
 const ZOOM_IN = true;
@@ -71,6 +73,9 @@ export class XYOutputComponent extends AbstractTreeOutputComponent<AbstractOutpu
            this.applySelectionZoom();
         }
         this.mouseIsDown = false;
+        if (!this.state.shiftKey) {
+            this.setState({ cursor: 'default'});
+        }
         document.removeEventListener('mouseup', this.endSelection);
     };
 
@@ -90,7 +95,9 @@ export class XYOutputComponent extends AbstractTreeOutputComponent<AbstractOutpu
             xyData: {},
             columns: [{title: 'Name', sortable: true}],
             allMax: 0,
-            allMin: 0
+            allMin: 0,
+            cursor: 'default',
+            shiftKey: false
         };
 
         this.afterChartDraw = this.afterChartDraw.bind(this);
@@ -329,12 +336,13 @@ export class XYOutputComponent extends AbstractTreeOutputComponent<AbstractOutpu
                     className='xy-main'
                     tabIndex={0}
                     onKeyDown={event => this.onKeyDown(event)}
+                    onKeyUp={event => this.onKeyUp(event)}
                     onWheel={event => this.onWheel(event)}
                     onMouseMove={event => this.onMouseMove(event)}
                     onContextMenu={event => event.preventDefault()}
                     onMouseLeave={event => this.onMouseLeave(event)}
                     onMouseDown={event => this.onMouseDown(event)}
-                    style={{ height: this.props.style.height, position: 'relative' }}
+                    style={{ height: this.props.style.height, position: 'relative', cursor: this.state.cursor }}
                     ref={this.divRef}
                 >
                     {this.chooseChart()}
@@ -476,9 +484,11 @@ export class XYOutputComponent extends AbstractTreeOutputComponent<AbstractOutpu
         const startTime = this.getTimeForX(event.nativeEvent.offsetX);
         if (event.button === RIGHT_CLICK_NUMBER) {
             this.isRightClick = true;
+            this.setState({ cursor: 'col-resize' });
             this.startPositionMouseRightClick = startTime;
         } else {
             this.isRightClick = false;
+            this.setState({ cursor: 'crosshair' });
             if (event.shiftKey && this.props.unitController.selectionRange) {
                 this.props.unitController.selectionRange = {
                     start: this.props.unitController.selectionRange.start,
@@ -797,7 +807,23 @@ export class XYOutputComponent extends AbstractTreeOutputComponent<AbstractOutpu
                     this.pan(PAN_RIGHT);
                     break;
                 }
+                case 'Shift': {
+                    if (!this.isRightClick) {
+                        this.setState({ cursor: 'crosshair', shiftKey: true });
+                    }
+                    break;
+                }
             }
+        }
+    }
+
+    private onKeyUp(key: React.KeyboardEvent) {
+        if (key.key === 'Shift') {
+            const change: { cursor?: string, shiftKey: boolean } = { shiftKey: false };
+            if (!this.mouseIsDown) {
+                change.cursor = 'default';
+            }
+            this.setState(change);
         }
     }
 
