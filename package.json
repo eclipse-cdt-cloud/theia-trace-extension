@@ -9,7 +9,7 @@
     "prepare:packages": "lerna run --ignore=\"*-example-app\" prepare",
     "prepare:examples": "lerna run --scope=\"*-example-app\" --parallel prepare",
     "rebuild:browser": "theia rebuild:browser",
-    "rebuild:electron": "theia rebuild:electron",
+    "rebuild:electron": "yarn --cwd examples/electron theia rebuild:electron --cacheRoot ../..",
     "start:browser": "yarn rebuild:browser && yarn --cwd examples/browser start",
     "start:electron": "yarn rebuild:electron && yarn --cwd examples/electron start",
     "download:plugins": "theia download:plugins -p=true",
