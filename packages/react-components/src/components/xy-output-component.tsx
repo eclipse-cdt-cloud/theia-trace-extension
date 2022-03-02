@@ -164,8 +164,9 @@ export class XYOutputComponent extends AbstractTreeOutputComponent<AbstractOutpu
         const checkedSeriesChanged = this.state.checkedSeries !== prevState.checkedSeries;
         const collapsedNodesChanged = this.state.collapsedNodes !== prevState.collapsedNodes;
         const chartWidthChanged = this.props.style.width !== prevProps.style.width || this.props.style.chartOffset !== prevProps.style.chartOffset;
-        const needToUpdate = viewRangeChanged || checkedSeriesChanged || collapsedNodesChanged || chartWidthChanged;
-        if (needToUpdate || prevState.outputStatus === ResponseStatus.RUNNING) {
+        const outputStatusChanged = this.state.outputStatus !== prevState.outputStatus;
+        const needToUpdate = viewRangeChanged || checkedSeriesChanged || collapsedNodesChanged || chartWidthChanged || outputStatusChanged;
+        if (needToUpdate) {
             this.updateXY();
         }
         if (this.chartRef.current) {
