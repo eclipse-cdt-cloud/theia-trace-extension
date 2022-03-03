@@ -68,8 +68,9 @@ export class XYOutputComponent extends AbstractTreeOutputComponent<AbstractOutpu
     private startPositionMouseRightClick = BigInt(0);
     private margin = { top: 15, right: 0, bottom: 5, left: this.getYAxisWidth() };
     private isScatterPlot: boolean = this.props.outputDescriptor.id.includes('scatter');
+    private isBarPlot = false;
     private plugin = {
-        afterDraw: (chartInstance: Chart, _easing: Chart.Easing, _options?: any) => { this.afterChartDraw(chartInstance); }
+        afterDraw: (chartInstance: Chart, _easing: Chart.Easing, _options?: any) => { this.afterChartDraw(chartInstance.ctx, chartInstance.chartArea); }
     };
 
     private endSelection = (event: MouseEvent) => {
@@ -192,7 +193,11 @@ export class XYOutputComponent extends AbstractTreeOutputComponent<AbstractOutpu
                 };
                 this.divRef.current.addEventListener('wheel', this.preventDefaultHandler);
             }
-            this.chartRef.current.chartInstance.render();
+            if (this.isBarPlot) {
+                this.renderChart();
+            } else {
+                this.chartRef.current.chartInstance.render();
+            }
         }
     }
 
@@ -336,6 +341,78 @@ export class XYOutputComponent extends AbstractTreeOutputComponent<AbstractOutpu
         );
     }
 
+    drawD3Chart(): JSX.Element {
+        const chartHeight = parseInt(this.props.style.height.toString());
+        const chartWidth = this.getChartWidth();
+
+        if (this.state.xyData.labels?.length > 0) {
+            const data: any[] = [];
+
+            this.state.xyData?.datasets?.forEach((dSet: any) => {
+                const row: any = [];
+                if (this.isScatterPlot) {
+                    dSet.data.forEach((tupple: any) => {
+                        row.push({ xValue: tupple.x, yValue: tupple.y });
+                    });
+                } else {
+                    dSet.data.forEach((y: number, j: number) => {
+                        row.push({ xValue: this.state.xyData.labels[j], yValue: y });
+                    });
+                }
+                data.push(row);
+            });
+
+            const yScale = scaleLinear()
+                .domain([this.state.allMin, Math.max(this.state.allMax, 1)])
+                .range([chartHeight - this.margin.bottom, this.margin.top]);
+
+            const xDomain = this.state.xyData.labels.length - 1;
+            const start = this.getXForTime(this.state.xyData.labels[0]);
+            const end = this.getXForTime(this.state.xyData.labels[xDomain]);
+
+            const xScale = scaleLinear()
+                .domain([start, end].map(Number))
+                .range([0, chartWidth]);
+
+            if (this.chartRef.current) {
+                const ctx = this.chartRef.current.getContext('2d');
+
+                // Fix blurred lines in retina displays
+                const dpr = window.devicePixelRatio;
+                this.chartRef.current.width = dpr * chartWidth;
+                this.chartRef.current.height = dpr * chartHeight;
+                this.chartRef.current.style.width = chartWidth + 'px';
+                this.chartRef.current.style.height = chartHeight + 'px';
+                ctx.scale(dpr, dpr);
+
+                // Bar chart
+                if (ctx) {
+                    ctx.clearRect(0, 0, chartWidth, chartHeight);
+                    ctx.save();
+                    data.forEach((row, i) => {
+                        ctx.fillStyle = this.state.xyData.datasets[i].borderColor;
+                        row.forEach((tupple: any) => {
+                            ctx.beginPath();
+                            const xPos = this.getXForTime(tupple.xValue);
+                            ctx.fillRect(xScale(xPos), chartHeight, 2, - chartHeight + yScale(+tupple.yValue));
+                            ctx.closePath();
+                        });
+                    });
+                    ctx.restore();
+                    this.afterChartDraw(this.chartRef.current.getContext('2d'));
+                }
+            }
+        }
+
+        return (
+            <canvas
+                ref={this.chartRef}
+                height={chartHeight}
+                width={chartWidth}
+            />
+        );
+    }
+
     renderChart(): React.ReactNode {
         if (this.state.outputStatus === ResponseStatus.COMPLETED && this.state.xyData?.datasets?.length === 0) {
             return <React.Fragment>
@@ -360,7 +437,7 @@ export class XYOutputComponent extends AbstractTreeOutputComponent<AbstractOutpu
                     style={{ height: this.props.style.height, position: 'relative', cursor: this.state.cursor }}
                     ref={this.divRef}
                 >
-                    {this.chooseChart()}
+                    {this.isBarPlot ? this.drawD3Chart() : this.chooseChart()}
                 </div> :
                 <div
                     id={this.props.traceId + this.props.outputDescriptor.id + 'focusContainer'}
@@ -411,15 +488,14 @@ export class XYOutputComponent extends AbstractTreeOutputComponent<AbstractOutpu
         }
     }
 
-    private afterChartDraw(chart: Chart) {
-        const ctx = chart.ctx;
+    private afterChartDraw(ctx: CanvasRenderingContext2D | null, chartArea?: Chart.ChartArea | null) {
         if (ctx) {
             if (this.props.selectionRange) {
                 const startPixel = this.getXForTime(this.props.selectionRange.getStart());
                 const endPixel = this.getXForTime(this.props.selectionRange.getEnd());
                 ctx.strokeStyle = '#259fd8';
                 ctx.fillStyle = '#259fd8';
-                this.drawSelection(chart, startPixel, endPixel);
+                this.drawSelection(ctx, chartArea, startPixel, endPixel);
             }
             if (this.isRightClick) {
                 const offset = this.props.viewRange.getOffset() ?? BigInt(0);
@@ -427,35 +503,37 @@ export class XYOutputComponent extends AbstractTreeOutputComponent<AbstractOutpu
                 const endPixel = this.positionXMove;
                 ctx.strokeStyle = '#9f9f9f';
                 ctx.fillStyle = '#9f9f9f';
-                this.drawSelection(chart, startPixel, endPixel);
+                this.drawSelection(ctx, chartArea, startPixel, endPixel);
             }
         }
     }
 
-    private drawSelection(chart: Chart, startPixel: number, endPixel: number) {
-        const ctx = chart.ctx;
+    private drawSelection(ctx: CanvasRenderingContext2D | null, chartArea: Chart.ChartArea | undefined | null, startPixel: number, endPixel: number) {
         const minPixel = Math.min(startPixel, endPixel);
         const maxPixel = Math.max(startPixel, endPixel);
+        const initialPoint = this.isBarPlot ? 0 : chartArea?.left ?? 0;
+        const chartHeight = parseInt(this.props.style.height.toString());
+        const finalPoint = this.isBarPlot ? chartHeight : chartArea?.bottom ?? 0;
         if (ctx) {
             ctx.save();
 
             ctx.lineWidth = 1;
             // Selection borders
-            if (startPixel > chart.chartArea.left) {
+            if (startPixel > initialPoint) {
                 ctx.beginPath();
                 ctx.moveTo(minPixel, 0);
-                ctx.lineTo(minPixel, chart.chartArea.bottom);
+                ctx.lineTo(minPixel, finalPoint);
                 ctx.stroke();
             }
             if (endPixel < this.props.viewRange.getEnd()) {
                 ctx.beginPath();
                 ctx.moveTo(maxPixel, 0);
-                ctx.lineTo(maxPixel, chart.chartArea.bottom);
+                ctx.lineTo(maxPixel, finalPoint);
                 ctx.stroke();
             }
             // Selection fill
             ctx.globalAlpha = 0.2;
-            ctx.fillRect(minPixel, 0, maxPixel - minPixel, chart.chartArea.bottom);
+            ctx.fillRect(minPixel, 0, maxPixel - minPixel, finalPoint);
             ctx.restore();
         }
     }
@@ -609,23 +687,19 @@ export class XYOutputComponent extends AbstractTreeOutputComponent<AbstractOutpu
     }
 
     private getTimeForX(x: number): bigint {
-        if (!this.chartRef.current?.chartInstance) {
-            return BigInt(0);
-        }
         const offset = this.props.viewRange.getOffset() ?? BigInt(0);
         const duration = this.props.viewRange.getDuration();
+        const chartWidth = this.getChartWidth() === 0 ? 1 : this.getChartWidth();
         const time = this.props.viewRange.getStart() - offset +
-            BIMath.round(x / this.chartRef.current.chartInstance.width * Number(duration));
+            BIMath.round(x / chartWidth * Number(duration));
         return time;
     }
 
     protected getXForTime(time: bigint): number {
-        if (!this.chartRef.current?.chartInstance) {
-            return 0;
-        }
         const start = this.props.viewRange.getStart();
         const duration = this.props.viewRange.getDuration();
-        const x = Number(time - start) / Number(duration) * this.chartRef.current.chartInstance.width;
+        const chartWidth = this.getChartWidth() === 0 ? 1 : this.getChartWidth();
+        const x = Number(time - start) / Number(duration) * chartWidth;
         return x;
     }
 
@@ -676,8 +750,8 @@ export class XYOutputComponent extends AbstractTreeOutputComponent<AbstractOutpu
         if (this.props.unitController.numberTranslator) {
             timeLabel = this.props.unitController.numberTranslator(timeForX);
         }
-        const chartWidth = this.chartRef.current.chartInstance.width;
-        const chartHeight = this.chartRef.current.chartInstance.height;
+        const chartWidth = this.isBarPlot ? this.getChartWidth() : this.chartRef.current.chartInstance.width;
+        const chartHeight = this.isBarPlot ? parseInt(this.props.style.height.toString()) : this.chartRef.current.chartInstance.height;
         const arraySize = this.state.xyData.labels.length;
         const index = Math.max(Math.round((xPos / chartWidth) * (arraySize - 1)), 0);
         const points: any = [];
@@ -798,7 +872,8 @@ export class XYOutputComponent extends AbstractTreeOutputComponent<AbstractOutpu
     private onMouseLeave(event: React.MouseEvent) {
         this.isMouseMove = false;
         this.isMouseLeave = true;
-        this.positionXMove = Math.max(0, Math.min(event.nativeEvent.offsetX, this.chartRef.current.chartInstance.width));
+        const width = this.isBarPlot ? this.getChartWidth() : this.chartRef.current.chartInstance.width;
+        this.positionXMove = Math.max(0, Math.min(event.nativeEvent.offsetX, width));
         this.forceUpdate();
         if (this.mouseIsDown && !this.isRightClick) {
             this.updateSelection();
