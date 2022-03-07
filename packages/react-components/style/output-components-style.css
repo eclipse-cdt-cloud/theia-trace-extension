@@ -84,6 +84,7 @@
 .xy-main {
     width: 100%;
     display: flex;
+    cursor: crosshair;
 }
 
 #main {
@@ -247,4 +248,8 @@ canvas {
 
 .hoverClass:hover {
     border: 1px solid black;
+}
+
+#main-timegraph-content {
+    cursor: crosshair;
 }
