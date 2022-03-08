@@ -307,13 +307,14 @@ export class TraceContextComponent extends React.Component<TraceContextProps, Tr
     }
 
     render(): JSX.Element {
+        const shouldRenderOutputs = (this.state.style.width > 0 && this.props.outputs.length);
         return <div className='trace-context-container'
             onContextMenu={event => this.onContextMenu(event)}
             onKeyDown={event => this.onKeyDown(event)}
             ref={this.traceContextContainer}>
             <TooltipComponent ref={this.tooltipComponent} />
             <TooltipXYComponent ref={this.tooltipXYComponent} />
-            {this.props.outputs.length ? this.renderOutputs() : this.renderPlaceHolder()}
+            {shouldRenderOutputs ? this.renderOutputs() : this.renderPlaceHolder()}
         </div>;
     }
 
