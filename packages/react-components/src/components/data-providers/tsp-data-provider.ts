@@ -64,7 +64,7 @@ export class TspDataProvider {
 
         const start = totalTimeRange.getStart() + viewRange.start;
         const end = totalTimeRange.getStart() + viewRange.end;
-        const timeGraphStateParams = QueryHelper.selectionTimeQuery(QueryHelper.splitRangeIntoEqualParts(start, end, nbTimes), ids);
+        const timeGraphStateParams = QueryHelper.selectionTimeRangeQuery(start, end, nbTimes, ids);
         const tspClientResponse = await this.client.fetchTimeGraphStates(this.traceUUID, this.outputId, timeGraphStateParams);
         const stateResponse = tspClientResponse.getModel();
         if (tspClientResponse.isOk() && stateResponse) {
@@ -94,7 +94,7 @@ export class TspDataProvider {
             additionalProps['requested_marker_set'] = markerSetId;
         }
 
-        const annotationParams = QueryHelper.selectionTimeQuery(QueryHelper.splitRangeIntoEqualParts(start, end, nbTimes), ids, additionalProps);
+        const annotationParams = QueryHelper.selectionTimeRangeQuery(start, end, nbTimes, ids, additionalProps);
 
         const annotations: Map<number, TimelineChart.TimeGraphAnnotation[]> = new Map();
         const tspClientResponse2 = await this.client.fetchAnnotations(this.traceUUID, this.outputId, annotationParams);
@@ -144,8 +144,7 @@ export class TspDataProvider {
         if (viewRange && nbTimes) {
             const start = viewRange.start + this.timeGraphEntries[0].start;
             const end = viewRange.end + this.timeGraphEntries[0].start;
-            const fetchParameters = QueryHelper.selectionTimeQuery(QueryHelper.splitRangeIntoEqualParts(
-                start, end, nbTimes), ids);
+            const fetchParameters = QueryHelper.selectionTimeRangeQuery(start, end, nbTimes, ids);
             const tspClientResponseArrows = await this.client.fetchTimeGraphArrows(this.traceUUID, this.outputId, fetchParameters);
             const stateResponseArrows = tspClientResponseArrows.getModel();
             if (tspClientResponseArrows.isOk() && stateResponseArrows && stateResponseArrows.model) {
