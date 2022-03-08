@@ -266,7 +266,7 @@ export class TraceContextComponent extends React.Component<TraceContextProps, Tr
         this.setState(prevState => ({
             style: { ...prevState.style, width: newWidth, componentLeft: bounds.left },
             shouldRenderOutputs: newWidth > 0
-            // Should not render outputs if width = 0, will crash timegraph-chart components.
+            // Should not render outputs if width = 0, will crash timeline-chart components.
         }));
         this.widgetResizeHandlers.forEach(h => h());
     }
