@@ -169,7 +169,7 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
     }
 
     async fetchTree(): Promise<ResponseStatus> {
-        const parameters = QueryHelper.timeQuery([this.props.range.getStart(), this.props.range.getEnd()]);
+        const parameters = QueryHelper.timeRangeQuery(this.props.range.getStart(), this.props.range.getEnd());
         const tspClientResponse = await this.props.tspClient.fetchTimeGraphTree(this.props.traceId, this.props.outputDescriptor.id, parameters);
         const treeResponse = tspClientResponse.getModel();
         if (tspClientResponse.isOk() && treeResponse) {

@@ -43,7 +43,7 @@ export class DataTreeOutputComponent extends AbstractOutputComponent<AbstractOut
     }
 
     async fetchTree(): Promise<ResponseStatus> {
-        const parameters = QueryHelper.timeQuery([this.props.range.getStart(), this.props.range.getEnd()]);
+        const parameters = QueryHelper.timeRangeQuery(this.props.range.getStart(), this.props.range.getEnd());
         // TODO: use the data tree endpoint instead of the xy tree endpoint
         const tspClientResponse = await this.props.tspClient.fetchXYTree(this.props.traceId, this.props.outputDescriptor.id, parameters);
         const treeResponse = tspClientResponse.getModel();
@@ -162,9 +162,9 @@ export class DataTreeOutputComponent extends AbstractOutputComponent<AbstractOut
         if (this.props.selectionRange) {
             let payload: any;
             if (this.props.selectionRange.getStart() < this.props.selectionRange.getEnd()) {
-                payload = QueryHelper.timeQuery([this.props.selectionRange.getStart(), this.props.selectionRange.getEnd()]);
+                payload = QueryHelper.timeRangeQuery(this.props.selectionRange.getStart(), this.props.selectionRange.getEnd());
             } else {
-                payload = QueryHelper.timeQuery([this.props.selectionRange.getEnd(), this.props.selectionRange.getStart()]);
+                payload = QueryHelper.timeRangeQuery(this.props.selectionRange.getEnd(), this.props.selectionRange.getStart());
             }
 
             payload.parameters.isFiltered = true;

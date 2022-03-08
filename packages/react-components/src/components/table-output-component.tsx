@@ -308,7 +308,7 @@ export class TableOutputComponent extends AbstractOutputComponent<TableOutputPro
         const outputId = this.props.outputDescriptor.id;
 
         // Fetch columns
-        const tspClientResponse = await tspClient.fetchTableColumns(traceUUID, outputId, QueryHelper.timeQuery([BigInt(0), BigInt(1)]));
+        const tspClientResponse = await tspClient.fetchTableColumns(traceUUID, outputId, QueryHelper.query());
         const columnsResponse = tspClientResponse.getModel();
 
         if (!tspClientResponse.isOk() || !columnsResponse) {

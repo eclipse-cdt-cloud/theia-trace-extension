@@ -9623,7 +9623,7 @@ jsesc@~0.5.0:
   resolved "https://registry.yarnpkg.com/jsesc/-/jsesc-0.5.0.tgz#e7dee66e35d6fc16f710fe91d5cf69f70f08911d"
   integrity sha1-597mbjXW/Bb3EP6R1c9p9w8IkR0=
 
-json-bigint@sidorares/json-bigint#2c0a5f896d7888e68e5f4ae3c7ea5cd42fd54473:
+"json-bigint@github:sidorares/json-bigint#2c0a5f896d7888e68e5f4ae3c7ea5cd42fd54473":
   version "1.0.0"
   resolved "https://codeload.github.com/sidorares/json-bigint/tar.gz/2c0a5f896d7888e68e5f4ae3c7ea5cd42fd54473"
   dependencies:
@@ -13959,9 +13959,9 @@ tslib@^2.2.0, tslib@^2.3.1:
   integrity sha512-77EbyPPpMz+FRFRuAFlWMtmgUWGe9UOG2Z25NqCwiIjRhOf5iKGuzSe5P2w1laq+FkRy4p+PCuVkJSGkzTEKVw==
 
 tsp-typescript-client@next:
-  version "0.4.0-next.04e64a4.0"
-  resolved "https://registry.yarnpkg.com/tsp-typescript-client/-/tsp-typescript-client-0.4.0-next.04e64a4.0.tgz#77c63f1c344b92bb949dd360152f958aa89f10e2"
-  integrity sha512-6zFLsymOeFVWEGZZdaTPURav1wZA2T3UI+L/4gD2x2VEZr6foz8kM+RR+vV5zP3z09NjSwPhRaNBAfhmsquXiQ==
+  version "0.4.0-next.d59ed63.0"
+  resolved "https://registry.yarnpkg.com/tsp-typescript-client/-/tsp-typescript-client-0.4.0-next.d59ed63.0.tgz#db12249b6f694339d7cd024baedcb126a1c2df95"
+  integrity sha512-RJ9eCiqtTdEjHF7G+14Ub0vyJsPnGzUuFSViWgesSY9JEADrGUm+NwnDEWT3uK7lmk/U8BmqAZ7tro4uSFUDZw==
   dependencies:
     json-bigint sidorares/json-bigint#2c0a5f896d7888e68e5f4ae3c7ea5cd42fd54473
     node-fetch "^2.5.0"
