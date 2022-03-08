@@ -242,6 +242,14 @@ export class TraceViewerWidget extends ReactWidget {
             });
     }
 
+    storeState(): OutputDescriptor[] {
+        return this.outputDescriptors;
+    }
+
+    restoreState(state: OutputDescriptor[]) {
+        this.outputDescriptors = state;
+    }
+
     private async fetchMarkerSets(expUUID: string) {
         const markers = await this.tspClient.fetchMarkerSets(expUUID);
         const markersResponse = markers.getModel();
