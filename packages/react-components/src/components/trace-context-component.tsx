@@ -52,6 +52,7 @@ interface TraceContextState {
     traceIndexing: boolean;
     style: OutputComponentStyle;
     backgroundTheme: string;
+    shouldRenderOutputs: boolean;
 }
 
 export class TraceContextComponent extends React.Component<TraceContextProps, TraceContextState> {
@@ -100,6 +101,7 @@ export class TraceContextComponent extends React.Component<TraceContextProps, Tr
         }
         this.state = {
             timeOffset: this.props.experiment.start,
+            shouldRenderOutputs: false,
             currentRange: traceRange,
             currentViewRange: viewRange,
             currentTimeSelection: undefined,
@@ -263,7 +265,11 @@ export class TraceContextComponent extends React.Component<TraceContextProps, Tr
     private onResize() {
         const newWidth = this.traceContextContainer.current ? this.traceContextContainer.current.clientWidth - this.SCROLLBAR_PADDING : 0;
         const bounds = this.traceContextContainer.current ? this.traceContextContainer.current.getBoundingClientRect() : { left: this.DEFAULT_COMPONENT_LEFT };
-        this.setState(prevState => ({ style: { ...prevState.style, width: newWidth, componentLeft: bounds.left } }));
+        this.setState(prevState => ({
+            style: { ...prevState.style, width: newWidth, componentLeft: bounds.left },
+            shouldRenderOutputs: newWidth > 0
+            // Should not render outputs if width = 0, will crash timeline-chart components.
+        }));
         this.widgetResizeHandlers.forEach(h => h());
     }
 
@@ -299,7 +305,7 @@ export class TraceContextComponent extends React.Component<TraceContextProps, Tr
             ref={this.traceContextContainer}>
             <TooltipComponent ref={this.tooltipComponent} />
             <TooltipXYComponent ref={this.tooltipXYComponent} />
-            {this.props.outputs.length ? this.renderOutputs() : this.renderPlaceHolder()}
+            {(this.props.outputs.length && this.state.shouldRenderOutputs) ? this.renderOutputs() : this.renderPlaceHolder()}
         </div>;
     }
 

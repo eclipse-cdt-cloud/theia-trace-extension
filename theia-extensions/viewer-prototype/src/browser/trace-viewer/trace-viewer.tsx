@@ -1,5 +1,5 @@
 import { DisposableCollection, MessageService, Path } from '@theia/core';
-import { ApplicationShell, Message, StatusBar, WidgetManager } from '@theia/core/lib/browser';
+import { ApplicationShell, Message, StatusBar, WidgetManager, StatefulWidget } from '@theia/core/lib/browser';
 import { ReactWidget } from '@theia/core/lib/browser/widgets/react-widget';
 import { inject, injectable, postConstruct } from 'inversify';
 import * as React from 'react';
@@ -28,7 +28,7 @@ export interface TraceViewerWidgetOptions {
 }
 
 @injectable()
-export class TraceViewerWidget extends ReactWidget {
+export class TraceViewerWidget extends ReactWidget implements StatefulWidget {
     static ID = 'trace-viewer';
     static LABEL = 'Trace Viewer';
 
@@ -239,6 +239,22 @@ export class TraceViewerWidget extends ReactWidget {
                 progress.report({ message: 'Complete', work: { done: 100, total: 100 } });
                 progress.cancel();
             });
+    }
+
+    storeState(): OutputDescriptor[] {
+        /*
+        TODO - BigInt support for storing state
+        JSON.stringify cannot serialize BigInt
+        */
+        return this.outputDescriptors;
+    }
+
+    restoreState(state: OutputDescriptor[]): void {
+        /*
+        TODO - BigInt support for restoring state
+        Identify what values need to be BigInt and convert.
+        */
+        this.outputDescriptors = state;
     }
 
     private async fetchMarkerSets(expUUID: string) {
