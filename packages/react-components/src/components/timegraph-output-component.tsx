@@ -501,6 +501,11 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
     }
 
     private async fetchTimegraphData(range: TimelineChart.TimeGraphRange, resolution: number) {
+        if (document.getElementById(this.props.traceId + this.props.outputDescriptor.id + 'handleSpinner')) {
+            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+            document.getElementById(this.props.traceId + this.props.outputDescriptor.id + 'handleSpinner')!.style.visibility = 'visible';
+        }
+
         const treeNodes = listToTree(this.state.timegraphTree, this.state.columns);
         const orderedTreeIds = getAllExpandedNodeIds(treeNodes, this.state.collapsedNodes);
         const overlap = range.end - range.start;
@@ -514,6 +519,10 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
         this.arrowLayer.addArrows(timeGraphData.arrows);
         this.rangeEventsLayer.addRangeEvents(timeGraphData.rangeEvents);
 
+        if (document.getElementById(this.props.traceId + this.props.outputDescriptor.id + 'handleSpinner')) {
+            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+            document.getElementById(this.props.traceId + this.props.outputDescriptor.id + 'handleSpinner')!.style.visibility = 'hidden';
+        }
         return {
             rows: timeGraphData ? timeGraphData.rows : [],
             range: newRange,

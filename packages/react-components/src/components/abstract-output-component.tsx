@@ -92,6 +92,8 @@ export abstract class AbstractOutputComponent<P extends AbstractOutputProps, S e
             </button>
             <div className='title-bar-label' title={outputName} onClick={() => this.setFocus()}>
                 {outputName}
+                <i id={this.props.traceId + this.props.outputDescriptor.id + 'handleSpinner'} className='fa fa-refresh fa-spin'
+                    style={{ marginTop: '5px', visibility: 'hidden'}} />
             </div>
         </React.Fragment>;
     }
