@@ -832,6 +832,10 @@ export class XYOutputComponent extends AbstractTreeOutputComponent<AbstractOutpu
     }
 
     private async updateXY() {
+        if (document.getElementById(this.props.traceId + this.props.outputDescriptor.id + 'handleSpinner')) {
+            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+            document.getElementById(this.props.traceId + this.props.outputDescriptor.id + 'handleSpinner')!.style.visibility = 'visible';
+        }
         let start = BigInt(0);
         let end = BigInt(0);
         const viewRange = this.props.viewRange;
@@ -851,6 +855,10 @@ export class XYOutputComponent extends AbstractTreeOutputComponent<AbstractOutpu
             } else {
                 this.buildScatterData(xyDataResponse.model.series);
             }
+        }
+        if (document.getElementById(this.props.traceId + this.props.outputDescriptor.id + 'handleSpinner')) {
+            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+            document.getElementById(this.props.traceId + this.props.outputDescriptor.id + 'handleSpinner')!.style.visibility = 'hidden';
         }
     }
 
