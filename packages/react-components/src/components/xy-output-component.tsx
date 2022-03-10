@@ -32,7 +32,6 @@ type XYOuputState = AbstractOutputState & {
     allMax: number;
     allMin: number;
     cursor?: string;
-    shiftKey: boolean;
 };
 const RIGHT_CLICK_NUMBER = 2;
 const ZOOM_IN = true;
@@ -56,12 +55,16 @@ export class XYOutputComponent extends AbstractTreeOutputComponent<AbstractOutpu
     private divRef: any;
     private yAxisRef: any;
     private mouseIsDown = false;
+    private isPanning = false;
+    private isSelecting = false;
     private positionXMove = 0;
     private positionYMove = 0;
     private isRightClick = false;
     private isMouseMove = false;
     private posPixelSelect = 0;
     private isMouseLeave = false;
+    private mousePanningStart = BigInt(0);
+    private resolution = 0;
     private startPositionMouseRightClick = BigInt(0);
     private margin = { top: 15, right: 0, bottom: 5, left: this.getYAxisWidth() };
     private isScatterPlot: boolean = this.props.outputDescriptor.id.includes('scatter');
@@ -69,14 +72,23 @@ export class XYOutputComponent extends AbstractTreeOutputComponent<AbstractOutpu
         afterDraw: (chartInstance: Chart, _easing: Chart.Easing, _options?: any) => { this.afterChartDraw(chartInstance); }
     };
 
-    private endSelection = () => {
+    private endSelection = (event: MouseEvent) => {
         if (this.isRightClick) {
            this.applySelectionZoom();
         }
         this.mouseIsDown = false;
-        if (!this.state.shiftKey) {
-            this.setState({ cursor: 'default'});
+        this.isSelecting = false;
+        this.isPanning = false;
+        if (!event.shiftKey && !event.ctrlKey) {
+            this.setState({ cursor: 'default' });
+        } else if (!event.shiftKey && event.ctrlKey) {
+            this.setState({ cursor: 'grabbing' });
+        } else if (event.shiftKey && !event.ctrlKey) {
+            this.setState({ cursor: 'crosshair' });
+        } else {
+            this.setState({ cursor: 'default' });
         }
+
         document.removeEventListener('mouseup', this.endSelection);
     };
 
@@ -99,8 +111,7 @@ export class XYOutputComponent extends AbstractTreeOutputComponent<AbstractOutpu
             columns: [{title: 'Name', sortable: true}],
             allMax: 0,
             allMin: 0,
-            cursor: 'default',
-            shiftKey: false
+            cursor: 'default'
         };
 
         this.afterChartDraw = this.afterChartDraw.bind(this);
@@ -488,17 +499,26 @@ export class XYOutputComponent extends AbstractTreeOutputComponent<AbstractOutpu
         const startTime = this.getTimeForX(event.nativeEvent.offsetX);
         if (event.button === RIGHT_CLICK_NUMBER) {
             this.isRightClick = true;
+            this.isSelecting = false;
             this.setState({ cursor: 'col-resize' });
             this.startPositionMouseRightClick = startTime;
         } else {
             this.isRightClick = false;
-            this.setState({ cursor: 'crosshair' });
-            if (event.shiftKey && this.props.unitController.selectionRange) {
+            if (event.shiftKey && !event.ctrlKey && this.props.unitController.selectionRange) {
+                this.isSelecting = true;
+                this.setState({ cursor: 'crosshair' });
                 this.props.unitController.selectionRange = {
                     start: this.props.unitController.selectionRange.start,
                     end: startTime
                 };
-            } else {
+            } else if (event.ctrlKey && !event.shiftKey) {
+                this.resolution = this.getChartWidth() / Number(this.props.unitController.viewRangeLength);
+                this.mousePanningStart = this.props.unitController.viewRange.start + BIMath.round(event.nativeEvent.x / this.resolution);
+                this.isPanning = true;
+                this.setState({ cursor: 'grabbing' });
+            } else if (!(event.shiftKey && event.ctrlKey)){
+                this.isSelecting = true;
+                this.setState({ cursor: 'crosshair' });
                 this.props.unitController.selectionRange = {
                     start: startTime,
                     end: startTime
@@ -507,6 +527,19 @@ export class XYOutputComponent extends AbstractTreeOutputComponent<AbstractOutpu
             this.onMouseMove(event);
         }
         document.addEventListener('mouseup', this.endSelection);
+    }
+
+    private panHorizontally(event: React.MouseEvent) {
+        const delta = event.nativeEvent.x;
+        const change = Number(this.mousePanningStart) - (delta / this.resolution);
+        const min = BigInt(0);
+        const max = this.props.unitController.absoluteRange - this.props.unitController.viewRangeLength;
+        const start = BIMath.clamp(change, min, max);
+        const end = start + this.props.unitController.viewRangeLength;
+        this.props.unitController.viewRange = {
+            start,
+            end
+        };
     }
 
     private updateRange(rangeStart: bigint, rangeEnd: bigint) {
@@ -748,11 +781,14 @@ export class XYOutputComponent extends AbstractTreeOutputComponent<AbstractOutpu
         this.positionYMove = event.nativeEvent.offsetY;
         this.isMouseLeave = false;
 
-        if (this.mouseIsDown && !this.isRightClick) {
-            this.updateSelection();
-        }
-        if (this.mouseIsDown && this.isRightClick) {
-            this.forceUpdate();
+       if (this.mouseIsDown) {
+            if (this.isPanning) {
+                this.panHorizontally(event);
+            } else if (this.isSelecting) {
+                this.updateSelection();
+            } else {
+                this.forceUpdate();
+            }
         }
         if (this.state.xyData.datasets.length > 0) {
             this.tooltip(event.nativeEvent.x, event.nativeEvent.y);
@@ -812,8 +848,22 @@ export class XYOutputComponent extends AbstractTreeOutputComponent<AbstractOutpu
                     break;
                 }
                 case 'Shift': {
-                    if (!this.isRightClick) {
-                        this.setState({ cursor: 'crosshair', shiftKey: true });
+                    if (!this.isPanning && !this.isRightClick && !this.isSelecting) {
+                        if (key.ctrlKey) {
+                            this.setState({ cursor: 'default' });
+                        } else {
+                            this.setState({ cursor: 'crosshair' });
+                        }
+                    }
+                    break;
+                }
+                case 'Control': {
+                    if (!this.isSelecting && !this.isPanning) {
+                        if (key.shiftKey) {
+                            this.setState({ cursor: 'default' });
+                        } else {
+                            this.setState({ cursor: 'grabbing' });
+                        }
                     }
                     break;
                 }
@@ -822,12 +872,23 @@ export class XYOutputComponent extends AbstractTreeOutputComponent<AbstractOutpu
     }
 
     private onKeyUp(key: React.KeyboardEvent) {
-        if (key.key === 'Shift') {
-            const change: { cursor?: string, shiftKey: boolean } = { shiftKey: false };
-            if (!this.mouseIsDown) {
-                change.cursor = 'default';
+        if (!this.isSelecting && !this.isPanning) {
+            let keyCursor: (string | undefined) = this.state.cursor ?? 'default';
+            if (key.key === 'Shift') {
+                if (key.ctrlKey) {
+                    keyCursor = 'grabbing';
+                } else if (!this.mouseIsDown) {
+                    keyCursor = 'default';
+                }
+            } else if (key.key === 'Control') {
+                if (key.shiftKey) {
+                    keyCursor = 'crosshair';
+                } else if (!this.mouseIsDown) {
+                    this.isPanning = false;
+                    keyCursor = 'default';
+                }
             }
-            this.setState(change);
+            this.setState({ cursor: keyCursor });
         }
     }
 
