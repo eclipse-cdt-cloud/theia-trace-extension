@@ -74,7 +74,6 @@ Can we fit TSP's POST solution above with this GraphQL way of factoring requests
 
 #### Compression
 
-* Is it possible to compress messages?
 * With REST, it is possible to use
   * GZIP compression of the HTTP message, or
   * protobuf instead of JSON.
