@@ -95,8 +95,13 @@ From the [Pluralsight course][course]:
 Language support for server-side and client-side implementation.
 
 * [Pluralsight course][course] mentions GraphQL being [language agnostic][code], [overall][impl].
-* Can we quickly confirm this for both clients and server sides?
-  * [Python][py] and TypeScript ([JavaScript][js]) for clients;
+* Quickly confirming that for both clients and server sides, herein:
+  * [Python][py] and TypeScript ([JavaScript][js]) for clients.
+    1. Similarly to [Apollo Client](#apollo-client-optional), these clients are optional for TSP use.
+    1. Thus, TSP's current [Python][client-py] and [TypeScript][client-ts] clients base should suffice.
+    1. These existing TSP clients would only require GraphQL queries towards a GraphQL (trace) server.
+    1. One could then still consider more feature-rich GraphQL clients, upon such confirmed basic use.
+    1. This ADR focuses on adapting TSP's clients to check GraphQL usability for them, if decided so.
   * [Java][java] for (trace-)server TSP reference implementation, our (currently REST) API.
     1. `graphql-java` is [a library][java-hw] on GitHub that supports [fetching data][java-fd] directly.
     1. It [can be built using Maven][java-mvn] and would enable non-REST (direct) use of trace data.
