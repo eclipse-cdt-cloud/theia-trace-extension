@@ -1,6 +1,6 @@
 # 2. GraphQL
 
-Date: 2022-02-28
+Date: 2022-03-14
 
 ## Status
 
@@ -97,7 +97,12 @@ Language support for server-side and client-side implementation.
 * [Pluralsight course][course] mentions GraphQL being [language agnostic][code], [overall][impl].
 * Can we quickly confirm this for both clients and server sides?
   * [Python][py] and TypeScript ([JavaScript][js]) for clients;
-  * [Java][java] for (trace-)server TSP reference implementation, our currently REST API.
+  * [Java][java] for (trace-)server TSP reference implementation, our (currently REST) API.
+    1. `graphql-java` is [a library][java-hw] on GitHub that supports [fetching data][java-fd] directly.
+    1. It [can be built using Maven][java-mvn] and would enable non-REST (direct) use of trace data.
+    1. `GraphQL Java Generator` ([listed][java] too) can help providing boilerplate `graphql-java` code.
+    1. This ADR focuses on first integrating GraphQL clients towards the existing (REST) `trace-server`.
+    1. Such (TSP) clients would then first query Graph data through a GraphQL server resolving to REST.
 * [Pluralsight][course]: GraphQL open-sourced, with ***large*** [community][comm] involvement.
 
 #### Versioning
@@ -329,6 +334,9 @@ Each number referring to an aforementioned (previously numbered) risk.
 [inc]: https://git.eclipse.org/r/plugins/gitiles/tracecompass.incubator/org.eclipse.tracecompass.incubator/+/refs/heads/master/trace-server/
 [issue]: https://github.com/theia-ide/trace-server-protocol/issues/45
 [java]: https://graphql.org/code/#java-kotlin
+[java-fd]: https://www.graphql-java.com/documentation/data-fetching/#how-graphql-fetches-data
+[java-hw]: https://www.graphql-java.com/documentation/getting-started/#hello-world
+[java-mvn]: https://www.graphql-java.com/documentation/getting-started/#how-to-use-the-latest-release-with-maven
 [jest]: https://medium.com/entria/testing-a-graphql-server-using-jest-4e00d0e4980e
 [js]: https://graphql.org/code/#javascript
 [legend]: https://cognitect.com/blog/2011/11/15/documenting-architecture-decisions
