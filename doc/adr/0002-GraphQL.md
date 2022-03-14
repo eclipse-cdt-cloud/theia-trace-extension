@@ -120,14 +120,12 @@ According to the [Pluralsight course][course],
 
 #### Centralized server
 
-Possible for `trace-server` servicing?
-
-From the [Pluralsight course][course]:
-
-* GraphQL Server able to fetch data from ***legacy system***(s).
-  1. By means of writing per-field Resolver functions.
-  1. Batched (optimized) resolving supported; [batching][batch].
-  1. API gets itself documented through the developing GraphQL schema.
+* Possible for `trace-server` servicing, as this ADR shows [next](#proposed-change).
+* From the [Pluralsight course][course]:
+  * GraphQL Server able to fetch data from ***legacy system***(s).
+    1. By means of writing per-field Resolver functions.
+    1. Batched (optimized) resolving supported; [batching][batch].
+    1. API gets itself documented through the developing GraphQL schema.
 
 ## Decision
 
