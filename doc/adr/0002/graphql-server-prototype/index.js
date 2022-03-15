@@ -48,7 +48,7 @@ const resolvers = {
         return -1;
       }
     }
-  },
+  }
 };
 
 const server = new ApolloServer({ typeDefs, resolvers });
