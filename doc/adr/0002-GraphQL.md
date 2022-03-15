@@ -1,6 +1,6 @@
 # 2. GraphQL
 
-Date: 2022-03-14
+Date: 2022-03-15
 
 ## Status
 
@@ -70,7 +70,38 @@ From the [Pluralsight course][course]:
 1. ***Fragments*** can remove fields list(s) duplication in request.
 1. Query (or mutation) operations can be named and support input [variables][var] (parameters).
 
-Can we fit TSP's POST solution above with this GraphQL way of factoring requests?
+TSP's aforementioned POST solution fits with this GraphQL way of factoring requests, depending.
+
+* An extensive GraphQL queries schema such as [this legacy one][pr] could be eventually considered.
+* Such a schema, although extensively detailed and split or itemized, would still require Resolvers.
+* This ADR [describes what GraphQL resolvers are](#apollo-server-trial) further on.
+* Or, an initial schema could be simpler, like [this ADR's prototype](#apollo-server-prototype-tsp).
+* In such a more trivial (naive) case, resolver(s) logic gets closer to current TSP clients; e.g.:
+
+```javascript
+const { Query } = require('tsp-typescript-client/lib/models/query/query');
+
+const response = await tspClient.fetchTimeGraphTree(
+  '50484c19-f1af-3af3-841a-0d821ed393d2',
+  'org.eclipse.tracecompass.analysis.os.linux.core.cpuusage.CpuUsageDataProvider',
+  new Query({'parameters': {
+    'requested_items': [1846, 1980],
+    'requested_times': [1332170683462577664, 1332170684485022208]
+  }})
+);
+```
+
+The above example assumes this ADR's own [prototype](#apollo-server-prototype-tsp) `tspClient`,
+
+* along with the related and already existing TSP (REST) [TypeScript client][client-ts].
+* Values hardcoded above are a local subset of TSP's [Python client][client-py] test data.
+* This example is shown above for illustration purposes, but was confirmed as working prior.
+* That code can be made into a `resolver` with its name added to prototype's `type Query` schema.
+* Resolver is built using prototype's existing ones as template but requires [test data][client-py].
+* For example, such a resolver may return `response.getModel().model.entries.length` or the like.
+* Prototype's `./test` script can be amended accordingly and used to run the resulting query.
+
+This example of course remains trivial and shall benefit from [GraphQL types][pr] and parameters.
 
 #### Compression
 
