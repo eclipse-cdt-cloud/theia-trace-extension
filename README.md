@@ -124,6 +124,8 @@ yarn start:electron
 
 and use the Electron application.
 
+If there are errors that occurred while starting the app, see [Troubleshooting](#troubleshooting) for known issues.
+
 ### Change the trace server URL
 
 By default, the application expects the trace server to be responding at `http://localhost:8080/tsp/api`. If a different trace server location is being used, the URL can be changed using the `TRACE_SERVER_URL` environment variable when running the app.
@@ -288,6 +290,35 @@ This trace viewer depends on code from several other repos. Sometimes resolving 
 | [Trace Server Protocol (TSP)](https://github.com/theia-ide/trace-server-protocol) | Protocol used by the trace viewer to communicate with the trace server. | [label:"trace server protocol"](https://github.com/theia-ide/theia-trace-extension/labels/trace%20server%20protocol) | |
 | [Client-side Trace Server Protocol implementation](https://github.com/theia-ide/tsp-typescript-client) | A client-side implementation of the Trace Server Protocol. Allows the trace viewer to communicate with the server. | | |
 | [Timeline Chart](https://github.com/theia-ide/timeline-chart) | Implements the Gantt charts used in this trace viewer. | [label:timeline-chart](https://github.com/theia-ide/theia-trace-extension/labels/timeline-chart) | |
+
+## Troubleshooting
+
+### Windows
+
+This section discusses known issues on Windows.
+
+#### Starting the Trace Extension in the browser
+
+When starting the Trace Extension using `yarn start:browser` on Windows, you might get the following error:
+
+```
+$ TRACE_SERVER_PATH=../../trace-compass-server/tracecompass-server theia start --plugins=local-dir:../plugins
+'TRACE_SERVER_PATH' is not recognized as an internal or external command,
+operable program or batch file.
+error Command failed with exit code 1.
+```
+
+The expression `TRACE_SERVER_PATH=../../trace-compass-server/tracecompass-server` is not a valid Windows expression. For now, if you want to start the Trace Extension in the browser, remove the expression from `theia-trace-extension/examples/browser/package.json` at `scripts.start` and the extension should start normally.
+
+#### Adding new packages
+
+When adding new packages on Windows using yarn (e.g `yarn add @vscode/codicons`) you might encounter the following error:
+
+```
+An unexpected error occurred: "expected workspace package to exist for {some package name}"
+```
+
+A simple solution would be restoring the project to a clean state prior to the installation of the package, then restarting Powershell in administrator mode and re-run the command to add the new package. 
 
 ## Architecture
 
