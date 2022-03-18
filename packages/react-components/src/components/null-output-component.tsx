@@ -11,11 +11,12 @@ export class NullOutputComponent extends AbstractOutputComponent<NullOutputProps
     constructor(props: NullOutputProps) {
         super(props);
     }
+
     renderMainArea(): React.ReactNode {
-        const treeWidth = Math.min(this.getMainAreaWidth(), this.props.style.sashOffset + this.props.style.sashWidth);
+        const treeWidth = Math.min(this.getMainAreaWidth(), this.props.style.chartOffset - this.getHandleWidth());
         const chartWidth = this.getMainAreaWidth() - treeWidth;
         return <React.Fragment>
-            <div className='output-component-tree'
+            <div className='output-component-tree disable-select'
                 style={{ width: treeWidth, height: this.props.style.height }}
             >
                 {''}
@@ -24,5 +25,13 @@ export class NullOutputComponent extends AbstractOutputComponent<NullOutputProps
                 {'Not implemented yet!'}
             </div>
         </React.Fragment>;
+    }
+
+    resultsAreEmpty(): boolean {
+        return true;
+    }
+
+    setFocus(): void {
+        return;
     }
   }

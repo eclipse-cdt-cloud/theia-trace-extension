@@ -54,7 +54,7 @@ export class ReactTimeGraphContainer extends React.Component<ReactTimeGraphConta
     }
 
     render(): JSX.Element {
-        return <canvas ref={ ref => this.ref = ref || undefined } onWheel={ e => e.preventDefault() } tabIndex={ 1 }></canvas>;
+        return <canvas ref={ ref => this.ref = ref || undefined } onWheel={ e => e.preventDefault() } tabIndex={ 0 }></canvas>;
     }
 
     private resize(): void {

@@ -88,26 +88,20 @@ export class TableOutputComponent extends AbstractOutputComponent<TableOutputPro
                 params.successCallback(rowsThisPage, this.props.nbEvents);
             }
         };
-
         this.onEventClick = this.onEventClick.bind(this);
         this.onModelUpdated = this.onModelUpdated.bind(this);
         this.onKeyDown = this.onKeyDown.bind(this);
         this.searchEvents = this.searchEvents.bind(this);
         this.findMatchedEvent = this.findMatchedEvent.bind(this);
+        this.checkFocus = this.checkFocus.bind(this);
     }
 
     renderMainArea(): React.ReactNode {
-        if (this.state.outputStatus === ResponseStatus.FAILED) {
-            return this.analysisFailedMessage();
-        }
-
-        if (this.state.outputStatus === ResponseStatus.COMPLETED && this.state.tableColumns.length === 0) {
-            return this.emptyResultsMessage();
-        }
-
-        return <div id='events-table'
+        return <div id={this.props.traceId + this.props.outputDescriptor.id + 'focusContainer'}
+            tabIndex={-1}
+            onFocus={event=>this.checkFocus(event)}
             className={this.props.backgroundTheme === 'light' ? 'ag-theme-balham' : 'ag-theme-balham-dark'}
-            style={{ height: this.props.style.height, width: this.props.widthWPBugWorkaround }}>
+            style={{ height: this.props.style.height, width: this.props.outputWidth }}>
             <AgGridReact
                 columnDefs={this.columnArray}
                 rowModelType='infinite'
@@ -127,8 +121,26 @@ export class TableOutputComponent extends AbstractOutputComponent<TableOutputPro
         </div>;
     }
 
+    resultsAreEmpty(): boolean {
+        return this.state.tableColumns.length === 0;
+    }
+
     componentDidMount(): void {
         this.props.unitController.onSelectionRangeChange(range => { this.handleTimeSelectionChange(range); });
+    }
+
+    private checkFocus(event: React.FocusEvent<HTMLDivElement, Element>): void {
+        if (!event.currentTarget?.contains(event.relatedTarget as Node)) {
+            this.setFocus();
+        }
+    }
+
+    setFocus(): void {
+        if (document.getElementById(this.props.traceId + this.props.outputDescriptor.id + 'focusContainer')) {
+            document.getElementById(this.props.traceId + this.props.outputDescriptor.id + 'focusContainer')?.focus();
+        } else {
+            document.getElementById(this.props.traceId + this.props.outputDescriptor.id)?.focus();
+        }
     }
 
     componentWillUnmount(): void {
@@ -298,6 +310,14 @@ export class TableOutputComponent extends AbstractOutputComponent<TableOutputPro
         // Fetch columns
         const tspClientResponse = await tspClient.fetchTableColumns(traceUUID, outputId, QueryHelper.timeQuery([BigInt(0), BigInt(1)]));
         const columnsResponse = tspClientResponse.getModel();
+
+        if (!tspClientResponse.isOk() || !columnsResponse) {
+            this.setState({
+                outputStatus: ResponseStatus.FAILED
+            });
+            return;
+        }
+
         const colIds: Array<number> = [];
         const columnsArray = new Array<any>();
 
@@ -311,46 +331,37 @@ export class TableOutputComponent extends AbstractOutputComponent<TableOutputPro
             colIds.push(0);
         }
 
-        if (tspClientResponse.isOk() && columnsResponse) {
-            this.setState({
-                outputStatus: columnsResponse.status
+        const columnEntries = columnsResponse.model;
+        columnEntries.forEach(columnHeader => {
+            const id = this.showIndexColumn ? ++columnHeader.id : columnHeader.id;
+            colIds.push(id);
+            columnsArray.push({
+                headerName: columnHeader.name,
+                field: columnHeader.id.toString(),
+                width: this.props.columnWidth,
+                resizable: true,
+                cellRenderer: 'cellRenderer',
+                cellRendererParams: {
+                    filterModel: this.filterModel,
+                    searchResultsColor: this.props.backgroundTheme === 'light' ? '#cccc00' : '#008000'
+                },
+                suppressMenu: true,
+                filter: 'agTextColumnFilter',
+                floatingFilter: true,
+                floatingFilterComponent: 'searchFilterRenderer',
+                floatingFilterComponentParams: {
+                    suppressFilterButton: true,
+                    onFilterChange: this.searchEvents,
+                    onclickNext: () => this.findMatchedEvent(Direction.NEXT),
+                    onclickPrevious: () => this.findMatchedEvent(Direction.PREVIOUS),
+                    colName: columnHeader.id.toString()
+                },
+                icons: {
+                    filter: ''
+                },
+                tooltipField: columnHeader.id.toString()
             });
-            const columnEntries = columnsResponse.model;
-            columnEntries.forEach(columnHeader => {
-                const id = this.showIndexColumn ? ++columnHeader.id : columnHeader.id;
-                colIds.push(id);
-                columnsArray.push({
-                    headerName: columnHeader.name,
-                    field: columnHeader.id.toString(),
-                    width: this.props.columnWidth,
-                    resizable: true,
-                    cellRenderer: 'cellRenderer',
-                    cellRendererParams: {
-                        filterModel: this.filterModel,
-                        searchResultsColor: this.props.backgroundTheme === 'light' ? '#cccc00' : '#008000'
-                    },
-                    suppressMenu: true,
-                    filter: 'agTextColumnFilter',
-                    floatingFilter: true,
-                    floatingFilterComponent: 'searchFilterRenderer',
-                    floatingFilterComponentParams: {
-                        suppressFilterButton: true,
-                        onFilterChange: this.searchEvents,
-                        onclickNext: () => this.findMatchedEvent(Direction.NEXT),
-                        onclickPrevious: () => this.findMatchedEvent(Direction.PREVIOUS),
-                        colName: columnHeader.id.toString()
-                    },
-                    icons: {
-                        filter: ''
-                    },
-                    tooltipField: columnHeader.id.toString()
-                });
-            });
-        } else {
-            this.setState({
-                outputStatus: ResponseStatus.FAILED
-            });
-        }
+        });
 
         if (!this.showIndexColumn) {
             columnsArray[0].cellRenderer = 'cellRenderer';
@@ -360,6 +371,7 @@ export class TableOutputComponent extends AbstractOutputComponent<TableOutputPro
         this.columnArray = columnsArray;
 
         this.setState({
+            outputStatus: columnsResponse.status,
             tableColumns: this.columnArray
         });
 

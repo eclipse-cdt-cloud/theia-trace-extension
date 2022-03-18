@@ -4,10 +4,12 @@ import * as React from 'react';
 import { QueryHelper } from 'tsp-typescript-client/lib/models/query/query-helper';
 import { Entry } from 'tsp-typescript-client/lib/models/entry';
 import { ResponseStatus } from 'tsp-typescript-client/lib/models/response/responses';
-import { EntryTree } from './utils/filtrer-tree/entry-tree';
-import { getAllExpandedNodeIds } from './utils/filtrer-tree/utils';
-import { TreeNode } from './utils/filtrer-tree/tree-node';
-import ColumnHeader from './utils/filtrer-tree/column-header';
+import { EntryTree } from './utils/filter-tree/entry-tree';
+import { getAllExpandedNodeIds } from './utils/filter-tree/utils';
+import { TreeNode } from './utils/filter-tree/tree-node';
+import ColumnHeader from './utils/filter-tree/column-header';
+import { cloneDeep } from 'lodash';
+import debounce from 'lodash.debounce';
 
 type DataTreeOutputProps = AbstractOutputProps & {
 };
@@ -22,6 +24,8 @@ type DataTreeOuputState = AbstractOutputState & {
 
 export class DataTreeOutputComponent extends AbstractOutputComponent<AbstractOutputProps, DataTreeOuputState> {
     treeRef: React.RefObject<HTMLDivElement> = React.createRef();
+
+    private _debouncedFetchSelectionData = debounce(() => this.fetchSelectionData(), 500);
 
     constructor(props: AbstractOutputProps) {
         super(props);
@@ -60,17 +64,32 @@ export class DataTreeOutputComponent extends AbstractOutputComponent<AbstractOut
                     xyTree: treeResponse.model.entries,
                     columns
                 });
+            } else {
+                this.setState({
+                    outputStatus: treeResponse.status
+                });
             }
             return treeResponse.status;
         }
+        this.setState({
+            outputStatus: ResponseStatus.FAILED
+        });
         return ResponseStatus.FAILED;
+    }
+
+    resultsAreEmpty(): boolean {
+        return this.state.xyTree.length === 0;
     }
 
     renderTree(): React.ReactNode | undefined {
         this.onToggleCollapse = this.onToggleCollapse.bind(this);
         this.onOrderChange = this.onOrderChange.bind(this);
         return this.state.xyTree.length
-            ? <div className='scrollable' style={{ height: this.props.style.height, width: this.getMainAreaWidth() }}>
+            ?   <div
+                    tabIndex={0}
+                    id={this.props.traceId + this.props.outputDescriptor.id + 'focusContainer'}
+                    className='scrollable' style={{ height: this.props.style.height, width: this.getMainAreaWidth() }}
+                >
                 <EntryTree
                     entries={this.state.xyTree}
                     showCheckboxes={false}
@@ -83,21 +102,31 @@ export class DataTreeOutputComponent extends AbstractOutputComponent<AbstractOut
             : undefined
             ;
     }
+
     renderMainArea(): React.ReactNode {
         return <React.Fragment>
             {this.state.outputStatus === ResponseStatus.COMPLETED ?
-                <div ref={this.treeRef} className='output-component-tree'
-                    style={{ height: this.props.style.height, width: this.props.widthWPBugWorkaround }}
+                <div ref={this.treeRef} className='output-component-tree disable-select'
+                    style={{ height: this.props.style.height, width: this.props.outputWidth }}
                 >
                     {this.renderTree()}
                 </div> :
-                <div className='analysis-running-main-area'>
+                <div tabIndex={0} id={this.props.traceId + this.props.outputDescriptor.id + 'focusContainer'} className='analysis-running-main-area'>
                     <i className='fa fa-refresh fa-spin' style={{ marginRight: '5px' }} />
                     <span>Analysis running</span>
                 </div>
             }
         </React.Fragment>;
     }
+
+    setFocus(): void {
+        if (document.getElementById(this.props.traceId + this.props.outputDescriptor.id + 'focusContainer')) {
+            document.getElementById(this.props.traceId + this.props.outputDescriptor.id + 'focusContainer')?.focus();
+        } else {
+            document.getElementById(this.props.traceId + this.props.outputDescriptor.id)?.focus();
+        }
+    }
+
     private onToggleCollapse(id: number, nodes: TreeNode[]) {
         let newList = [...this.state.collapsedNodes];
 
@@ -111,6 +140,7 @@ export class DataTreeOutputComponent extends AbstractOutputComponent<AbstractOut
         const orderedIds = getAllExpandedNodeIds(nodes, newList);
         this.setState({collapsedNodes: newList, orderedNodes: orderedIds});
     }
+
     private onOrderChange(ids: number[]) {
         this.setState({orderedNodes: ids});
     }
@@ -127,5 +157,36 @@ export class DataTreeOutputComponent extends AbstractOutputComponent<AbstractOut
     componentWillUnmount(): void {
         // fix Warning: Can't perform a React state update on an unmounted component
         this.setState = (_state, _callback) => undefined;
+    }
+
+    protected async fetchSelectionData(): Promise<void> {
+        if (this.props.selectionRange) {
+            let payload: any;
+            if (this.props.selectionRange.getStart() < this.props.selectionRange.getEnd()) {
+                payload = QueryHelper.timeQuery([this.props.selectionRange.getStart(), this.props.selectionRange.getEnd()]);
+            } else {
+                payload = QueryHelper.timeQuery([this.props.selectionRange.getEnd(), this.props.selectionRange.getStart()]);
+            }
+
+            payload.parameters.isFiltered = true;
+
+            // TODO: use the data tree endpoint instead of the xy tree endpoint
+            const tspClientResponse = await this.props.tspClient.fetchXYTree(this.props.traceId, this.props.outputDescriptor.id, payload);
+            const treeResponse = tspClientResponse.getModel();
+            if (tspClientResponse.isOk() && treeResponse) {
+                if (treeResponse.model) {
+                    this.setState({
+                        outputStatus: treeResponse.status,
+                        xyTree: treeResponse.model.entries,
+                    });
+                }
+            }
+        }
+    }
+
+    async componentDidUpdate(prevProps: DataTreeOutputProps): Promise<void> {
+        if (this.props.selectionRange && this.props.selectionRange !== prevProps.selectionRange) {
+            this._debouncedFetchSelectionData();
+        }
     }
 }

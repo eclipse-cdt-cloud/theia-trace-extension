@@ -1,9 +1,9 @@
 export interface OutputComponentStyle {
     width: number;
-    handleWidth: number;
-    sashOffset: number;
-    sashWidth: number;
-    yAxisWidth: number;
+    chartOffset: number;
+    handleWidth?: number;
+    yAxisWidth?: number;
+    sashWidth?: number;
     componentLeft: number;
     // react-grid-layout - The library used for resizing components
     // inserts new React components during compilation, and the dimensions

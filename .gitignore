@@ -1,15 +1,17 @@
-node_modules
-.browser_modules
-lib
+# LC_COLLATE=C sort .gitignore
+!examples/*/electron-builder.yml
+!examples/*/package.json
+!examples/*/resources/
+!examples/*/scripts/
 *.log
+*.tsbuildinfo
+.browser_modules/
+/.venv/
 /packages/react-components/coverage/
 TraceCompassTutorialTraces
-trace-compass-server
-trace-compass-server.tar.gz
 TraceCompassTutorialTraces.tgz
 examples/*
-!examples/*/package.json
-!examples/*/electron-builder.yml
-!examples/*/resources/
-!examples/*/scripts
-*.tsbuildinfo
+lib/
+node_modules/
+trace-compass-server
+trace-compass-server.tar.gz

@@ -2,7 +2,12 @@
 /* Main container*/
 .output-container {
     display: flex;
+    position: relative;
     color: var(--theia-ui-font-color0)
+}
+
+.output-container:focus {
+    outline: none;
 }
 
 .widget-handle {
@@ -38,6 +43,15 @@
 .main-output-container {
     display: flex;
     overflow: hidden;
+    position: relative;
+    z-index: -1;
+}
+
+.disable-select {
+    -webkit-user-select: none;  
+    -moz-user-select: none;    
+    -ms-user-select: none;      
+    user-select: none;
 }
 
 .output-component-tree {
@@ -67,7 +81,7 @@
     display: flex;
 }
 
-#xy-main {
+.xy-main {
     width: 100%;
     display: flex;
 }

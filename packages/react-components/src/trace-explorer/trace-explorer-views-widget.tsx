@@ -58,7 +58,7 @@ export class ReactAvailableViewsWidget extends React.Component<ReactAvailableVie
         const totalHeight = this.getTotalHeight();
         return (
             <div className='trace-explorer-views'>
-                <div className='trace-explorer-panel-content'>
+                <div className='trace-explorer-panel-content disable-select'>
                     <AutoSizer>
                         {({ width }) =>
                             <List
@@ -126,9 +126,7 @@ export class ReactAvailableViewsWidget extends React.Component<ReactAvailableVie
         const outputs = this.state.availableOutputDescriptors;
 
         if (outputs && this._selectedExperiment) {
-            signalManager().fireExperimentSelectedSignal(this._selectedExperiment);
             signalManager().fireOutputAddedSignal(new OutputAddedSignalPayload(outputs[index], this._selectedExperiment));
-
         }
     }
 
@@ -173,9 +171,7 @@ export class ReactAvailableViewsWidget extends React.Component<ReactAvailableVie
         if (descriptors && descriptors.length) {
             outputDescriptors.push(...descriptors);
         }
-        /*
-         * Remove outputs of id "scatter" until the tooltip is implemented
-         */
-        return outputDescriptors.filter(value => !value.id.includes('scatter'));
+
+        return outputDescriptors;
     }
 }

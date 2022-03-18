@@ -16,8 +16,6 @@ ports:
 tasks:
 - init: >
     yarn download:server
-  command: >
-    yarn start:server
 - init: >
     yarn download:sample-traces &&
     yarn

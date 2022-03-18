@@ -26,6 +26,7 @@ import { TooltipComponent } from './tooltip-component';
 import { TooltipXYComponent } from './tooltip-xy-component';
 import { BIMath } from 'timeline-chart/lib/bigint-utils';
 import { DataTreeOutputComponent } from './datatree-output-component';
+import { cloneDeep } from 'lodash';
 
 const ResponsiveGridLayout = WidthProvider(Responsive);
 
@@ -64,15 +65,14 @@ export class TraceContextComponent extends React.Component<TraceContextProps, Tr
     private readonly DEFAULT_COMPONENT_ROWHEIGHT: number = 20;
     private readonly DEFAULT_COMPONENT_LEFT: number = 0;
     private readonly SCROLLBAR_PADDING: number = 12;
-    private readonly HANDLE_WIDTH = 30;
-    private readonly Y_AXIS_WIDTH: number = 40;
-    private readonly DEFAULT_SASH_OFFSET = 200;
-    private readonly SASH_WIDTH = 4;
+    private readonly DEFAULT_CHART_OFFSET = 200;
 
     private unitController: TimeGraphUnitController;
     private tooltipComponent: React.RefObject<TooltipComponent>;
     private tooltipXYComponent: React.RefObject<TooltipXYComponent>;
     private traceContextContainer: React.RefObject<HTMLDivElement>;
+    private _storedTimescaleLayout: Layout[] = [];
+    private _storedNonTimescaleLayout: Layout[] = [];
 
     protected widgetResizeHandlers: (() => void)[] = [];
     protected readonly addWidgetResizeHandler = (h: () => void): void => {
@@ -108,11 +108,8 @@ export class TraceContextComponent extends React.Component<TraceContextProps, Tr
             experiment: this.props.experiment,
             traceIndexing: ((this.props.experiment.indexingStatus === this.INDEXING_RUNNING_STATUS) || (this.props.experiment.indexingStatus === this.INDEXING_CLOSED_STATUS)),
             style: {
-                width: this.HANDLE_WIDTH + this.DEFAULT_SASH_OFFSET + this.SASH_WIDTH,
-                handleWidth: this.HANDLE_WIDTH,
-                sashOffset: this.DEFAULT_SASH_OFFSET,
-                sashWidth: this.SASH_WIDTH,
-                yAxisWidth: this.Y_AXIS_WIDTH,
+                width: 0, // width will be set by resize handler
+                chartOffset: this.DEFAULT_CHART_OFFSET,
                 componentLeft: this.DEFAULT_COMPONENT_LEFT,
                 height: this.DEFAULT_COMPONENT_HEIGHT,
                 rowHeight: this.DEFAULT_COMPONENT_ROWHEIGHT,
@@ -141,7 +138,8 @@ export class TraceContextComponent extends React.Component<TraceContextProps, Tr
         this.tooltipXYComponent = React.createRef();
         this.traceContextContainer = React.createRef();
         this.onResize = this.onResize.bind(this);
-        this.setSashOffset = this.setSashOffset.bind(this);
+        this.setChartOffset = this.setChartOffset.bind(this);
+        this.onLayoutChange = this.onLayoutChange.bind(this);
         this.props.addResizeHandler(this.onResize);
         this.initialize();
         this.subscribeToEvents();
@@ -233,7 +231,7 @@ export class TraceContextComponent extends React.Component<TraceContextProps, Tr
     private scrollToBottom(): void {
         if (this.props.outputs.length) {
             const bottomOutputId = this.props.outputs[this.props.outputs.length - 1].id;
-            document.getElementById(bottomOutputId)?.scrollIntoView();
+            document.getElementById(this.state.experiment.UUID+bottomOutputId)?.focus();
         }
     }
 
@@ -273,8 +271,8 @@ export class TraceContextComponent extends React.Component<TraceContextProps, Tr
         this.widgetResizeHandlers.forEach(h => h());
     }
 
-    private setSashOffset(sashOffset: number) {
-        this.setState(prevState => ({ style: { ...prevState.style, sashOffset: sashOffset } }));
+    private setChartOffset(chartOffset: number) {
+        this.setState(prevState => ({ style: { ...prevState.style, chartOffset: chartOffset } }));
         this.widgetResizeHandlers.forEach(h => h());
     }
 
@@ -299,8 +297,24 @@ export class TraceContextComponent extends React.Component<TraceContextProps, Tr
         }));
     }
 
+    private onContextMenu(event: React.MouseEvent) {
+        event.preventDefault();
+    }
+
+    private onLayoutChange(currentLayout: Layout[]): void {
+        if (currentLayout.length > 0) {
+            const curLayoutCopy = cloneDeep(currentLayout);
+            if (this._storedTimescaleLayout.find(obj => obj.i === currentLayout[0].i)) {
+                this._storedTimescaleLayout = curLayoutCopy;
+            } else {
+                this._storedNonTimescaleLayout = curLayoutCopy;
+            }
+        }
+    }
+
     render(): JSX.Element {
         return <div className='trace-context-container'
+            onContextMenu={event => this.onContextMenu(event)}
             onKeyDown={event => this.onKeyDown(event)}
             ref={this.traceContextContainer}>
             <TooltipComponent ref={this.tooltipComponent} />
@@ -325,69 +339,91 @@ export class TraceContextComponent extends React.Component<TraceContextProps, Tr
     }
 
     private renderOutputs() {
-        const layouts = this.generateGridLayout();
-        const outputs = this.props.outputs;
-        const showTimeScale = outputs.filter(output => output.type === 'TIME_GRAPH' || output.type === 'TREE_TIME_XY').length > 0;
-        return <React.Fragment>
-            {showTimeScale &&
-                <div style={{ marginLeft: this.state.style.handleWidth + this.state.style.sashOffset + this.state.style.sashWidth }}>
-                    <TimeAxisComponent unitController={this.unitController} style={this.state.style}
-                        addWidgetResizeHandler={this.addWidgetResizeHandler} removeWidgetResizeHandler={this.removeWidgetResizeHandler} />
-                </div>
+        this.generateGridLayout();
+        const chartWidth = Math.max(0, this.state.style.width - this.state.style.chartOffset);
+
+        const timeScaleCharts: Array<OutputDescriptor> = [];
+        const nonTimeScaleCharts: Array<OutputDescriptor> = [];
+
+        for (const output of this.props.outputs) {
+            if (output.type === 'TIME_GRAPH' || output.type === 'TREE_TIME_XY') {
+                timeScaleCharts.push(output);
+            } else {
+                nonTimeScaleCharts.push(output);
             }
+        }
+
+        return <React.Fragment>
             {
                 // Syntax to use ReactGridLayout with Custom Components, while passing resized dimensions to children:
                 // https://github.com/STRML/react-grid-layout/issues/299#issuecomment-524959229
             }
-            <ResponsiveGridLayout className='outputs-grid-layout' margin={[0, 5]} isResizable={true} isDraggable={true} resizeHandles={['se', 's', 'sw']}
-                layouts={{ lg: layouts }} cols={{ lg: 1 }} breakpoints={{ lg: 1200 }} rowHeight={this.DEFAULT_COMPONENT_ROWHEIGHT} draggableHandle={'.title-bar-label'}
-                style={{ paddingRight: this.SCROLLBAR_PADDING }}>
-                {outputs.map(output => {
-                    const responseType = output.type;
-                    const outputProps: AbstractOutputProps = {
-                        tspClient: this.props.tspClient,
-                        tooltipComponent: this.tooltipComponent.current,
-                        tooltipXYComponent: this.tooltipXYComponent.current,
-                        traceId: this.state.experiment.UUID,
-                        outputDescriptor: output,
-                        markerCategories: this.props.markerCategoriesMap.get(output.id),
-                        markerSetId: this.props.markerSetId,
-                        range: this.state.currentRange,
-                        nbEvents: this.state.experiment.nbEvents,
-                        viewRange: this.state.currentViewRange,
-                        selectionRange: this.state.currentTimeSelection,
-                        style: this.state.style,
-                        onOutputRemove: this.props.onOutputRemove,
-                        unitController: this.unitController,
-                        widthWPBugWorkaround: this.state.style.width,
-                        backgroundTheme: this.state.backgroundTheme,
-                        setSashOffset: this.setSashOffset
-                    };
-                    switch (responseType) {
-                        case 'TIME_GRAPH':
-                            return <TimegraphOutputComponent key={output.id} {...outputProps}
-                                addWidgetResizeHandler={this.addWidgetResizeHandler} removeWidgetResizeHandler={this.removeWidgetResizeHandler} />;
-                        case 'TREE_TIME_XY':
-                            return <XYOutputComponent key={output.id} {...outputProps} />;
-                        case 'TABLE':
-                            return <TableOutputComponent key={output.id} {...outputProps} />;
-                        case 'DATA_TREE':
-                            return <DataTreeOutputComponent key={output.id} {...outputProps} />;
-                        default:
-                            return <NullOutputComponent key={output.id} {...outputProps} />;
-                    }
-                })}
-            </ResponsiveGridLayout>
-            {showTimeScale &&
-                <div style={{ marginLeft: this.state.style.handleWidth + this.state.style.sashOffset + this.state.style.sashWidth }}>
-                    <TimeNavigatorComponent unitController={this.unitController} style={this.state.style}
-                        addWidgetResizeHandler={this.addWidgetResizeHandler} removeWidgetResizeHandler={this.removeWidgetResizeHandler} />
-                </div>
+            <div style={{ marginLeft: this.state.style.chartOffset, marginRight: this.SCROLLBAR_PADDING, visibility: timeScaleCharts.length ? 'visible' : 'hidden' }}>
+                <TimeAxisComponent unitController={this.unitController} style={{ ...this.state.style, width: chartWidth }}
+                    addWidgetResizeHandler={this.addWidgetResizeHandler} removeWidgetResizeHandler={this.removeWidgetResizeHandler} />
+             </div>
+            <div className='outputs-grid-layout'>
+            {timeScaleCharts.length > 0 &&
+                <>
+                    {this.renderGridLayout(timeScaleCharts, this._storedTimescaleLayout)}
+                    <div className='sticky-div' style={{ marginLeft: this.state.style.chartOffset, marginRight: this.SCROLLBAR_PADDING }}>
+                        <TimeNavigatorComponent unitController={this.unitController} style={{ ...this.state.style, width: chartWidth }}
+                            addWidgetResizeHandler={this.addWidgetResizeHandler} removeWidgetResizeHandler={this.removeWidgetResizeHandler} />
+                    </div>
+                </>
             }
+            {nonTimeScaleCharts.length > 0 &&
+                this.renderGridLayout(nonTimeScaleCharts, this._storedNonTimescaleLayout)
+            }
+            </div>
         </React.Fragment>;
     }
 
+    private renderGridLayout(outputs: OutputDescriptor[], layout: Layout[]) {
+        return <ResponsiveGridLayout margin={[0, 5]} isResizable={true} isDraggable={true} resizeHandles={['se', 's', 'sw']}
+        onLayoutChange={this.onLayoutChange} layouts={{ lg: layout }} cols={{ lg: 1 }} breakpoints={{ lg: 1200 }} rowHeight={this.DEFAULT_COMPONENT_ROWHEIGHT}
+        draggableHandle={'.title-bar-label'}>
+            {outputs.map(output => {
+                const responseType = output.type;
+                const outputProps: AbstractOutputProps = {
+                    tspClient: this.props.tspClient,
+                    tooltipComponent: this.tooltipComponent.current,
+                    tooltipXYComponent: this.tooltipXYComponent.current,
+                    traceId: this.state.experiment.UUID,
+                    outputDescriptor: output,
+                    markerCategories: this.props.markerCategoriesMap.get(output.id),
+                    markerSetId: this.props.markerSetId,
+                    range: this.state.currentRange,
+                    nbEvents: this.state.experiment.nbEvents,
+                    viewRange: this.state.currentViewRange,
+                    selectionRange: this.state.currentTimeSelection,
+                    style: this.state.style,
+                    onOutputRemove: this.props.onOutputRemove,
+                    unitController: this.unitController,
+                    outputWidth: this.state.style.width,
+                    backgroundTheme: this.state.backgroundTheme,
+                    setChartOffset: this.setChartOffset
+                };
+                switch (responseType) {
+                    case 'TIME_GRAPH':
+                        return <TimegraphOutputComponent key={output.id} {...outputProps}
+                            addWidgetResizeHandler={this.addWidgetResizeHandler} removeWidgetResizeHandler={this.removeWidgetResizeHandler} />;
+                    case 'TREE_TIME_XY':
+                        return <XYOutputComponent key={output.id} {...outputProps} />;
+                    case 'TABLE':
+                        return <TableOutputComponent key={output.id} {...outputProps} />;
+                    case 'DATA_TREE':
+                        return <DataTreeOutputComponent key={output.id} {...outputProps} />;
+                    default:
+                        return <NullOutputComponent key={output.id} {...outputProps} />;
+                }
+            })}
+        </ResponsiveGridLayout>;
+    }
+
     private renderPlaceHolder() {
+        this._storedTimescaleLayout = [];
+        this._storedNonTimescaleLayout = [];
         return <div className='no-output-placeholder'>
             {'Trace loaded successfully.'}
             <br />
@@ -395,21 +431,54 @@ export class TraceContextComponent extends React.Component<TraceContextProps, Tr
         </div>;
     }
 
-    private generateGridLayout(): Layout[] {
-        const outputs = this.props.outputs;
-        const layouts: Layout[] = [];
-        if (outputs.length) {
-            outputs.forEach((output, index) => {
-                const itemLayout = {
+    private generateGridLayout(): void {
+        let existingTimeScaleLayouts: Array<Layout> = [];
+        let existingNonTimeScaleLayouts: Array<Layout> = [];
+        const newTimeScaleLayouts: Array<Layout> = [];
+        const newNonTimeScaleLayouts: Array<Layout> = [];
+
+        for (const output of this.props.outputs) {
+            const curChartTimeLine = this._storedTimescaleLayout.find(layout => layout.i === output.id);
+            const curChartNonTimeLine = this._storedNonTimescaleLayout.find(layout => layout.i === output.id);
+
+            if (curChartTimeLine) {
+                existingTimeScaleLayouts.push(curChartTimeLine);
+            } else if (curChartNonTimeLine) {
+                existingNonTimeScaleLayouts.push(curChartNonTimeLine);
+            } else if (output.type === 'TIME_GRAPH' || output.type === 'TREE_TIME_XY') {
+                newTimeScaleLayouts.push({
                     i: output.id,
                     x: 0,
-                    y: index,
+                    y: 1,
                     w: 1,
-                    h: this.DEFAULT_COMPONENT_HEIGHT
-                };
-                layouts.push(itemLayout);
-            });
+                    h: this.DEFAULT_COMPONENT_HEIGHT,
+                });
+            } else {
+                newNonTimeScaleLayouts.push({
+                    i: output.id,
+                    x: 0,
+                    y: 1,
+                    w: 1,
+                    h: this.DEFAULT_COMPONENT_HEIGHT,
+                });
+            }
         }
-        return layouts;
+
+        existingTimeScaleLayouts.sort((a,b) => (a.y > b.y) ? 1 : -1);
+        existingNonTimeScaleLayouts.sort((a,b) => (a.y > b.y) ? 1 : -1);
+
+        existingTimeScaleLayouts = existingTimeScaleLayouts.concat(newTimeScaleLayouts);
+        existingNonTimeScaleLayouts = existingNonTimeScaleLayouts.concat(newNonTimeScaleLayouts);
+
+        this._storedTimescaleLayout = existingTimeScaleLayouts;
+        this._storedNonTimescaleLayout = existingNonTimeScaleLayouts;
+
+        // At times after layout change RGL changes y values of existing charts from 1,2,3 to 10,20,30
+        this._storedTimescaleLayout.forEach((output, index) => {
+            output.y = index;
+        });
+        this._storedNonTimescaleLayout.forEach((output, index) => {
+            output.y = index;
+        });
     }
 }

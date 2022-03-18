@@ -11,9 +11,7 @@ describe('Time axis component', () => {
     const unitController: TimeGraphUnitController = new TimeGraphUnitController(BigInt(10), { start: BigInt(0), end: BigInt(10)});
     const style = {
       width: 600,
-      handleWidth: 40,
-      sashOffset: 200,
-      sashWidth: 4,
+      chartOffset: 200,
       naviBackgroundColor: 0xf4f7fb,
       cursorColor: 0x259fd8,
       lineColor: 0x757575
@@ -27,9 +25,7 @@ describe('Time axis component', () => {
     const unitController: TimeGraphUnitController = new TimeGraphUnitController(BigInt(10), { start: BigInt(0), end: BigInt(10)});
     const style = {
       width: 600,
-      handleWidth: 40,
-      sashOffset: 200,
-      sashWidth: 4,
+      chartOffset: 200,
       naviBackgroundColor: 0xf4f7fb,
       cursorColor: 0x259fd8,
       lineColor: 0x757575

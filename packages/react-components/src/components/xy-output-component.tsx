@@ -9,10 +9,10 @@ import { Entry } from 'tsp-typescript-client/lib/models/entry';
 import { ResponseStatus } from 'tsp-typescript-client/lib/models/response/responses';
 import { XYSeries } from 'tsp-typescript-client/lib/models/xy';
 import Chart = require('chart.js');
-import { EntryTree } from './utils/filtrer-tree/entry-tree';
-import { getAllExpandedNodeIds } from './utils/filtrer-tree/utils';
-import { TreeNode } from './utils/filtrer-tree/tree-node';
-import ColumnHeader from './utils/filtrer-tree/column-header';
+import { EntryTree } from './utils/filter-tree/entry-tree';
+import { getAllExpandedNodeIds } from './utils/filter-tree/utils';
+import { TreeNode } from './utils/filter-tree/tree-node';
+import ColumnHeader from './utils/filter-tree/column-header';
 import { signalManager, Signals } from 'traceviewer-base/lib/signals/signal-manager';
 import { BIMath } from 'timeline-chart/lib/bigint-utils';
 import { scaleLinear } from 'd3-scale';
@@ -28,6 +28,10 @@ type XYOuputState = AbstractOutputState & {
     // FIXME Type this properly
     xyData: any;
     columns: ColumnHeader[];
+    allMax: number;
+    allMin: number;
+    cursor?: string;
+    shiftKey: boolean;
 };
 const RIGHT_CLICK_NUMBER = 2;
 const ZOOM_IN = true;
@@ -41,7 +45,7 @@ class xyPair {
     constructor(x: number, y: number) {
         this.x = x;
         this.y = y;
-      }
+    }
 }
 
 export class XYOutputComponent extends AbstractTreeOutputComponent<AbstractOutputProps, XYOuputState> {
@@ -52,11 +56,13 @@ export class XYOutputComponent extends AbstractTreeOutputComponent<AbstractOutpu
     private yAxisRef: any;
     private mouseIsDown = false;
     private positionXMove = 0;
+    private positionYMove = 0;
     private isRightClick = false;
     private isMouseMove = false;
     private posPixelSelect = 0;
     private isMouseLeave = false;
     private startPositionMouseRightClick = BigInt(0);
+    private margin = { top: 15, right: 0, bottom: 5, left: this.getYAxisWidth() };
     private isScatterPlot: boolean = this.props.outputDescriptor.id.includes('scatter');
     private plugin = {
         afterDraw: (chartInstance: Chart, _easing: Chart.Easing, _options?: any) => { this.afterChartDraw(chartInstance); }
@@ -67,6 +73,9 @@ export class XYOutputComponent extends AbstractTreeOutputComponent<AbstractOutpu
            this.applySelectionZoom();
         }
         this.mouseIsDown = false;
+        if (!this.state.shiftKey) {
+            this.setState({ cursor: 'default'});
+        }
         document.removeEventListener('mouseup', this.endSelection);
     };
 
@@ -85,6 +94,10 @@ export class XYOutputComponent extends AbstractTreeOutputComponent<AbstractOutpu
             orderedNodes: [],
             xyData: {},
             columns: [{title: 'Name', sortable: true}],
+            allMax: 0,
+            allMin: 0,
+            cursor: 'default',
+            shiftKey: false
         };
 
         this.afterChartDraw = this.afterChartDraw.bind(this);
@@ -150,9 +163,10 @@ export class XYOutputComponent extends AbstractTreeOutputComponent<AbstractOutpu
         const viewRangeChanged = this.props.viewRange !== prevProps.viewRange;
         const checkedSeriesChanged = this.state.checkedSeries !== prevState.checkedSeries;
         const collapsedNodesChanged = this.state.collapsedNodes !== prevState.collapsedNodes;
-        const chartWidthChanged = this.props.style.width !== prevProps.style.width || this.props.style.sashOffset !== prevProps.style.sashOffset;
-        const needToUpdate = viewRangeChanged || checkedSeriesChanged || collapsedNodesChanged || chartWidthChanged;
-        if (needToUpdate || prevState.outputStatus === ResponseStatus.RUNNING) {
+        const chartWidthChanged = this.props.style.width !== prevProps.style.width || this.props.style.chartOffset !== prevProps.style.chartOffset;
+        const outputStatusChanged = this.state.outputStatus !== prevState.outputStatus;
+        const needToUpdate = viewRangeChanged || checkedSeriesChanged || collapsedNodesChanged || chartWidthChanged || outputStatusChanged;
+        if (needToUpdate) {
             this.updateXY();
         }
         if (this.chartRef.current) {
@@ -197,26 +211,13 @@ export class XYOutputComponent extends AbstractTreeOutputComponent<AbstractOutpu
     renderYAxis(): React.ReactNode {
         // Y axis with D3
         const chartHeight = parseInt(this.props.style.height.toString());
-        const margin = { top: 15, right: 0, bottom: 5, left: this.props.style.yAxisWidth };
-        let allMax = 0;
-        let allMin = 0;
-        this.state.xyData?.datasets?.forEach((dSet: any, i: number) => {
-            let rowMax;
-            let rowMin;
-            if (this.isScatterPlot) {
-                rowMax = Math.max(...dSet.data.map((d: any) => d.y));
-                rowMin = Math.min(...dSet.data.map((d: any) => d.y));
-            } else {
-                rowMax = Math.max(...dSet.data);
-                rowMin = Math.min(...dSet.data);
-            }
-            allMax = Math.max(allMax, rowMax);
-            allMin = i === 0 ? rowMin : Math.min(allMin, rowMin);
-        });
+
         const yScale = scaleLinear()
-            .domain([allMin, Math.max(allMax, 1)])
-            .range([chartHeight - margin.bottom, margin.top]);
-        const yTransform = `translate(${margin.left}, 0)`;
+            .domain([this.state.allMin, Math.max(this.state.allMax, 1)])
+            .range([chartHeight - this.margin.bottom, this.margin.top]);
+
+        const yTransform = `translate(${this.margin.left}, 0)`;
+
         // Abbreviate large numbers
         const scaleYLabel = (d: number) => (
             d >= 1000000000000 ? Math.round(d / 100000000000) / 10 + 'G' :
@@ -225,19 +226,22 @@ export class XYOutputComponent extends AbstractTreeOutputComponent<AbstractOutpu
             d >= 1000 ? Math.round(d / 100) / 10 + 'K':
             Math.round(d * 10) / 10
         );
-        if (allMax > 0) {
+
+        if (this.state.allMax > 0) {
             select(this.yAxisRef.current).call(axisLeft(yScale).tickSizeOuter(0).ticks(4)).call(g => g.select('.domain').remove());
             select(this.yAxisRef.current).selectAll('.tick text').style('font-size', '11px').text((d: any) => scaleYLabel(d));
         }
 
         return <React.Fragment>
-            <svg height={chartHeight} width={margin.left}>
+            <svg height={chartHeight} width={this.margin.left}>
                 <g className='y-axis' ref={this.yAxisRef} transform={yTransform} />
             </svg>
         </React.Fragment>;
     }
 
     chooseChart(): JSX.Element {
+        const offset = this.props.viewRange?.getOffset() ?? BigInt(0);
+
         const lineOptions: Chart.ChartOptions = {
             responsive: true,
             elements: {
@@ -267,14 +271,21 @@ export class XYOutputComponent extends AbstractTreeOutputComponent<AbstractOutpu
                     id: 'time-axis',
                     display: false,
                     ticks: {
-                        min: Number(this.props.viewRange?.getStart() - this.getChartOffset()),
-                        max: Number(this.props.viewRange?.getEnd() - this.getChartOffset())
+                        min: Number(this.props.viewRange?.getStart() - offset),
+                        max: Number(this.props.viewRange?.getEnd() - offset)
                     }
                 }],
-                yAxes: [{ display: false, stacked: false }]
+                yAxes: [{
+                    display: false,
+                    stacked: false,
+                    ticks: {
+                        max: this.state.allMax,
+                        min: this.state.allMin
+                    }
+                }]
             },
             animation: { duration: 0 },
-            events: [ 'mousedown' ],
+            events: ['mousedown'],
         };
 
         if (!this.isScatterPlot) {
@@ -312,7 +323,6 @@ export class XYOutputComponent extends AbstractTreeOutputComponent<AbstractOutpu
     }
 
     renderChart(): React.ReactNode {
-        // width={this.props.style.chartWidth}
         if (this.state.outputStatus === ResponseStatus.COMPLETED && this.state.xyData?.datasets?.length === 0) {
             return <React.Fragment>
                 <div className='chart-message'>
@@ -322,34 +332,69 @@ export class XYOutputComponent extends AbstractTreeOutputComponent<AbstractOutpu
         }
         return <React.Fragment>
             {this.state.outputStatus === ResponseStatus.COMPLETED ?
-                <div id='xy-main' tabIndex={0}
+                <div
+                    id={this.props.traceId + this.props.outputDescriptor.id + 'focusContainer'}
+                    className='xy-main'
+                    tabIndex={0}
                     onKeyDown={event => this.onKeyDown(event)}
+                    onKeyUp={event => this.onKeyUp(event)}
                     onWheel={event => this.onWheel(event)}
                     onMouseMove={event => this.onMouseMove(event)}
                     onContextMenu={event => event.preventDefault()}
                     onMouseLeave={event => this.onMouseLeave(event)}
                     onMouseDown={event => this.onMouseDown(event)}
-                    style={{ height: this.props.style.height, position: 'relative' }}
+                    style={{ height: this.props.style.height, position: 'relative', cursor: this.state.cursor }}
                     ref={this.divRef}
                 >
                     {this.chooseChart()}
                 </div> :
-                <div className='analysis-running'>
-                {(
-                        <i
-                            className='fa fa-refresh fa-spin'
-                            style={{ marginRight: '5px' }}
-                        />
-                    )}
-                    {
-                    'Analysis running'
-                    }
-                </div>}
+                <div
+                    id={this.props.traceId + this.props.outputDescriptor.id + 'focusContainer'}
+                    className='analysis-running'
+                >
+                    <i className='fa fa-refresh fa-spin' style={{ marginRight: '5px' }} />
+                    <span>Analysis running</span>
+                </div>
+            }
         </React.Fragment>;
     }
 
     resultsAreEmpty(): boolean {
         return this.state.xyTree.length === 0;
+    }
+
+    private calculateYRange() {
+        let localMax = 0;
+        let localMin = 0;
+
+        if (this.state && this.state.xyData) {
+            this.state.xyData?.datasets?.forEach((dSet: any, i: number) => {
+                let rowMax;
+                let rowMin;
+                if (this.isScatterPlot) {
+                    rowMax = Math.max(...dSet.data.map((d: any) => d.y));
+                    rowMin = Math.min(...dSet.data.map((d: any) => d.y));
+                } else {
+                    rowMax = Math.max(...dSet.data);
+                    rowMin = Math.min(...dSet.data);
+                }
+                localMax = Math.max(localMax, rowMax);
+                localMin = i === 0 ? rowMin : Math.min(localMin, rowMin);
+            });
+        }
+
+        this.setState({
+            allMax: localMax * 1.01,
+            allMin: localMin * 0.99
+        });
+    }
+
+    setFocus(): void {
+        if (document.getElementById(this.props.traceId + this.props.outputDescriptor.id + 'focusContainer')) {
+            document.getElementById(this.props.traceId + this.props.outputDescriptor.id + 'focusContainer')?.focus();
+        } else {
+            document.getElementById(this.props.traceId + this.props.outputDescriptor.id)?.focus();
+        }
     }
 
     private afterChartDraw(chart: Chart) {
@@ -440,9 +485,11 @@ export class XYOutputComponent extends AbstractTreeOutputComponent<AbstractOutpu
         const startTime = this.getTimeForX(event.nativeEvent.offsetX);
         if (event.button === RIGHT_CLICK_NUMBER) {
             this.isRightClick = true;
+            this.setState({ cursor: 'col-resize' });
             this.startPositionMouseRightClick = startTime;
         } else {
             this.isRightClick = false;
+            this.setState({ cursor: 'crosshair' });
             if (event.shiftKey && this.props.unitController.selectionRange) {
                 this.props.unitController.selectionRange = {
                     start: this.props.unitController.selectionRange.start,
@@ -513,8 +560,7 @@ export class XYOutputComponent extends AbstractTreeOutputComponent<AbstractOutpu
         if (wheel.shiftKey) {
             if (wheel.deltaY < 0) {
                 this.pan(PAN_LEFT);
-            }
-            else if (wheel.deltaY > 0) {
+            } else if (wheel.deltaY > 0) {
                 this.pan(PAN_RIGHT);
             }
         } else if (wheel.ctrlKey) {
@@ -547,13 +593,6 @@ export class XYOutputComponent extends AbstractTreeOutputComponent<AbstractOutpu
         return x;
     }
 
-    private getChartOffset(): bigint {
-        // Work around loss of precision when working with BigInt
-        let offset = this.props.viewRange.getStart() ?? BigInt(0);
-        offset = offset / BigInt(1000000000) * BigInt(1000000000);
-        return offset;
-    }
-
     private updateSelection(): void {
         if (this.props.unitController.selectionRange){
             const xStartPos = this.props.unitController.selectionRange.start;
@@ -564,6 +603,36 @@ export class XYOutputComponent extends AbstractTreeOutputComponent<AbstractOutpu
         }
     }
 
+    private closestPoint(points: { x: number, y: number}[], chartWidth: number, chartHeight: number): {x: number, y: number} | undefined {
+        let min_hypotenuse = Number.MAX_VALUE;
+        let closestPoint = undefined;
+        const offset = this.props.viewRange.getOffset() ?? BigInt(0);
+        const start = this.props.viewRange.getStart();
+        const end = this.props.viewRange.getEnd();
+        const xRatio = chartWidth / Number(end - start);
+        const yRatio = (chartHeight - this.margin.top - this.margin.bottom) / (this.state.allMax - this.state.allMin);
+
+        points.forEach((point: {x: number, y: number}) => {
+            const x = (point.x - Number(start - offset)) * xRatio;
+            const y = (point.y - this.state.allMin) * yRatio + this.margin.bottom;
+            const distX = this.positionXMove - x;
+            const distY = chartHeight - this.positionYMove - y;
+            const hypotenuse = distX * distX + distY * distY;
+
+            if (min_hypotenuse > hypotenuse){
+                closestPoint = point;
+                min_hypotenuse = hypotenuse;
+            }
+        });
+
+        // Return closest point only if it is in a circle with a radius of 20 pixels
+        if (min_hypotenuse < 400) {
+            return closestPoint;
+        }
+
+        return undefined;
+    }
+
     private tooltip(x: number, y: number): void {
         const xPos = this.positionXMove;
         const timeForX = this.getTimeForX(xPos);
@@ -572,29 +641,56 @@ export class XYOutputComponent extends AbstractTreeOutputComponent<AbstractOutpu
             timeLabel = this.props.unitController.numberTranslator(timeForX);
         }
         const chartWidth = this.chartRef.current.chartInstance.width;
+        const chartHeight = this.chartRef.current.chartInstance.height;
         const arraySize = this.state.xyData.labels.length;
         const index = Math.max(Math.round((xPos / chartWidth) * (arraySize - 1)), 0);
         const points: any = [];
         let zeros = 0;
 
         this.state.xyData.datasets.forEach((d: any) => {
-            // In case there are less data points than pixels in the chart,
-            // calculate nearest value.
-            const yValue = d.data[index];
-            const rounded = isNaN(yValue) ? 0 : (Math.round(Number(yValue) * 100) / 100);
+            let yValue = 0;
+            let xValue = 0;
+            let invalidPoint = false;
+            if (this.isScatterPlot) {
+                if (d.data.length > 0) {
+                    // Find the data point that is the closest to the mouse position
+                    const closest = this.closestPoint(d.data, chartWidth, chartHeight);
+                    if (closest !== undefined) {
+                        yValue = closest.y;
+                        xValue = closest.x;
+                    } else {
+                        invalidPoint = true; // Too far from mouse
+                    }
+                } else {
+                    invalidPoint = true; // Series without any data
+                }
+            } else {
+                // In case there are less data points than pixels in the chart,
+                // calculate nearest value.
+                yValue = d.data[index];
+            }
+            const rounded: number = isNaN(yValue) ? 0 : (Math.round(Number(yValue) * 100) / 100);
+            let formatted: string = new Intl.NumberFormat().format(rounded);
+            if (this.isScatterPlot && this.props.unitController.numberTranslator) {
+                const time = this.props.unitController.numberTranslator(BigInt(xValue));
+                formatted = '(' + time + ') ' + formatted;
+                timeLabel = 'Series (time stamp) value';
+            }
+
             // If there are less than 10 lines in the chart, show all values, even if they are equal to 0.
             // If there are more than 10 lines in the chart, summarise the ones that are equal to 0.
-            if (this.state.xyData.datasets.length <= 10 || rounded > 0) {
-                const point: any = {
-                    label: d.label,
-                    color: d.borderColor,
-                    background: d.backgroundColor,
-                    value: rounded.toString(),
-                };
-                points.push(point);
-            }
-            else {
-                zeros += 1;
+            if (!invalidPoint) {
+                if (this.state.xyData.datasets.length <= 10 || rounded > 0) {
+                    const point: any = {
+                        label: d.label,
+                        color: d.borderColor,
+                        background: d.backgroundColor,
+                        value: formatted
+                    };
+                    points.push(point);
+                } else if (!this.isScatterPlot) {
+                    zeros += 1;
+                }
             }
         });
         // Sort in decreasing order
@@ -605,8 +701,7 @@ export class XYOutputComponent extends AbstractTreeOutputComponent<AbstractOutpu
         let bottomPos = undefined;
         if (y > window.innerHeight - 350) {
             bottomPos = window.innerHeight - y;
-        }
-        else {
+        } else {
             topPos = window.pageYOffset + y - 40;
         }
 
@@ -616,8 +711,7 @@ export class XYOutputComponent extends AbstractTreeOutputComponent<AbstractOutpu
         const xLocation = chartWidth - xPos;
         if (xLocation > chartWidth * 0.8) {
             leftPos = x - this.props.style.componentLeft;
-        }
-        else {
+        } else {
             rightPos = xLocation;
         }
 
@@ -632,7 +726,11 @@ export class XYOutputComponent extends AbstractTreeOutputComponent<AbstractOutpu
             zeros
         };
 
-        this.props.tooltipXYComponent?.setElement(tooltipData);
+        if (points.length > 0) {
+            this.props.tooltipXYComponent?.setElement(tooltipData);
+        } else {
+            this.hideTooltip();
+        }
     }
 
     private hideTooltip() {
@@ -644,6 +742,7 @@ export class XYOutputComponent extends AbstractTreeOutputComponent<AbstractOutpu
     private onMouseMove(event: React.MouseEvent) {
         this.isMouseMove = true;
         this.positionXMove = event.nativeEvent.offsetX;
+        this.positionYMove = event.nativeEvent.offsetY;
         this.isMouseLeave = false;
 
         if (this.mouseIsDown && !this.isRightClick) {
@@ -652,7 +751,7 @@ export class XYOutputComponent extends AbstractTreeOutputComponent<AbstractOutpu
         if (this.mouseIsDown && this.isRightClick) {
             this.forceUpdate();
         }
-        if (this.state.xyData.labels.length > 0 && !this.isScatterPlot) {
+        if (this.state.xyData.datasets.length > 0) {
             this.tooltip(event.nativeEvent.x, event.nativeEvent.y);
         }
     }
@@ -709,7 +808,23 @@ export class XYOutputComponent extends AbstractTreeOutputComponent<AbstractOutpu
                     this.pan(PAN_RIGHT);
                     break;
                 }
+                case 'Shift': {
+                    if (!this.isRightClick) {
+                        this.setState({ cursor: 'crosshair', shiftKey: true });
+                    }
+                    break;
+                }
             }
+        }
+    }
+
+    private onKeyUp(key: React.KeyboardEvent) {
+        if (key.key === 'Shift') {
+            const change: { cursor?: string, shiftKey: boolean } = { shiftKey: false };
+            if (!this.mouseIsDown) {
+                change.cursor = 'default';
+            }
+            this.setState(change);
         }
     }
 
@@ -730,8 +845,7 @@ export class XYOutputComponent extends AbstractTreeOutputComponent<AbstractOutpu
         if (tspClientResponse.isOk() && xyDataResponse) {
             if (!this.isScatterPlot) {
                 this.buildXYData(xyDataResponse.model.series);
-            }
-            else {
+            } else {
                 this.buildScatterData(xyDataResponse.model.series);
             }
         }
@@ -742,8 +856,7 @@ export class XYOutputComponent extends AbstractTreeOutputComponent<AbstractOutpu
         let xValues: bigint[] = [];
         let yValues: number[] = [];
         let pairs: xyPair[] = [];
-        const offset = this.getChartOffset();
-
+        const offset = this.props.viewRange.getOffset() ?? BigInt(0);
         seriesObj.forEach(series => {
             const color = this.getSeriesColor(series.seriesName);
             xValues = series.xValues;
@@ -754,8 +867,10 @@ export class XYOutputComponent extends AbstractTreeOutputComponent<AbstractOutpu
                 pairs.push(new xyPair(adjusted, yValues[index]));
             });
 
+            const process: Entry[] = this.state.xyTree.filter(element => element.id === series.seriesId);
+
             dataSetArray.push({
-                label: series.seriesName,
+                label: process[0].labels[0],
                 data: pairs,
                 backgroundColor: color,
                 borderColor: color,
@@ -773,6 +888,8 @@ export class XYOutputComponent extends AbstractTreeOutputComponent<AbstractOutpu
         this.setState({
             xyData: scatterData
         });
+
+        this.calculateYRange();
     }
 
     private buildXYData(seriesObj: XYSeries[]) {
@@ -798,6 +915,8 @@ export class XYOutputComponent extends AbstractTreeOutputComponent<AbstractOutpu
         this.setState({
             xyData: lineData
         });
+
+        this.calculateYRange();
     }
 
     private getSeriesColor(key: string): string {

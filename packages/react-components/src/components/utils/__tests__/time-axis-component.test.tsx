@@ -12,10 +12,7 @@ describe('Time axis component', () => {
     const unitController: TimeGraphUnitController = new TimeGraphUnitController(BigInt(10), { start: BigInt(0), end: BigInt(10)});
     const style: OutputComponentStyle = {
       width: 600,
-      handleWidth: 40,
-      sashOffset: 200,
-      sashWidth: 4,
-      yAxisWidth: 30,
+      chartOffset: 200,
       componentLeft: 0,
       height: 100,
       rowHeight: 100,
@@ -33,10 +30,7 @@ describe('Time axis component', () => {
     const unitController: TimeGraphUnitController = new TimeGraphUnitController(BigInt(10), { start: BigInt(0), end: BigInt(10)});
     const style: OutputComponentStyle = {
       width: 600,
-      handleWidth: 40,
-      sashOffset: 200,
-      sashWidth: 4,
-      yAxisWidth: 30,
+      chartOffset: 200,
       componentLeft: 0,
       height: 100,
       rowHeight: 100,
