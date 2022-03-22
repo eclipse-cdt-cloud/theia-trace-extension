@@ -8,7 +8,6 @@ import { EntryTree } from './utils/filter-tree/entry-tree';
 import { getAllExpandedNodeIds } from './utils/filter-tree/utils';
 import { TreeNode } from './utils/filter-tree/tree-node';
 import ColumnHeader from './utils/filter-tree/column-header';
-import { cloneDeep } from 'lodash';
 import debounce from 'lodash.debounce';
 
 type DataTreeOutputProps = AbstractOutputProps & {
