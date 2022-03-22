@@ -18,6 +18,7 @@ import { BIMath } from 'timeline-chart/lib/bigint-utils';
 import { scaleLinear } from 'd3-scale';
 import { axisLeft } from 'd3-axis';
 import { select } from 'd3-selection';
+import { throttle } from 'lodash';
 
 type XYOuputState = AbstractOutputState & {
     selectedSeriesId: number[];
@@ -82,6 +83,8 @@ export class XYOutputComponent extends AbstractTreeOutputComponent<AbstractOutpu
     private preventDefaultHandler: ((event: WheelEvent) => void) | undefined;
 
     private onSelectionChanged = (payload: { [key: string]: string; }) => this.doHandleSelectionChangedSignal(payload);
+
+    private _throttledUpdateXY = throttle(() => this.updateXY(), 500);
 
     constructor(props: AbstractOutputProps) {
         super(props);
@@ -167,7 +170,7 @@ export class XYOutputComponent extends AbstractTreeOutputComponent<AbstractOutpu
         const outputStatusChanged = this.state.outputStatus !== prevState.outputStatus;
         const needToUpdate = viewRangeChanged || checkedSeriesChanged || collapsedNodesChanged || chartWidthChanged || outputStatusChanged;
         if (needToUpdate) {
-            this.updateXY();
+            this._throttledUpdateXY();
         }
         if (this.chartRef.current) {
             if (this.preventDefaultHandler === undefined) {
