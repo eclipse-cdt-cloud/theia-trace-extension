@@ -6,7 +6,6 @@ import { Table } from './table';
 import { getAllExpandedNodeIds } from './utils';
 import { SortConfig, sortNodes } from './sort';
 import ColumnHeader from './column-header';
-import { isEqual } from 'lodash';
 
 interface FilterTreeProps {
     nodes: TreeNode[];
@@ -44,8 +43,6 @@ export class FilterTree extends React.Component<FilterTreeProps, FilterTreeState
             sortConfig: []
         };
     }
-
-    private _filter = '';
 
     getRootNodes = (): TreeNode[] => {
         const nodes = [...this.props.nodes];
@@ -214,7 +211,6 @@ export class FilterTree extends React.Component<FilterTreeProps, FilterTreeState
     isCollapsed = (id: number): boolean => this.props.collapsedNodes.includes(id);
 
     handleFilterChanged = (filter: string): void => {
-        this._filter = filter;
         let filteredTree: TreeNode[] = [];
         const matchedIds: number[] = [];
         const rootNodes = this.getRootNodes();
@@ -265,7 +261,8 @@ export class FilterTree extends React.Component<FilterTreeProps, FilterTreeState
             onSortConfigChange={this.handleSortConfigChange}
             showHeader={this.props.showHeader}
             headers={this.props.headers}
-            className={this.props.className} />;
+            className={this.props.className}
+        />;
 
     render(): JSX.Element | undefined {
         if (!this.props.nodes) { return undefined; }
@@ -280,12 +277,6 @@ export class FilterTree extends React.Component<FilterTreeProps, FilterTreeState
             </React.Fragment>;
         } else {
             return <Message></Message>;
-        }
-    }
-
-    componentDidUpdate(prevProps: FilterTreeProps): void {
-        if (!isEqual(this.props.nodes, prevProps.nodes)) {
-            this.handleFilterChanged(this._filter);
         }
     }
 }

@@ -34,13 +34,7 @@ export namespace TraceViewerToolbarCommands {
     export const OPEN_TRACE: Command = {
         id: 'trace.viewer.openTrace',
         label: 'Open Trace',
-        iconClass: 'codicon codicon-new-folder',
-    };
-
-    export const CHARTS_CHEATSHEET: Command = {
-        id: 'trace.viewer.toolbar.cheatsheet',
-        label: 'Keyboard Shortcuts (CTRL / command + F1)',
-        iconClass: 'fa fa-info-circle fa-lg',
+        iconClass: 'fa fa-folder-open-o fa-lg',
     };
 }
 

@@ -21,10 +21,10 @@ import { StyleProvider } from './data-providers/style-provider';
 import { TspDataProvider } from './data-providers/tsp-data-provider';
 import { ReactTimeGraphContainer } from './utils/timegraph-container-component';
 import { OutputElementStyle } from 'tsp-typescript-client/lib/models/styles';
-import { EntryTree } from './utils/filter-tree/entry-tree';
-import { listToTree, getAllExpandedNodeIds } from './utils/filter-tree/utils';
+import { EntryTree } from './utils/filtrer-tree/entry-tree';
+import { listToTree, getAllExpandedNodeIds } from './utils/filtrer-tree/utils';
 import hash from 'traceviewer-base/lib/utils/value-hash';
-import ColumnHeader from './utils/filter-tree/column-header';
+import ColumnHeader from './utils/filtrer-tree/column-header';
 import { TimeGraphAnnotationComponent } from 'timeline-chart/lib/components/time-graph-annotation';
 import { Entry } from 'tsp-typescript-client';
 
@@ -300,9 +300,7 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
         // TODO Show header, when we can have entries in-line with timeline-chart
         return <>
             <div ref={this.timeGraphTreeRef} className='scrollable' onScroll={() => this.synchronizeTreeScroll()}
-                style={{ height: parseInt(this.props.style.height.toString()) - this.getMarkersLayerHeight() }}
-                tabIndex={0}
-                >
+                style={{ height: parseInt(this.props.style.height.toString()) - this.getMarkersLayerHeight() }}>
                 <EntryTree
                     collapsedNodes={this.state.collapsedNodes}
                     showFilter={false}
@@ -449,7 +447,7 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
         return <ReactTimeGraphContainer
             options={
                 {
-                    id: this.props.traceId + this.props.outputDescriptor.id + 'focusContainer',
+                    id: 'timegraph-chart',
                     height: parseInt(this.props.style.height.toString()) - this.getMarkersLayerHeight(),
                     width: this.getChartWidth(),
                     backgroundColor: this.props.style.chartBackgroundColor,
@@ -460,20 +458,12 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
             addWidgetResizeHandler={this.props.addWidgetResizeHandler}
             removeWidgetResizeHandler={this.props.removeWidgetResizeHandler}
             unitController={this.props.unitController}
-            id={this.props.traceId + this.props.outputDescriptor.id + 'focusContainer'}
+            id='timegraph-chart'
             layers={[
                 grid, this.chartLayer, selectionRange, this.chartCursors, this.arrowLayer, this.rangeEventsLayer
             ]}
         >
         </ReactTimeGraphContainer>;
-    }
-
-    setFocus(): void {
-        if (document.getElementById(this.props.traceId + this.props.outputDescriptor.id + 'focusContainer')) {
-            document.getElementById(this.props.traceId + this.props.outputDescriptor.id + 'focusContainer')?.focus();
-        } else {
-            document.getElementById(this.props.traceId + this.props.outputDescriptor.id)?.focus();
-        }
     }
 
     protected getVerticalScrollbar(): JSX.Element {

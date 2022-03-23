@@ -39,7 +39,6 @@ export class ReactOpenTracesWidget extends React.Component<ReactOpenTracesWidget
     private _onExperimentClosed = (experiment: Experiment): void => this.doHandleExperimentClosed(experiment);
     private _onExperimentDeleted = (experiment: Experiment): Promise<void> => this.doHandleExperimentDeletedSignal(experiment);
     private _onOpenedTracesWidgetActivated = (experiment: Experiment): void => this.doHandleTracesWidgetActivatedSignal(experiment);
-    private _onTraceServerStarted = (): Promise<void> => this.doHandleTraceServerStartedSignal();
 
     constructor(props: ReactOpenTracesWidgetProps) {
         super(props);
@@ -47,7 +46,6 @@ export class ReactOpenTracesWidget extends React.Component<ReactOpenTracesWidget
         signalManager().on(Signals.EXPERIMENT_CLOSED, this._onExperimentClosed);
         signalManager().on(Signals.EXPERIMENT_DELETED, this._onExperimentDeleted);
         signalManager().on(Signals.TRACEVIEWERTAB_ACTIVATED, this._onOpenedTracesWidgetActivated);
-        signalManager().on(Signals.TRACE_SERVER_STARTED, this._onTraceServerStarted);
 
         this._experimentManager = this.props.tspClientProvider.getExperimentManager();
         this.props.tspClientProvider.addTspClientChangeListener(() => {
@@ -65,7 +63,6 @@ export class ReactOpenTracesWidget extends React.Component<ReactOpenTracesWidget
         signalManager().off(Signals.EXPERIMENT_CLOSED, this._onExperimentClosed);
         signalManager().off(Signals.EXPERIMENT_DELETED, this._onExperimentDeleted);
         signalManager().off(Signals.TRACEVIEWERTAB_ACTIVATED, this._onOpenedTracesWidgetActivated);
-        signalManager().off(Signals.TRACE_SERVER_STARTED, this._onTraceServerStarted);
     }
 
     async initialize(): Promise<void> {
@@ -73,12 +70,9 @@ export class ReactOpenTracesWidget extends React.Component<ReactOpenTracesWidget
         this.updateSelectedExperiment();
     }
 
-    public async doHandleTraceServerStartedSignal(): Promise<void> {
-        await this.initialize();
-    }
-
     public async doHandleExperimentOpenedSignal(_experiment: Experiment): Promise<void> {
-        await this.initialize();
+        await this.updateOpenedExperiments();
+        this.updateSelectedExperiment();
     }
 
     protected doHandleExperimentClosed(experiment: Experiment): void {
@@ -89,7 +83,8 @@ export class ReactOpenTracesWidget extends React.Component<ReactOpenTracesWidget
     }
 
     public async doHandleExperimentDeletedSignal(_experiment: Experiment): Promise<void> {
-        await this.initialize();
+        await this.updateOpenedExperiments();
+        this.updateSelectedExperiment();
     }
 
     protected doHandleTracesWidgetActivatedSignal(experiment: Experiment): void {

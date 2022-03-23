@@ -1,24 +1,22 @@
 import { injectable, inject } from 'inversify';
 import { CommandRegistry, CommandContribution, MessageService } from '@theia/core';
-import { WidgetOpenerOptions, WidgetOpenHandler, KeybindingContribution, KeybindingRegistry } from '@theia/core/lib/browser';
+import { WidgetOpenerOptions, WidgetOpenHandler } from '@theia/core/lib/browser';
 import URI from '@theia/core/lib/common/uri';
 import { TraceViewerWidget, TraceViewerWidgetOptions } from './trace-viewer';
 import { FileDialogService, OpenFileDialogProps } from '@theia/filesystem/lib/browser';
 import { WorkspaceService } from '@theia/workspace/lib/browser/workspace-service';
-import { OpenTraceCommand, StartServerCommand, StopServerCommand, TraceViewerCommand, KeyboardShortcutsCommand } from './trace-viewer-commands';
+import { OpenTraceCommand, StartServerCommand, StopServerCommand, TraceViewerCommand } from './trace-viewer-commands';
 import { PortBusy, TraceServerConfigService } from '../../common/trace-server-config';
 import { TracePreferences, TRACE_PATH, TRACE_ARGS } from '../trace-server-preference';
 import { TspClient } from 'tsp-typescript-client/lib/protocol/tsp-client';
 import { TspClientProvider } from '../tsp-client-provider-impl';
-import { ChartShortcutsDialog } from './../trace-explorer/trace-explorer-sub-widgets/trace-explorer-keyboard-shortcuts/charts-cheatsheet-component';
-import { signalManager } from 'traceviewer-base/lib/signals/signal-manager';
 
 interface TraceViewerWidgetOpenerOptions extends WidgetOpenerOptions {
     traceUUID: string;
 }
 
 @injectable()
-export class TraceViewerContribution extends WidgetOpenHandler<TraceViewerWidget> implements CommandContribution, KeybindingContribution {
+export class TraceViewerContribution extends WidgetOpenHandler<TraceViewerWidget> implements CommandContribution {
 
     private tspClient: TspClient;
 
@@ -35,7 +33,6 @@ export class TraceViewerContribution extends WidgetOpenHandler<TraceViewerWidget
     @inject(TracePreferences) protected tracePreferences: TracePreferences;
     @inject(TraceServerConfigService) protected readonly traceServerConfigService: TraceServerConfigService;
     @inject(MessageService) protected readonly messageService: MessageService;
-    @inject(ChartShortcutsDialog) protected readonly chartShortcuts: ChartShortcutsDialog;
 
     readonly id = TraceViewerWidget.ID;
     readonly label = 'Trace Viewer';
@@ -56,15 +53,12 @@ export class TraceViewerContribution extends WidgetOpenHandler<TraceViewerWidget
     }
 
     protected async launchTraceServer(): Promise<void> {
-        let healthResponse;
         try {
-            healthResponse = await this.tspClient.checkHealth();
-        } catch (err) {
-            // continue to start trace server
-        }
-        if (healthResponse && healthResponse.isOk() && healthResponse.getModel()?.status === 'UP') {
-            this.openDialog();
-        } else {
+            const healthResponse = await this.tspClient.checkHealth();
+            if (healthResponse.getModel()?.status === 'UP') {
+                this.openDialog();
+            }
+        } catch (outer) {
             const progress = await this.messageService.showProgress({ text: '' });
             progress.report({ message: 'Launching trace server... ', work: { done: 10, total: 100 } });
             const { path, args } = this;
@@ -79,9 +73,9 @@ export class TraceViewerContribution extends WidgetOpenHandler<TraceViewerWidget
                     progress.cancel();
                     this.openDialog();
                 }
-            } catch (err) {
+            } catch (inner) {
                 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                if (PortBusy.is(err as any)) {
+                if (PortBusy.is(inner as any)) {
                     if (this.args && this.args.length > 0) {
                         this.messageService.error(
                             `Error starting the server (port busy) using the following arguments: ${this.args}`);
@@ -113,15 +107,12 @@ export class TraceViewerContribution extends WidgetOpenHandler<TraceViewerWidget
     }
 
     async open(traceURI: URI, options?: TraceViewerWidgetOpenerOptions): Promise<TraceViewerWidget> {
-        let healthResponse;
         try {
-            healthResponse = await this.tspClient.checkHealth();
-        } catch (err) {
-            // continue to start trace server
-        }
-        if (healthResponse && healthResponse.isOk() && healthResponse.getModel()?.status === 'UP') {
-            return super.open(traceURI, options);
-        } else {
+            const healthResponse = await this.tspClient.checkHealth();
+            if (healthResponse.getModel()?.status === 'UP') {
+                return super.open(traceURI, options);
+            }
+        } catch (outer) {
             return this.messageService.showProgress({ text: '' }).then(async progress => {
                 progress.report({ message: 'Launching trace server... ', work: { done: 10, total: 100 } });
                 const { path, args } = this;
@@ -136,10 +127,9 @@ export class TraceViewerContribution extends WidgetOpenHandler<TraceViewerWidget
                         }
                         return super.open(traceURI, options);
                     }
-                    throw new Error('Could not start trace server: ' + resolve);
-                } catch (err) {
+                } catch (inner) {
                     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                    if (PortBusy.is(err as any)) {
+                    if (PortBusy.is(inner as any)) {
                         if (this.args && this.args.length > 0) {
                             this.messageService.error(
                                 `Error starting the server (port busy) using the following arguments: ${this.args}`);
@@ -151,19 +141,14 @@ export class TraceViewerContribution extends WidgetOpenHandler<TraceViewerWidget
                             'Failed to start the trace server: no such file or directory. Please make sure that the path is correct in Trace Viewer settings and retry'
                         );
                     }
-                    throw err;
+                    throw inner;
                 } finally {
                     progress.cancel();
                 }
+                throw outer;
             });
         }
-    }
-
-    registerKeybindings(keybindings: KeybindingRegistry): void {
-        keybindings.registerKeybinding({
-            keybinding: 'ctrlcmd+f1',
-            command: KeyboardShortcutsCommand.id,
-        });
+        throw new Error('Could not open TraceViewerWidget');
     }
 
     registerCommands(registry: CommandRegistry): void {
@@ -183,7 +168,6 @@ export class TraceViewerContribution extends WidgetOpenHandler<TraceViewerWidget
                     } else {
                         this.messageService.info('Trace server started.');
                     }
-                    signalManager().fireTraceServerStartedSignal();
                 } catch (error) {
                     // eslint-disable-next-line @typescript-eslint/no-explicit-any
                     if (PortBusy.is(error as any)) {
@@ -213,11 +197,6 @@ export class TraceViewerContribution extends WidgetOpenHandler<TraceViewerWidget
                 }
             }
         });
-        registry.registerCommand(KeyboardShortcutsCommand, {
-            execute: () => {
-                this.chartShortcuts.open();
-            }
-        });
     }
 
     canHandle(_uri: URI): number {
@@ -230,21 +209,16 @@ export class TraceViewerContribution extends WidgetOpenHandler<TraceViewerWidget
         // Try fetching the Trace Server health, repeat on error only.
         // If we get a response of some sort, it means the HTTP server is up somehow.
         while (true) {
-            let error;
             try {
-                const healthResponse = await this.tspClient.checkHealth();
-                if (healthResponse.isOk() && healthResponse.getModel()?.status === 'UP') {
-                    clearTimeout(timeoutHandle);
-                    return;
+                await this.tspClient.checkHealth();
+                clearTimeout(timeoutHandle);
+                return;
+            } catch (error) {
+                if (timeout) {
+                    throw error;
                 }
-                error = new Error('Unsuccessful health check: ' + healthResponse.getStatusMessage() + ' status: ' + healthResponse.getModel()?.status);
-            } catch (err) {
-                error = error;
+                console.error(error);
             }
-            if (timeout) {
-                throw error;
-            }
-            console.error(error);
         }
     }
 }
