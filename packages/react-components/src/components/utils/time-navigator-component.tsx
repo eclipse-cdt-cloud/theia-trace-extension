@@ -7,6 +7,9 @@ interface TimeNavigatorProps {
     unitController: TimeGraphUnitController;
     style: {
         width: number,
+        handleWidth: number,
+        sashOffset: number,
+        sashWidth: number,
         naviBackgroundColor: number,
         cursorColor: number,
         lineColor: number
@@ -21,9 +24,9 @@ export class TimeNavigatorComponent extends React.Component<TimeNavigatorProps> 
         return <ReactTimeGraphContainer
             id='time-navigator'
             options={{
-                id: 'time-navigator',
-                width: this.props.style.width,
+                width: this.props.style.width - this.props.style.handleWidth - this.props.style.sashOffset - this.props.style.sashWidth,
                 height: 10,
+                id: 'time-navigator',
                 backgroundColor: this.props.style.naviBackgroundColor,
                 classNames: 'horizontal-canvas'
             }}

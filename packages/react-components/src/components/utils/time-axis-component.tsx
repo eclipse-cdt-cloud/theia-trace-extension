@@ -3,15 +3,11 @@ import { TimeGraphAxis } from 'timeline-chart/lib/layer/time-graph-axis';
 import { TimeGraphAxisCursors } from 'timeline-chart/lib/layer/time-graph-axis-cursors';
 import { ReactTimeGraphContainer } from './timegraph-container-component';
 import { TimeGraphUnitController } from 'timeline-chart/lib/time-graph-unit-controller';
+import { OutputComponentStyle } from './output-component-style';
 
 interface TimeAxisProps {
     unitController: TimeGraphUnitController;
-    style: {
-        width: number,
-        chartBackgroundColor: number,
-        cursorColor: number,
-        lineColor: number
-    };
+    style: OutputComponentStyle;
     addWidgetResizeHandler: (handler: () => void) => void;
     removeWidgetResizeHandler: (handler: () => void) => void;
 }
@@ -22,8 +18,8 @@ export class TimeAxisComponent extends React.Component<TimeAxisProps> {
             id='timegraph-axis'
             options={{
                 id: 'timegraph-axis',
-                width: this.props.style.width,
                 height: 30,
+                width: this.props.style.width - this.props.style.handleWidth - this.props.style.sashOffset - this.props.style.sashWidth,
                 backgroundColor: this.props.style.chartBackgroundColor,
                 lineColor: this.props.style.lineColor,
                 classNames: 'horizontal-canvas'

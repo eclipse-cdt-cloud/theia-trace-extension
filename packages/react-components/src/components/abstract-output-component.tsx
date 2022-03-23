@@ -9,7 +9,6 @@ import { OutputComponentStyle } from './utils/output-component-style';
 import { OutputStyleModel } from 'tsp-typescript-client/lib/models/styles';
 import { TooltipComponent } from './tooltip-component';
 import { TooltipXYComponent } from './tooltip-xy-component';
-import { ResponseStatus } from 'tsp-typescript-client/lib/models/response/responses';
 
 export interface AbstractOutputProps {
     tspClient: TspClient;
@@ -25,7 +24,10 @@ export interface AbstractOutputProps {
     markerCategories: string[] | undefined;
     markerSetId: string;
     style: OutputComponentStyle;
-    outputWidth: number;
+    // WidthProvider (react-grid-layout version 0.16.7) has a bug.
+    // Workaround for it needs width to be explicitly passed
+    // https://github.com/STRML/react-grid-layout/issues/961
+    widthWPBugWorkaround: number;
     backgroundTheme: string;
     onOutputRemove: (outputId: string) => void;
     // TODO Not sure
@@ -37,7 +39,7 @@ export interface AbstractOutputProps {
     onMouseDown?: VoidFunction;
     onTouchStart?: VoidFunction;
     onTouchEnd?: VoidFunction;
-    setChartOffset?: (chartOffset: number) => void;
+    setSashOffset?: (sashOffset: number) => void;
 }
 
 export interface AbstractOutputState {
@@ -47,21 +49,20 @@ export interface AbstractOutputState {
 
 export abstract class AbstractOutputComponent<P extends AbstractOutputProps, S extends AbstractOutputState> extends React.Component<P, S> {
 
-    private readonly DEFAULT_HANDLE_WIDTH = 30;
-
-    private mainOutputContainer: React.RefObject<HTMLDivElement>;
+    private mainAreaContainer: React.RefObject<HTMLDivElement>;
 
     constructor(props: P) {
         super(props);
-        this.mainOutputContainer = React.createRef();
+        this.mainAreaContainer = React.createRef();
         this.closeComponent = this.closeComponent.bind(this);
         this.renderTitleBar = this.renderTitleBar.bind(this);
     }
 
     render(): JSX.Element {
-        return <div style={{ ...this.props.style, width: this.props.outputWidth }}
-            id={this.props.traceId + this.props.outputDescriptor.id}
-            tabIndex={-1}
+        const localStyle = Object.assign({}, this.props.style);
+        localStyle.width = this.props.widthWPBugWorkaround;
+        return <div style={localStyle}
+            id={this.props.outputDescriptor.id}
             className={'output-container ' + this.props.className}
             onMouseUp={this.props.onMouseUp}
             onMouseDown={this.props.onMouseDown}
@@ -69,16 +70,12 @@ export abstract class AbstractOutputComponent<P extends AbstractOutputProps, S e
             onTouchEnd={this.props.onTouchEnd}
             data-tip=''
             data-for="tooltip-component">
-            <div
-                id={this.props.traceId + this.props.outputDescriptor.id + 'handle'}
-                className='widget-handle'
-                style={{ width: this.getHandleWidth(), height: this.props.style.height }}
-            >
+            <div className='widget-handle' style={{ width: this.props.style.handleWidth, height: this.props.style.height }}>
                 {this.renderTitleBar()}
             </div>
-            <div className='main-output-container' ref={this.mainOutputContainer}
-                style={{ width: this.props.outputWidth - this.getHandleWidth(), height: this.props.style.height }}>
-                {this.renderMainOutputContainer()}
+            <div className='main-output-container' ref={this.mainAreaContainer}
+                style={{ width: this.props.widthWPBugWorkaround - this.props.style.handleWidth, height: this.props.style.height }}>
+                {this.renderMainArea()}
             </div>
             {this.props.children}
         </div>;
@@ -90,7 +87,7 @@ export abstract class AbstractOutputComponent<P extends AbstractOutputProps, S e
             <button className='remove-component-button' onClick={this.closeComponent}>
                 <FontAwesomeIcon icon={faTimes} />
             </button>
-            <div className='title-bar-label' title={outputName} onClick={() => this.setFocus()}>
+            <div className='title-bar-label' title={outputName}>
                 {outputName}
             </div>
         </React.Fragment>;
@@ -100,32 +97,20 @@ export abstract class AbstractOutputComponent<P extends AbstractOutputProps, S e
         this.props.onOutputRemove(this.props.outputDescriptor.id);
     }
 
-    protected getHandleWidth(): number {
-        return this.props.style.handleWidth || this.DEFAULT_HANDLE_WIDTH;
-    }
-
     public getMainAreaWidth(): number {
-        return this.props.outputWidth - this.getHandleWidth();
+        if (this.mainAreaContainer.current) {
+            return this.mainAreaContainer.current.clientWidth;
+        }
+        return this.props.widthWPBugWorkaround - this.props.style.handleWidth;
     }
 
-    private renderMainOutputContainer(): React.ReactNode {
-        if (this.state.outputStatus === ResponseStatus.FAILED) {
-            return this.renderAnalysisFailed();
-        }
-
-        if (this.state.outputStatus === ResponseStatus.COMPLETED && this.resultsAreEmpty()) {
-            return this.renderEmptyResults();
-        }
-
-        return this.renderMainArea();
+    public getHandleWidth(): number {
+        return this.props.style.handleWidth;
     }
-    abstract setFocus(): void;
 
     abstract renderMainArea(): React.ReactNode;
 
-    abstract resultsAreEmpty(): boolean;
-
-    protected renderAnalysisFailed(): React.ReactFragment {
+    protected analysisFailedMessage(): React.ReactFragment {
         return <React.Fragment>
             <div className='message-main-area'>
                 Trace analysis failed.
@@ -133,7 +118,7 @@ export abstract class AbstractOutputComponent<P extends AbstractOutputProps, S e
         </React.Fragment>;
     }
 
-    protected renderEmptyResults(): React.ReactFragment {
+    protected emptyResultsMessage(): React.ReactFragment {
         return <React.Fragment>
                 <div className='message-main-area'>
                     Trace analysis complete.
