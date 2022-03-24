@@ -297,7 +297,26 @@ node index.js
 
 #### Testability
 
-[Testing a GraphQL Server using Jest][jest]?
+This [other PS course][course-test] likely summarizes GraphQL testability features well:
+
+* This ADR discards starting with Apollo Client, but the latter remains testable if ever used.
+* Indeed, specific Apollo Client ***hooks*** based on React can be used for that purpose.
+* If rather using custom GraphQL client code as this ADR proposes,
+  1. such resolvers code (in, e.g., Apollo Server) can be unit-tested,
+  1. optionally using mocks with different levels of default response values.
+* Alongside such unit-level tests, integration tests may be used, based on Jest.
+  1. Optionally, usual Jest snapshots can be used to compare expected server responses.
+  1. Should the GraphQL schema be unavailable for client-side testing (although unlikely),
+  1. introspection may be used for client testing to discover what server provides.
+* There are also different levels of error handling possible,
+  * from all-default
+  * to app-specific;
+  * depends on how network errors shall be handled by client.
+
+Now that course focuses on a JavaScript-based stack,
+
+* but GraphQL already supports multiple popular languages with testability features.
+* Potentially more on [Testing a GraphQL Server using Jest][jest].
 
 ### Agreed implementation
 
@@ -359,6 +378,7 @@ Each number referring to an aforementioned (previously numbered) risk.
 [comm]: https://graphql.org/community/#official-channels
 [cons]: https://www.robinwieruch.de/why-apollo-advantages-disadvantages-alternatives/#apollo-disadvantages
 [course]: https://app.pluralsight.com/library/courses/graphql-big-picture/table-of-contents
+[course-test]: https://app.pluralsight.com/library/courses/apollo-testing/table-of-contents
 [ext]: https://marketplace.visualstudio.com/items?itemName=bierner.markdown-mermaid
 [fw]: https://www.apollographql.com
 [gzip]: https://graphql.org/learn/best-practices/#json-with-gzip
