@@ -8,7 +8,7 @@ import { TspClient } from 'tsp-typescript-client/lib/protocol/tsp-client';
 import { TspClientProvider } from '../tsp-client-provider-impl';
 import { TraceManager } from 'traceviewer-base/lib/trace-manager';
 import { ExperimentManager } from 'traceviewer-base/lib/experiment-manager';
-import { TraceContextComponent } from 'traceviewer-react-components/lib/components/trace-context-component';
+import { TraceContextComponent, PersistedState } from 'traceviewer-react-components/lib/components/trace-context-component';
 import { Experiment } from 'tsp-typescript-client/lib/models/experiment';
 import { TheiaMessageManager } from '../theia-message-manager';
 import { ThemeService } from '@theia/core/lib/browser/theming';
@@ -40,6 +40,8 @@ export class TraceViewerWidget extends ReactWidget implements StatefulWidget {
     protected traceManager: TraceManager;
     protected experimentManager: ExperimentManager;
     protected backgroundTheme: string;
+    protected traceContextComponent: React.RefObject<TraceContextComponent>;
+    protected persistedState?: PersistedState;
 
     protected resizeHandlers: (() => void)[] = [];
     protected readonly addResizeHandler = (h: () => void): void => {
@@ -86,6 +88,7 @@ export class TraceViewerWidget extends ReactWidget implements StatefulWidget {
         if (!this.options.traceUUID) {
             this.initialize();
         }
+        this.traceContextComponent = React.createRef();
         this.tspClient = this.tspClientProvider.getTspClient();
         this.traceManager = this.tspClientProvider.getTraceManager();
         this.experimentManager = this.tspClientProvider.getExperimentManager();
@@ -242,20 +245,27 @@ export class TraceViewerWidget extends ReactWidget implements StatefulWidget {
             });
     }
 
-    storeState(): OutputDescriptor[] {
+    storeState(): PersistedState | undefined {
         /*
-        TODO - BigInt support for storing state
+        TODO - BigInt support for storing state in outputs/outputDescriptors
         JSON.stringify cannot serialize BigInt
         */
-        return this.outputDescriptors;
+        if (this.traceContextComponent?.current) {
+            const persistedState = this.traceContextComponent.current.persistedState;
+            return persistedState;
+        }
+        return undefined;
     }
 
-    restoreState(state: OutputDescriptor[]): void {
+    restoreState(persistedState: PersistedState): void {
         /*
-        TODO - BigInt support for restoring state
+        TODO - BigInt support for restoring state in outputs/outputDescriptors
         Identify what values need to be BigInt and convert.
         */
-        this.outputDescriptors = state;
+        if (persistedState.outputs.length > 0) {
+            this.persistedState = persistedState;
+            this.outputDescriptors = persistedState.outputs;
+        }
     }
 
     private async fetchMarkerSets(expUUID: string) {
@@ -301,6 +311,7 @@ export class TraceViewerWidget extends ReactWidget implements StatefulWidget {
         this.onOutputRemoved = this.onOutputRemoved.bind(this);
         return <div className='trace-viewer-container'>
             {this.openedExperiment ? <TraceContextComponent experiment={this.openedExperiment}
+                ref={this.traceContextComponent}
                 tspClient={this.tspClient}
                 outputs={this.outputDescriptors}
                 markerCategoriesMap={this.selectedMarkerCategoriesMap}
@@ -309,6 +320,7 @@ export class TraceViewerWidget extends ReactWidget implements StatefulWidget {
                 addResizeHandler={this.addResizeHandler}
                 removeResizeHandler={this.removeResizeHandler}
                 backgroundTheme={this.backgroundTheme}
+                persistedState={this.persistedState}
                 messageManager={this._signalHandler} /> : 'Trace is loading...'}
         </div>;
     }
