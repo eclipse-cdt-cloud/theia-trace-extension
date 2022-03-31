@@ -10,24 +10,17 @@
             "name": "Start in Chrome",
             "port": 9222,
             "sourceMaps": true,
-            "sourceMapPathOverrides": {
-                "viewer-prototype:///./js/*": "${workspaceRoot}/viewer-prototype/lib/**/*.js",
-                "viewer-prototype:///js/*": "${workspaceRoot}/viewer-prototype/lib/**/*.js"
-            },
-            "webRoot": "${workspaceRoot}",
+            "webRoot": "${workspaceRoot}/examples/browser",
             "url": "http://localhost:3000"
         },
+        // Start chrome with option: --remote-debugging-port=9222
         {
             "type": "chrome",
-            "request": "launch",
+            "request": "attach",
             "name": "Attach to Chrome",
             "port": 9222,
             "sourceMaps": true,
-            "sourceMapPathOverrides": {
-                "viewer-prototype:///./js/*": "${workspaceRoot}/viewer-prototype/lib/**/*.js",
-                "viewer-prototype:///js/*": "${workspaceRoot}/viewer-prototype/lib/**/*.js"
-            },
-            "webRoot": "${workspaceRoot}"
+            "webRoot": "${workspaceRoot}/examples/browser"
         },
         {
             "type": "firefox",
@@ -38,12 +31,16 @@
             "url": "http://localhost:3000",
             "pathMappings": [
                 {
-                    "url": "webpack://browser-theia-trace-example-app/theia-extensions",
-                    "path": "${workspaceFolder}/theia-extensions"
+                    "url": "webpack:///packages/react-components/src",
+                    "path": "${workspaceFolder}/packages/react-components/src"
                 },
                 {
-                    "url": "webpack://browser-theia-trace-example-app/packages",
-                    "path": "${workspaceFolder}/packages"
+                    "url": "webpack:///packages/base",
+                    "path": "${workspaceFolder}/packages/base"
+                },
+                {
+                    "url": "webpack:///theia-extensions",
+                    "path": "${workspaceFolder}/theia-extensions"
                 }
             ]
         },
