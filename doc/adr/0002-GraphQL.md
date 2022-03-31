@@ -1,6 +1,6 @@
 # 2. GraphQL
 
-Date: 2022-03-15
+Date: 2022-04-05
 
 ## Status
 
@@ -326,8 +326,8 @@ Now that course focuses on a JavaScript-based stack,
 ## Consequences
 
 1. Once we agree on an implementation if applicable (above),
-2. or anytime during this analysis,
-3. we may document the sub-sections right below accordingly.
+1. or anytime during this analysis,
+1. we may document the sub-sections right below accordingly.
 
 ### Easier to do
 
@@ -364,8 +364,8 @@ Each number referring to an aforementioned (previously numbered) risk.
 ## Next steps
 
 1. Back-log every currently known or potential work item.
-2. Keep investigating and likely provision or amend this list further.
-3. Potentially consider [Apollo's expected graph principles][princ] to apply.
+1. Keep investigating and likely provision or amend this list further.
+1. Potentially consider [Apollo's expected graph principles][princ] to apply.
 
 [alt]: https://www.robinwieruch.de/why-graphql-advantages-disadvantages-alternatives/#graphql-alternatives
 [analytics]: https://www.howtographql.com/basics/1-graphql-is-the-better-rest
