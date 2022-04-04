@@ -4,8 +4,8 @@ Theia trace viewer extension using the [tsp-typescript-client](https://github.co
 
 Prerequisites for running this extension are the same as those for [running the Theia IDE](https://github.com/eclipse-theia/theia/blob/master/doc/Developing.md#prerequisites).
 
-**👋 Want to help?** Read our [new contributor guide](https://github.com/theia-ide/theia-trace-extension#new-contributors) and see [how to contribute code](https://github.com/theia-ide/theia-trace-extension#how-to-contribute-code).
-⚠️ Apart from the live demo, the application and its development environment only work on Linux operating systems.
+**👋 Want to help?** Read our [contributor guide](CONTRIBUTING.md) and follow the instructions to contribute code.
+⚠️ The application and its development environment works best on Linux operating systems. If you are trying to run the application or the development environment on Windows or MacOs and you are encountering issues, please open a [GitHub issue](https://github.com/eclipse-cdt-cloud/theia-trace-extension/issues).
 
 ## What is Tracing?
 
@@ -237,47 +237,6 @@ This section shows detailed information about a selected:
 
 ![Trace Viewer Item Properties](https://raw.githubusercontent.com/theia-ide/theia-trace-extension/master/doc/images/theia-trace-extension-item-properties-0.0.2.png)
 
-## New contributors
-
-⚠️ **Linux only!** Currently, the development environment for this project only works on Linux.
-
-### Explore the project context
-
-* **Check out the [tracevizlabs](https://github.com/dorsal-lab/Tracevizlab).** You don't need to complete all of them, but reading a couple is good for context. Lab sets 0 and 1 are especially useful.
-* **Browse recent conference presentations.** They give an overview of the trace viewer's goals, [architecture](https://github.com/theia-ide/theia-trace-extension#architecture), and functionality.
-  * *Trace Compass Cloud: Eclipse Trace Compass's migration towards Theia*, [slides](https://www.eclipsecon.org/sites/default/files/slides/EclipseCon2021-TraceCompassCloud.pdf), [video](https://www.youtube.com/watch?v=DFxWXE4A-uQ) - Bernd Hufmann, Ericsson AB (EclipseCon 2021)
-  * *Using Theia to take trace analysis and visualization to the next level*, [slides](https://www.eclipsecon.org/sites/default/files/slides/EclipseConEurope2019-TraceCompass-Theia.pdf), [video](https://www.youtube.com/watch?v=Fysg1mOadik) - Bernd Hufmann, Ericsson AB (EclipseCon 2019)
-  * *A New Flexible Architecture for Trace Compass*, [slides](https://tracingsummit.org/ts/2019/files/Tracingsummit2019-theia-dagenais.pdf), [video](https://www.youtube.com/watch?v=8s5vGf45e-g) - Michel Dagenais, Polytechnique Montréal ([Tracing Summit 2019](https://tracingsummit.org/ts/2019/))
-* **Get an [overview of external components](https://github.com/theia-ide/theia-trace-extension#related-code)** used by this trace viewer. See how they interact.
-
-### Start with a small change
-
-* **Explore the [Gitpod demo](https://github.com/theia-ide/theia-trace-extension#try-a-live-demo-via-gitpod).** Experiment with the trace viewer. Start exploring its code via Gitpod's in-browser IDE.
-* **Start with a small frontend improvement.** A relevant change can be [less than 5 lines of code](https://github.com/theia-ide/theia-trace-extension/pull/369/files). The Theia-based frontend repo is much less complex than the Trace Server's, so by starting in the frontend you'll learn high-level context about the project's different components without being overwhelmed with complexity.
-  * [Good first issues](https://github.com/theia-ide/theia-trace-extension/issues?q=is%3Aopen+is%3Aissue+label%3A%22good+first+issue%22)
-  * *Develop with Gitpod to initially avoid dev setup.* Put `gitpod.io/#` before your project fork's GitHub URL to open an in-browser IDE and initially avoid any local dev setup. This dev approach works best for small changes because Gitpod workspaces are volatile.
-  * *Learn [how to contribute code](https://github.com/theia-ide/theia-trace-extension#how-to-contribute-code).* Starting with a tiny change means you can first focus on exploring the code as well as learning the submission and review process (which is a significant learning step if you've never submitted a PR before).
-
-## How to contribute code
-
-**Changes to the project** are made by submitting code with a pull request (PR).
-
-* [How to write and submit changes](https://www.dataschool.io/how-to-contribute-on-github/)
-* [Example pull request](https://github.com/theia-ide/theia-trace-extension/pull/402)
-
-**Good commit messages** make it easier to review code and understand why the changes were made. Please include a:
-
-* *Title:* Concise and complete title written in imperative (e.g. "Update Gitpod demo screenshots" or "Single-click to select or open trace")
-* *Problem:* What is the situation that needs to be resolved? Why does the problem need fixing? Link to related issues (e.g. "Fixes [#317](https://github.com/theia-ide/theia-trace-extension/issues/317)").
-* *Solution:* What changes were made to resolve the situation? Why are these changes the right fix?
-* *Impact:* What impact do these changes have? (e.g. Numbers to show a performance improvement, screenshots or a video for a UI change)
-* [*Sign-off:*](https://git-scm.com/docs/git-commit#Documentation/git-commit.txt---signoff) Use your full name and a long-term email address. This certifies that you have written the code and that, from a licensing perspective, the code is appropriate for use in open-source.
-
-Other commit information:
-
-* [How to format the message](https://tbaggery.com/2008/04/19/a-note-about-git-commit-messages.html)
-* [Example commit message](https://github.com/theia-ide/theia-trace-extension/commit/bc18fcd110d7b8433293692421f2e4fb49f89bd6)
-
 ## Related code
 
 This trace viewer depends on code from several other repos. Sometimes resolving issues in the trace viewer repo requires making changes in these code bases:
@@ -318,7 +277,7 @@ When adding new packages on Windows using yarn (e.g `yarn add @vscode/codicons`)
 An unexpected error occurred: "expected workspace package to exist for {some package name}"
 ```
 
-A simple solution would be restoring the project to a clean state prior to the installation of the package, then restarting Powershell in administrator mode and re-run the command to add the new package. 
+A simple solution would be restoring the project to a clean state prior to the installation of the package, then restarting Powershell in administrator mode and re-run the command to add the new package.
 
 ## Architecture
 
