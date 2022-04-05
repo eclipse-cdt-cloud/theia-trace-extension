@@ -4,7 +4,7 @@ Date: 2022-04-05
 
 ## Status
 
-[Proposed][legend]; WIP (draft).
+[Proposed][legend]
 
 ## Context
 
@@ -356,8 +356,7 @@ Now that course focuses on a JavaScript-based stack,
 ## Consequences
 
 1. Once we agree on an implementation if applicable (above),
-1. or anytime during this analysis,
-1. we may document the sub-sections right below accordingly.
+1. we may amend the sub-sections right below accordingly.
 
 ### Easier to do
 
@@ -393,9 +392,9 @@ Each number referring to an aforementioned (previously numbered) risk.
 
 ## Next steps
 
-1. Back-log every currently known or potential work item.
-1. Keep investigating and likely provision or amend this list further.
-1. Potentially consider [Apollo's expected graph principles][princ] to apply.
+1. Review this ADR proposal jointly, then decide on if [Accepting][legend] it or not.
+1. Back-log potential (currently known, missing) work items if any at this stage.
+1. Then potentially consider [Apollo's expected graph principles][princ] to apply.
 
 [alt]: https://www.robinwieruch.de/why-graphql-advantages-disadvantages-alternatives/#graphql-alternatives
 [analytics]: https://www.howtographql.com/basics/1-graphql-is-the-better-rest
