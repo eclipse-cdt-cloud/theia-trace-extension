@@ -382,6 +382,10 @@ export class TableOutputComponent extends AbstractOutputComponent<TableOutputPro
                 this.timestampCol = timestampHeader.getColDef().field;
             }
         }
+
+        if (this.props.unitController.selectionRange) {
+            this.handleTimeSelectionChange(this.props.unitController.selectionRange);
+        }
     }
 
     private handleRowSelectionChange() {
