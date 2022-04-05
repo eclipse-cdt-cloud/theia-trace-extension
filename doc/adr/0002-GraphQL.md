@@ -14,6 +14,36 @@ Date: 2022-04-05
 * We then [opened this issue][issue] in early January 2021.
 * [Alternatives to going from current REST to GraphQL][alt] seem limited; [more][more].
 
+#### Use cases yet to support
+
+These are [high level][org] (non-TSP specific), so will require focused [TSP][tsp] prototyping.
+
+1. ***Describe*** client schemas based on potentially refactored [domain][language] resolutions.
+1. ***Dimension*** client requests towards trace servers solely out of the needed information.
+1. Get potentially more ***predictable*** and scaled results with only the requested data ranges.
+1. ***Combine*** more than just one trace data source or server in request if resolvable so.
+1. Enable both API compatibility and ***evolution***, through being version-agnostic in requests.
+1. Allow potential ***custom*** resolution logic between clients and trace data sources, at scale.
+1. [Keep REST support or ***iterate*** towards GraphQL][iter] use in virtually any TSP client.
+
+#### And their stakeholders
+
+There is no mapping between these roles and aforementioned use cases, as many may apply to many.
+
+1. TSP ***client*** developers, users or integrators; [Python][client-py], [TypeScript][client-ts].
+1. Trace ***application*** developers, either [Theia][theia] or Eclipse (or else, potentially).
+1. Trace ***solution*** architects and marketeers, potentially.
+1. Trace ***users*** in general;
+   * either indirectly through solution usage if aware of it,
+   * or directly (once), if coding queries against trace servers.
+1. GraphQL ***resolver*** developers may arise as a new sub-role,
+   * part of developing GraphQL support.
+   * They may become central to supporting GraphQL initially in the key team(s).
+1. Trace-***server*** implementation(s) developers:
+   * as they look into supporting incoming Graph server (resolved) requests through REST as usual;
+   * while potentially working on refactoring that TSP support based on GraphQL servicing in Java.
+   * Replacing (or supplementing) REST with non-REST (Graph-only) in TSP/server being non-trivial.
+
 ### Influences
 
 #### What is GraphQL?
@@ -386,12 +416,14 @@ Each number referring to an aforementioned (previously numbered) risk.
 [impl]: https://github.com/chentsulin/awesome-graphql#implementations
 [inc]: https://git.eclipse.org/r/plugins/gitiles/tracecompass.incubator/org.eclipse.tracecompass.incubator/+/refs/heads/master/trace-server/
 [issue]: https://github.com/eclipse-cdt-cloud/trace-server-protocol/issues/45
+[iter]: https://graphql.org/learn/thinking-in-graphs/#business-logic-layer
 [java]: https://graphql.org/code/#java-kotlin
 [java-fd]: https://www.graphql-java.com/documentation/data-fetching/#how-graphql-fetches-data
 [java-hw]: https://www.graphql-java.com/documentation/getting-started/#hello-world
 [java-mvn]: https://www.graphql-java.com/documentation/getting-started/#how-to-use-the-latest-release-with-maven
 [jest]: https://medium.com/entria/testing-a-graphql-server-using-jest-4e00d0e4980e
 [js]: https://graphql.org/code/#javascript
+[language]: https://graphql.org/learn/thinking-in-graphs/#shared-language
 [legend]: https://cognitect.com/blog/2011/11/15/documenting-architecture-decisions
 [mermaid]: https://towardsdatascience.com/mermaid-create-diagrams-quickly-and-effortlessly-d236e23d6d58
 [mock]: http://graphql.org/blog/mocking-with-graphql/
@@ -415,6 +447,7 @@ Each number referring to an aforementioned (previously numbered) risk.
 [svr-opt]: https://www.apollographql.com/pricing/
 [svr-rest]: https://www.apollographql.com/docs/apollo-server/data/data-sources/#restdatasource-reference
 [svr-start]: https://www.apollographql.com/docs/apollo-server/getting-started/
+[theia]: https://github.com/eclipse-cdt-cloud/theia-trace-extension
 [tsp]: https://github.com/eclipse-cdt-cloud/trace-server-protocol
 [var]: https://medium.com/the-graphqlhub/graphql-tour-variables-58c6abd10f56
 [vers]: https://graphql.org/learn/best-practices/#versioning
