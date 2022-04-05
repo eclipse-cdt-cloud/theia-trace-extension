@@ -372,8 +372,8 @@ Each number referring to an aforementioned (previously numbered) risk.
 [app]: https://medium.com/the-graphqlhub/graphiql-graphql-s-killer-app-9896242b2125
 [batch]: https://graphql.org/learn/best-practices/#server-side-batching-caching
 [caching]: https://www.moesif.com/blog/technical/graphql/REST-vs-GraphQL-APIs-the-good-the-bad-the-ugly/#caching
-[client-py]: https://github.com/theia-ide/tsp-python-client
-[client-ts]: https://github.com/theia-ide/tsp-typescript-client
+[client-py]: https://github.com/eclipse-cdt-cloud/tsp-python-client
+[client-ts]: https://github.com/eclipse-cdt-cloud/tsp-typescript-client
 [code]: https://graphql.org/code/
 [comm]: https://graphql.org/community/#official-channels
 [cons]: https://www.robinwieruch.de/why-apollo-advantages-disadvantages-alternatives/#apollo-disadvantages
@@ -385,7 +385,7 @@ Each number referring to an aforementioned (previously numbered) risk.
 [ibm]: https://github.com/IBM/openapi-to-graphql
 [impl]: https://github.com/chentsulin/awesome-graphql#implementations
 [inc]: https://git.eclipse.org/r/plugins/gitiles/tracecompass.incubator/org.eclipse.tracecompass.incubator/+/refs/heads/master/trace-server/
-[issue]: https://github.com/theia-ide/trace-server-protocol/issues/45
+[issue]: https://github.com/eclipse-cdt-cloud/trace-server-protocol/issues/45
 [java]: https://graphql.org/code/#java-kotlin
 [java-fd]: https://www.graphql-java.com/documentation/data-fetching/#how-graphql-fetches-data
 [java-hw]: https://www.graphql-java.com/documentation/getting-started/#hello-world
@@ -400,7 +400,7 @@ Each number referring to an aforementioned (previously numbered) risk.
 [null]: https://graphql.org/learn/best-practices/#nullability
 [org]: https://graphql.org
 [pag]: https://graphql.org/learn/best-practices/#pagination
-[pr]: https://github.com/theia-ide/trace-server-protocol/pull/44
+[pr]: https://github.com/eclipse-cdt-cloud/trace-server-protocol/pull/44
 [princ]: https://principledgraphql.com
 [pros]: https://www.robinwieruch.de/why-apollo-advantages-disadvantages-alternatives/#apollo-advantages
 [proto]: https://github.com/chentsulin/awesome-graphql#tools---prototyping
@@ -415,7 +415,7 @@ Each number referring to an aforementioned (previously numbered) risk.
 [svr-opt]: https://www.apollographql.com/pricing/
 [svr-rest]: https://www.apollographql.com/docs/apollo-server/data/data-sources/#restdatasource-reference
 [svr-start]: https://www.apollographql.com/docs/apollo-server/getting-started/
-[tsp]: https://github.com/theia-ide/trace-server-protocol
+[tsp]: https://github.com/eclipse-cdt-cloud/trace-server-protocol
 [var]: https://medium.com/the-graphqlhub/graphql-tour-variables-58c6abd10f56
 [vers]: https://graphql.org/learn/best-practices/#versioning
-[yaml]: https://github.com/theia-ide/trace-server-protocol#alternate-tsp-version
+[yaml]: https://github.com/eclipse-cdt-cloud/trace-server-protocol#generate-the-api
