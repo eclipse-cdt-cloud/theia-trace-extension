@@ -1,6 +1,6 @@
 # Trace Viewer extension for Theia applications
 
-Theia trace viewer extension using the [tsp-typescript-client](https://github.com/theia-ide/tsp-typescript-client) and [Trace Server Protocol](https://github.com/theia-ide/trace-server-protocol).
+Theia trace viewer extension using the [tsp-typescript-client](https://github.com/eclipse-cdt-cloud/tsp-typescript-client) and [Trace Server Protocol](https://github.com/eclipse-cdt-cloud/trace-server-protocol).
 
 Prerequisites for running this extension are the same as those for [running the Theia IDE](https://github.com/eclipse-theia/theia/blob/master/doc/Developing.md#prerequisites).
 
@@ -25,22 +25,22 @@ Source: Text adapted from tracevizlab [001-what-is-tracing](https://github.com/d
 
 Click the Gitpod button below to access a live demo of the trace viewer. In a couple of clicks and around 2 minutes, you'll be on your way!
 
-[![Gitpod ready-to-code](https://img.shields.io/badge/Gitpod-ready--to--code-blue?logo=gitpod)](https://gitpod.io/#https://github.com/theia-ide/theia-trace-extension)
+[![Gitpod ready-to-code](https://img.shields.io/badge/Gitpod-ready--to--code-blue?logo=gitpod)](https://gitpod.io/#https://github.com/eclipse-cdt-cloud/theia-trace-extension)
 
 Prerequisites: A GitHub account (for logging into Gitpod)
 
-* Click [here](https://gitpod.io/#https://github.com/theia-ide/theia-trace-extension) to open Gitpod.
+* Click [here](https://gitpod.io/#https://github.com/eclipse-cdt-cloud/theia-trace-extension) to open Gitpod.
 * After logging in, it takes around a minute for Gitpod to set up the in-browser IDE used to build the project.
 * When the workspace has loaded, the project builds automatically in about a minute. Then, the workspace pops a notification saying a service (i.e. the tool) is now available. Open the application in the browser.
-![gitpod-service-ready-notification](https://raw.githubusercontent.com/theia-ide/theia-trace-extension/master/doc/images/gitpod-service-ready-notification-0.0.3.PNG)
-* If you don't see a notification, follow this alternative way to [open the application](https://github.com/theia-ide/theia-trace-extension#open-via-remote-explorer).
+![gitpod-service-ready-notification](https://raw.githubusercontent.com/eclipse-cdt-cloud/theia-trace-extension/master/doc/images/gitpod-service-ready-notification-0.0.3.PNG)
+* If you don't see a notification, follow this alternative way to [open the application](https://github.com/eclipse-cdt-cloud/theia-trace-extension#open-via-remote-explorer).
 * After opening the tool, the interface loads in a few seconds.
 * Now you're ready to try the trace viewer!
   * Head to the trace viewer tab in the left side menu to get started.
   * Click the "Open Trace" button, and then select a directory containing traces, e.g. “103compare-package-managers → apt”
-  * The tool is loaded with the example traces from a set of [Trace Visualisation Labs](https://github.com/tuxology/tracevizlab). To analyze your own traces, [download the application](https://github.com/theia-ide/theia-trace-extension#download-the-application) for Linux.
+  * The tool is loaded with the example traces from a set of [Trace Visualisation Labs](https://github.com/tuxology/tracevizlab). To analyze your own traces, [download the application](https://github.com/eclipse-cdt-cloud/theia-trace-extension#download-the-application) for Linux.
 
-![gitpod-live-demo-setup](https://raw.githubusercontent.com/theia-ide/theia-trace-extension/master/doc/images/gitpod-live-demo-setup-0.0.2.gif)
+![gitpod-live-demo-setup](https://raw.githubusercontent.com/eclipse-cdt-cloud/theia-trace-extension/master/doc/images/gitpod-live-demo-setup-0.0.2.gif)
 
 ## Download an external build of the application
 
@@ -151,19 +151,19 @@ The configured Linux package(s) will be generated in the folder `examples/electr
 
 This section describes how to operate the Theia trace extension to view and analyze traces. The UI and view interactions are preliminary and subject to revisions in the future.
 
-![theia-trace-extension](https://raw.githubusercontent.com/theia-ide/theia-trace-extension/master/doc/images/theia-trace-extension-0.0.3.png)
+![theia-trace-extension](https://raw.githubusercontent.com/eclipse-cdt-cloud/theia-trace-extension/master/doc/images/theia-trace-extension-0.0.3.png)
 
 ### Open the Trace Viewer
 
 To open the **Trace Viewer**, select the **Trace Viewer** icon in the left sidebar:
 
-![Trace Viewer Icon](https://raw.githubusercontent.com/theia-ide/theia-trace-extension/master/doc/images/theia-trace-extension-icon.png)
+![Trace Viewer Icon](https://raw.githubusercontent.com/eclipse-cdt-cloud/theia-trace-extension/master/doc/images/theia-trace-extension-icon.png)
 
 #### Add Trace Viewer to sidebar
 
 If the **Trace Viewer** icon is not in the left sidebar, select menu **View** from the top-level menu and then select **Trace Viewer** in the list of views. The **Trace Viewer** icon will appear on the left, below the **File Explorer** Icon.
 
-![Add Trace Viewer to sidebar](https://raw.githubusercontent.com/theia-ide/theia-trace-extension/master/doc/images/theia-trace-extension-open-trace-viewer.gif)
+![Add Trace Viewer to sidebar](https://raw.githubusercontent.com/eclipse-cdt-cloud/theia-trace-extension/master/doc/images/theia-trace-extension-open-trace-viewer.gif)
 
 ### Open a trace
 
@@ -188,23 +188,23 @@ This is the most intuitive way to open traces and trace groups, but it can only 
 
 ⚠️ The root of a **Common Trace Format (CTF)** trace is a **folder**. A CTF trace is a folder that contains metadata and trace data files.
 
-![Open Trace Dialog](https://raw.githubusercontent.com/theia-ide/theia-trace-extension/master/doc/images/theia-trace-extension-open-trace-dialog.gif)
+![Open Trace Dialog](https://raw.githubusercontent.com/eclipse-cdt-cloud/theia-trace-extension/master/doc/images/theia-trace-extension-open-trace-dialog.gif)
 
 #### Via the File Explorer
 
 You can open any supported trace format via the file explorer context menu. For a single trace, right-click on the trace file, or folder (for a CTF trace), then select **Open With → Open Trace**. To open several CTF trace files as a group, right-click on the parent folder instead.
 
-![Open With Trace Viewer](https://raw.githubusercontent.com/theia-ide/theia-trace-extension/master/doc/images/theia-trace-extension-open-with-trace-viewer.gif)
+![Open With Trace Viewer](https://raw.githubusercontent.com/eclipse-cdt-cloud/theia-trace-extension/master/doc/images/theia-trace-extension-open-with-trace-viewer.gif)
 
 ### Open a view
 
 To open a view, in the **Trace Viewer** select an opened trace in the **Opened Traces** widget, then click on a view in the **Available Views** list to open it.
 
-![Open View](https://raw.githubusercontent.com/theia-ide/theia-trace-extension/master/doc/images/theia-trace-extension-open-view.gif)
+![Open View](https://raw.githubusercontent.com/eclipse-cdt-cloud/theia-trace-extension/master/doc/images/theia-trace-extension-open-view.gif)
 
 ⚠️ **An available view can display empty results, even if the analysis completes correctly.** The **Available Views** widget lists all the views that could be used with the selected trace(s) based on their trace format (regardless of the event types that were enabled in the trace or the events present in the trace). The tool cannot yet inform the user whether results are empty because of:
 
-* A bad reason: Some events required for the analysis were not enabled in the trace. [#322](https://github.com/theia-ide/theia-trace-extension/issues/322)
+* A bad reason: Some events required for the analysis were not enabled in the trace. [#322](https://github.com/eclipse-cdt-cloud/theia-trace-extension/issues/322)
 * A neutral reason: All required events are enabled in the trace, but there are no instances of these events in the trace.
 
 ### Navigation
@@ -216,7 +216,7 @@ To open a view, in the **Trace Viewer** select an opened trace in the **Opened T
 * WASD keys: 'W' zooms in, 'S' zooms out
 * Toolbar: Zoom in, Zoom out, Reset zoom (see screenshot)
 
-![Trace Viewer Toolbar Zoom Buttons](https://raw.githubusercontent.com/theia-ide/theia-trace-extension/master/doc/images/theia-trace-extension-toolbar-zoom-buttons.png)
+![Trace Viewer Toolbar Zoom Buttons](https://raw.githubusercontent.com/eclipse-cdt-cloud/theia-trace-extension/master/doc/images/theia-trace-extension-toolbar-zoom-buttons.png)
 
 #### Panning
 
@@ -225,7 +225,7 @@ To open a view, in the **Trace Viewer** select an opened trace in the **Opened T
 
 #### Important limitations
 
-* XY Charts can be painfully laggy to navigate even with reasonable trace sizes. [#470](https://github.com/theia-ide/theia-trace-extension/issues/470)
+* XY Charts can be painfully laggy to navigate even with reasonable trace sizes. [#470](https://github.com/eclipse-cdt-cloud/theia-trace-extension/issues/470)
 * There is no visual indication when chart data is still loading. Data can pop into existence several seconds after the chart is opened or after navigation.
 
 ### Item properties
@@ -235,7 +235,7 @@ This section shows detailed information about a selected:
 * Time Graph State (Bar section in a Gantt chart), or
 * Event in the Events Table
 
-![Trace Viewer Item Properties](https://raw.githubusercontent.com/theia-ide/theia-trace-extension/master/doc/images/theia-trace-extension-item-properties-0.0.2.png)
+![Trace Viewer Item Properties](https://raw.githubusercontent.com/eclipse-cdt-cloud/theia-trace-extension/master/doc/images/theia-trace-extension-item-properties-0.0.2.png)
 
 ## Related code
 
@@ -243,12 +243,12 @@ This trace viewer depends on code from several other repos. Sometimes resolving 
 
 | Project | Description | Related issues | Links |
 |---------------|----|--------------------------|---|
-| [Theia](https://theia-ide.org/) | Theia is a framework for making custom IDEs. It provides reusable components (e.g. text editor, terminal) and is extensible. For example, this trace viewer is an extension for Theia-based IDEs. | | [Code](https://github.com/eclipse-theia/theia), [Ecosystem](https://github.com/theia-ide) |
-| [Trace Compass](https://www.eclipse.org/tracecompass/) | Trace analysis tool and precursor to this trace viewer. | [label:"Trace Compass"](https://github.com/theia-ide/theia-trace-extension/labels/Trace%20Compass) | [Dev info](https://wiki.eclipse.org/Trace_Compass), [Dev setup](https://wiki.eclipse.org/Trace_Compass/Development_Environment_Setup) |
-| [Trace Compass Server](https://download.eclipse.org/tracecompass.incubator/trace-server/rcp/?d) | A reference implementation of a Trace Server. Manages and analyzes trace files and provides this data to the trace viewer over the [Trace Server Protocol (TSP)](https://github.com/theia-ide/trace-server-protocol). This Trace Server implementation was originally part of Trace Compass, so it requires the same dev setup. Because a protocol is used for communication (TSP), it is possible to develop alternative Trace Servers that are independent of Trace Compass. | [label:"Trace Server"](https://github.com/theia-ide/theia-trace-extension/labels/Trace%20Server) | [Dev setup](https://wiki.eclipse.org/Trace_Compass/Development_Environment_Setup) (same as Trace Compass), [Code](https://git.eclipse.org/r/admin/repos/tracecompass.incubator/org.eclipse.tracecompass.incubator) (same repo as Trace Compass incubator) |
-| [Trace Server Protocol (TSP)](https://github.com/theia-ide/trace-server-protocol) | Protocol used by the trace viewer to communicate with the trace server. | [label:"trace server protocol"](https://github.com/theia-ide/theia-trace-extension/labels/trace%20server%20protocol) | |
-| [Client-side Trace Server Protocol implementation](https://github.com/theia-ide/tsp-typescript-client) | A client-side implementation of the Trace Server Protocol. Allows the trace viewer to communicate with the server. | | |
-| [Timeline Chart](https://github.com/theia-ide/timeline-chart) | Implements the Gantt charts used in this trace viewer. | [label:timeline-chart](https://github.com/theia-ide/theia-trace-extension/labels/timeline-chart) | |
+| [Theia](https://theia-ide.org/) | Theia is a framework for making custom IDEs. It provides reusable components (e.g. text editor, terminal) and is extensible. For example, this trace viewer is an extension for Theia-based IDEs. | | [Code](https://github.com/eclipse-theia/theia), [Ecosystem](https://github.com/eclipse-theia) |
+| [Trace Compass](https://www.eclipse.org/tracecompass/) | Trace analysis tool and precursor to this trace viewer. | [label:"Trace Compass"](https://github.com/eclipse-cdt-cloud/theia-trace-extension/labels/Trace%20Compass) | [Dev info](https://wiki.eclipse.org/Trace_Compass), [Dev setup](https://wiki.eclipse.org/Trace_Compass/Development_Environment_Setup) |
+| [Trace Compass Server](https://download.eclipse.org/tracecompass.incubator/trace-server/rcp/?d) | A reference implementation of a Trace Server. Manages and analyzes trace files and provides this data to the trace viewer over the [Trace Server Protocol (TSP)](https://github.com/eclipse-cdt-cloud/trace-server-protocol). This Trace Server implementation was originally part of Trace Compass, so it requires the same dev setup. Because a protocol is used for communication (TSP), it is possible to develop alternative Trace Servers that are independent of Trace Compass. | [label:"Trace Server"](https://github.com/eclipse-cdt-cloud/theia-trace-extension/labels/Trace%20Server) | [Dev setup](https://wiki.eclipse.org/Trace_Compass/Development_Environment_Setup) (same as Trace Compass), [Code](https://git.eclipse.org/r/admin/repos/tracecompass.incubator/org.eclipse.tracecompass.incubator) (same repo as Trace Compass incubator) |
+| [Trace Server Protocol (TSP)](https://github.com/eclipse-cdt-cloud/trace-server-protocol) | Protocol used by the trace viewer to communicate with the trace server. | [label:"trace server protocol"](https://github.com/eclipse-cdt-cloud/theia-trace-extension/labels/trace%20server%20protocol) | |
+| [Client-side Trace Server Protocol implementation](https://github.com/eclipse-cdt-cloud/tsp-typescript-client) | A client-side implementation of the Trace Server Protocol. Allows the trace viewer to communicate with the server. | | |
+| [Timeline Chart](https://github.com/eclipse-cdt-cloud/timeline-chart) | Implements the Gantt charts used in this trace viewer. | [label:timeline-chart](https://github.com/eclipse-cdt-cloud/theia-trace-extension/labels/timeline-chart) | |
 
 ## Troubleshooting
 
@@ -283,14 +283,14 @@ A simple solution would be restoring the project to a clean state prior to the i
 
 The diagram below shows the main parts of the Trace Viewer's front end (left side) and back end (right side), as well as how they exchange information.
 
-![Trace viewer architecture diagram](https://raw.githubusercontent.com/theia-ide/theia-trace-extension/master/doc/images/theia-trace-viewer-architecture.PNG)
+![Trace viewer architecture diagram](https://raw.githubusercontent.com/eclipse-cdt-cloud/theia-trace-extension/master/doc/images/theia-trace-viewer-architecture.PNG)
 Source: [EclipseCon 2021 Presentation](https://www.eclipsecon.org/sites/default/files/slides/EclipseCon2021-TraceCompassCloud.pdf) (slide 18), Bernd Hufmann
 
 ## Gitpod: Open the Trace Viewer extension
 
 When the project is opened in Gitpod, it should build automatically and then pop a notification saying a service (i.e. the example application) is now available.
 
-![gitpod-service-ready-notification](https://raw.githubusercontent.com/theia-ide/theia-trace-extension/master/doc/images/gitpod-service-ready-notification-0.0.2.PNG)
+![gitpod-service-ready-notification](https://raw.githubusercontent.com/eclipse-cdt-cloud/theia-trace-extension/master/doc/images/gitpod-service-ready-notification-0.0.2.PNG)
 
 ### Open via Remote Explorer
 
@@ -301,7 +301,7 @@ If there is no notification, you can open the application directly in the **Remo
    * Via the Command palette or Open View menu (type "view remote explorer")
 2. Once in the **Remote Explorer**, select "Open Browser" for the port 3000. By default, the application is hosted on port 3000.
 
-![Open Browser](https://raw.githubusercontent.com/theia-ide/theia-trace-extension/master/doc/images/theia-trace-extension-open-browser.png)
+![Open Browser](https://raw.githubusercontent.com/eclipse-cdt-cloud/theia-trace-extension/master/doc/images/theia-trace-extension-open-browser.png)
 
 ## Tests
 

@@ -4,6 +4,6 @@ The Trace Viewer base package contains trace management utilities for managing t
 
 ## Additional Information
 
-- [Theia Trace Viewer Extension](https://github.com/theia-ide/theia-trace-extension)
-- [Trace Server Protocol](https://github.com/theia-ide/trace-server-protocol)
+- [Theia Trace Viewer Extension](https://github.com/eclipse-cdt-cloud/theia-trace-extension)
+- [Trace Server Protocol](https://github.com/eclipse-cdt-cloud/trace-server-protocol)
 - [Reference Trace Server - Download (Eclipse Trace Compass)](https://download.eclipse.org/tracecompass.incubator/trace-server/rcp/)
