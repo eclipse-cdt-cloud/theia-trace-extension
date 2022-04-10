@@ -27,10 +27,11 @@ import { TooltipXYComponent } from './tooltip-xy-component';
 import { BIMath } from 'timeline-chart/lib/bigint-utils';
 import { DataTreeOutputComponent } from './datatree-output-component';
 import { cloneDeep } from 'lodash';
+import { UnitControllerHistoryHandler } from './utils/unit-controller-history-handler';
 
 const ResponsiveGridLayout = WidthProvider(Responsive);
 
-interface TraceContextProps {
+export interface TraceContextProps {
     tspClient: TspClient;
     experiment: Experiment;
     outputs: OutputDescriptor[];
@@ -45,7 +46,7 @@ interface TraceContextProps {
     persistedState?: PersistedState;
 }
 
-interface TraceContextState {
+export interface TraceContextState {
     timeOffset: bigint;
     currentRange: TimeRange;
     currentViewRange: TimeRange;
@@ -78,6 +79,7 @@ export class TraceContextComponent extends React.Component<TraceContextProps, Tr
     private readonly DEFAULT_CHART_OFFSET = 200;
 
     private unitController: TimeGraphUnitController;
+    private historyHandler: UnitControllerHistoryHandler;
     private tooltipComponent: React.RefObject<TooltipComponent>;
     private tooltipXYComponent: React.RefObject<TooltipXYComponent>;
     private traceContextContainer: React.RefObject<HTMLDivElement>;
@@ -158,6 +160,7 @@ export class TraceContextComponent extends React.Component<TraceContextProps, Tr
             const nanos = zeroPad(theNumber % BigInt(1000));
             return seconds + '.' + millis + ' ' + micros + ' ' + nanos;
         };
+        this.historyHandler = new UnitControllerHistoryHandler(this.unitController);
         if (this.props.persistedState?.currentTimeSelection) {
             const { start, end } = this.props.persistedState.currentTimeSelection;
             this.unitController.selectionRange = { start: BigInt(start), end: BigInt(end) };
@@ -197,6 +200,8 @@ export class TraceContextComponent extends React.Component<TraceContextProps, Tr
         } else {
             this.unitController.viewRange = { start: BigInt(0), end: this.state.experiment.end - this.state.timeOffset };
         }
+        this.historyHandler.clear();
+        this.historyHandler.addCurrentState();
     }
 
     private async updateTrace() {
@@ -247,12 +252,16 @@ export class TraceContextComponent extends React.Component<TraceContextProps, Tr
         signalManager().on(Signals.THEME_CHANGED, this.onBackgroundThemeChange);
         signalManager().on(Signals.UPDATE_ZOOM, this.onUpdateZoom);
         signalManager().on(Signals.RESET_ZOOM, this.onResetZoom);
+        signalManager().on(Signals.UNDO, this.undoHistory);
+        signalManager().on(Signals.REDO, this.redoHistory);
     }
 
     private unsubscribeToEvents() {
         signalManager().off(Signals.THEME_CHANGED, this.onBackgroundThemeChange);
         signalManager().off(Signals.UPDATE_ZOOM, this.onUpdateZoom);
         signalManager().off(Signals.RESET_ZOOM, this.onResetZoom);
+        signalManager().off(Signals.UNDO, this.undoHistory);
+        signalManager().off(Signals.REDO, this.redoHistory);
     }
 
     async componentDidUpdate(prevProps: TraceContextProps): Promise<void> {
@@ -318,14 +327,14 @@ export class TraceContextComponent extends React.Component<TraceContextProps, Tr
             });
             this.setState(prevState => ({
                 currentTimeSelection: new TimeRange(range.start, range.end, prevState.timeOffset)
-            }));
+            }), () => this.updateHistory());
         }
     }
 
     private handleViewRangeChange(viewRange: TimelineChart.TimeGraphRange) {
         this.setState(prevState => ({
             currentViewRange: new TimeRange(viewRange.start, viewRange.end, prevState.timeOffset)
-        }));
+        }), () => this.updateHistory());
     }
 
     private onContextMenu(event: React.MouseEvent) {
@@ -348,6 +357,7 @@ export class TraceContextComponent extends React.Component<TraceContextProps, Tr
         return <div className='trace-context-container'
             onContextMenu={event => this.onContextMenu(event)}
             onKeyDown={event => this.onKeyDown(event)}
+            onKeyUp={event => this.onKeyUp(event)}
             ref={this.traceContextContainer}>
             <TooltipComponent ref={this.tooltipComponent} />
             <TooltipXYComponent ref={this.tooltipXYComponent} />
@@ -355,8 +365,8 @@ export class TraceContextComponent extends React.Component<TraceContextProps, Tr
         </div>;
     }
 
-    private onKeyDown(key: React.KeyboardEvent) {
-        switch (key.key) {
+    private onKeyDown(event: React.KeyboardEvent) {
+        switch (event.key) {
             case '+':
             case '=': {
                 this.zoomButton(true);
@@ -366,6 +376,27 @@ export class TraceContextComponent extends React.Component<TraceContextProps, Tr
             case '_': {
                 this.zoomButton(false);
                 break;
+            }
+        }
+    }
+
+    private onKeyUp(event: React.KeyboardEvent): void {
+        if (event.ctrlKey) {
+            switch (event.key) {
+                case 'z': {
+                    this.undoHistory();
+                    break;
+                }
+                case 'Z': {
+                    if (event.shiftKey) {
+                        this.redoHistory();
+                        break;
+                    }
+                }
+                case 'y': {
+                    this.redoHistory();
+                    break;
+                }
             }
         }
     }
@@ -479,6 +510,18 @@ export class TraceContextComponent extends React.Component<TraceContextProps, Tr
             {'To see available views, open the Trace Viewer.'}
         </div>;
     }
+
+    private undoHistory = (): void => {
+        this.historyHandler.undo();
+    };
+
+    private redoHistory = (): void => {
+        this.historyHandler.redo();
+    };
+
+    private updateHistory = (): void => {
+        this.historyHandler.addCurrentState();
+    };
 
     private generateGridLayout(): void {
         let existingTimeScaleLayouts: Array<Layout> = [];

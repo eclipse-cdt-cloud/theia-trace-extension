@@ -14,6 +14,18 @@ export namespace TraceViewerToolbarCommands {
         iconClass: 'fa fa-minus-square-o fa-lg',
     };
 
+    export const UNDO: Command = {
+        id: 'trace.viewer.toolbar.undo',
+        label: 'Undo',
+        iconClass: 'fa fa-undo fa-lg',
+    };
+
+    export const REDO: Command = {
+        id: 'trace.viewer.toolbar.redo',
+        label: 'Redo',
+        iconClass: 'fa fa-repeat fa-lg',
+    };
+
     export const RESET: Command = {
         id: 'trace.viewer.toolbar.reset',
         label: 'Reset',
