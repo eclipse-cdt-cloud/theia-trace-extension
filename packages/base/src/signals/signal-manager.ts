@@ -23,6 +23,8 @@ export declare interface SignalManager {
     fireMarkerSetsFetchedSignal(): void;
     fireMarkerCategoryClosedSignal(payload: { traceViewerId: string, markerCategory: string }): void;
     fireTraceServerStartedSignal(): void;
+    fireUndoSignal(): void;
+    fireRedoSignal(): void;
 }
 
 export const Signals = {
@@ -42,6 +44,8 @@ export const Signals = {
     TRACEVIEWERTAB_ACTIVATED: 'widget activated',
     UPDATE_ZOOM: 'update zoom',
     RESET_ZOOM: 'reset zoom',
+    UNDO: 'undo',
+    REDO: 'redo',
     MARKER_CATEGORIES_FETCHED: 'marker categories fetched',
     MARKERSETS_FETCHED: 'markersets fetched',
     MARKER_CATEGORY_CLOSED: 'marker category closed',
@@ -105,6 +109,12 @@ export class SignalManager extends EventEmitter implements SignalManager {
     }
     fireTraceServerStartedSignal(): void {
         this.emit(Signals.TRACE_SERVER_STARTED);
+    }
+    fireUndoSignal(): void {
+        this.emit(Signals.UNDO);
+    }
+    fireRedoSignal(): void {
+        this.emit(Signals.REDO);
     }
 }
 

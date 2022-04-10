@@ -70,6 +70,30 @@ export class TraceViewerToolbarContribution implements TabBarToolbarContribution
             }
         });
         registry.registerCommand(
+            TraceViewerToolbarCommands.UNDO, {
+            isVisible: (widget: Widget) => {
+                if (widget instanceof TraceViewerWidget) {
+                    return widget.isTimeRelatedChartOpened();
+                }
+                return false;
+            },
+            execute: () => {
+                signalManager().fireUndoSignal();
+            }
+        });
+        registry.registerCommand(
+            TraceViewerToolbarCommands.REDO, {
+            isVisible: (widget: Widget) => {
+                if (widget instanceof TraceViewerWidget) {
+                    return widget.isTimeRelatedChartOpened();
+                }
+                return false;
+            },
+            execute: () => {
+                signalManager().fireRedoSignal();
+            }
+        });
+        registry.registerCommand(
             TraceViewerToolbarCommands.RESET, {
             isVisible: (widget: Widget) => {
                 if (widget instanceof TraceViewerWidget) {
@@ -122,22 +146,34 @@ export class TraceViewerToolbarContribution implements TabBarToolbarContribution
 
     registerToolbarItems(registry: TabBarToolbarRegistry): void {
         registry.registerItem({
+            id: TraceViewerToolbarCommands.UNDO.id,
+            command: TraceViewerToolbarCommands.UNDO.id,
+            tooltip: TraceViewerToolbarCommands.UNDO.label,
+            priority: 1,
+        });
+        registry.registerItem({
+            id: TraceViewerToolbarCommands.REDO.id,
+            command: TraceViewerToolbarCommands.REDO.id,
+            tooltip: TraceViewerToolbarCommands.REDO.label,
+            priority: 2,
+        });
+        registry.registerItem({
             id: TraceViewerToolbarCommands.ZOOM_IN.id,
             command: TraceViewerToolbarCommands.ZOOM_IN.id,
             tooltip: TraceViewerToolbarCommands.ZOOM_IN.label,
-            priority: 1,
+            priority: 3,
         });
         registry.registerItem({
             id: TraceViewerToolbarCommands.ZOOM_OUT.id,
             command: TraceViewerToolbarCommands.ZOOM_OUT.id,
             tooltip: TraceViewerToolbarCommands.ZOOM_OUT.label,
-            priority: 2,
+            priority: 4,
         });
         registry.registerItem({
             id: TraceViewerToolbarCommands.RESET.id,
             command: TraceViewerToolbarCommands.RESET.id,
             tooltip: TraceViewerToolbarCommands.RESET.label,
-            priority: 3,
+            priority: 5,
         });
         registry.registerItem({
             id: TraceViewerToolbarCommands.FILTER.id,
@@ -185,7 +221,7 @@ export class TraceViewerToolbarContribution implements TabBarToolbarContribution
                     });
                 }}></div>
             </div>,
-            priority: 4,
+            priority: 6,
             group: 'navigation',
             onDidChange: this.onMarkerCategoriesChangedEvent,
         });
@@ -233,7 +269,7 @@ export class TraceViewerToolbarContribution implements TabBarToolbarContribution
                     });
                 }}></div>
             </div>,
-            priority: 5,
+            priority: 7,
             group: 'navigation',
             onDidChange: this.onMakerSetsChangedEvent,
         });
@@ -241,19 +277,19 @@ export class TraceViewerToolbarContribution implements TabBarToolbarContribution
             id: TraceViewerToolbarCommands.OPEN_TRACE.id,
             command: TraceViewerToolbarCommands.OPEN_TRACE.id,
             tooltip: TraceViewerToolbarCommands.OPEN_TRACE.label,
-            priority: 6,
+            priority: 8,
         });
         registry.registerItem({
             id: TraceViewerToolbarCommands.CHARTS_CHEATSHEET.id,
             command: TraceViewerToolbarCommands.CHARTS_CHEATSHEET.id,
             tooltip: TraceViewerToolbarCommands.CHARTS_CHEATSHEET.label,
-            priority: 7,
+            priority: 9,
         });
         registry.registerItem({
             id: TraceViewerToolbarCommands.SERVER_CHECK.id,
             command: TraceViewerToolbarCommands.SERVER_CHECK.id,
             tooltip: TraceViewerToolbarCommands.SERVER_CHECK.label,
-            priority: 7,
+            priority: 10,
         });
     }
 }
