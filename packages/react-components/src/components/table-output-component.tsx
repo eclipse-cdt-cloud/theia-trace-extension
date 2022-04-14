@@ -14,6 +14,7 @@ import { ResponseStatus } from 'tsp-typescript-client';
 
 type TableOuputState = AbstractOutputState & {
     tableColumns: ColDef[];
+    showToggleColumns: boolean;
 };
 
 type TableOutputProps = AbstractOutputProps & {
@@ -64,7 +65,9 @@ export class TableOutputComponent extends AbstractOutputComponent<TableOutputPro
         super(props);
         this.state = {
             outputStatus: ResponseStatus.RUNNING,
-            tableColumns: []
+            tableColumns: [],
+            optionsDropdownOpen: false,
+            showToggleColumns: false
         };
 
         this.frameworkComponents = {
@@ -653,4 +656,68 @@ export class TableOutputComponent extends AbstractOutputComponent<TableOutputPro
             });
         }
     }
+
+    private toggleColumnVisibility(columnApi: ColumnApi, column: ColDef) {
+        if (!columnApi || !column.field) {
+            return;
+        }
+
+        columnApi.setColumnsVisible([column.field], !columnApi.getColumn(column).isVisible());
+        const allCols = cloneDeep(this.state.tableColumns);
+
+        allCols.map( item => {
+            if (item.field === column.field) {
+                item.hide = columnApi.getColumn(column).isVisible();
+            }
+        });
+
+        this.setState({
+            tableColumns: allCols
+        });
+    }
+
+    private renderToggleColumnsTable(): React.ReactNode {
+        /* eslint-disable @typescript-eslint/no-non-null-assertion */
+        if (!this.columnApi) {
+            return;
+        }
+        const columns = this.columnApi.getAllGridColumns();
+
+        return <React.Fragment>
+            <table style={{width: '100%'}}>
+                <tbody>
+                    {columns.map((column, key) =>
+                        <tr key={key}>
+                            <td>
+                                <input
+                                    type='checkbox'
+                                    checked={this.columnApi!.getColumn(column).isVisible()}
+                                    onChange={() => this.toggleColumnVisibility(this.columnApi!, column.getColDef())}
+                                />
+                            </td>
+                            <td>{column.getColDef().headerName}</td>
+                        </tr>
+                    )}
+                </tbody>
+            </table>
+        </React.Fragment>;
+    }
+
+    protected showOptions(): React.ReactNode {
+        return <React.Fragment>
+            <ul>
+                <li className='drop-down-list-item' key={0} onClick={() => {
+                    this.setState({showToggleColumns: !this.state.showToggleColumns});
+                }}>Toggle Columns</li>
+            </ul>
+            {this.state.showToggleColumns && <div className='toggle-columns-table'>{this.renderToggleColumnsTable()}</div>}
+        </React.Fragment>;
+    }
+
+    protected closeOptionsDropDown(): void {
+        this.setState({
+            showToggleColumns: false
+        });
+    }
+
 }
