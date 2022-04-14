@@ -2,7 +2,7 @@ import * as React from 'react';
 import { OutputDescriptor } from 'tsp-typescript-client/lib/models/output-descriptor';
 import { TspClient } from 'tsp-typescript-client/lib/protocol/tsp-client';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faTimes } from '@fortawesome/free-solid-svg-icons';
+import { faBars, faTimes } from '@fortawesome/free-solid-svg-icons';
 import { TimeGraphUnitController } from 'timeline-chart/lib/time-graph-unit-controller';
 import { TimeRange } from 'traceviewer-base/lib/utils/time-range';
 import { OutputComponentStyle } from './utils/output-component-style';
@@ -42,7 +42,8 @@ export interface AbstractOutputProps {
 
 export interface AbstractOutputState {
     outputStatus: string;
-    styleModel?: OutputStyleModel
+    styleModel?: OutputStyleModel;
+    optionsDropdownOpen?: boolean;
 }
 
 export abstract class AbstractOutputComponent<P extends AbstractOutputProps, S extends AbstractOutputState> extends React.Component<P, S> {
@@ -51,11 +52,16 @@ export abstract class AbstractOutputComponent<P extends AbstractOutputProps, S e
 
     private mainOutputContainer: React.RefObject<HTMLDivElement>;
 
+    private optionsMenuRef: React.RefObject<HTMLDivElement>;
+
     constructor(props: P) {
         super(props);
         this.mainOutputContainer = React.createRef();
         this.closeComponent = this.closeComponent.bind(this);
         this.renderTitleBar = this.renderTitleBar.bind(this);
+        this.openOptionsMenu = this.openOptionsMenu.bind(this);
+        this.closeOptionsMenu = this.closeOptionsMenu.bind(this);
+        this.optionsMenuRef = React.createRef();
     }
 
     render(): JSX.Element {
@@ -71,7 +77,7 @@ export abstract class AbstractOutputComponent<P extends AbstractOutputProps, S e
             data-for="tooltip-component">
             <div
                 id={this.props.traceId + this.props.outputDescriptor.id + 'handle'}
-                className='widget-handle'
+                className={this.state.optionsDropdownOpen !== undefined ? 'widget-handle-with-options' : 'widget-handle'}
                 style={{ width: this.getHandleWidth(), height: this.props.style.height }}
             >
                 {this.renderTitleBar()}
@@ -90,6 +96,14 @@ export abstract class AbstractOutputComponent<P extends AbstractOutputProps, S e
             <button className='remove-component-button' onClick={this.closeComponent}>
                 <FontAwesomeIcon icon={faTimes} />
             </button>
+            {this.state.optionsDropdownOpen !== undefined && <div className='options-menu-container'>
+                <button title="Show View Options" className='options-menu-button' onClick={this.openOptionsMenu}>
+                    <FontAwesomeIcon icon={faBars} />
+                </button>
+                {this.state.optionsDropdownOpen && <div className="options-menu-drop-down" ref={this.optionsMenuRef}>
+                    {this.showOptions()}
+                </div>}
+            </div>}
             <div className='title-bar-label' title={outputName} onClick={() => this.setFocus()}>
                 {outputName}
                 <i id={this.props.traceId + this.props.outputDescriptor.id + 'handleSpinner'} className='fa fa-refresh fa-spin'
@@ -127,6 +141,14 @@ export abstract class AbstractOutputComponent<P extends AbstractOutputProps, S e
 
     abstract resultsAreEmpty(): boolean;
 
+    protected showOptions(): React.ReactNode {
+        return <></>;
+    }
+
+    protected closeOptionsDropDown(): void {
+        return;
+    }
+
     protected renderAnalysisFailed(): React.ReactFragment {
         return <React.Fragment>
             <div className='message-main-area'>
@@ -143,5 +165,21 @@ export abstract class AbstractOutputComponent<P extends AbstractOutputProps, S e
                     No results: Trace missing required events.
                 </div>
         </React.Fragment>;
+    }
+
+    private openOptionsMenu(): void {
+        this.setState({optionsDropdownOpen: true}, () => {
+            document.addEventListener('click', this.closeOptionsMenu);
+        });
+    }
+
+    private closeOptionsMenu(event: Event): void {
+        if (event.target instanceof Node && this.optionsMenuRef.current?.contains(event.target)) {
+            return;
+        }
+        this.closeOptionsDropDown();
+        this.setState({optionsDropdownOpen: false}, () => {
+            document.removeEventListener('click', this.closeOptionsMenu);
+        });
     }
 }
