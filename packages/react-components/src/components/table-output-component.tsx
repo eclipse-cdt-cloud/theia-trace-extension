@@ -67,7 +67,8 @@ export class TableOutputComponent extends AbstractOutputComponent<TableOutputPro
             outputStatus: ResponseStatus.RUNNING,
             tableColumns: [],
             optionsDropdownOpen: false,
-            showToggleColumns: false
+            showToggleColumns: false,
+            additionalOptions: true
         };
 
         this.frameworkComponents = {
@@ -711,7 +712,13 @@ export class TableOutputComponent extends AbstractOutputComponent<TableOutputPro
         </React.Fragment>;
     }
 
-    protected showOptions(): React.ReactNode {
+    protected closeOptionsDropDown(): void {
+        this.setState({
+            showToggleColumns: false
+        });
+    }
+
+    protected showAdditionalOptions(): React.ReactNode {
         return <React.Fragment>
             <ul>
                 <li className='drop-down-list-item' key={0} onClick={() => {
@@ -721,11 +728,4 @@ export class TableOutputComponent extends AbstractOutputComponent<TableOutputPro
             {this.state.showToggleColumns && <div className='toggle-columns-table'>{this.renderToggleColumnsTable()}</div>}
         </React.Fragment>;
     }
-
-    protected closeOptionsDropDown(): void {
-        this.setState({
-            showToggleColumns: false
-        });
-    }
-
 }

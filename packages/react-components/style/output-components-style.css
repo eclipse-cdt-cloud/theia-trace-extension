@@ -35,6 +35,58 @@
     text-overflow: ellipsis;
     white-space: nowrap;
 }
+.title-bar-label:hover {
+    background-color: var(--theia-list-hoverBackground); 
+}
+.remove-component-button:hover {
+    cursor: pointer;
+    background-color: var(--theia-list-hoverBackground); 
+}
+.share-component-container {
+    align-self: start;
+    justify-self: center;
+    position: relative;
+    display: inline-block;
+}
+.share-component-button {
+    background: none;
+    border: none;
+    color: var(--theia-ui-font-color0)
+}
+.share-component-button:hover {
+    cursor: pointer;
+    background-color: var(--theia-list-hoverBackground); 
+}
+.share-component-drop-down {
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    padding: 0;
+    z-index: 2;
+    min-width: 180px;
+    background: var(--theia-menu-background);
+    color: var(--theia-menu-foreground);
+    font-size: var(--theia-ui-font-size1);
+    box-shadow: 0px 1px 6px var(--theia-widget-shadow);
+    border: 1px solid var(--theia-menu-border);
+}
+.share-component-drop-down > ul {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    display: table;
+    width: 100%;
+}
+.drop-down-list-item {
+    padding: 8px 12px;
+    background-color: var(--theia-menu-background);
+    color: var(--theia-menu-foreground);
+}
+.drop-down-list-item:hover {
+    background: var(--theia-menu-selectionBackground);
+    color: var(--theia-menu-selectionForeground);
+    opacity: 1;
+}
 .remove-component-button {
     background: none;
     border: none;

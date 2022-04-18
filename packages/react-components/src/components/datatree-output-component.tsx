@@ -35,6 +35,8 @@ export class DataTreeOutputComponent extends AbstractOutputComponent<AbstractOut
             collapsedNodes: [],
             orderedNodes: [],
             columns: [{title: 'Name', sortable: true}],
+            optionsDropdownOpen: false,
+            additionalOptions: true
         };
     }
 
@@ -187,5 +189,52 @@ export class DataTreeOutputComponent extends AbstractOutputComponent<AbstractOut
         if (this.props.selectionRange && this.props.selectionRange !== prevProps.selectionRange) {
             this._debouncedFetchSelectionData();
         }
+    }
+
+    private async exportOutput(): Promise<void> {
+        const focusContainer = document.getElementById(this.props.traceId + this.props.outputDescriptor.id + 'focusContainer');
+        if (focusContainer) {
+            const table = focusContainer.querySelector('div:nth-child(2) > table');
+            if (table) {
+                const rows = table.querySelectorAll('tr');
+
+                const csvArray = [];
+                for (let i = 0; i < rows.length; i++) {
+                    const row = [];
+                    const cols = rows[i].querySelectorAll('td, th');
+                    for (let j = 0; j < cols.length - 1; j++) {
+                        let data;
+                        const content = cols[j].textContent;
+                        if (content) {
+                            data = content.replace(/\s*\|/g, '');
+                        } else {
+                            data = content;
+                        }
+                        row.push(data);
+                    }
+                    csvArray.push(row.join(','));
+                }
+                const tableString = csvArray.join('\n');
+
+                const link = document.createElement('a');
+                link.setAttribute('href', `data:text/csv;charset=utf-8,${encodeURIComponent(tableString)}`);
+                link.setAttribute('download', (this.props.traceName ?? 'export') + ' - ' + this.props.outputDescriptor.name);
+
+                link.style.display = 'none';
+                document.body.appendChild(link);
+
+                link.click();
+
+                document.body.removeChild(link);
+            }
+        }
+    }
+
+    protected showAdditionalOptions(): React.ReactNode {
+        return <React.Fragment>
+            <ul>
+                <li className='drop-down-list-item' key={0} onClick={() => this.exportOutput()}>Export to csv</li>
+            </ul>
+        </React.Fragment>;
     }
 }

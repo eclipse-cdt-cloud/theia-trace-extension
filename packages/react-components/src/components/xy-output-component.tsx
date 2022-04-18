@@ -112,7 +112,8 @@ export class XYOutputComponent extends AbstractTreeOutputComponent<AbstractOutpu
             columns: [{title: 'Name', sortable: true}],
             allMax: 0,
             allMin: 0,
-            cursor: 'default'
+            cursor: 'default',
+            optionsDropdownOpen: false
         };
 
         this.afterChartDraw = this.afterChartDraw.bind(this);

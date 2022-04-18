@@ -75,7 +75,8 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
             markerLayerData: undefined,
             collapsedNodes: [],
             columns: [],
-            collapsedMarkerNodes: []
+            collapsedMarkerNodes: [],
+            optionsDropdownOpen: false
         };
         this.selectedMarkerCategories = this.props.markerCategories;
         this.onToggleCollapse = this.onToggleCollapse.bind(this);

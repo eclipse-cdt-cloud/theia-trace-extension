@@ -77,6 +77,7 @@ export class TraceContextComponent extends React.Component<TraceContextProps, Tr
     private readonly DEFAULT_COMPONENT_LEFT: number = 0;
     private readonly SCROLLBAR_PADDING: number = 12;
     private readonly DEFAULT_CHART_OFFSET = 200;
+    private readonly MIN_COMPONENT_HEIGHT: number = 2;
 
     private unitController: TimeGraphUnitController;
     private historyHandler: UnitControllerHistoryHandler;
@@ -453,6 +454,7 @@ export class TraceContextComponent extends React.Component<TraceContextProps, Tr
                     tooltipComponent: this.tooltipComponent.current,
                     tooltipXYComponent: this.tooltipXYComponent.current,
                     traceId: this.state.experiment.UUID,
+                    traceName: this.props.experiment.name,
                     outputDescriptor: output,
                     markerCategories: this.props.markerCategoriesMap.get(output.id),
                     markerSetId: this.props.markerSetId,
@@ -544,6 +546,7 @@ export class TraceContextComponent extends React.Component<TraceContextProps, Tr
                     y: 1,
                     w: 1,
                     h: this.DEFAULT_COMPONENT_HEIGHT,
+                    minH: this.MIN_COMPONENT_HEIGHT,
                 });
             } else {
                 newNonTimeScaleLayouts.push({
@@ -552,6 +555,7 @@ export class TraceContextComponent extends React.Component<TraceContextProps, Tr
                     y: 1,
                     w: 1,
                     h: this.DEFAULT_COMPONENT_HEIGHT,
+                    minH: this.MIN_COMPONENT_HEIGHT,
                 });
             }
         }
