@@ -16,6 +16,7 @@ export interface AbstractOutputProps {
     tooltipComponent: TooltipComponent | null;
     tooltipXYComponent: TooltipXYComponent | null;
     traceId: string;
+    traceName?: string;
     range: TimeRange;
     nbEvents: number;
     viewRange: TimeRange;
@@ -43,14 +44,15 @@ export interface AbstractOutputProps {
 export interface AbstractOutputState {
     outputStatus: string;
     styleModel?: OutputStyleModel;
-    optionsDropdownOpen?: boolean;
+    optionsDropdownOpen: boolean;
+    additionalOptions?: boolean;
 }
 
 export abstract class AbstractOutputComponent<P extends AbstractOutputProps, S extends AbstractOutputState> extends React.Component<P, S> {
 
     private readonly DEFAULT_HANDLE_WIDTH = 30;
 
-    private mainOutputContainer: React.RefObject<HTMLDivElement>;
+    protected mainOutputContainer: React.RefObject<HTMLDivElement>;
 
     private optionsMenuRef: React.RefObject<HTMLDivElement>;
 
@@ -77,7 +79,7 @@ export abstract class AbstractOutputComponent<P extends AbstractOutputProps, S e
             data-for="tooltip-component">
             <div
                 id={this.props.traceId + this.props.outputDescriptor.id + 'handle'}
-                className={this.state.optionsDropdownOpen !== undefined ? 'widget-handle-with-options' : 'widget-handle'}
+                className={this.state.additionalOptions ? 'widget-handle-with-options' : 'widget-handle'}
                 style={{ width: this.getHandleWidth(), height: this.props.style.height }}
             >
                 {this.renderTitleBar()}
@@ -96,7 +98,7 @@ export abstract class AbstractOutputComponent<P extends AbstractOutputProps, S e
             <button className='remove-component-button' onClick={this.closeComponent}>
                 <FontAwesomeIcon icon={faTimes} />
             </button>
-            {this.state.optionsDropdownOpen !== undefined && <div className='options-menu-container'>
+            {this.state.additionalOptions !== undefined && <div className='options-menu-container'>
                 <button title="Show View Options" className='options-menu-button' onClick={this.openOptionsMenu}>
                     <FontAwesomeIcon icon={faBars} />
                 </button>
@@ -142,6 +144,12 @@ export abstract class AbstractOutputComponent<P extends AbstractOutputProps, S e
     abstract resultsAreEmpty(): boolean;
 
     protected showOptions(): React.ReactNode {
+        return <React.Fragment>
+            {this.state.additionalOptions && this.showAdditionalOptions()}
+        </React.Fragment>;
+    }
+
+    protected showAdditionalOptions(): React.ReactNode {
         return <></>;
     }
 
@@ -173,8 +181,8 @@ export abstract class AbstractOutputComponent<P extends AbstractOutputProps, S e
         });
     }
 
-    private closeOptionsMenu(event: Event): void {
-        if (event.target instanceof Node && this.optionsMenuRef.current?.contains(event.target)) {
+    protected closeOptionsMenu(event?: Event): void {
+        if (event && event.target instanceof Node && this.optionsMenuRef.current?.contains(event.target)) {
             return;
         }
         this.closeOptionsDropDown();

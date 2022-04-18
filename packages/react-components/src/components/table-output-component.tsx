@@ -67,7 +67,8 @@ export class TableOutputComponent extends AbstractOutputComponent<TableOutputPro
             outputStatus: ResponseStatus.RUNNING,
             tableColumns: [],
             optionsDropdownOpen: false,
-            showToggleColumns: false
+            showToggleColumns: false,
+            additionalOptions: true
         };
 
         this.frameworkComponents = {
@@ -609,6 +610,7 @@ export class TableOutputComponent extends AbstractOutputComponent<TableOutputPro
                 if (currRowIndexFound && !isFound && rowNode.data && rowNode.data['isMatched']) {
                     this.gridApi?.ensureIndexVisible(rowNode.rowIndex);
                     this.selectStartIndex = this.selectEndIndex = rowNode.rowIndex;
+                    this.enableIndexSelection = true;
                     this.handleRowSelectionChange();
                     rowNode.setSelected(true);
                     isFound = true;
@@ -703,9 +705,149 @@ export class TableOutputComponent extends AbstractOutputComponent<TableOutputPro
         </React.Fragment>;
     }
 
-    protected showOptions(): React.ReactNode {
+    protected closeOptionsDropDown(): void {
+        this.setState({
+            showToggleColumns: false
+        });
+    }
+
+    async exportOutput(option: string): Promise<void> {
+        if (!this.gridApi || !this.columnApi) {
+            return;
+        }
+
+        this.closeOptionsMenu();
+
+        const traceUUID = this.props.traceId;
+        const tspClient = this.props.tspClient;
+        const outputId = this.props.outputDescriptor.id;
+        let fetchIndex = 0;
+        let totalLinesToFetch = this.gridApi.getDisplayedRowCount();
+        const linesArray = new Array<Line>();
+        const bufferSize = 50000;
+        const columnsIds: Array<number> = [];
+
+        // Convert to csv
+        const csv_data = [];
+
+        // Fetch column headers
+        const colHeaderRow: string[] = [];
+
+        const columns = this.columnApi?.getAllColumns();
+        columns.forEach((column, index) => {
+            if (column.isVisible()) {
+                colHeaderRow.push(column.getColDef().headerName ?? 'no header');
+                columnsIds.push(index);
+            }
+        });
+        csv_data.push(colHeaderRow.join(','));
+
+        if (option === 'selection') {
+            if (this.enableIndexSelection && this.selectStartIndex !== -1 && this.selectEndIndex !==-1) {
+                fetchIndex = Math.min(this.selectStartIndex, this.selectEndIndex);
+                totalLinesToFetch = Math.abs(this.selectStartIndex - this.selectEndIndex) + 1;
+            } else if (!this.enableIndexSelection && this.startTimestamp && this.endTimestamp) {
+                const startIndex = await this.fetchTableIndex(this.startTimestamp < this.endTimestamp ? this.startTimestamp : this.endTimestamp);
+                let endIndex: number | undefined = undefined;
+
+                const endTimeStampExport = (this.startTimestamp > this.endTimestamp ? this.startTimestamp: this.endTimestamp) + BigInt(1);
+                if (endTimeStampExport <= this.props.range.getEnd()) {
+                    endIndex = await this.fetchTableIndex(endTimeStampExport);
+                    if (endIndex) {
+                        endIndex = endIndex - 1;
+                    }
+                } else {
+                    endIndex = this.props.nbEvents - 1;
+                }
+
+                if (startIndex !== undefined && endIndex !== undefined) {
+                    fetchIndex = startIndex;
+                    totalLinesToFetch = endIndex - startIndex + 1;
+                }
+            }
+        }
+
+        let fetchLinesRemainder = totalLinesToFetch;
+
+        while (fetchLinesRemainder > 0 && this.mainOutputContainer.current) {
+            let curLinesToFetch = bufferSize;
+
+            if (fetchLinesRemainder > bufferSize) {
+                fetchLinesRemainder-=bufferSize;
+            } else {
+                curLinesToFetch = fetchLinesRemainder;
+                fetchLinesRemainder = 0;
+            }
+
+            const tspClientResponse = await tspClient.fetchTableLines(traceUUID, outputId, QueryHelper.tableQuery(this.columnIds, fetchIndex, curLinesToFetch,
+                { [QueryHelper.REQUESTED_TABLE_COLUMN_IDS_KEY]: columnsIds }));
+            const lineResponse = tspClientResponse.getModel();
+            if (!tspClientResponse.isOk() || !lineResponse) {
+                return;
+            }
+            const model = lineResponse.model;
+            const lines = model.lines;
+            lines.forEach(line => {
+                const obj: any = {};
+                const cells = line.cells;
+                const columnIds = model.columnIds;
+
+                if (this.showIndexColumn) {
+                    obj[0] = line.index.toString();
+                }
+
+                cells.forEach((cell, index) => {
+                    const id = this.showIndexColumn ? columnIds[index] + 1 : columnIds[index];
+                    obj[id] = cell.content;
+                });
+
+                linesArray.push(obj);
+            });
+
+            for (let i=0;i<lines.length;i++) {
+                // Stores each csv row data
+                const csvrow = [];
+                for (let j=0;j<lines[i].cells.length;j++) {
+                    // Get the text data of each cell of
+                    // a row and push it to csvrow
+                    const cellContent = lines[i].cells[j].content;
+                    if (cellContent.includes(',')) {
+                        csvrow.push('"' + cellContent + '"');
+                    } else {
+                        csvrow.push(cellContent);
+                    }
+                }
+                // Combine each column value with comma
+                csv_data.push(csvrow.join(','));
+            }
+            fetchIndex += curLinesToFetch;
+        }
+
+        if (!this.mainOutputContainer.current) {
+            return;
+        }
+
+        // combine each row data with new line character
+        const tableString = csv_data.join('\n');
+        const csvBlob = URL.createObjectURL(new Blob([tableString], { type: 'text/csv' }));
+
+        const link = document.createElement('a');
+        link.setAttribute('href', csvBlob);
+
+        link.setAttribute('download', this.props.traceName ?? 'export');
+        link.style.display = 'none';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    }
+
+    protected showAdditionalOptions(): React.ReactNode {
         return <React.Fragment>
             <ul>
+                <li className='drop-down-list-item' key={0} onClick={() => this.exportOutput('table')}>Export table to csv</li>
+                { this.selectStartIndex !== -1 &&
+                    <li className='drop-down-list-item' key={1} onClick={() => this.exportOutput('selection')}>Export selected rows to csv</li>
+                }
                 <li className='drop-down-list-item' key={0} onClick={() => {
                     this.setState({showToggleColumns: !this.state.showToggleColumns});
                 }}>Toggle Columns</li>
@@ -713,11 +855,4 @@ export class TableOutputComponent extends AbstractOutputComponent<TableOutputPro
             {this.state.showToggleColumns && <div className='toggle-columns-table'>{this.renderToggleColumnsTable()}</div>}
         </React.Fragment>;
     }
-
-    protected closeOptionsDropDown(): void {
-        this.setState({
-            showToggleColumns: false
-        });
-    }
-
 }
