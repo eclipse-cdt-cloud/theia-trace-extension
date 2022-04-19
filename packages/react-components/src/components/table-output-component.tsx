@@ -8,7 +8,7 @@ import { cloneDeep } from 'lodash';
 import { signalManager } from 'traceviewer-base/lib/signals/signal-manager';
 import { TimelineChart } from 'timeline-chart/lib/time-graph-model';
 import { CellKeyDownEvent } from 'ag-grid-community/dist/lib/events';
-import { Line, TableModel } from 'tsp-typescript-client/lib/models/table';
+import { TableModel } from 'tsp-typescript-client/lib/models/table';
 import { SearchFilterRenderer, CellRenderer, LoadingRenderer } from './table-renderer-components';
 import { ResponseStatus } from 'tsp-typescript-client';
 
@@ -721,7 +721,7 @@ export class TableOutputComponent extends AbstractOutputComponent<TableOutputPro
     protected showAdditionalOptions(): React.ReactNode {
         return <React.Fragment>
             <ul>
-                <li className='drop-down-list-item' key={0} onClick={() => {
+                <li className='drop-down-list-item' onClick={() => {
                     this.setState({showToggleColumns: !this.state.showToggleColumns});
                 }}>Toggle Columns</li>
             </ul>

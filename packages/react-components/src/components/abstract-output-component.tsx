@@ -10,6 +10,7 @@ import { OutputStyleModel } from 'tsp-typescript-client/lib/models/styles';
 import { TooltipComponent } from './tooltip-component';
 import { TooltipXYComponent } from './tooltip-xy-component';
 import { ResponseStatus } from 'tsp-typescript-client/lib/models/response/responses';
+import { signalManager } from 'traceviewer-base/lib/signals/signal-manager';
 
 export interface AbstractOutputProps {
     tspClient: TspClient;
@@ -39,6 +40,7 @@ export interface AbstractOutputProps {
     onTouchStart?: VoidFunction;
     onTouchEnd?: VoidFunction;
     setChartOffset?: (chartOffset: number) => void;
+    pinned?: boolean
 }
 
 export interface AbstractOutputState {
@@ -79,7 +81,7 @@ export abstract class AbstractOutputComponent<P extends AbstractOutputProps, S e
             data-for="tooltip-component">
             <div
                 id={this.props.traceId + this.props.outputDescriptor.id + 'handle'}
-                className={this.state.additionalOptions ? 'widget-handle-with-options' : 'widget-handle'}
+                className={(this.props.pinned !== false || this.state.additionalOptions) ? 'widget-handle-with-options' : 'widget-handle'}
                 style={{ width: this.getHandleWidth(), height: this.props.style.height }}
             >
                 {this.renderTitleBar()}
@@ -98,7 +100,7 @@ export abstract class AbstractOutputComponent<P extends AbstractOutputProps, S e
             <button className='remove-component-button' onClick={this.closeComponent}>
                 <FontAwesomeIcon icon={faTimes} />
             </button>
-            {this.state.additionalOptions !== undefined && <div className='options-menu-container'>
+            {(this.props.pinned !== false || this.state.additionalOptions) && <div className='options-menu-container'>
                 <button title="Show View Options" className='options-menu-button' onClick={this.openOptionsMenu}>
                     <FontAwesomeIcon icon={faBars} />
                 </button>
@@ -110,11 +112,15 @@ export abstract class AbstractOutputComponent<P extends AbstractOutputProps, S e
                 {outputName}
                 <i id={this.props.traceId + this.props.outputDescriptor.id + 'handleSpinner'} className='fa fa-refresh fa-spin'
                     style={{ marginTop: '5px', visibility: 'hidden'}} />
+                {this.props.pinned === true && <i title='Pinned View' className='fa fa-thumb-tack pin-view-icon' />}
             </div>
         </React.Fragment>;
     }
 
     private closeComponent() {
+        if (this.props.pinned) {
+            signalManager().fireUnPinView();
+        }
         this.props.onOutputRemove(this.props.outputDescriptor.id);
     }
 
@@ -143,8 +149,12 @@ export abstract class AbstractOutputComponent<P extends AbstractOutputProps, S e
 
     abstract resultsAreEmpty(): boolean;
 
-    protected showOptions(): React.ReactNode {
+    private showOptions(): React.ReactNode {
         return <React.Fragment>
+            <ul>
+                {this.props.pinned === undefined && <li className='drop-down-list-item' onClick={() => this.pinView()}>Pin View</li>}
+                {this.props.pinned === true && <li className='drop-down-list-item' onClick={() => this.unPinView()}>Unpin View</li>}
+            </ul>
             {this.state.additionalOptions && this.showAdditionalOptions()}
         </React.Fragment>;
     }
@@ -155,6 +165,14 @@ export abstract class AbstractOutputComponent<P extends AbstractOutputProps, S e
 
     protected closeOptionsDropDown(): void {
         return;
+    }
+
+    protected pinView(): void {
+        signalManager().firePinView(this.props.outputDescriptor);
+    }
+
+    protected unPinView(): void {
+        signalManager().fireUnPinView();
     }
 
     protected renderAnalysisFailed(): React.ReactFragment {
@@ -181,8 +199,11 @@ export abstract class AbstractOutputComponent<P extends AbstractOutputProps, S e
         });
     }
 
-    protected closeOptionsMenu(event?: Event): void {
+    private closeOptionsMenu(event: Event): void {
         if (event && event.target instanceof Node && this.optionsMenuRef.current?.contains(event.target)) {
+            return;
+        }
+        if (!this.optionsMenuRef.current) {
             return;
         }
         this.closeOptionsDropDown();
