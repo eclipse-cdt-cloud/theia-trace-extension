@@ -1,6 +1,6 @@
 # 2. GraphQL
 
-Date: 2022-04-05
+Date: 2022-04-26
 
 ## Status
 
@@ -352,6 +352,13 @@ Now that course focuses on a JavaScript-based stack,
 
 1. We need to discuss the aforementioned potential alternatives or more,
 1. then document this section accordingly.
+1. For now though, it has been decided to not pursue GraphQL because:
+   1. there is no known client that requires solving a TSP usability issue today;
+   1. a new TSP client might be required as a worthy GraphQL ramp-up experience.
+   1. Some client benefit(s) that can be short-term enough is required for this.
+   1. There should be no significant server rewrite without a client benefit.
+   1. There should be no significant resolver writing effort without benefits.
+   1. TSP (HTTP) already has options that support working around REST constraints.
 
 ## Consequences
 
@@ -392,9 +399,8 @@ Each number referring to an aforementioned (previously numbered) risk.
 
 ## Next steps
 
-1. Review this ADR proposal jointly, then decide on if [Accepting][legend] it or not.
-1. Back-log potential (currently known, missing) work items if any at this stage.
-1. Then potentially consider [Apollo's expected graph principles][princ] to apply.
+1. Resume the work on this GraphQL proposal, if ever (once) deemed necessary.
+1. Potentially consider [Apollo's expected graph principles][princ] to apply.
 
 [alt]: https://www.robinwieruch.de/why-graphql-advantages-disadvantages-alternatives/#graphql-alternatives
 [analytics]: https://www.howtographql.com/basics/1-graphql-is-the-better-rest
