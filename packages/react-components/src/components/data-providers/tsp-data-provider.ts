@@ -125,7 +125,7 @@ export class TspDataProvider {
                 row.annotations = entryArray;
             }
         }
-        const arrows = await this.getArrows(ids, viewRange, nbTimes);
+        const arrows = await this.getArrows(viewRange, nbTimes);
 
         return {
             id: 'model',
@@ -139,12 +139,12 @@ export class TspDataProvider {
         };
     }
 
-    async getArrows(ids: number[], viewRange?: TimelineChart.TimeGraphRange, nbTimes?: number): Promise<TimelineChart.TimeGraphArrow[]> {
+    async getArrows(viewRange?: TimelineChart.TimeGraphRange, nbTimes?: number): Promise<TimelineChart.TimeGraphArrow[]> {
         let timeGraphArrows: TimeGraphArrow[] = [];
         if (viewRange && nbTimes) {
             const start = viewRange.start + this.timeGraphEntries[0].start;
             const end = viewRange.end + this.timeGraphEntries[0].start;
-            const fetchParameters = QueryHelper.selectionTimeRangeQuery(start, end, nbTimes, ids);
+            const fetchParameters = QueryHelper.timeRangeQuery(start, end, nbTimes);
             const tspClientResponseArrows = await this.client.fetchTimeGraphArrows(this.traceUUID, this.outputId, fetchParameters);
             const stateResponseArrows = tspClientResponseArrows.getModel();
             if (tspClientResponseArrows.isOk() && stateResponseArrows && stateResponseArrows.model) {
@@ -152,11 +152,9 @@ export class TspDataProvider {
             }
         }
         const offset = this.timeGraphEntries[0].start;
-        timeGraphArrows = timeGraphArrows.filter(arrow => ids.find(
-            id => id === arrow.sourceId) && ids.find(id => id === arrow.targetId));
         const arrows = timeGraphArrows.map(arrow => ({
-            sourceId: ids.indexOf(arrow.sourceId),
-            destinationId: ids.indexOf(arrow.targetId),
+            sourceId: arrow.sourceId,
+            destinationId: arrow.targetId,
             range: {
                 start: arrow.start - offset,
                 end: arrow.end - offset

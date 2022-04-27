@@ -500,6 +500,12 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
         signalManager().fireTooltipSignal(tooltipObject);
     }
 
+    private getTimegraphRowIds() {
+        return {
+            rowIds: getAllExpandedNodeIds(listToTree(this.state.timegraphTree, this.state.columns), this.state.collapsedNodes)
+        };
+    }
+
     private async fetchTimegraphData(range: TimelineChart.TimeGraphRange, resolution: number) {
         if (document.getElementById(this.props.traceId + this.props.outputDescriptor.id + 'handleSpinner')) {
             // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
@@ -516,7 +522,7 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
         const timeGraphData: TimelineChart.TimeGraphModel = await this.tspDataProvider.getData(orderedTreeIds, this.state.timegraphTree,
             this.props.range, newRange, nbTimes, this.props.markerCategories, this.props.markerSetId);
         this.updateMarkersData(timeGraphData.rangeEvents, newRange, nbTimes);
-        this.arrowLayer.addArrows(timeGraphData.arrows);
+        this.arrowLayer.addArrows(timeGraphData.arrows, this.getTimegraphRowIds().rowIds);
         this.rangeEventsLayer.addRangeEvents(timeGraphData.rangeEvents);
 
         if (document.getElementById(this.props.traceId + this.props.outputDescriptor.id + 'handleSpinner')) {
