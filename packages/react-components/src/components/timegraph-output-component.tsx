@@ -89,21 +89,23 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
         this.timeGraphTreeRef = React.createRef();
         this.markerTreeRef = React.createRef();
         const providers: TimeGraphChartProviders = {
+            rowProvider: () => this.getTimegraphRowIds(),
             /**
              * @param range requested time range
              * @param resolution requested time interval between samples
              * @returns row models with the actual range and resolution
              */
-            dataProvider: async (range: TimelineChart.TimeGraphRange, resolution: number) => this.fetchTimegraphData(range, resolution),
+            dataProvider: async (range: TimelineChart.TimeGraphRange, resolution: number, rowIds?: number[]) => this.fetchTimegraphData(range, resolution, rowIds),
             stateStyleProvider: (state: TimelineChart.TimeGraphState) => this.getStateStyle(state),
             rowAnnotationStyleProvider: (annotation: TimelineChart.TimeGraphAnnotation) => this.getAnnotationStyle(annotation),
-            rowStyleProvider: (row: TimelineChart.TimeGraphRowModel) => this.getRowStyle(row)
+            rowStyleProvider: (row?: TimelineChart.TimeGraphRowModel) => this.getRowStyle(row)
         };
 
         const markersProvider: TimeGraphChartProviders = {
+            rowProvider: () => this.getMarkersRowIds(),
             dataProvider: async (range: TimelineChart.TimeGraphRange, resolution: number) => this.fetchMarkersData(range, resolution),
             stateStyleProvider: (state: TimelineChart.TimeGraphState) => this.getMarkerStateStyle(state),
-            rowStyleProvider: (row: TimelineChart.TimeGraphRowModel) => this.getRowStyle(row)
+            rowStyleProvider: (row?: TimelineChart.TimeGraphRowModel) => this.getRowStyle(row)
         };
 
         this.rangeEventsLayer = new TimeGraphRangeEventsLayer('timeGraphRangeEvents', providers);
@@ -120,10 +122,7 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
         this.markersChartLayer = new TimeGraphChart('timeGraphChart', markersProvider, this.markerRowController);
         this.chartLayer.onSelectedStateChanged(model => {
             if (model) {
-                const el = this.chartLayer.getElementById(model.id);
-                if (el) {
-                    this.selectedElement = el;
-                }
+                this.selectedElement = this.chartLayer.getStateById(model.id);
             } else {
                 this.selectedElement = undefined;
             }
@@ -511,20 +510,19 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
         };
     }
 
-    private async fetchTimegraphData(range: TimelineChart.TimeGraphRange, resolution: number) {
+    private async fetchTimegraphData(range: TimelineChart.TimeGraphRange, resolution: number, rowIds?: number[]) {
         if (document.getElementById(this.props.traceId + this.props.outputDescriptor.id + 'handleSpinner')) {
             // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
             document.getElementById(this.props.traceId + this.props.outputDescriptor.id + 'handleSpinner')!.style.visibility = 'visible';
         }
 
-        const treeNodes = listToTree(this.state.timegraphTree, this.state.columns);
-        const orderedTreeIds = getAllExpandedNodeIds(treeNodes, this.state.collapsedNodes);
+        const ids = rowIds ? rowIds : this.getTimegraphRowIds().rowIds;
         const overlap = range.end - range.start;
         const start = range.start - overlap > 0 ? range.start - overlap : BigInt(0);
         const end = range.end + overlap < this.props.unitController.absoluteRange ? range.end + overlap : this.props.unitController.absoluteRange;
         const newRange: TimelineChart.TimeGraphRange = { start, end };
         const nbTimes = Math.ceil(Number(end - start) / resolution) + 1;
-        const timeGraphData: TimelineChart.TimeGraphModel = await this.tspDataProvider.getData(orderedTreeIds, this.state.timegraphTree,
+        const timeGraphData: TimelineChart.TimeGraphModel = await this.tspDataProvider.getData(ids, this.state.timegraphTree,
             this.props.range, newRange, nbTimes, this.props.markerCategories, this.props.markerSetId);
         this.updateMarkersData(timeGraphData.rangeEvents, newRange, nbTimes);
         this.arrowLayer.addArrows(timeGraphData.arrows, this.getTimegraphRowIds().rowIds);
@@ -626,6 +624,17 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
         this.setState({ markerCategoryEntries: annotationEntries, markerLayerData: markerLayerData });
     }
 
+    private getMarkersRowIds() {
+        const rows = (this.state.collapsedMarkerNodes.length !== 0 || !!!this.state.markerLayerData) ? [] : this.state.markerLayerData.rows;
+        const rowIds: number[] = [];
+        rows.forEach(row => {
+            rowIds.push(row.id);
+        });
+        return {
+            rowIds
+        };
+    }
+
     private async fetchMarkersData(range: TimelineChart.TimeGraphRange, resolution: number) {
         if (this.state.collapsedMarkerNodes.length !== 0 || !!!this.state.markerLayerData) {
             return  {
@@ -637,12 +646,12 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
         return this.state.markerLayerData;
     }
 
-    private getRowStyle(row: TimelineChart.TimeGraphRowModel) {
+    private getRowStyle(row?: TimelineChart.TimeGraphRowModel) {
         return {
-            backgroundColor: 0x979797,// 0xaaaaff,
-            backgroundOpacity: row.selected ? 0.1 : 0,
-            lineColor: this.props.backgroundTheme === 'light' ? 0xD3D3D3 : 0x3F4146, // hasStates ? 0xdddddd : 0xaa4444, // row.data && row.data.hasStates
-            lineThickness: 1, // hasStates ? 1 : 3 // row.data && row.data.hasStates
+            backgroundColor: 0x979797,
+            backgroundOpacity: row?.selected ? 0.1 : 0,
+            lineColor: this.props.backgroundTheme === 'light' ? 0xD3D3D3 : 0x3F4146,
+            lineThickness: 1
         };
     }
 
