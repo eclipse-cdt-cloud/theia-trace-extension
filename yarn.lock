@@ -13980,9 +13980,9 @@ tslib@^2.2.0, tslib@^2.3.1:
   integrity sha512-77EbyPPpMz+FRFRuAFlWMtmgUWGe9UOG2Z25NqCwiIjRhOf5iKGuzSe5P2w1laq+FkRy4p+PCuVkJSGkzTEKVw==
 
 tsp-typescript-client@next:
-  version "0.4.0-next.d59ed63.0"
-  resolved "https://registry.yarnpkg.com/tsp-typescript-client/-/tsp-typescript-client-0.4.0-next.d59ed63.0.tgz#db12249b6f694339d7cd024baedcb126a1c2df95"
-  integrity sha512-RJ9eCiqtTdEjHF7G+14Ub0vyJsPnGzUuFSViWgesSY9JEADrGUm+NwnDEWT3uK7lmk/U8BmqAZ7tro4uSFUDZw==
+  version "0.4.0-next.5dd021b.0"
+  resolved "https://registry.yarnpkg.com/tsp-typescript-client/-/tsp-typescript-client-0.4.0-next.5dd021b.0.tgz#1c37f0b3f5fb0dbb1febed8f2cccafa3482812d8"
+  integrity sha512-IgnT5N/4Deq6RtS2PGqvrY3TcgcuYp3Ap73GburEdVBAXDSOssUtzdrZoB+beS/5PyKI0DjVu53mM/YCkOYDzQ==
   dependencies:
     json-bigint sidorares/json-bigint#2c0a5f896d7888e68e5f4ae3c7ea5cd42fd54473
     node-fetch "^2.5.0"

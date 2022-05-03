@@ -986,10 +986,16 @@ export class XYOutputComponent extends AbstractTreeOutputComponent<AbstractOutpu
         const tspClientResponse = await this.props.tspClient.fetchXY(this.props.traceId, this.props.outputDescriptor.id, xyDataParameters);
         const xyDataResponse = tspClientResponse.getModel();
         if (tspClientResponse.isOk() && xyDataResponse) {
+            const series = xyDataResponse.model.series;
+            if (series.length !== 0 && series[0].style) {
+                // Rely on type set for the first series to conclude for all series, if many.
+                // This is because support for per-series (potentially varying) type is lacking across-
+                this.isScatterPlot = series[0].style.values['series-type'] === 'scatter';
+            }
             if (this.isScatterPlot) {
-                this.buildScatterData(xyDataResponse.model.series);
+                this.buildScatterData(series);
             } else {
-                this.buildXYData(xyDataResponse.model.series);
+                this.buildXYData(series);
             }
         }
         if (document.getElementById(this.props.traceId + this.props.outputDescriptor.id + 'handleSpinner')) {
