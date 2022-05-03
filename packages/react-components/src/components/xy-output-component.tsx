@@ -986,10 +986,10 @@ export class XYOutputComponent extends AbstractTreeOutputComponent<AbstractOutpu
         const tspClientResponse = await this.props.tspClient.fetchXY(this.props.traceId, this.props.outputDescriptor.id, xyDataParameters);
         const xyDataResponse = tspClientResponse.getModel();
         if (tspClientResponse.isOk() && xyDataResponse) {
-            if (!this.isScatterPlot) {
-                this.buildXYData(xyDataResponse.model.series);
-            } else {
+            if (this.isScatterPlot) {
                 this.buildScatterData(xyDataResponse.model.series);
+            } else {
+                this.buildXYData(xyDataResponse.model.series);
             }
         }
         if (document.getElementById(this.props.traceId + this.props.outputDescriptor.id + 'handleSpinner')) {
