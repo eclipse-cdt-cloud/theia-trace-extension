@@ -27,6 +27,7 @@ import hash from 'traceviewer-base/lib/utils/value-hash';
 import ColumnHeader from './utils/filter-tree/column-header';
 import { TimeGraphAnnotationComponent } from 'timeline-chart/lib/components/time-graph-annotation';
 import { Entry } from 'tsp-typescript-client';
+import { isEqual } from 'lodash';
 
 type TimegraphOutputProps = AbstractOutputProps & {
     addWidgetResizeHandler: (handler: () => void) => void;
@@ -36,6 +37,7 @@ type TimegraphOutputProps = AbstractOutputProps & {
 type TimegraphOutputState = AbstractOutputState & {
     timegraphTree: TimeGraphEntry[];
     markerCategoryEntries: Entry[];
+    markerLayerData: { rows: TimelineChart.TimeGraphRowModel[], range: TimelineChart.TimeGraphRange, resolution: number } | undefined;
     collapsedNodes: number[];
     collapsedMarkerNodes: number[];
     columns: ColumnHeader[];
@@ -61,7 +63,6 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
     private styleMap = new Map<string, TimeGraphStateStyle>();
 
     private selectedElement: TimeGraphStateComponent | undefined;
-    private markerCategoriesLayerData: { rows: TimelineChart.TimeGraphRowModel[], range: TimelineChart.TimeGraphRange, resolution: number } | undefined = undefined;
     private selectedMarkerCategories: string[] | undefined = undefined;
     private onSelectionChanged = (payload: { [key: string]: string; }) => this.doHandleSelectionChangedSignal(payload);
 
@@ -71,6 +72,7 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
             outputStatus: ResponseStatus.RUNNING,
             timegraphTree: [],
             markerCategoryEntries: [],
+            markerLayerData: undefined,
             collapsedNodes: [],
             columns: [],
             collapsedMarkerNodes: []
@@ -203,8 +205,8 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
 
     async componentDidUpdate(prevProps: TimegraphOutputProps, prevState: TimegraphOutputState): Promise<void> {
         if (prevState.outputStatus === ResponseStatus.RUNNING ||
-            this.state.collapsedNodes !== prevState.collapsedNodes ||
-            prevProps.markerCategories !== this.props.markerCategories ||
+            !isEqual(this.state.collapsedNodes, prevState.collapsedNodes) ||
+            !isEqual(prevProps.markerCategories, this.props.markerCategories) ||
             prevProps.markerSetId !== this.props.markerSetId) {
             this.selectedMarkerCategories = this.props.markerCategories;
             this.chartLayer.updateChart();
@@ -212,8 +214,9 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
             this.arrowLayer.update();
             this.rangeEventsLayer.update();
         }
-        if (this.state.markerCategoryEntries !== prevState.markerCategoryEntries ||
-            this.state.collapsedMarkerNodes !== prevState.collapsedMarkerNodes) {
+        if (!isEqual(this.state.markerCategoryEntries, prevState.markerCategoryEntries) ||
+            !isEqual(this.state.collapsedMarkerNodes, prevState.collapsedMarkerNodes) ||
+            !isEqual(this.state.markerLayerData, prevState.markerLayerData)) {
             this.markersChartLayer.updateChart();
         }
     }
@@ -241,17 +244,19 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
     private onMarkerCategoryRowClose(id: number) {
         const annotation = this.state.markerCategoryEntries.find(entry => entry.id === id);
         if (annotation && this.selectedMarkerCategories) {
+            const annotationLabel = annotation.labels[0];
             this.setState({
                 markerCategoryEntries: this.state.markerCategoryEntries.filter(item => item !== annotation)
             });
-            const removedIndex = this.selectedMarkerCategories.findIndex(annotationMarker => annotation.labels[0] === annotationMarker);
-            if (removedIndex !== -1) {
-                const annotationLabel = this.selectedMarkerCategories[removedIndex];
-                this.selectedMarkerCategories = this.selectedMarkerCategories.filter(item => item !== annotationLabel);
-                this.markerCategoriesLayerData?.rows.splice(removedIndex, 1);
-                signalManager().fireMarkerCategoryClosedSignal({ traceViewerId: this.props.traceId, markerCategory: annotationLabel });
+            this.selectedMarkerCategories = this.selectedMarkerCategories.filter(item => item !== annotationLabel);
+            const markerLayerData = this.state.markerLayerData;
+            if (markerLayerData) {
+                markerLayerData.rows = markerLayerData.rows.filter(row => row.id !== id);
+                this.setState({
+                    markerLayerData
+                });
             }
-            this.markersChartLayer.updateChart();
+            signalManager().fireMarkerCategoryClosedSignal({ traceViewerId: this.props.traceId, markerCategory: annotationLabel });
         }
     }
 
@@ -539,17 +544,20 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
     private updateMarkersData(rangeEvents: TimelineChart.TimeGraphAnnotation[], newRange: TimelineChart.TimeGraphRange, newResolution: number) {
         const annotationEntries: Entry[] = [];
         const markers: Map<string, TimelineChart.TimeGraphState[]> = new Map();
+        const categories: string[] = [];
         const rows: TimelineChart.TimeGraphRowModel[] = [];
         const filteredEvents = rangeEvents.filter(event => this.selectedMarkerCategories?.includes(event.category));
 
-        filteredEvents.forEach(event => {
+        filteredEvents.forEach((event, idx) => {
             const categoryName = event.category;
             if (!markers.has(categoryName)) {
                 markers.set(categoryName, []);
+                categories.push(categoryName);
             }
+            const rowId = categories.indexOf(categoryName) + 1;
             const states = markers.get(categoryName) || [];
             const state = {
-                id: '1',
+                id: rowId + '-' + idx,
                 range: {
                     start: event.range.start,
                     end: event.range.end
@@ -565,7 +573,7 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
 
         if (markers.size > 0) {
             const defaultRow = {
-                id: 1,
+                id: 0,
                 name: '',
                 range: {
                     start: this.props.viewRange.getStart(),
@@ -585,15 +593,17 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
             });
         }
 
-        Array.from(markers.entries()).forEach((value, index) => {
+        Array.from(markers.entries()).forEach(value => {
+            const categoryName = value[0];
+            const rowId = categories.indexOf(categoryName) + 1;
             annotationEntries.push({
-                id: index + 1,
-                labels: [value[0]],
+                id: rowId,
+                labels: [categoryName],
                 parentId: 0
             });
 
             const row = {
-                id: 1,
+                id: rowId,
                 name: '',
                 range: {
                     start: this.props.viewRange.getStart(),
@@ -607,22 +617,24 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
             rows.push(row);
         });
 
-        this.markerCategoriesLayerData = {
+        const markerLayerData = {
             rows,
             range: newRange,
             resolution: newResolution
         };
 
-        this.setState({ markerCategoryEntries: annotationEntries });
+        this.setState({ markerCategoryEntries: annotationEntries, markerLayerData: markerLayerData });
     }
 
     private async fetchMarkersData(range: TimelineChart.TimeGraphRange, resolution: number) {
-        const rows = (this.state.collapsedMarkerNodes.length !== 0 || !!!this.markerCategoriesLayerData) ? [] : this.markerCategoriesLayerData.rows;
-        return {
-            rows,
-            range: this.markerCategoriesLayerData ? this.markerCategoriesLayerData.range : range,
-            resolution: this.markerCategoriesLayerData ? this.markerCategoriesLayerData.resolution : resolution
-        };
+        if (this.state.collapsedMarkerNodes.length !== 0 || !!!this.state.markerLayerData) {
+            return  {
+                rows: [],
+                range,
+                resolution
+            };
+        }
+        return this.state.markerLayerData;
     }
 
     private getRowStyle(row: TimelineChart.TimeGraphRowModel) {
