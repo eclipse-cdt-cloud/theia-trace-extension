@@ -41,6 +41,7 @@ type TimegraphOutputState = AbstractOutputState & {
     collapsedNodes: number[];
     collapsedMarkerNodes: number[];
     columns: ColumnHeader[];
+    dataRows: TimelineChart.TimeGraphRowModel[];
 };
 
 export class TimegraphOutputComponent extends AbstractTreeOutputComponent<TimegraphOutputProps, TimegraphOutputState> {
@@ -76,7 +77,8 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
             collapsedNodes: [],
             columns: [],
             collapsedMarkerNodes: [],
-            optionsDropdownOpen: false
+            optionsDropdownOpen: false,
+            dataRows: []
         };
         this.selectedMarkerCategories = this.props.markerCategories;
         this.onToggleCollapse = this.onToggleCollapse.bind(this);
@@ -285,12 +287,65 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
         if (startTimestamp !== undefined && endTimestamp !== undefined) {
             const selectionRangeStart = BigInt(startTimestamp) - offset;
             const selectionRangeEnd = BigInt(endTimestamp) - offset;
+            const foundElement = this.findElement(payload);
+            // Scroll vertically
+            if (foundElement) {
+                const rowIndex = this.state.dataRows.findIndex(d => d.id === foundElement.id);
+                if (this.timeGraphTreeRef.current) {
+                    this.timeGraphTreeRef.current.scrollTop = 20 * rowIndex;
+                }
+                // Select row
+                this.chartLayer.selectRow(this.state.dataRows[rowIndex]);
+                // TODO select state at row/starttime
+            }
+
+            // Scroll horizontally
             this.props.unitController.selectionRange = {
                 start: selectionRangeStart,
                 end: selectionRangeEnd
             };
             this.chartCursors.maybeCenterCursor();
         }
+    }
+
+    /**
+     * For each line in the tree (this.state.timegraphTree), parse the metadata and try to find
+     * matches with the key / values pairs of the clicked event.
+     * It counts the amount of metadata matches and returns the TimeGraphEntry with the greatest amount,
+     * which is the most likely result.
+     *
+     * @params payload
+     *      Object with information about the line clicked in the Events Table
+     * @return
+     *      Correspondent TimeGraphEntry from this.state.timegraphTree
+     */
+    private findElement(payload: { [key: string]: string | { [key: string]: string }}): TimeGraphEntry | undefined {
+        let element: TimeGraphEntry | undefined = undefined;
+        let max = 0;
+        if (payload && payload.load) {
+            this.state.timegraphTree.forEach(el => {
+                if (el.metadata) {
+                    let cnt = 0;
+                    Object.entries(el.metadata).forEach(([key, value]) => {
+                        if (typeof (payload.load) !== 'string') {
+                            const val = payload.load[key];
+                            if (val !== undefined) {
+                                const num = Number(val);
+                                if ((num !== undefined && num === value[0]) || (val === value[0])) {
+                                    cnt++;
+                                }
+                            }
+                        }
+                    });
+                    if (cnt > max) {
+                        max = cnt;
+                        element = el;
+                    }
+                }
+            });
+
+        }
+        return element;
     }
 
     private getMarkersLayerHeight() {
@@ -533,6 +588,7 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
             // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
             document.getElementById(this.props.traceId + this.props.outputDescriptor.id + 'handleSpinner')!.style.visibility = 'hidden';
         }
+        this.setState({ dataRows: timeGraphData.rows });
         return {
             rows: timeGraphData ? timeGraphData.rows : [],
             range: newRange,

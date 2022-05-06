@@ -196,7 +196,7 @@ export class TableOutputComponent extends AbstractOutputComponent<TableOutputPro
                 this.startTimestamp = this.endTimestamp = BigInt(currTimestamp);
             }
         }
-        this.handleRowSelectionChange();
+        this.handleRowSelectionChange(itemPropsObj);
     }
 
     private fetchItemProperties(columns: Column[], data: any) {
@@ -392,11 +392,11 @@ export class TableOutputComponent extends AbstractOutputComponent<TableOutputPro
         }
     }
 
-    private handleRowSelectionChange() {
+    private handleRowSelectionChange(load?: any | undefined) {
         if (this.timestampCol) {
             const startTimestamp = String(this.startTimestamp);
             const endTimestamp = String(this.endTimestamp);
-            const payload = { startTimestamp, endTimestamp };
+            const payload = { startTimestamp, endTimestamp, load };
             this.prevStartTimestamp = BigInt(startTimestamp);
             this.eventSignal = true;
             signalManager().fireSelectionChangedSignal(payload);
