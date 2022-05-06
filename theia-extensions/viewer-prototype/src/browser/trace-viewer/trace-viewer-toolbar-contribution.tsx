@@ -45,10 +45,25 @@ export class TraceViewerToolbarContribution implements TabBarToolbarContribution
 
     registerCommands(registry: CommandRegistry): void {
         registry.registerCommand(
+            TraceViewerToolbarCommands.OPEN_OVERVIEW_OUTPUT, {
+            isVisible:(widget: Widget) => {
+                if (widget instanceof TraceViewerWidget) {
+                    return true;
+                }
+                return false;
+            },
+            execute: (widget: Widget) => {
+                if (widget instanceof TraceViewerWidget && !widget.isTraceOverviewOpened()) {
+                    signalManager().fireOpenOverviewOutputSignal();
+                }
+            }
+        });
+
+        registry.registerCommand(
             TraceViewerToolbarCommands.ZOOM_IN, {
             isVisible: (widget: Widget) => {
                 if (widget instanceof TraceViewerWidget) {
-                    return widget.isTimeRelatedChartOpened();
+                    return widget.isTimeRelatedChartOpened() || widget.isTraceOverviewOpened();
                 }
                 return false;
             },
@@ -61,7 +76,7 @@ export class TraceViewerToolbarContribution implements TabBarToolbarContribution
             isVisible: (w: Widget) => {
                 if (w instanceof TraceViewerWidget) {
                     const traceWidget = w as TraceViewerWidget;
-                    return traceWidget.isTimeRelatedChartOpened();
+                    return traceWidget.isTimeRelatedChartOpened() || traceWidget.isTraceOverviewOpened();
                 }
                 return false;
             },
@@ -73,7 +88,7 @@ export class TraceViewerToolbarContribution implements TabBarToolbarContribution
             TraceViewerToolbarCommands.UNDO, {
             isVisible: (widget: Widget) => {
                 if (widget instanceof TraceViewerWidget) {
-                    return widget.isTimeRelatedChartOpened();
+                    return widget.isTimeRelatedChartOpened() || widget.isTraceOverviewOpened();
                 }
                 return false;
             },
@@ -85,7 +100,7 @@ export class TraceViewerToolbarContribution implements TabBarToolbarContribution
             TraceViewerToolbarCommands.REDO, {
             isVisible: (widget: Widget) => {
                 if (widget instanceof TraceViewerWidget) {
-                    return widget.isTimeRelatedChartOpened();
+                    return widget.isTimeRelatedChartOpened() || widget.isTraceOverviewOpened();
                 }
                 return false;
             },
@@ -97,7 +112,7 @@ export class TraceViewerToolbarContribution implements TabBarToolbarContribution
             TraceViewerToolbarCommands.RESET, {
             isVisible: (widget: Widget) => {
                 if (widget instanceof TraceViewerWidget) {
-                    return widget.isTimeRelatedChartOpened();
+                    return widget.isTimeRelatedChartOpened() || widget.isTraceOverviewOpened();
                 }
                 return false;
             },
@@ -123,7 +138,7 @@ export class TraceViewerToolbarContribution implements TabBarToolbarContribution
             isVisible: (w: Widget) => {
                 if (w instanceof TraceViewerWidget) {
                     const traceWidget = w as TraceViewerWidget;
-                    return traceWidget.isTimeRelatedChartOpened();
+                    return traceWidget.isTimeRelatedChartOpened() || traceWidget.isTraceOverviewOpened();
                 }
                 return false;
             },
@@ -280,16 +295,22 @@ export class TraceViewerToolbarContribution implements TabBarToolbarContribution
             priority: 8,
         });
         registry.registerItem({
+            id: TraceViewerToolbarCommands.OPEN_OVERVIEW_OUTPUT.id,
+            command: TraceViewerToolbarCommands.OPEN_OVERVIEW_OUTPUT.id,
+            tooltip: TraceViewerToolbarCommands.OPEN_OVERVIEW_OUTPUT.label,
+            priority: 9,
+        });
+        registry.registerItem({
             id: TraceViewerToolbarCommands.CHARTS_CHEATSHEET.id,
             command: TraceViewerToolbarCommands.CHARTS_CHEATSHEET.id,
             tooltip: TraceViewerToolbarCommands.CHARTS_CHEATSHEET.label,
-            priority: 9,
+            priority: 10,
         });
         registry.registerItem({
             id: TraceViewerToolbarCommands.SERVER_CHECK.id,
             command: TraceViewerToolbarCommands.SERVER_CHECK.id,
             tooltip: TraceViewerToolbarCommands.SERVER_CHECK.label,
-            priority: 10,
+            priority: 11,
         });
     }
 }

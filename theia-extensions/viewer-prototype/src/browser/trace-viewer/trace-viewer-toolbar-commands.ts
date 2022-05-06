@@ -1,7 +1,6 @@
 import { Command, MenuPath } from '@theia/core';
 
 export namespace TraceViewerToolbarCommands {
-
     export const ZOOM_IN: Command = {
         id: 'trace.viewer.zoomin',
         label: 'Zoom In',
@@ -59,6 +58,12 @@ export namespace TraceViewerToolbarCommands {
         id: 'trace.viewer.serverCheck',
         label: 'Server health and latency are good. No known issues',
         iconClass: 'fa fa-check-circle-o fa-lg',
+    };
+
+    export const OPEN_OVERVIEW_OUTPUT: Command = {
+        id: 'trace.viewer.traceOverview',
+        label: 'Show trace overview',
+        iconClass: 'codicon codicon-graph-line',
     };
 }
 

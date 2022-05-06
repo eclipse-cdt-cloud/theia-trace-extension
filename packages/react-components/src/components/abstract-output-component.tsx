@@ -70,7 +70,7 @@ export abstract class AbstractOutputComponent<P extends AbstractOutputProps, S e
 
     render(): JSX.Element {
         return <div style={{ ...this.props.style, width: this.props.outputWidth }}
-            id={this.props.traceId + this.props.outputDescriptor.id}
+            id={this.getOutputComponentDomId()}
             tabIndex={-1}
             className={'output-container ' + this.props.className}
             onMouseUp={this.props.onMouseUp}
@@ -80,7 +80,7 @@ export abstract class AbstractOutputComponent<P extends AbstractOutputProps, S e
             data-tip=''
             data-for="tooltip-component">
             <div
-                id={this.props.traceId + this.props.outputDescriptor.id + 'handle'}
+                id={this.getOutputComponentDomId() + 'handle'}
                 className={(this.props.pinned !== false || this.state.additionalOptions) ? 'widget-handle-with-options' : 'widget-handle'}
                 style={{ width: this.getHandleWidth(), height: this.props.style.height }}
             >
@@ -95,7 +95,8 @@ export abstract class AbstractOutputComponent<P extends AbstractOutputProps, S e
     }
 
     private renderTitleBar(): React.ReactNode {
-        const outputName = this.props.outputDescriptor.name;
+        const outputName = this.getOutputComponentName();
+        const outputTooltip = this.getTitleBarTooltip();
         return <React.Fragment>
             <button className='remove-component-button' onClick={this.closeComponent}>
                 <FontAwesomeIcon icon={faTimes} />
@@ -108,9 +109,9 @@ export abstract class AbstractOutputComponent<P extends AbstractOutputProps, S e
                     {this.showOptions()}
                 </div>}
             </div>}
-            <div className='title-bar-label' title={outputName} onClick={() => this.setFocus()}>
+            <div className='title-bar-label' title={outputTooltip} onClick={() => this.setFocus()}>
                 {outputName}
-                <i id={this.props.traceId + this.props.outputDescriptor.id + 'handleSpinner'} className='fa fa-refresh fa-spin'
+                <i id={this.getOutputComponentDomId() + 'handleSpinner'} className='fa fa-refresh fa-spin'
                     style={{ marginTop: '5px', visibility: 'hidden'}} />
                 {this.props.pinned === true && <i title='Pinned View' className='fa fa-thumb-tack pin-view-icon' />}
             </div>
@@ -210,5 +211,17 @@ export abstract class AbstractOutputComponent<P extends AbstractOutputProps, S e
         this.setState({optionsDropdownOpen: false}, () => {
             document.removeEventListener('click', this.closeOptionsMenu);
         });
+    }
+
+    protected getOutputComponentDomId(): string {
+        return this.props.traceId + this.props.outputDescriptor.id;
+    }
+
+    protected getOutputComponentName(): string {
+        return this.props.outputDescriptor.name;
+    }
+
+    protected getTitleBarTooltip(): string {
+        return this.props.outputDescriptor.name;
     }
 }
