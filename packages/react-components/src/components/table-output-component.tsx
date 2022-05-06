@@ -103,7 +103,7 @@ export class TableOutputComponent extends AbstractOutputComponent<TableOutputPro
     renderMainArea(): React.ReactNode {
         return <div id={this.props.traceId + this.props.outputDescriptor.id + 'focusContainer'}
             tabIndex={-1}
-            onFocus={event=>this.checkFocus(event)}
+            onFocus={event => this.checkFocus(event)}
             className={this.props.backgroundTheme === 'light' ? 'ag-theme-balham' : 'ag-theme-balham-dark'}
             style={{ height: this.props.style.height, width: this.props.outputWidth }}>
             <AgGridReact
@@ -166,8 +166,7 @@ export class TableOutputComponent extends AbstractOutputComponent<TableOutputPro
         const mouseEvent = event.event as MouseEvent;
         const gridApi = event.api;
         const rowIndex = event.rowIndex;
-        const itemPropsObj = this.fetchItemProperties(columns, data);
-        signalManager().fireTooltipSignal(itemPropsObj);
+        const itemPropsObj: { [key: string]: string } | undefined = this.fetchItemProperties(columns, data);
 
         const currTimestamp = (this.timestampCol && data) ? data[this.timestampCol] : undefined;
         this.enableIndexSelection = true;
@@ -196,7 +195,10 @@ export class TableOutputComponent extends AbstractOutputComponent<TableOutputPro
                 this.startTimestamp = this.endTimestamp = BigInt(currTimestamp);
             }
         }
-        this.handleRowSelectionChange();
+        // Notfiy selection changed
+        this.handleRowSelectionChange(itemPropsObj);
+        // Notfiy properties changed
+        signalManager().fireTooltipSignal(itemPropsObj);
     }
 
     private fetchItemProperties(columns: Column[], data: any) {
@@ -392,11 +394,11 @@ export class TableOutputComponent extends AbstractOutputComponent<TableOutputPro
         }
     }
 
-    private handleRowSelectionChange() {
+    private handleRowSelectionChange(load?: any | undefined) {
         if (this.timestampCol) {
             const startTimestamp = String(this.startTimestamp);
             const endTimestamp = String(this.endTimestamp);
-            const payload = { startTimestamp, endTimestamp };
+            const payload = { startTimestamp, endTimestamp, load };
             this.prevStartTimestamp = BigInt(startTimestamp);
             this.eventSignal = true;
             signalManager().fireSelectionChangedSignal(payload);

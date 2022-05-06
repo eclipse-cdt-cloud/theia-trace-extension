@@ -22,7 +22,7 @@ import { TspDataProvider } from './data-providers/tsp-data-provider';
 import { ReactTimeGraphContainer } from './utils/timegraph-container-component';
 import { OutputElementStyle } from 'tsp-typescript-client/lib/models/styles';
 import { EntryTree } from './utils/filter-tree/entry-tree';
-import { listToTree, getAllExpandedNodeIds } from './utils/filter-tree/utils';
+import { listToTree, getAllExpandedNodeIds, getIndexOfNode } from './utils/filter-tree/utils';
 import hash from 'traceviewer-base/lib/utils/value-hash';
 import ColumnHeader from './utils/filter-tree/column-header';
 import { TimeGraphAnnotationComponent } from 'timeline-chart/lib/components/time-graph-annotation';
@@ -41,6 +41,7 @@ type TimegraphOutputState = AbstractOutputState & {
     collapsedNodes: number[];
     collapsedMarkerNodes: number[];
     columns: ColumnHeader[];
+    dataRows: TimelineChart.TimeGraphRowModel[];
 };
 
 const COARSE_RESOLUTION_FACTOR = 8; // resolution factor to use for first (coarse) update
@@ -67,6 +68,7 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
     private selectedElement: TimeGraphStateComponent | undefined;
     private selectedMarkerCategories: string[] | undefined = undefined;
     private onSelectionChanged = (payload: { [key: string]: string; }) => this.doHandleSelectionChangedSignal(payload);
+    private pendingSelection: TimeGraphEntry | undefined;
 
     constructor(props: TimegraphOutputProps) {
         super(props);
@@ -78,7 +80,8 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
             collapsedNodes: [],
             columns: [],
             collapsedMarkerNodes: [],
-            optionsDropdownOpen: false
+            optionsDropdownOpen: false,
+            dataRows: []
         };
         this.selectedMarkerCategories = this.props.markerCategories;
         this.onToggleCollapse = this.onToggleCollapse.bind(this);
@@ -124,6 +127,7 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
 
         this.markersChartLayer = new TimeGraphChart('timeGraphChart', markersProvider, this.markerRowController);
         this.chartLayer.onSelectedStateChanged(model => {
+            this.pendingSelection = undefined;
             if (model) {
                 this.selectedElement = this.chartLayer.getStateById(model.id);
             } else {
@@ -287,12 +291,67 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
         if (startTimestamp !== undefined && endTimestamp !== undefined) {
             const selectionRangeStart = BigInt(startTimestamp) - offset;
             const selectionRangeEnd = BigInt(endTimestamp) - offset;
+            const foundElement = this.findElement(payload);
+
+            // Scroll vertically
+            if (foundElement) {
+                // Expand parent
+                if (this.expandParents(foundElement)) {
+                    this.selectAndReveal(foundElement);
+                } else {
+                    this.pendingSelection = foundElement;
+                }
+            }
+
+            // Scroll horizontally
             this.props.unitController.selectionRange = {
                 start: selectionRangeStart,
                 end: selectionRangeEnd
             };
             this.chartCursors.maybeCenterCursor();
         }
+    }
+
+    /**
+     * For each line in the tree (this.state.timegraphTree), parse the metadata and try to find
+     * matches with the key / values pairs of the selected event.
+     * It counts the amount of metadata matches and returns the TimeGraphEntry with the greatest amount,
+     * which is the most likely result.
+     *
+     * @params payload
+     *      Object with information about the selected event.
+     * @return
+     *      Correspondent TimeGraphEntry from this.state.timegraphTree
+     */
+    private findElement(payload: { [key: string]: string | { [key: string]: string }}): TimeGraphEntry | undefined {
+        let element: TimeGraphEntry | undefined = undefined;
+        let max = 0;
+        if (payload && payload.load) {
+            this.state.timegraphTree.forEach(el => {
+                if (el.metadata) {
+                    let cnt = 0;
+                    Object.entries(el.metadata).forEach(([key, values]) => {
+                        if (typeof (payload.load) !== 'string') {
+                            const val = payload.load[key];
+                            if (val !== undefined) {
+                                const num = Number(val);
+                                // at least one value in array needs to match
+                                const result = values.find((value: string | number) => (num !== undefined && num === value) || (val === value));
+                                if (result !== undefined) {
+                                    cnt++;
+                                }
+                            }
+                        }
+                    });
+                    if (cnt > max) {
+                        max = cnt;
+                        element = el;
+                    }
+                }
+            });
+
+        }
+        return element;
     }
 
     private getMarkersLayerHeight() {
@@ -534,6 +593,14 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
         if (document.getElementById(this.props.traceId + this.props.outputDescriptor.id + 'handleSpinner')) {
             // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
             document.getElementById(this.props.traceId + this.props.outputDescriptor.id + 'handleSpinner')!.style.visibility = 'hidden';
+        }
+        this.setState({ dataRows: timeGraphData.rows });
+
+        // Apply the pending selection here since the row provider had been called before this method.
+        if (this.pendingSelection) {
+            const foundElement = this.pendingSelection;
+            this.pendingSelection = undefined;
+            this.selectAndReveal(foundElement);
         }
         return {
             rows: timeGraphData ? timeGraphData.rows : [],
@@ -815,4 +882,34 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
         }
         return undefined;
     }
+
+    private expandParents(entry: TimeGraphEntry) {
+        let foundNode = this.state.timegraphTree.find(node => node.id === entry?.id);
+        if (foundNode) {
+            let parentId: number | undefined = foundNode.parentId;
+            const ids: number[] = [];
+            while (parentId && parentId >= 0) {
+                ids.push(parentId);
+                foundNode = this.state.timegraphTree.find(node => node.id === parentId);
+                parentId = foundNode?.parentId;
+            }
+
+            let newList = [...this.state.collapsedNodes];
+            ids.forEach(parentIds => {
+                const exist = this.state.collapsedNodes.find(expandId => expandId === parentIds);
+                if (exist !== undefined) {
+                     newList = newList.filter(collapsed => parentIds !== collapsed);
+                }
+            });
+            const retVal = newList.length === this.state.collapsedNodes.length;
+            this.setState({ collapsedNodes: newList }, this.updateTotalHeight);
+            return retVal;
+        }
+    }
+
+    private selectAndReveal(item: TimeGraphEntry) {
+        const rowIndex = getIndexOfNode(item.id, listToTree(this.state.timegraphTree, this.state.columns), this.state.collapsedNodes);
+        this.chartLayer.selectAndReveal(rowIndex);
+    }
+
 }

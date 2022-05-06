@@ -57,3 +57,8 @@ export const getAllExpandedNodeIds = (nodes: TreeNode[],collapsedNodes: number[]
     });
     return visibleIds;
 };
+
+export const getIndexOfNode = (id: number, nodes: TreeNode[], collapsedNodes: number[]): number => {
+    const ids = getAllExpandedNodeIds(nodes, collapsedNodes);
+    return ids.findIndex(eId => eId === id);
+};
