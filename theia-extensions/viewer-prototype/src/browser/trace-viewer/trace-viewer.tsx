@@ -284,13 +284,6 @@ export class TraceViewerWidget extends ReactWidget implements StatefulWidget {
         }
     }
 
-    onAfterShow(msg: Message): void {
-        super.onAfterShow(msg);
-        if (this.openedExperiment) {
-            signalManager().fireTraceViewerTabActivatedSignal(this.openedExperiment);
-        }
-    }
-
     onActivateRequest(msg: Message): void {
         super.onActivateRequest(msg);
         if (this.openedExperiment) {
