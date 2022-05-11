@@ -1001,13 +1001,12 @@ export class XYOutputComponent extends AbstractTreeOutputComponent<AbstractOutpu
     private buildScatterData(seriesObj: XYSeries[]) {
         const dataSetArray = new Array<any>();
         let xValues: bigint[] = [];
-        let yValues: number[] = [];
-        let pairs: xyPair[] = [];
         const offset = this.props.viewRange.getOffset() ?? BigInt(0);
         seriesObj.forEach(series => {
             const color = this.getSeriesColor(series.seriesName);
             xValues = series.xValues;
-            yValues = series.yValues;
+            const yValues: number[] = series.yValues;
+            let pairs: xyPair[] = [];
 
             xValues.forEach((value, index) => {
                 const adjusted = Number(value - offset);
