@@ -8,7 +8,7 @@ import { cloneDeep } from 'lodash';
 import { signalManager } from 'traceviewer-base/lib/signals/signal-manager';
 import { TimelineChart } from 'timeline-chart/lib/time-graph-model';
 import { CellKeyDownEvent } from 'ag-grid-community/dist/lib/events';
-import { Line } from 'tsp-typescript-client/lib/models/table';
+import { Line, TableModel } from 'tsp-typescript-client/lib/models/table';
 import { SearchFilterRenderer, CellRenderer, LoadingRenderer } from './table-renderer-components';
 import { ResponseStatus } from 'tsp-typescript-client';
 
@@ -483,11 +483,14 @@ export class TableOutputComponent extends AbstractOutputComponent<TableOutputPro
         const additionalParams = this.fetchAdditionalParams();
         const tspClientResponse = await tspClient.fetchTableLines(traceUUID, outputId, QueryHelper.tableQuery(this.columnIds, fetchIndex, linesToFetch, additionalParams));
         const lineResponse = tspClientResponse.getModel();
-        const linesArray = new Array<Line>();
         if (!tspClientResponse.isOk() || !lineResponse) {
-            return linesArray;
+            return new Array<any>();
         }
-        const model = lineResponse.model;
+        return this.modelToRow(lineResponse.model);
+    }
+
+    private modelToRow(model: TableModel) {
+        const linesArray = new Array<any>();
         const lines = model.lines;
         lines.forEach(line => {
             const obj: any = {};
@@ -506,7 +509,6 @@ export class TableOutputComponent extends AbstractOutputComponent<TableOutputPro
             obj['isMatched'] = (line.tags !== undefined && line.tags > 0);
             linesArray.push(obj);
         });
-
         return linesArray;
     }
 
@@ -554,7 +556,7 @@ export class TableOutputComponent extends AbstractOutputComponent<TableOutputPro
         if (lines.length === 0) {
             return undefined;
         }
-        return lines[0].index;
+        return { index: lines[0].index, row: this.modelToRow(model)[0] };
     }
 
     private async findMatchedEvent(direction: Direction) {
@@ -609,6 +611,9 @@ export class TableOutputComponent extends AbstractOutputComponent<TableOutputPro
                 if (currRowIndexFound && !isFound && rowNode.data && rowNode.data['isMatched']) {
                     this.gridApi?.ensureIndexVisible(rowNode.rowIndex);
                     this.selectStartIndex = this.selectEndIndex = rowNode.rowIndex;
+                    if (this.timestampCol) {
+                        this.startTimestamp = this.endTimestamp = BigInt(rowNode.data[this.timestampCol]);
+                    }
                     this.handleRowSelectionChange();
                     rowNode.setSelected(true);
                     isFound = true;
@@ -621,10 +626,13 @@ export class TableOutputComponent extends AbstractOutputComponent<TableOutputPro
             }
             // find match outside the cache
             if (currRowIndex >= 0) {
-                const lineIndex = await this.findMatchIndex(currRowIndex, direction);
-                if (lineIndex !== undefined) {
-                    this.gridApi.ensureIndexVisible(lineIndex);
-                    this.selectStartIndex = this.selectEndIndex = lineIndex;
+                const data = await this.findMatchIndex(currRowIndex, direction);
+                if (data !== undefined) {
+                    this.gridApi.ensureIndexVisible(data.index);
+                    this.selectStartIndex = this.selectEndIndex = data.index;
+                    if (this.timestampCol) {
+                        this.startTimestamp = this.endTimestamp = BigInt(data.row[this.timestampCol]);
+                    }
                 }
             }
 
