@@ -20,7 +20,8 @@
             "name": "Attach to Chrome",
             "port": 9222,
             "sourceMaps": true,
-            "webRoot": "${workspaceRoot}/examples/browser"
+            "webRoot": "${workspaceRoot}/examples/browser",
+            "urlFilter": "http://localhost:3000/*"
         },
         {
             "type": "firefox",
