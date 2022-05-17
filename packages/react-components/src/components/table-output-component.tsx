@@ -769,6 +769,8 @@ export class TableOutputComponent extends AbstractOutputComponent<TableOutputPro
 
         let fetchLinesRemainder = totalLinesToFetch;
 
+        signalManager().fireFileCreateSignal({fileName: this.props.traceName ?? 'export'});
+
         while (fetchLinesRemainder > 0 && this.mainOutputContainer.current) {
             let curLinesToFetch = bufferSize;
 
@@ -806,7 +808,7 @@ export class TableOutputComponent extends AbstractOutputComponent<TableOutputPro
 
             for (let i=0;i<lines.length;i++) {
                 // Stores each csv row data
-                const csvrow = [];
+                const csvrow: Array<string> = [];
                 for (let j=0;j<lines[i].cells.length;j++) {
                     // Get the text data of each cell of
                     // a row and push it to csvrow
@@ -818,7 +820,8 @@ export class TableOutputComponent extends AbstractOutputComponent<TableOutputPro
                     }
                 }
                 // Combine each column value with comma
-                csv_data.push(csvrow.join(','));
+                signalManager().fireCSVRowExportSignal(csvrow.join(','));
+                // csv_data.push(csvrow.join(','));
             }
             fetchIndex += curLinesToFetch;
         }
@@ -828,11 +831,13 @@ export class TableOutputComponent extends AbstractOutputComponent<TableOutputPro
         }
 
         // combine each row data with new line character
-        const tableString = csv_data.join('\n');
-        const csvBlob = URL.createObjectURL(new Blob([tableString], { type: 'text/csv' }));
+        // const tableString = csv_data.join('\n');
+        signalManager().fireCSVRowExportSignal('\n');
+
+        // const csvBlob = URL.createObjectURL(new Blob([tableString], { type: 'text/csv' }));
 
         const link = document.createElement('a');
-        link.setAttribute('href', csvBlob);
+        link.setAttribute('href', '/trace-viewer/download/csv' + (this.props.traceName ?? 'export'));
 
         link.setAttribute('download', this.props.traceName ?? 'export');
         link.style.display = 'none';

@@ -4,10 +4,13 @@ import { Dirent } from 'fs';
 import { Path } from '@theia/core/lib/common/path';
 import { CancellationToken } from '@theia/core';
 import { BackendFileService } from '../common/backend-file-service';
-import { FileUri } from '@theia/core/lib/node';
+import { BackendApplicationContribution, FileUri } from '@theia/core/lib/node';
+import { Application } from '@theia/core/shared/express';
 
 @injectable()
-export class BackendFileServiceImpl implements BackendFileService {
+export class BackendFileServiceImpl implements BackendFileService, BackendApplicationContribution {
+
+    private fileStream: fs.WriteStream;
 
     async findTraces(path: string, cancellationToken: CancellationToken): Promise<string[]> {
         /*
@@ -64,5 +67,20 @@ export class BackendFileServiceImpl implements BackendFileService {
             const childPath = parent.join(dirent.name);
             await this.deepFindTraces(childPath.toString(), traces, cancellationToken);
         }
+    }
+
+    createFile(fileName: string): void {
+        this.fileStream = fs.createWriteStream(fileName, {flags: 'a+'});
+    }
+
+    writeToFile(data: string): void {
+        this.fileStream.write(data);
+    }
+
+    configure(app: Application): void {
+        app.get('/trace-viewer/download/csv/:fileName', async (req, res) => {
+            const { fileName } = req.params;
+            res.download(fileName as string);
+        });
     }
 }

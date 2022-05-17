@@ -5,4 +5,6 @@ export const BackendFileService = Symbol('BackendFileService');
 
 export interface BackendFileService {
     findTraces(uri: string, cancellationToken: CancellationToken): Promise<string[]>;
+    createFile(fileName: string): void;
+    writeToFile(data: string): void;
 }
