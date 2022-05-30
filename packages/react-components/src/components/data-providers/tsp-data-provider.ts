@@ -254,13 +254,12 @@ export class TspDataProvider {
     }
 
     async fetchStateTooltip(element: TimeGraphStateComponent, viewRange: TimeRange): Promise<{ [key: string]: string } | undefined> {
-        const elementRange = element.model.range;
         const offset = viewRange.getOffset() ? viewRange.getOffset() : BigInt(0);
-        // use middle of state for fetching tooltip since hover time is not available
-        const time = elementRange.start + (elementRange.end - elementRange.start) / BigInt(2) + (offset ? offset : BigInt(0));
+        // use start of state for fetching tooltip since hover time is not available
+        const time = element.model.range.start + (offset ? offset : BigInt(0));
         const requestedElement = {
             elementType: ElementType.STATE,
-            time: element.model.range.start + (offset ? offset : BigInt(0)),
+            time: time,
             duration: element.model.range.end - element.model.range.start
         };
         const entryId = [element.row.model.id];
