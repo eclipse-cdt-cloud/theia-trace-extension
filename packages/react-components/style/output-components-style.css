@@ -296,12 +296,21 @@ canvas {
     border: 0px; 
 }
 
+#input-filter-icon {
+    position: absolute;
+    top: 5px;
+    left: 8px;
+}
+
 #input-filter-tree {
     background-color: var(--theia-input-background);
-    border: none;
-    border-bottom: 1px solid var(--theia-input-foreground);
+    border-style: solid;
+    border-color: var(--theia-tree-inactiveIndentGuidesStroke);
+    border-radius: 15px;
     padding: 3px;
-    color: var(--theia-input-placeholder-foreground)
+    margin-bottom: 5px;
+    text-indent: 23px;
+    color: var(--theia-input-placeholder-foreground);
 }
 
 .ag-theme-balham{

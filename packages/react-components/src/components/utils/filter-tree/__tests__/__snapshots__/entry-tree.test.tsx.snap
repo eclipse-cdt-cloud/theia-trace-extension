@@ -968,6 +968,10 @@ Array [
   <div
     onChange={[Function]}
   >
+    <i
+      className="codicon codicon-filter"
+      id="input-filter-icon"
+    />
     <input
       id="input-filter-tree"
       placeholder="Filter"
