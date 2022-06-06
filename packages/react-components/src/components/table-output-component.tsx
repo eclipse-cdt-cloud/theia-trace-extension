@@ -221,6 +221,7 @@ export class TableOutputComponent extends AbstractOutputComponent<TableOutputPro
         const currTimestamp = (this.timestampCol && event.data) ? event.data[this.timestampCol] : undefined;
 
         if (gridApi) {
+            let nextRow;
             const currentRow = gridApi.getRowNode(String(rowIndex));
 
             let isContiguous = true;
@@ -231,7 +232,7 @@ export class TableOutputComponent extends AbstractOutputComponent<TableOutputPro
                         isContiguous = false;
                     }
 
-                    const nextRow = gridApi.getRowNode(String(rowIndex + 1));
+                    nextRow = gridApi.getRowNode(String(rowIndex + 1));
                     if (isContiguous === false) {
                         if (this.timestampCol && nextRow.data) {
                             this.startTimestamp = this.endTimestamp = BigInt(nextRow.data[this.timestampCol]);
@@ -252,13 +253,12 @@ export class TableOutputComponent extends AbstractOutputComponent<TableOutputPro
                             this.endTimestamp = BigInt(nextRow.data[this.timestampCol]);
                         }
                     }
-                    this.handleRowSelectionChange();
                 } else if (keyEvent.code === 'ArrowUp') {
                     if (!currentRow.isSelected()) {
                         gridApi.deselectAll();
                         isContiguous = false;
                     }
-                    const nextRow = gridApi.getRowNode(String(rowIndex - 1));
+                    nextRow = gridApi.getRowNode(String(rowIndex - 1));
 
                     if (isContiguous === false) {
                         if (this.timestampCol && nextRow.data) {
@@ -280,7 +280,6 @@ export class TableOutputComponent extends AbstractOutputComponent<TableOutputPro
                             this.endTimestamp = BigInt(nextRow.data[this.timestampCol]);
                         }
                     }
-                    this.handleRowSelectionChange();
 
                 } else if (keyEvent.code === 'Space') {
                     this.selectEndIndex = rowIndex;
@@ -288,7 +287,6 @@ export class TableOutputComponent extends AbstractOutputComponent<TableOutputPro
                         this.endTimestamp = BigInt(currTimestamp);
                     }
                     this.selectRows();
-                    this.handleRowSelectionChange();
                 }
             } else if (keyEvent.code === 'Space') {
                 gridApi.deselectAll();
@@ -297,8 +295,35 @@ export class TableOutputComponent extends AbstractOutputComponent<TableOutputPro
                 }
                 this.selectStartIndex = this.selectEndIndex = rowIndex;
                 this.startTimestamp = this.endTimestamp = BigInt(currTimestamp);
-                this.handleRowSelectionChange();
+            } else {
+                gridApi.deselectAll();
+                if (keyEvent.code === 'ArrowDown') {
+                    nextRow = gridApi.getRowNode(String(rowIndex + 1));
+                    if (this.timestampCol && nextRow.data) {
+                        this.startTimestamp = this.endTimestamp = BigInt(nextRow.data[this.timestampCol]);
+                    }
+                    this.selectStartIndex = this.selectEndIndex = nextRow.rowIndex;
+                } else if (keyEvent.code === 'ArrowUp') {
+                    nextRow = gridApi.getRowNode(String(rowIndex - 1));
+                    if (this.timestampCol && nextRow.data) {
+                        this.startTimestamp = this.endTimestamp = BigInt(nextRow.data[this.timestampCol]);
+                    }
+                    this.selectStartIndex = this.selectEndIndex = nextRow.rowIndex;
+                }
+                if (nextRow && nextRow.id) {
+                    nextRow.setSelected(true);
+                }
             }
+            let itemPropsObj;
+            const columns = event.columnApi.getAllColumns();
+            itemPropsObj = undefined;
+            if (nextRow && nextRow.data) {
+                itemPropsObj = this.fetchItemProperties(columns, nextRow.data);
+            }
+            // Notfiy selection changed
+            this.handleRowSelectionChange(itemPropsObj);
+            // Notify properties changed
+            signalManager().fireTooltipSignal(itemPropsObj);
         }
     }
 
