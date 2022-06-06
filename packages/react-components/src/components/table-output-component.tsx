@@ -617,9 +617,16 @@ export class TableOutputComponent extends AbstractOutputComponent<TableOutputPro
                     if (this.timestampCol) {
                         this.startTimestamp = this.endTimestamp = BigInt(rowNode.data[this.timestampCol]);
                     }
-                    this.handleRowSelectionChange();
-                    rowNode.setSelected(true);
+                    let itemPropsObj;
+                    if (this.columnApi) {
+                        itemPropsObj = this.fetchItemProperties(this.columnApi.getAllColumns(), rowNode.data);
+                    }
+                    // Notify selection changed
+                    this.handleRowSelectionChange(itemPropsObj);
+                    // Notify properties changed
+                    signalManager().fireTooltipSignal(itemPropsObj);
                     isFound = true;
+                    rowNode.setSelected(true);
                 }
             });
 
@@ -628,6 +635,8 @@ export class TableOutputComponent extends AbstractOutputComponent<TableOutputPro
                 return;
             }
             // find match outside the cache
+            let syncData = undefined;
+
             if (currRowIndex >= 0) {
                 const data = await this.findMatchIndex(currRowIndex, direction);
                 if (data !== undefined) {
@@ -635,14 +644,21 @@ export class TableOutputComponent extends AbstractOutputComponent<TableOutputPro
                     this.selectStartIndex = this.selectEndIndex = data.index;
                     if (this.timestampCol) {
                         this.startTimestamp = this.endTimestamp = BigInt(data.row[this.timestampCol]);
+                        syncData = data.row;
                     }
                 }
             }
 
             // apply new or previous selection
             if (this.selectStartIndex !== -1 && this.selectEndIndex !== -1) {
-                this.handleRowSelectionChange();
-                this.enableIndexSelection = true;
+                let itemPropsObj;
+                if (this.columnApi && syncData) {
+                    itemPropsObj = this.fetchItemProperties(this.columnApi.getAllColumns(), syncData);
+                }
+                // Notfiy selection changed
+                this.handleRowSelectionChange(itemPropsObj);
+                // Notfiy properties changed
+                signalManager().fireTooltipSignal(itemPropsObj);
                 this.selectRows();
             }
         }
@@ -676,7 +692,7 @@ export class TableOutputComponent extends AbstractOutputComponent<TableOutputPro
         columnApi.setColumnsVisible([column.field], !columnApi.getColumn(column).isVisible());
         const allCols = cloneDeep(this.state.tableColumns);
 
-        allCols.map( item => {
+        allCols.map(item => {
             if (item.field === column.field) {
                 item.hide = columnApi.getColumn(column).isVisible();
             }
@@ -695,7 +711,7 @@ export class TableOutputComponent extends AbstractOutputComponent<TableOutputPro
         const columns = this.columnApi.getAllGridColumns();
 
         return <React.Fragment>
-            <table style={{width: '100%'}}>
+            <table style={{ width: '100%' }}>
                 <tbody>
                     {columns.map((column, key) =>
                         <tr key={key}>
