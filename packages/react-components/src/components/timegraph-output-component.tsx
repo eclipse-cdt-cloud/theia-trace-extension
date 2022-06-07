@@ -43,6 +43,8 @@ type TimegraphOutputState = AbstractOutputState & {
     columns: ColumnHeader[];
 };
 
+const COARSE_RESOLUTION_FACTOR = 8; // resolution factor to use for first (coarse) update
+
 export class TimegraphOutputComponent extends AbstractTreeOutputComponent<TimegraphOutputProps, TimegraphOutputState> {
     private totalHeight = 0;
     private rowController: TimeGraphRowController;
@@ -110,7 +112,7 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
         };
 
         this.rangeEventsLayer = new TimeGraphRangeEventsLayer('timeGraphRangeEvents', providers);
-        this.chartLayer = new TimeGraphChart('timeGraphChart', providers, this.rowController);
+        this.chartLayer = new TimeGraphChart('timeGraphChart', providers, this.rowController, COARSE_RESOLUTION_FACTOR);
         this.arrowLayer = new TimeGraphChartArrows('timeGraphChartArrows', this.rowController);
         this.vscrollLayer = new TimeGraphVerticalScrollbar('timeGraphVerticalScrollbar', this.rowController);
         this.chartCursors = new TimeGraphChartCursors('chart-cursors', this.chartLayer, this.rowController, { color: this.props.style.cursorColor });
