@@ -475,7 +475,7 @@ export class TraceContextComponent extends React.Component<TraceContextProps, Tr
             {timeScaleChartExists &&
                 <>
                     <div style={{ marginLeft: this.state.style.chartOffset, marginRight: this.SCROLLBAR_PADDING }}>
-                        <TimeAxisComponent unitController={this.unitController} style={{ ...this.state.style, width: chartWidth }}
+                        <TimeAxisComponent unitController={this.unitController} style={{ ...this.state.style, width: chartWidth, verticalAlign: 'bottom' }}
                             addWidgetResizeHandler={this.addWidgetResizeHandler} removeWidgetResizeHandler={this.removeWidgetResizeHandler} />
                     </div>
                 </>
