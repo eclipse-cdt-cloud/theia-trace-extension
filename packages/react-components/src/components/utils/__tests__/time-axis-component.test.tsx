@@ -19,11 +19,11 @@ describe('Time axis component', () => {
       naviBackgroundColor: 0xf4f7fb,
       chartBackgroundColor: 0xf4f7fb,
       cursorColor: 0x259fd8,
-      lineColor: 0x757575
+      lineColor: 0x757575,
     }
 
-    const wrapper = mount(<TimeAxisComponent unitController={unitController} style={style} addWidgetResizeHandler={() => null} removeWidgetResizeHandler={() => null}/>);
-    expect(wrapper.contains(<TimeAxisComponent unitController={unitController} style={style} addWidgetResizeHandler={() => null} removeWidgetResizeHandler={() => null}/>));
+    const wrapper = mount(<TimeAxisComponent unitController={unitController} style={{...style, verticalAlign: 'bottom' }} addWidgetResizeHandler={() => null} removeWidgetResizeHandler={() => null}/>);
+    expect(wrapper.contains(<TimeAxisComponent unitController={unitController} style={{...style, verticalAlign: 'bottom' }} addWidgetResizeHandler={() => null} removeWidgetResizeHandler={() => null}/>));
   });
 
   it('creates canvas', () => {
@@ -40,7 +40,7 @@ describe('Time axis component', () => {
       lineColor: 0x757575
     }
 
-    const wrapper = mount(<TimeAxisComponent unitController={unitController} style={style} addWidgetResizeHandler={() => null} removeWidgetResizeHandler={() => null}/>);
+    const wrapper = mount(<TimeAxisComponent unitController={unitController} style={{...style, verticalAlign: 'bottom' }} addWidgetResizeHandler={() => null} removeWidgetResizeHandler={() => null}/>);
     expect(wrapper.find('canvas')).toHaveLength(1);
   });
 });

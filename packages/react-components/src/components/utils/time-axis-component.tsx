@@ -10,7 +10,8 @@ interface TimeAxisProps {
         width: number,
         chartBackgroundColor: number,
         cursorColor: number,
-        lineColor: number
+        lineColor: number,
+        verticalAlign: string
     };
     addWidgetResizeHandler: (handler: () => void) => void;
     removeWidgetResizeHandler: (handler: () => void) => void;
@@ -37,7 +38,8 @@ export class TimeAxisComponent extends React.Component<TimeAxisProps> {
     protected getAxisLayer(): TimeGraphAxis {
         const timeAxisLayer = new TimeGraphAxis('timeGraphAxis', {
             color: this.props.style.chartBackgroundColor,
-            lineColor: this.props.style.lineColor
+            lineColor: this.props.style.lineColor,
+            verticalAlign: this.props.style.verticalAlign
         });
         return timeAxisLayer;
     }
