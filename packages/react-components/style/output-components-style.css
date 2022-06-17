@@ -296,6 +296,10 @@ canvas {
     border: 0px; 
 }
 
+#input-filter-container {
+    position: relative;
+}
+
 #input-filter-icon {
     position: absolute;
     top: 5px;

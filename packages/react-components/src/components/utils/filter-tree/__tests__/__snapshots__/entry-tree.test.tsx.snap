@@ -1,11 +1,9 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
-
 exports[`Empty tree 1`] = `
 <span>
   
 </span>
 `;
-
 exports[`Entry with children All unchecked 1`] = `
 <div>
   <table
@@ -358,7 +356,6 @@ exports[`Entry with children All unchecked 1`] = `
   </table>
 </div>
 `;
-
 exports[`Entry with children Check one grandchild 1`] = `
 <div>
   <table
@@ -711,7 +708,6 @@ exports[`Entry with children Check one grandchild 1`] = `
   </table>
 </div>
 `;
-
 exports[`Entry with children Collapse one child 1`] = `
 <div>
   <table
@@ -962,10 +958,10 @@ exports[`Entry with children Collapse one child 1`] = `
   </table>
 </div>
 `;
-
 exports[`Entry with children With filter element 1`] = `
 Array [
   <div
+    id="input-filter-container"
     onChange={[Function]}
   >
     <i
@@ -1335,7 +1331,6 @@ Array [
   </div>,
 ]
 `;
-
 exports[`one level of entries 1`] = `
 <div>
   <table
@@ -1441,7 +1436,6 @@ exports[`one level of entries 1`] = `
   </table>
 </div>
 `;
-
 exports[`one level of entries 2`] = `
 <div>
   <table
@@ -1601,7 +1595,6 @@ exports[`one level of entries 2`] = `
   </table>
 </div>
 `;
-
 exports[`one level of entries 3`] = `
 <div>
   <table

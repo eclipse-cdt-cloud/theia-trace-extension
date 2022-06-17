@@ -37,7 +37,7 @@ export class Filter extends React.Component<FilterProps, FilterState> {
     }
 
     render(): JSX.Element {
-        return <div ref={this.ref} onChange={this.props.onChange}>
+        return <div ref={this.ref} onChange={this.props.onChange} id="input-filter-container">
             <i id="input-filter-icon" className='codicon codicon-filter'></i>
             <input
                 id="input-filter-tree"
