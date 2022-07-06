@@ -8,6 +8,7 @@ import { QueryHelper } from 'tsp-typescript-client/lib/models/query/query-helper
 import { OutputElementStyle } from 'tsp-typescript-client/lib/models/styles';
 import { Annotation, Type } from 'tsp-typescript-client/lib/models/annotation';
 import { TimeRange } from 'traceviewer-base/lib/utils/time-range';
+import { GenericResponse, TspClientResponse } from 'tsp-typescript-client';
 
 enum ElementType {
     STATE = 'state',
@@ -15,7 +16,6 @@ enum ElementType {
 }
 
 export class TspDataProvider {
-
     private client: TspClient;
     private outputId: string;
     private traceUUID: string;
@@ -42,12 +42,8 @@ export class TspDataProvider {
      * @param annotationMarkers requested annotation categories
      * @returns time graph model
      */
-    async getData(ids: number[], entries: TimeGraphEntry[],
-        totalTimeRange: TimeRange,
-        viewRange?: TimelineChart.TimeGraphRange,
-        nbTimes?: number,
-        annotationMarkers?: string[],
-        markerSetId?: string): Promise<TimelineChart.TimeGraphModel> {
+    async getData(ids: number[], entries: TimeGraphEntry[], totalTimeRange: TimeRange, viewRange?: TimelineChart.TimeGraphRange,
+        nbTimes?: number, annotationMarkers?: string[], markerSetId?: string): Promise<TimelineChart.TimeGraphModel> {
         this.timeGraphEntries = [...entries];
         if (!this.timeGraphEntries.length || !viewRange || !nbTimes) {
             return {
@@ -60,48 +56,38 @@ export class TspDataProvider {
             };
         }
 
+        // Fire all TSP requests
         this.totalRange = totalTimeRange.getEnd() - totalTimeRange.getStart();
-
         const start = totalTimeRange.getStart() + viewRange.start;
         const end = totalTimeRange.getStart() + viewRange.end;
         const timeGraphStateParams = QueryHelper.selectionTimeRangeQuery(start, end, nbTimes, ids);
-        const tspClientResponse = await this.client.fetchTimeGraphStates(this.traceUUID, this.outputId, timeGraphStateParams);
-        const stateResponse = tspClientResponse.getModel();
-        if (tspClientResponse.isOk() && stateResponse) {
-            this.timeGraphRows = stateResponse.model.rows;
-            this.timeGraphRowsOrdering(ids);
-        } else {
-            this.timeGraphRows = [];
-        }
-
-        // the start time which is normalized to logical 0 in timeline chart.
-        const chartStart = totalTimeRange.getStart();
-        const rows: TimelineChart.TimeGraphRowModel[] = [];
-        this.timeGraphRows.forEach((row: TimeGraphRow) => {
-            const rowId: number = row.entryId;
-            const entry = this.timeGraphEntries.find(tgEntry => tgEntry.id === rowId);
-            if (entry) {
-                rows.push(this.getRowModel(row, chartStart, rowId, entry));
-            }
-        });
+        const statesPromise = this.client.fetchTimeGraphStates(this.traceUUID, this.outputId, timeGraphStateParams);
 
         const additionalProps: { [key: string]: any } = {};
-
         if (annotationMarkers) {
             additionalProps['requested_marker_categories'] = annotationMarkers;
         }
         if (markerSetId) {
             additionalProps['requested_marker_set'] = markerSetId;
         }
-
         const annotationParams = QueryHelper.selectionTimeRangeQuery(start, end, nbTimes, ids, additionalProps);
-
         const annotations: Map<number, TimelineChart.TimeGraphAnnotation[]> = new Map();
-        const tspClientResponse2 = await this.client.fetchAnnotations(this.traceUUID, this.outputId, annotationParams);
-        const annotationsResponse = tspClientResponse2.getModel();
-        const rangeEvents: TimelineChart.TimeGraphAnnotation[] = [];
+        const annotationsPromise = this.client.fetchAnnotations(this.traceUUID, this.outputId, annotationParams);
 
-        if (tspClientResponse2.isOk() && annotationsResponse) {
+        const arrowStart = viewRange.start + this.timeGraphEntries[0].start;
+        const arrowEnd = viewRange.end + this.timeGraphEntries[0].start;
+        const fetchParameters = QueryHelper.timeRangeQuery(arrowStart, arrowEnd, nbTimes);
+        const arrowsPromise = this.client.fetchTimeGraphArrows(this.traceUUID, this.outputId, fetchParameters);
+
+        // Wait for responses
+        const [tspClientAnnotationsResponse, tspClientStatesResponse, tspClientArrowsResponse] = await Promise.all([annotationsPromise, statesPromise, arrowsPromise]);
+
+        // the start time which is normalized to logical 0 in timeline chart.
+        const chartStart = totalTimeRange.getStart();
+
+        const annotationsResponse = tspClientAnnotationsResponse.getModel();
+        const rangeEvents: TimelineChart.TimeGraphAnnotation[] = [];
+        if (tspClientAnnotationsResponse.isOk() && annotationsResponse) {
             Object.entries(annotationsResponse.model.annotations).forEach(([category, categoryArray]) => {
                 categoryArray.forEach(annotation => {
                     if (annotation.type === Type.CHART) {
@@ -119,13 +105,33 @@ export class TspDataProvider {
                 });
             });
         }
+
+        const stateResponse = tspClientStatesResponse.getModel();
+
+        if (tspClientStatesResponse.isOk() && stateResponse) {
+            this.timeGraphRows = stateResponse.model.rows;
+            this.timeGraphRowsOrdering(ids);
+        } else {
+            this.timeGraphRows = [];
+        }
+
+        const rows: TimelineChart.TimeGraphRowModel[] = [];
+        this.timeGraphRows.forEach((row: TimeGraphRow) => {
+            const rowId: number = row.entryId;
+            const entry = this.timeGraphEntries.find(tgEntry => tgEntry.id === rowId);
+            if (entry) {
+                rows.push(this.getRowModel(row, chartStart, rowId, entry));
+            }
+        });
+
         for (const [entryId, entryArray] of annotations.entries()) {
             const row = rows.find(tgEntry => tgEntry.id === entryId);
             if (row) {
                 row.annotations = entryArray;
             }
         }
-        const arrows = await this.getArrows(viewRange, nbTimes);
+
+        const arrows = this.getArrows(tspClientArrowsResponse, viewRange, nbTimes);
 
         return {
             id: 'model',
@@ -139,27 +145,26 @@ export class TspDataProvider {
         };
     }
 
-    async getArrows(viewRange?: TimelineChart.TimeGraphRange, nbTimes?: number): Promise<TimelineChart.TimeGraphArrow[]> {
+    private getArrows(tspClientArrowsResponse: TspClientResponse<GenericResponse<TimeGraphArrow[]>>,
+        viewRange?: TimelineChart.TimeGraphRange, nbTimes?: number): TimelineChart.TimeGraphArrow[] {
+
         let timeGraphArrows: TimeGraphArrow[] = [];
         if (viewRange && nbTimes) {
-            const start = viewRange.start + this.timeGraphEntries[0].start;
-            const end = viewRange.end + this.timeGraphEntries[0].start;
-            const fetchParameters = QueryHelper.timeRangeQuery(start, end, nbTimes);
-            const tspClientResponseArrows = await this.client.fetchTimeGraphArrows(this.traceUUID, this.outputId, fetchParameters);
-            const stateResponseArrows = tspClientResponseArrows.getModel();
-            if (tspClientResponseArrows.isOk() && stateResponseArrows && stateResponseArrows.model) {
+            const stateResponseArrows = tspClientArrowsResponse.getModel();
+            if (tspClientArrowsResponse.isOk() && stateResponseArrows && stateResponseArrows.model) {
                 timeGraphArrows = stateResponseArrows.model;
             }
         }
         const offset = this.timeGraphEntries[0].start;
         const arrows = timeGraphArrows.map(arrow => ({
-            sourceId: arrow.sourceId,
-            destinationId: arrow.targetId,
-            range: {
-                start: arrow.start - offset,
-                end: arrow.end - offset
-            } as TimelineChart.TimeGraphRange
-        } as TimelineChart.TimeGraphArrow));
+                sourceId: arrow.sourceId,
+                destinationId: arrow.targetId,
+                range: {
+                    start: arrow.start - offset,
+                    end: arrow.end - offset
+                } as TimelineChart.TimeGraphRange
+            } as TimelineChart.TimeGraphArrow
+        ));
         return arrows;
     }
 
@@ -187,11 +192,9 @@ export class TspDataProvider {
                 height: 1.0
             }
         };
-
     }
 
     private getRowModel(row: TimeGraphRow, chartStart: bigint, rowId: number, entry: TimeGraphEntry) {
-
         let gapStyle: OutputElementStyle;
         if (!entry.style) {
             gapStyle = this.getDefaultForGapStyle();
@@ -249,7 +252,7 @@ export class TspDataProvider {
             label: annotation.label,
             data: {
                 style: annotation.style
-            },
+            }
         };
     }
 
@@ -264,8 +267,7 @@ export class TspDataProvider {
         };
         const entryId = [element.row.model.id];
         const parameters = QueryHelper.selectionTimeQuery([time], entryId, { [QueryHelper.REQUESTED_ELEMENT_KEY]: requestedElement });
-        const tooltipResponse = await this.client.fetchTimeGraphTooltip(
-            this.traceUUID, this.outputId, parameters);
+        const tooltipResponse = await this.client.fetchTimeGraphTooltip(this.traceUUID, this.outputId, parameters);
         return tooltipResponse.getModel()?.model;
     }
 
@@ -281,8 +283,7 @@ export class TspDataProvider {
         };
         const entryId = [element.row.model.id];
         const parameters = QueryHelper.selectionTimeQuery([time], entryId, { [QueryHelper.REQUESTED_ELEMENT_KEY]: requestedElement });
-        const tooltipResponse = await this.client.fetchTimeGraphTooltip(
-            this.traceUUID, this.outputId, parameters);
+        const tooltipResponse = await this.client.fetchTimeGraphTooltip(this.traceUUID, this.outputId, parameters);
         return tooltipResponse.getModel()?.model;
     }
 }
