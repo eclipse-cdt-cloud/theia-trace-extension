@@ -28,6 +28,7 @@ import ColumnHeader from './utils/filter-tree/column-header';
 import { TimeGraphAnnotationComponent } from 'timeline-chart/lib/components/time-graph-annotation';
 import { Entry } from 'tsp-typescript-client';
 import { isEqual } from 'lodash';
+import { convertColorStringToHexNumber } from 'traceviewer-base/lib/utils/convert-color-string-to-hex';
 
 type TimegraphOutputProps = AbstractOutputProps & {
     addWidgetResizeHandler: (handler: () => void) => void;
@@ -38,6 +39,7 @@ type TimegraphOutputState = AbstractOutputState & {
     timegraphTree: TimeGraphEntry[];
     markerCategoryEntries: Entry[];
     markerLayerData: { rows: TimelineChart.TimeGraphRowModel[], range: TimelineChart.TimeGraphRange, resolution: number } | undefined;
+    selectedRow?: number;
     collapsedNodes: number[];
     collapsedMarkerNodes: number[];
     columns: ColumnHeader[];
@@ -78,6 +80,7 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
             markerCategoryEntries: [],
             markerLayerData: undefined,
             collapsedNodes: validateNumArray(this.props.persistChartState?.collapsedNodes) ? this.props.persistChartState.collapsedNodes as number[] : [],
+            selectedRow: undefined,
             columns: [],
             collapsedMarkerNodes: validateNumArray(this.props.persistChartState?.collapsedMarkerNodes) ? this.props.persistChartState.collapsedMarkerNodes as number[] : [],
             optionsDropdownOpen: false,
@@ -119,6 +122,7 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
         this.arrowLayer = new TimeGraphChartArrows('timeGraphChartArrows', this.rowController);
         this.vscrollLayer = new TimeGraphVerticalScrollbar('timeGraphVerticalScrollbar', this.rowController);
         this.chartCursors = new TimeGraphChartCursors('chart-cursors', this.chartLayer, this.rowController, { color: this.props.style.cursorColor });
+        this.rowController.onSelectedRowChangedHandler(this.onSelectionChange);
         this.rowController.onVerticalOffsetChangedHandler(() => {
             if (this.timeGraphTreeRef.current) {
                 this.timeGraphTreeRef.current.scrollTop = this.rowController.verticalOffset;
@@ -155,7 +159,7 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
                 }
             }
         });
-        signalManager().on(Signals.SELECTION_CHANGED, this.onSelectionChanged);
+
     }
 
     synchronizeTreeScroll(): void {
@@ -169,10 +173,21 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
             styleModel: await this.styleProvider.getStyleModel()
         });
         this.waitAnalysisCompletion();
+        this.subscribeToEvents();
     }
 
     componentWillUnmount(): void {
         super.componentWillUnmount();
+        this.unsubscribeToEvents();
+    }
+
+    protected subscribeToEvents(): void {
+        signalManager().on(Signals.THEME_CHANGED, this.onThemeChange);
+        signalManager().on(Signals.SELECTION_CHANGED, this.onSelectionChanged);
+    }
+
+    protected unsubscribeToEvents(): void {
+        signalManager().off(Signals.THEME_CHANGED, this.onThemeChange);
         signalManager().off(Signals.SELECTION_CHANGED, this.onSelectionChanged);
     }
 
@@ -366,8 +381,10 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
                     entries={this.state.timegraphTree}
                     showCheckboxes={false}
                     onToggleCollapse={this.onToggleCollapse}
+                    onRowClick={this.onRowClick}
+                    selectedRow={this.state.selectedRow}
                     showHeader={false}
-                    className="table-tree timegraph-tree"
+                    className='table-tree timegraph-tree'
                 />
             </div>
             <div ref={this.markerTreeRef} className='scrollable'
@@ -381,7 +398,7 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
                     onToggleCollapse={this.onToggleAnnotationCollapse}
                     onClose={this.onMarkerCategoryRowClose}
                     showHeader={false}
-                    className="table-tree timegraph-tree"
+                    className='table-tree timegraph-tree'
                 />
             </div>
         </>;
@@ -708,13 +725,31 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
     }
 
     private getRowStyle(row?: TimelineChart.TimeGraphRowModel) {
+
+        let backgroundColor = 0x979797;
+
+        if (row?.selected) {
+            const colorString = getComputedStyle(document.body).getPropertyValue('--theia-selection-background');
+            const colorNumber = convertColorStringToHexNumber(colorString);
+            backgroundColor = colorNumber > 0 ? colorNumber : backgroundColor;
+        }
+
         return {
-            backgroundColor: 0x979797,
-            backgroundOpacity: row?.selected ? 0.1 : 0,
+            backgroundColor,
+            backgroundOpacity: row?.selected ? 0.5 : 0,
             lineColor: this.props.backgroundTheme === 'light' ? 0xD3D3D3 : 0x3F4146,
             lineThickness: 1
         };
     }
+
+    public onThemeChange = (): void => {
+        // Simulate a click on the selected row when theme changes.
+        // This changes the color of the selected row to new theme.
+        const selectedRow = this.state.selectedRow;
+        if (selectedRow) {
+            this.onRowClick(selectedRow);
+        }
+    };
 
     private getMarkerStateStyle(state: TimelineChart.TimeGraphState) {
         if (state.data && state.data.annotation) {
@@ -897,6 +932,24 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
             return retVal;
         }
     }
+
+    /**
+     *  This method is passed down all the way to TableCell component.
+     *  It communicates a row-selection with the timeline-chart component.
+     *  @param {number} id TreeNode id number
+     */
+    public onRowClick = (id: number): void => {
+        const rowIndex = getIndexOfNode(id, listToTree(this.state.timegraphTree, this.state.columns), this.state.collapsedNodes);
+        this.chartLayer.selectAndReveal(rowIndex);
+        if (this.rowController.selectedRow?.id !== id) {
+            // This highlights the left side if the row is loading.
+            this.setState({ selectedRow: id });
+        }
+    };
+
+    public onSelectionChange = (row: TimelineChart.TimeGraphRowModel): void => {
+        this.setState({ selectedRow: row.id });
+    };
 
     private selectAndReveal(item: TimeGraphEntry) {
         const rowIndex = getIndexOfNode(item.id, listToTree(this.state.timegraphTree, this.state.columns), this.state.collapsedNodes);

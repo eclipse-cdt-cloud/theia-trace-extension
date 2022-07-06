@@ -236,7 +236,7 @@ canvas {
 }
 
 .table-tree tr:hover td {
-    background-color: var(--theia-list-hoverBackground) !important;
+    background-color: var(--theia-list-hoverBackground);
 }
 
 .table-tree td {
@@ -257,6 +257,10 @@ canvas {
     overflow: hidden;
     white-space: nowrap;
     display: block;
+}
+
+.table-tree td.selected {
+    background-color: var(--theia-selection-background) !important;
 }
 
 .resize-handle {

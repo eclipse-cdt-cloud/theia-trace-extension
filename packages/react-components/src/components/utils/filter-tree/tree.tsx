@@ -15,8 +15,10 @@ interface FilterTreeProps {
     showFilter: boolean;                    // Optional
     checkedSeries: number[];                // Optional
     collapsedNodes: number[];
+    selectedRow?: number;
     onToggleCheck: (ids: number[]) => void;     // Optional
     onClose: (id: number) => void;
+    onRowClick: (id: number) => void;
     onToggleCollapse: (id: number, nodes: TreeNode[]) => void;
     onOrderChange: (ids: number[]) => void;
     showHeader: boolean;
@@ -253,6 +255,7 @@ export class FilterTree extends React.Component<FilterTreeProps, FilterTreeState
     renderTable = (nodes: TreeNode[]): JSX.Element =>
         <Table
             nodes={nodes}
+            selectedRow={this.props.selectedRow}
             collapsedNodes={this.props.collapsedNodes}
             isCheckable={this.props.showCheckboxes}
             isClosable={this.props.showCloseIcons}
@@ -260,12 +263,14 @@ export class FilterTree extends React.Component<FilterTreeProps, FilterTreeState
             getCheckedStatus={this.getCheckedStatus}
             onToggleCollapse={this.handleCollapse}
             onToggleCheck={this.handleCheck}
+            onRowClick={this.props.onRowClick}
             onClose={this.handleClose}
             onSort={this.handleOrderChange}
             onSortConfigChange={this.handleSortConfigChange}
             showHeader={this.props.showHeader}
             headers={this.props.headers}
-            className={this.props.className} />;
+            className={this.props.className}
+        />;
 
     render(): JSX.Element | undefined {
         if (!this.props.nodes) { return undefined; }
@@ -276,7 +281,6 @@ export class FilterTree extends React.Component<FilterTreeProps, FilterTreeState
                     ? this.renderFilterTree()
                     : this.renderTable(rootNodes)
                 }
-
             </React.Fragment>;
         } else {
             return <Message></Message>;
