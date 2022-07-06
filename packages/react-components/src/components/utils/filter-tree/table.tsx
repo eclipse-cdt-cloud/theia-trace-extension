@@ -7,10 +7,12 @@ import ColumnHeader from './column-header';
 
 interface TableProps {
     nodes: TreeNode[];
+    selectedRow?: number;
     collapsedNodes: number[];
     isCheckable: boolean;
     isClosable: boolean;
     sortConfig: SortConfig[];
+    onRowClick: (id: number) => void;
     getCheckedStatus: (id: number) => number;
     onToggleCollapse: (id: number) => void;
     onToggleCheck: (id: number) => void;
