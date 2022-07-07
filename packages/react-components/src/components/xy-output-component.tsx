@@ -7,6 +7,7 @@ import { BIMath } from 'timeline-chart/lib/bigint-utils';
 import { scaleLinear } from 'd3-scale';
 import { AbstractXYOutputComponent, AbstractXYOutputState, FLAG_PAN_LEFT, FLAG_PAN_RIGHT, FLAG_ZOOM_IN, FLAG_ZOOM_OUT, MouseButton } from './abstract-xy-output-component';
 import { TimeRange } from 'traceviewer-base/src/utils/time-range';
+import { validateNumArray } from './utils/filter-tree/utils';
 
 export class XYOutputComponent extends AbstractXYOutputComponent<AbstractOutputProps, AbstractXYOutputState> {
     private mousePanningStart = BigInt(0);
@@ -18,8 +19,8 @@ export class XYOutputComponent extends AbstractXYOutputComponent<AbstractOutputP
             outputStatus: ResponseStatus.RUNNING,
             selectedSeriesId: [],
             xyTree: [],
-            checkedSeries: [],
-            collapsedNodes: [],
+            checkedSeries: validateNumArray(this.props.persistChartState?.checkedSeries) ? this.props.persistChartState.checkedSeries as number[] : [],
+            collapsedNodes: validateNumArray(this.props.persistChartState?.collapsedNodes) ? this.props.persistChartState.collapsedNodes as number[] : [],
             orderedNodes: [],
             xyData: {},
             columns: [{title: 'Name', sortable: true}],
@@ -371,5 +372,26 @@ export class XYOutputComponent extends AbstractXYOutputComponent<AbstractOutputP
 
     protected getZoomTime(): bigint {
         return this.getTimeForX(this.positionXMove);
+    }
+
+    protected showOptions(): React.ReactNode {
+        return <React.Fragment>
+            <ul>
+                {this.props.pinned === undefined &&
+                    <li className='drop-down-list-item'
+                        onClick={() => this.pinView({ checkedSeries: this.state.checkedSeries,
+                                                    collapsedNodes: this.state.collapsedNodes })}
+                    >
+                        Pin View
+                    </li>}
+                {this.props.pinned === true &&
+                    <li className='drop-down-list-item'
+                        onClick={() => this.unPinView({ checkedSeries: this.state.checkedSeries,
+                                                    collapsedNodes: this.state.collapsedNodes })}>
+                        Unpin View
+                    </li>}
+            </ul>
+            {this.state.additionalOptions && this.showAdditionalOptions()}
+        </React.Fragment>;
     }
 }

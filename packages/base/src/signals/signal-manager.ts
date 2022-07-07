@@ -26,9 +26,11 @@ export declare interface SignalManager {
     fireTraceServerStartedSignal(): void;
     fireUndoSignal(): void;
     fireRedoSignal(): void;
-    firePinView(output: OutputDescriptor): void;
-    fireUnPinView(): void;
     fireOpenOverviewOutputSignal(): void;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    firePinView(output: OutputDescriptor, payload?: any): void;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    fireUnPinView(output: OutputDescriptor, payload?: any): void;
 }
 
 export const Signals = {
@@ -123,11 +125,13 @@ export class SignalManager extends EventEmitter implements SignalManager {
     fireRedoSignal(): void {
         this.emit(Signals.REDO);
     }
-    firePinView(output: OutputDescriptor): void {
-        this.emit(Signals.PIN_VIEW, output);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/explicit-module-boundary-types
+    firePinView(output: OutputDescriptor, payload?: any): void {
+        this.emit(Signals.PIN_VIEW, output, payload);
     }
-    fireUnPinView(): void {
-        this.emit(Signals.UNPIN_VIEW);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/explicit-module-boundary-types
+    fireUnPinView(output: OutputDescriptor, payload?: any): void {
+        this.emit(Signals.UNPIN_VIEW, output, payload);
     }
     fireOpenOverviewOutputSignal(): void {
         this.emit(Signals.OPEN_OVERVIEW_OUTPUT);

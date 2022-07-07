@@ -35,7 +35,8 @@ export class DataTreeOutputComponent extends AbstractOutputComponent<AbstractOut
             collapsedNodes: [],
             orderedNodes: [],
             columns: [{title: 'Name', sortable: true}],
-            optionsDropdownOpen: false
+            optionsDropdownOpen: false,
+            additionalOptions: true
         };
     }
 

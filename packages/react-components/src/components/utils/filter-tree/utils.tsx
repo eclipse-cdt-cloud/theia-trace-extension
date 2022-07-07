@@ -62,3 +62,13 @@ export const getIndexOfNode = (id: number, nodes: TreeNode[], collapsedNodes: nu
     const ids = getAllExpandedNodeIds(nodes, collapsedNodes);
     return ids.findIndex(eId => eId === id);
 };
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export const validateNumArray = (arr: any | undefined): boolean => {
+    if (arr && Array.isArray(arr)) {
+        return (arr.length > 0 &&
+            arr.every( value => typeof value === 'number')
+        );
+    }
+    return false;
+};
