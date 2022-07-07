@@ -22,7 +22,7 @@ import { TspDataProvider } from './data-providers/tsp-data-provider';
 import { ReactTimeGraphContainer } from './utils/timegraph-container-component';
 import { OutputElementStyle } from 'tsp-typescript-client/lib/models/styles';
 import { EntryTree } from './utils/filter-tree/entry-tree';
-import { listToTree, getAllExpandedNodeIds, getIndexOfNode } from './utils/filter-tree/utils';
+import { listToTree, getAllExpandedNodeIds, getIndexOfNode, validateNumArray } from './utils/filter-tree/utils';
 import hash from 'traceviewer-base/lib/utils/value-hash';
 import ColumnHeader from './utils/filter-tree/column-header';
 import { TimeGraphAnnotationComponent } from 'timeline-chart/lib/components/time-graph-annotation';
@@ -77,9 +77,9 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
             timegraphTree: [],
             markerCategoryEntries: [],
             markerLayerData: undefined,
-            collapsedNodes: [],
+            collapsedNodes: validateNumArray(this.props.persistChartState?.collapsedNodes) ? this.props.persistChartState.collapsedNodes as number[] : [],
             columns: [],
-            collapsedMarkerNodes: [],
+            collapsedMarkerNodes: validateNumArray(this.props.persistChartState?.collapsedMarkerNodes) ? this.props.persistChartState.collapsedMarkerNodes as number[] : [],
             optionsDropdownOpen: false,
             dataRows: []
         };
@@ -912,4 +912,23 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
         this.chartLayer.selectAndReveal(rowIndex);
     }
 
+    protected showOptions(): React.ReactNode {
+        return <React.Fragment>
+            <ul>
+                {this.props.pinned === undefined &&
+                    <li className='drop-down-list-item'
+                        onClick={() => this.pinView({ collapsedNodes: this.state.collapsedNodes,
+                                                    collapsedMarkerNodes: this.state.collapsedMarkerNodes })}>
+                        Pin View
+                    </li>}
+                {this.props.pinned === true &&
+                <li className='drop-down-list-item'
+                    onClick={() => this.unPinView({ collapsedNodes: this.state.collapsedNodes,
+                                                    collapsedMarkerNodes: this.state.collapsedMarkerNodes })}>
+                    Unpin View
+                </li>}
+            </ul>
+            {this.state.additionalOptions && this.showAdditionalOptions()}
+        </React.Fragment>;
+    }
 }

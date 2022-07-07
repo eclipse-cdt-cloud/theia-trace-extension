@@ -89,6 +89,8 @@ export class TraceContextComponent extends React.Component<TraceContextProps, Tr
     private readonly SCROLLBAR_PADDING: number = 12;
     private readonly DEFAULT_CHART_OFFSET = 200;
     private readonly MIN_COMPONENT_HEIGHT: number = 2;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    private chartPersistedState: { output: OutputDescriptor, payload?: any} | undefined = undefined;
 
     private unitController: TimeGraphUnitController;
     private historyHandler: UnitControllerHistoryHandler;
@@ -115,8 +117,10 @@ export class TraceContextComponent extends React.Component<TraceContextProps, Tr
     private onBackgroundThemeChange = (theme: string): void => this.doHandleBackgroundThemeChange(theme);
     private onUpdateZoom = (hasZoomedIn: boolean) => this.doHandleUpdateZoomSignal(hasZoomedIn);
     private onResetZoom = () => this.doHandleResetZoomSignal();
-    private onPinView = (output: OutputDescriptor) => this.doHandlePinView(output);
-    private onUnPinView = () => this.doHandleUnPinView();
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    private onPinView = (output: OutputDescriptor, payload?: any) => this.doHandlePinView(output, payload);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    private onUnPinView = (output: OutputDescriptor, payload?: any) => this.doHandleUnPinView(output, payload);
 
     constructor(props: TraceContextProps) {
         super(props);
@@ -546,7 +550,7 @@ export class TraceContextComponent extends React.Component<TraceContextProps, Tr
                     responseType = 'OVERVIEW';
                 }
                 else {
-                    isPinned =  this.state.pinnedView ? (this.state.pinnedView === output) : undefined;
+                    isPinned =  this.state.pinnedView ? (this.state.pinnedView.id === output.id) : undefined;
                     onOutputRemove = this.props.onOutputRemove;
                     responseType = output.type;
                 }
@@ -576,11 +580,19 @@ export class TraceContextComponent extends React.Component<TraceContextProps, Tr
                     case 'OVERVIEW':
                         return <TraceOverviewComponent key={this.OVERVIEW_OUTPUT_GRID_LAYOUT_ID} {...outputProps}></TraceOverviewComponent>;
                     case 'TIME_GRAPH':
+                        if (this.chartPersistedState && this.chartPersistedState.output.id === output.id) {
+                            outputProps.persistChartState = this.chartPersistedState.payload;
+                            this.chartPersistedState = undefined;
+                        }
                         return <TimegraphOutputComponent key={output.id} {...outputProps}
                             addWidgetResizeHandler={this.addWidgetResizeHandler} removeWidgetResizeHandler={this.removeWidgetResizeHandler}
                             className={this.state.pinnedView?.id === output.id ? 'pinned-view-shadow' : ''}
                             />;
                     case 'TREE_TIME_XY':
+                        if (this.chartPersistedState && this.chartPersistedState.output.id === output.id) {
+                            outputProps.persistChartState = this.chartPersistedState.payload;
+                            this.chartPersistedState = undefined;
+                        }
                         return <XYOutputComponent key={output.id} {...outputProps} className={this.state.pinnedView?.id === output.id ? 'pinned-view-shadow' : ''}/>;
                     case 'TABLE':
                         return <TableOutputComponent key={output.id} {...outputProps} className={this.state.pinnedView?.id === output.id ? 'pinned-view-shadow' : ''}/>;
@@ -639,13 +651,17 @@ export class TraceContextComponent extends React.Component<TraceContextProps, Tr
         this.historyHandler.addCurrentState();
     };
 
-    private doHandleUnPinView() {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    private doHandleUnPinView(output: OutputDescriptor, payload?: any) {
+        this.chartPersistedState = { output: output, payload: payload };
         this.setState({
             pinnedView: undefined
         });
     }
 
-    private doHandlePinView(output: OutputDescriptor) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    private doHandlePinView(output: OutputDescriptor, payload?: any) {
+        this.chartPersistedState = { output: output, payload: payload };
         this.setState({
             pinnedView: output
         });

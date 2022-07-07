@@ -41,6 +41,8 @@ export interface AbstractOutputProps {
     onTouchEnd?: VoidFunction;
     setChartOffset?: (chartOffset: number) => void;
     pinned?: boolean
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    persistChartState?: any;
 }
 
 export interface AbstractOutputState {
@@ -120,7 +122,7 @@ export abstract class AbstractOutputComponent<P extends AbstractOutputProps, S e
 
     private closeComponent() {
         if (this.props.pinned) {
-            signalManager().fireUnPinView();
+            signalManager().fireUnPinView(this.props.outputDescriptor);
         }
         this.props.onOutputRemove(this.props.outputDescriptor.id);
     }
@@ -150,7 +152,7 @@ export abstract class AbstractOutputComponent<P extends AbstractOutputProps, S e
 
     abstract resultsAreEmpty(): boolean;
 
-    private showOptions(): React.ReactNode {
+    protected showOptions(): React.ReactNode {
         return <React.Fragment>
             <ul>
                 {this.props.pinned === undefined && <li className='drop-down-list-item' onClick={() => this.pinView()}>Pin View</li>}
@@ -168,12 +170,18 @@ export abstract class AbstractOutputComponent<P extends AbstractOutputProps, S e
         return;
     }
 
-    protected pinView(): void {
-        signalManager().firePinView(this.props.outputDescriptor);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/explicit-module-boundary-types
+    protected pinView(payload?: any): void {
+        signalManager().firePinView(this.props.outputDescriptor, payload);
     }
 
-    protected unPinView(): void {
-        signalManager().fireUnPinView();
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/explicit-module-boundary-types
+    protected unPinView(payload?: any): void {
+        if (payload) {
+            signalManager().fireUnPinView(this.props.outputDescriptor, payload);
+        } else {
+            signalManager().fireUnPinView(this.props.outputDescriptor);
+        }
     }
 
     protected renderAnalysisFailed(): React.ReactFragment {
