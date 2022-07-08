@@ -8,7 +8,7 @@ import { OpenTraceCommand } from '../../trace-viewer/trace-viewer-commands';
 export class TraceExplorerPlaceholderWidget extends ReactWidget {
 
     static ID = 'trace-explorer-placeholder-widget';
-    static LABEL = 'Trace Exploerer Placeholder Widget';
+    static LABEL = 'Trace Explorer Placeholder Widget';
 
     state = {
         loading: false

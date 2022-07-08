@@ -54,12 +54,6 @@ export namespace TraceViewerToolbarCommands {
         iconClass: 'fa fa-info-circle fa-lg',
     };
 
-    export const SERVER_CHECK: Command = {
-        id: 'trace.viewer.serverCheck',
-        label: 'Server health and latency are good. No known issues',
-        iconClass: 'fa fa-check-circle-o fa-lg',
-    };
-
     export const OPEN_OVERVIEW_OUTPUT: Command = {
         id: 'trace.viewer.traceOverview',
         label: 'Show trace overview',

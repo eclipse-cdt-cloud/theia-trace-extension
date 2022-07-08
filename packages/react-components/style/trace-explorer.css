@@ -286,7 +286,19 @@
     justify-content: flex-end !important;
 }
 
-#trace\.viewer\.serverCheck {
-    cursor: default;
-    color: green;
+.server-status-header {
+    background: var(--theia-sideBarSectionHeader-background);
+    line-height: var(--theia-view-container-title-height);
+    z-index: 10;
+    color: var(--theia-sideBarSectionHeader-foreground);
+    margin-bottom: 2px;
+    padding-left: 23px;
+    overflow: hidden;
+}
+
+#server-status-id {
+    float: right;
+    margin-top: 4px;
+    margin-bottom: 2px;
+    margin-right: 3px;
 }
