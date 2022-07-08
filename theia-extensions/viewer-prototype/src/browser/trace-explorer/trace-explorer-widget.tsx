@@ -4,6 +4,7 @@ import { ViewContainer, BaseWidget, Message, PanelLayout } from '@theia/core/lib
 import { TraceExplorerTooltipWidget } from './trace-explorer-sub-widgets/trace-explorer-tooltip-widget';
 import { TraceExplorerOpenedTracesWidget } from './trace-explorer-sub-widgets/theia-trace-explorer-opened-traces-widget';
 import { TraceExplorerPlaceholderWidget } from './trace-explorer-sub-widgets/trace-explorer-placeholder-widget';
+import { TraceExplorerServerStatusWidget } from './trace-explorer-sub-widgets/trace-explorer-server-status-widget';
 import { signalManager, Signals } from 'traceviewer-base/lib/signals/signal-manager';
 import { OpenedTracesUpdatedSignalPayload } from 'traceviewer-base/src/signals/opened-traces-updated-signal-payload';
 import { TraceServerConnectionStatusService } from '../trace-server-status';
@@ -18,6 +19,7 @@ export class TraceExplorerWidget extends BaseWidget {
     @inject(TraceExplorerOpenedTracesWidget) protected readonly openedTracesWidget!: TraceExplorerOpenedTracesWidget;
     @inject(TraceExplorerTooltipWidget) protected readonly tooltipWidget!: TraceExplorerTooltipWidget;
     @inject(TraceExplorerPlaceholderWidget) protected readonly placeholderWidget!: TraceExplorerPlaceholderWidget;
+    @inject(TraceExplorerServerStatusWidget) protected readonly serverStatusWidget!: TraceExplorerServerStatusWidget;
     @inject(ViewContainer.Factory) protected readonly viewContainerFactory!: ViewContainer.Factory;
     @inject(TraceServerConnectionStatusService) protected readonly connectionStatusService: TraceServerConnectionStatusService;
 
@@ -43,6 +45,7 @@ export class TraceExplorerWidget extends BaseWidget {
         child.bind(TraceExplorerViewsWidget).toSelf();
         child.bind(TraceExplorerOpenedTracesWidget).toSelf();
         child.bind(TraceExplorerPlaceholderWidget).toSelf();
+        child.bind(TraceExplorerServerStatusWidget).toSelf();
         child.bind(TraceExplorerTooltipWidget).toSelf();
         child.bind(TraceExplorerWidget).toSelf().inSingletonScope();
         return child;
@@ -63,6 +66,7 @@ export class TraceExplorerWidget extends BaseWidget {
         this.traceViewsContainer.addWidget(this.tooltipWidget);
         this.toDispose.push(this.traceViewsContainer);
         const layout = this.layout = new PanelLayout();
+        layout.addWidget(this.serverStatusWidget);
         layout.addWidget(this.placeholderWidget);
         layout.addWidget(this.traceViewsContainer);
         this.node.tabIndex = 0;

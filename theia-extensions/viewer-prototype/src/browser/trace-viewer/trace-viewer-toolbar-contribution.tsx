@@ -10,7 +10,6 @@ import { TspClientProvider } from '../tsp-client-provider-impl';
 import { TraceViewerWidget } from './trace-viewer';
 import { OpenTraceCommand } from './trace-viewer-commands';
 import { TraceViewerToolbarCommands, TraceViewerToolbarMenus } from './trace-viewer-toolbar-commands';
-import { TraceExplorerWidget } from '../trace-explorer/trace-explorer-widget';
 
 @injectable()
 export class TraceViewerToolbarContribution implements TabBarToolbarContribution, CommandContribution {
@@ -145,17 +144,6 @@ export class TraceViewerToolbarContribution implements TabBarToolbarContribution
             execute: () => {
                 this.chartShortcuts.open();
             }
-        });
-        registry.registerCommand(
-            TraceViewerToolbarCommands.SERVER_CHECK, {
-            isVisible: (w: Widget) => {
-                if (w instanceof TraceExplorerWidget) {
-                    return true;
-                }
-                return false;
-            },
-            // eslint-disable-next-line @typescript-eslint/no-empty-function
-            execute: () => {}
         });
     }
 
@@ -305,12 +293,6 @@ export class TraceViewerToolbarContribution implements TabBarToolbarContribution
             command: TraceViewerToolbarCommands.CHARTS_CHEATSHEET.id,
             tooltip: TraceViewerToolbarCommands.CHARTS_CHEATSHEET.label,
             priority: 10,
-        });
-        registry.registerItem({
-            id: TraceViewerToolbarCommands.SERVER_CHECK.id,
-            command: TraceViewerToolbarCommands.SERVER_CHECK.id,
-            tooltip: TraceViewerToolbarCommands.SERVER_CHECK.label,
-            priority: 11,
         });
     }
 }

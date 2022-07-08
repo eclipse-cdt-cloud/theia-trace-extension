@@ -12,6 +12,7 @@ import { TspClient } from 'tsp-typescript-client/lib/protocol/tsp-client';
 import { TspClientProvider } from '../tsp-client-provider-impl';
 import { ChartShortcutsDialog } from './../trace-explorer/trace-explorer-sub-widgets/trace-explorer-keyboard-shortcuts/charts-cheatsheet-component';
 import { signalManager } from 'traceviewer-base/lib/signals/signal-manager';
+import { TraceServerConnectionStatusService } from '../trace-server-status';
 
 interface TraceViewerWidgetOpenerOptions extends WidgetOpenerOptions {
     traceUUID: string;
@@ -183,6 +184,7 @@ export class TraceViewerContribution extends WidgetOpenHandler<TraceViewerWidget
                     } else {
                         this.messageService.info('Trace server started.');
                     }
+                    TraceServerConnectionStatusService.renderStatus(true);
                     signalManager().fireTraceServerStartedSignal();
                 } catch (error) {
                     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -208,6 +210,7 @@ export class TraceViewerContribution extends WidgetOpenHandler<TraceViewerWidget
                 try {
                     await this.traceServerConfigService.stopTraceServer();
                     this.messageService.info('Trace server terminated successfully.');
+                    TraceServerConnectionStatusService.renderStatus(false);
                 } catch (err) {
                     this.messageService.error('Failed to stop the trace server.');
                 }

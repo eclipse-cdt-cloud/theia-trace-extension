@@ -9,11 +9,7 @@ export class TraceServerConnectionStatusService {
 
     private constructor() {
         this.connectionStatusListener = ((status: boolean) => {
-            if (status) {
-                this.renderSuccess();
-            } else {
-                this.renderFailure();
-            }
+            TraceServerConnectionStatusService.renderStatus(status);
         });
     }
 
@@ -25,19 +21,12 @@ export class TraceServerConnectionStatusService {
         RestClient.removeConnectionStatusListener(this.connectionStatusListener);
     }
 
-    private renderSuccess(): void {
-        if (document.getElementById('trace.viewer.serverCheck')) {
-            document.getElementById('trace.viewer.serverCheck')!.className = 'fa fa-check-circle-o fa-lg';
-            document.getElementById('trace.viewer.serverCheck')!.title = 'Server health and latency are good. No known issues';
-            document.getElementById('trace.viewer.serverCheck')!.style.color = 'green';
-        }
-    }
-
-    private renderFailure(): void {
-        if (document.getElementById('trace.viewer.serverCheck')) {
-            document.getElementById('trace.viewer.serverCheck')!.className = 'fa fa-times-circle-o fa-lg';
-            document.getElementById('trace.viewer.serverCheck')!.title = 'Trace Viewer Critical Error: Trace Server Offline';
-            document.getElementById('trace.viewer.serverCheck')!.style.color = 'red';
+    static renderStatus(status: boolean): void {
+        if (document.getElementById('server-status-id')) {
+            document.getElementById('server-status-id')!.className = status ? 'fa fa-check-circle-o fa-lg' : 'fa fa-times-circle-o fa-lg';
+            document.getElementById('server-status-id')!.title = status ?
+                'Server health and latency are good. No known issues' : 'Trace Viewer Critical Error: Trace Server Offline';
+            document.getElementById('server-status-id')!.style.color = status ? 'green' : 'red';
         }
     }
 }
