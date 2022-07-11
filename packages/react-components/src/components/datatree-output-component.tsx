@@ -35,7 +35,8 @@ export class DataTreeOutputComponent extends AbstractOutputComponent<AbstractOut
             collapsedNodes: [],
             orderedNodes: [],
             columns: [{title: 'Name', sortable: true}],
-            optionsDropdownOpen: false
+            optionsDropdownOpen: false,
+            additionalOptions: true
         };
     }
 
@@ -232,7 +233,9 @@ export class DataTreeOutputComponent extends AbstractOutputComponent<AbstractOut
     protected showAdditionalOptions(): React.ReactNode {
         return <React.Fragment>
             <ul>
-                <li className='drop-down-list-item' key={0} onClick={() => this.exportOutput()}>Export to csv</li>
+                <li className='drop-down-list-item' key={0} onClick={() => this.exportOutput()}>
+                    <div className='drop-down-list-item-text'>Export to csv</div>
+                </li>
             </ul>
         </React.Fragment>;
     }
