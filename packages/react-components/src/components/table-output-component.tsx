@@ -51,6 +51,7 @@ export class TableOutputComponent extends AbstractOutputComponent<TableOutputPro
     private selectEndIndex = -1;
     private filterModel: Map<string, string> = new Map<string, string>();
     private dataSource: IDatasource;
+    private tableSize = 0;
 
     static defaultProps: Partial<TableOutputProps> = {
         cacheBlockSize: 200,
@@ -83,13 +84,13 @@ export class TableOutputComponent extends AbstractOutputComponent<TableOutputPro
                     this.fetchColumns = false;
                     await this.init();
                 }
-                const rowsThisPage = await this.fetchSearchTableLines(params.startRow, params.endRow - params.startRow);
+                const rowsThisPage = await this.fetchTableLines(params.startRow, params.endRow - params.startRow);
                 for (let i = 0; i < rowsThisPage.length; i++) {
                     const item = rowsThisPage[i];
                     const itemCopy = cloneDeep(item);
                     rowsThisPage[i] = itemCopy;
                 }
-                params.successCallback(rowsThisPage, this.props.nbEvents);
+                params.successCallback(rowsThisPage, this.tableSize);
             }
         };
         this.onEventClick = this.onEventClick.bind(this);
@@ -503,7 +504,7 @@ export class TableOutputComponent extends AbstractOutputComponent<TableOutputPro
 
     }
 
-    private async fetchSearchTableLines(fetchIndex: number, linesToFetch: number) {
+    private async fetchTableLines(fetchIndex: number, linesToFetch: number) {
         const traceUUID = this.props.traceId;
         const tspClient = this.props.tspClient;
         const outputId = this.props.outputDescriptor.id;
@@ -514,6 +515,7 @@ export class TableOutputComponent extends AbstractOutputComponent<TableOutputPro
         if (!tspClientResponse.isOk() || !lineResponse) {
             return new Array<any>();
         }
+        this.tableSize = lineResponse.model.size;
         return this.modelToRow(lineResponse.model);
     }
 
