@@ -161,8 +161,12 @@ export abstract class AbstractOutputComponent<P extends AbstractOutputProps, S e
     protected showOptions(): React.ReactNode {
         return <React.Fragment>
             <ul>
-                {this.props.pinned === undefined && <li className='drop-down-list-item' onClick={() => this.pinView()}>Pin View</li>}
-                {this.props.pinned === true && <li className='drop-down-list-item' onClick={() => this.unPinView()}>Unpin View</li>}
+                {this.props.pinned === undefined && <li className='drop-down-list-item' onClick={() => this.pinView()}>
+                    <div className='drop-down-list-item-text'>Pin View</div>
+                </li>}
+                {this.props.pinned === true && <li className='drop-down-list-item' onClick={() => this.unPinView()}>
+                    <div className='drop-down-list-item-text'>Unpin View</div>
+                </li>}
             </ul>
             {this.state.additionalOptions && this.showAdditionalOptions()}
         </React.Fragment>;

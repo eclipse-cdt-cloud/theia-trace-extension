@@ -41,55 +41,6 @@
 .title-bar-label:hover {
     background-color: var(--theia-list-hoverBackground); 
 }
-.remove-component-button:hover {
-    cursor: pointer;
-    background-color: var(--theia-list-hoverBackground); 
-}
-.share-component-container {
-    align-self: start;
-    justify-self: center;
-    position: relative;
-    display: inline-block;
-}
-.share-component-button {
-    background: none;
-    border: none;
-    color: var(--theia-ui-font-color0)
-}
-.share-component-button:hover {
-    cursor: pointer;
-    background-color: var(--theia-list-hoverBackground); 
-}
-.share-component-drop-down {
-    position: absolute;
-    top: 100%;
-    left: 50%;
-    padding: 0;
-    z-index: 2;
-    min-width: 180px;
-    background: var(--theia-menu-background);
-    color: var(--theia-menu-foreground);
-    font-size: var(--theia-ui-font-size1);
-    box-shadow: 0px 1px 6px var(--theia-widget-shadow);
-    border: 1px solid var(--theia-menu-border);
-}
-.share-component-drop-down > ul {
-    list-style-type: none;
-    margin: 0;
-    padding: 0;
-    display: table;
-    width: 100%;
-}
-.drop-down-list-item {
-    padding: 8px 12px;
-    background-color: var(--theia-menu-background);
-    color: var(--theia-menu-foreground);
-}
-.drop-down-list-item:hover {
-    background: var(--theia-menu-selectionBackground);
-    color: var(--theia-menu-selectionForeground);
-    opacity: 1;
-}
 .remove-component-button {
     background: none;
     border: none;
@@ -353,14 +304,16 @@ canvas {
     position: absolute;
     top: 0%;
     left: 100%;
-    padding: 0;
+    padding: 4px 0px;
     z-index: 2;
-    min-width: 180px;
+    min-width: 170px;
     background: var(--theia-menu-background);
     color: var(--theia-menu-foreground);
     font-size: var(--theia-ui-font-size1);
-    box-shadow: 0px 1px 6px var(--theia-widget-shadow);
+    box-shadow: 0px 0px 12px var(--theia-widget-shadow);
     border: 1px solid var(--theia-menu-border);
+    outline: none;
+    user-select: none;
 }
 .options-menu-drop-down > ul {
     list-style-type: none;
@@ -370,14 +323,20 @@ canvas {
     width: 100%;
 }
 .drop-down-list-item {
-    padding: 8px 12px;
-    background-color: var(--theia-menu-background);
-    color: var(--theia-menu-foreground);
+    min-height: var(--theia-private-menu-item-height);
+    max-height: var(--theia-private-menu-item-height);
+    padding: 0px;
+    line-height: var(--theia-private-menu-item-height);
+    display: table-row;
 }
 .drop-down-list-item:hover {
     background: var(--theia-menu-selectionBackground);
     color: var(--theia-menu-selectionForeground);
+    border: thin solid var(--theia-menu-selectionBorder);
     opacity: 1;
+}
+.drop-down-list-item-text {
+    padding-left: 18%;
 }
 .toggle-columns-table {
     height: 150px;
@@ -386,8 +345,8 @@ canvas {
     background: var(--theia-menu-background);
     color: var(--theia-menu-foreground);
     font-size: var(--theia-ui-font-size1);
-    box-shadow: 0px 1px 6px var(--theia-widget-shadow);
-    border: 1px solid var(--theia-tree-inactiveIndentGuidesStroke);
+    box-shadow: 0px 0px 15px var(--theia-widget-shadow);
+    border: 1px solid var(--theia-menu-border);
 }
 
 .react-grid-item:hover {

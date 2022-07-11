@@ -783,7 +783,9 @@ export class TableOutputComponent extends AbstractOutputComponent<TableOutputPro
             <ul>
                 <li className='drop-down-list-item' onClick={() => {
                     this.setState({showToggleColumns: !this.state.showToggleColumns});
-                }}>Toggle Columns</li>
+                }}>
+                    <div className='drop-down-list-item-text'>Toggle Columns</div>
+                </li>
             </ul>
             {this.state.showToggleColumns && <div className='toggle-columns-table'>{this.renderToggleColumnsTable()}</div>}
         </React.Fragment>;
