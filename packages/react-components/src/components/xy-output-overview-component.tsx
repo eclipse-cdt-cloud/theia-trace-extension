@@ -5,6 +5,9 @@ import { drawSelection } from './utils/xy-output-component-utils';
 import { TimeRange } from 'traceviewer-base/src/utils/time-range';
 import { AbstractXYOutputState, MouseButton } from './abstract-xy-output-component';
 import { AbstractXYOutputComponent, FLAG_PAN_LEFT, FLAG_PAN_RIGHT, FLAG_ZOOM_IN, FLAG_ZOOM_OUT, XY_OUTPUT_KEY_ACTIONS } from './abstract-xy-output-component';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faCog } from '@fortawesome/free-solid-svg-icons';
+import { signalManager } from 'traceviewer-base/lib/signals/signal-manager';
 
 const COLOR = {
     SELECTION_RANGE: '#259fd8',
@@ -333,5 +336,15 @@ export class XYOutputOverviewComponent extends AbstractXYOutputComponent<Abstrac
 
     protected getTitleBarTooltip(): string {
         return this.props.outputDescriptor.name + ' overview';
+    }
+
+    protected showOptionsMenu(): React.ReactNode {
+        return <React.Fragment>
+            {<div className='options-menu-container'>
+                <button title="Select overview output source" className='options-menu-button' onClick={()=>{signalManager().fireSelectOverviewOutputSignal();}}>
+                    <FontAwesomeIcon icon={faCog} />
+                </button>
+            </div>}
+        </React.Fragment>;
     }
 }

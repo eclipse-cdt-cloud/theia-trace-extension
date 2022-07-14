@@ -29,6 +29,7 @@ export declare interface SignalManager {
     firePinView(output: OutputDescriptor): void;
     fireUnPinView(): void;
     fireOpenOverviewOutputSignal(): void;
+    fireSelectOverviewOutputSignal(): void;
 }
 
 export const Signals = {
@@ -56,7 +57,8 @@ export const Signals = {
     TRACE_SERVER_STARTED: 'trace server started',
     PIN_VIEW: 'view pinned',
     UNPIN_VIEW: 'view unpinned',
-    OPEN_OVERVIEW_OUTPUT: 'open overview output'
+    OPEN_OVERVIEW_OUTPUT: 'open overview output',
+    SELECT_OVERVIEW_OUTPUT: 'select overview output'
 };
 
 export class SignalManager extends EventEmitter implements SignalManager {
@@ -131,6 +133,9 @@ export class SignalManager extends EventEmitter implements SignalManager {
     }
     fireOpenOverviewOutputSignal(): void {
         this.emit(Signals.OPEN_OVERVIEW_OUTPUT);
+    }
+    fireSelectOverviewOutputSignal(): void {
+        this.emit(Signals.SELECT_OVERVIEW_OUTPUT);
     }
 }
 

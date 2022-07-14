@@ -8,11 +8,6 @@ export class TraceOverviewComponent extends React.Component<AbstractOutputProps>
     }
 
     render(): JSX.Element {
-        if (this.props.outputDescriptor.id === 'org.eclipse.tracecompass.internal.tmf.core.histogram.HistogramDataProvider')
-        {
-            return <XYOutputOverviewComponent {...this.props}></XYOutputOverviewComponent>;
-        }
-
-        return <div>No overview for this view is available</div>;
+        return <XYOutputOverviewComponent key={this.props.outputDescriptor.id} {...this.props}></XYOutputOverviewComponent>;
     }
 }
