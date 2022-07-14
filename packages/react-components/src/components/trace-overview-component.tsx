@@ -1,18 +1,18 @@
 import React from 'react';
+import { Experiment } from 'tsp-typescript-client/lib/models/experiment';
 import { AbstractOutputProps } from './abstract-output-component';
 import { XYOutputOverviewComponent } from './xy-output-overview-component';
 
-export class TraceOverviewComponent extends React.Component<AbstractOutputProps> {
-    constructor(props: AbstractOutputProps){
+type XYoutputOverviewProps = AbstractOutputProps & {
+    experiment: Experiment;
+};
+
+export class TraceOverviewComponent extends React.Component<XYoutputOverviewProps> {
+    constructor(props: XYoutputOverviewProps){
         super(props);
     }
 
     render(): JSX.Element {
-        if (this.props.outputDescriptor.id === 'org.eclipse.tracecompass.internal.tmf.core.histogram.HistogramDataProvider')
-        {
-            return <XYOutputOverviewComponent {...this.props}></XYOutputOverviewComponent>;
-        }
-
-        return <div>No overview for this view is available</div>;
+        return <XYOutputOverviewComponent key={this.props.outputDescriptor.id} {...this.props}></XYOutputOverviewComponent>;
     }
 }

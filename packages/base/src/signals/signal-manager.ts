@@ -31,6 +31,7 @@ export declare interface SignalManager {
     firePinView(output: OutputDescriptor, payload?: any): void;
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     fireUnPinView(output: OutputDescriptor, payload?: any): void;
+    fireOverviewOutputSelectedSignal(payload: { traceId: string, outputDescriptor: OutputDescriptor}): void;
 }
 
 export const Signals = {
@@ -58,7 +59,8 @@ export const Signals = {
     TRACE_SERVER_STARTED: 'trace server started',
     PIN_VIEW: 'view pinned',
     UNPIN_VIEW: 'view unpinned',
-    OPEN_OVERVIEW_OUTPUT: 'open overview output'
+    OPEN_OVERVIEW_OUTPUT: 'open overview output',
+    OVERVIEW_OUTPUT_SELECTED: 'overview output selected'
 };
 
 export class SignalManager extends EventEmitter implements SignalManager {
@@ -135,6 +137,9 @@ export class SignalManager extends EventEmitter implements SignalManager {
     }
     fireOpenOverviewOutputSignal(): void {
         this.emit(Signals.OPEN_OVERVIEW_OUTPUT);
+    }
+    fireOverviewOutputSelectedSignal(payload: { traceId: string, outputDescriptor: OutputDescriptor}): void {
+        this.emit(Signals.OVERVIEW_OUTPUT_SELECTED, payload);
     }
 }
 

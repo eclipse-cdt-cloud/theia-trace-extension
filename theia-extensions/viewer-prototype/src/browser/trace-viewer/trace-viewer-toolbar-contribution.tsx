@@ -8,8 +8,8 @@ import { TraceExplorerOpenedTracesWidget } from '../trace-explorer/trace-explore
 import { ChartShortcutsDialog } from '../trace-explorer/trace-explorer-sub-widgets/trace-explorer-keyboard-shortcuts/charts-cheatsheet-component';
 import { TspClientProvider } from '../tsp-client-provider-impl';
 import { TraceViewerWidget } from './trace-viewer';
-import { OpenTraceCommand } from './trace-viewer-commands';
 import { TraceViewerToolbarCommands, TraceViewerToolbarMenus } from './trace-viewer-toolbar-commands';
+import { OpenTraceCommand } from './trace-viewer-commands';
 
 @injectable()
 export class TraceViewerToolbarContribution implements TabBarToolbarContribution, CommandContribution {

@@ -5,6 +5,10 @@ import { drawSelection } from './utils/xy-output-component-utils';
 import { TimeRange } from 'traceviewer-base/src/utils/time-range';
 import { AbstractXYOutputState, MouseButton } from './abstract-xy-output-component';
 import { AbstractXYOutputComponent, FLAG_PAN_LEFT, FLAG_PAN_RIGHT, FLAG_ZOOM_IN, FLAG_ZOOM_OUT, XY_OUTPUT_KEY_ACTIONS } from './abstract-xy-output-component';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faCog } from '@fortawesome/free-solid-svg-icons';
+import { Experiment } from 'tsp-typescript-client';
+import { TraceOverviewSelectionDialogComponent } from './trace-overview-selection-dialog-component';
 
 const COLOR = {
     SELECTION_RANGE: '#259fd8',
@@ -12,7 +16,12 @@ const COLOR = {
 };
 
 type XYOutputOverviewState = AbstractXYOutputState & {
-    shiftKey: boolean
+    shiftKey: boolean,
+    showModal: boolean
+};
+
+type XYoutputOverviewProps = AbstractOutputProps & {
+    experiment: Experiment;
 };
 
 /**
@@ -20,13 +29,13 @@ type XYOutputOverviewState = AbstractXYOutputState & {
  * It will only be setting these properties.
  */
 
-export class XYOutputOverviewComponent extends AbstractXYOutputComponent<AbstractOutputProps, XYOutputOverviewState> {
+export class XYOutputOverviewComponent extends AbstractXYOutputComponent<XYoutputOverviewProps, XYOutputOverviewState> {
     private initialViewRangeStartPosition = 0;
     private initialViewRangeEndPosition = 0;
     private viewRangeMoveStartOffsetX = 0;
     private keyMapping: Map<string, XY_OUTPUT_KEY_ACTIONS>;
 
-    constructor(props: AbstractOutputProps) {
+    constructor(props: XYoutputOverviewProps) {
         super(props);
         this.state = {
             outputStatus: ResponseStatus.RUNNING,
@@ -41,10 +50,12 @@ export class XYOutputOverviewComponent extends AbstractXYOutputComponent<Abstrac
             allMin: 0,
             cursor: 'default',
             shiftKey: false,
-            optionsDropdownOpen: false
+            optionsDropdownOpen: false,
+            showModal: false
         };
         this.keyMapping = this.getKeyActionMap();
         this.afterChartDraw = this.afterChartDraw.bind(this);
+        this.closeOverviewOutputSelector = this.closeOverviewOutputSelector.bind(this);
     }
 
     renderChart(): React.ReactNode {
@@ -333,5 +344,31 @@ export class XYOutputOverviewComponent extends AbstractXYOutputComponent<Abstrac
 
     protected getTitleBarTooltip(): string {
         return this.props.outputDescriptor.name + ' overview';
+    }
+
+    protected showOptionsMenu(): React.ReactNode {
+        return <React.Fragment>
+            {<div className='options-menu-container'>
+                <button title="Select overview output source" className='options-menu-button'
+                onClick={()=>{this.openOverviewOutputSelector();}}>
+                    <FontAwesomeIcon icon={faCog} />
+                </button>
+                <TraceOverviewSelectionDialogComponent
+                    isOpen={this.state.showModal}
+                    title="Select overview output source"
+                    tspClient={this.props.tspClient}
+                    traceID={this.props.traceId}
+                    onCloseDialog={this.closeOverviewOutputSelector}
+                ></TraceOverviewSelectionDialogComponent>
+            </div>}
+        </React.Fragment>;
+    }
+
+    private closeOverviewOutputSelector(): void {
+        this.setState({showModal: false});
+    }
+
+    private openOverviewOutputSelector() {
+        this.setState({showModal: true});
     }
 }

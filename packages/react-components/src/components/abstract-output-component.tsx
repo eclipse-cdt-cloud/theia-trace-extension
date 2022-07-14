@@ -103,14 +103,7 @@ export abstract class AbstractOutputComponent<P extends AbstractOutputProps, S e
             <button className='remove-component-button' onClick={this.closeComponent}>
                 <FontAwesomeIcon icon={faTimes} />
             </button>
-            {(this.props.pinned !== false || this.state.additionalOptions) && <div className='options-menu-container'>
-                <button title="Show View Options" className='options-menu-button' onClick={this.openOptionsMenu}>
-                    <FontAwesomeIcon icon={faBars} />
-                </button>
-                {this.state.optionsDropdownOpen && <div className="options-menu-drop-down" ref={this.optionsMenuRef}>
-                    {this.showOptions()}
-                </div>}
-            </div>}
+            {this.showOptionsMenu()}
             <div className='title-bar-label' title={outputTooltip} onClick={() => this.setFocus()}>
                 {outputName}
                 <i id={this.getOutputComponentDomId() + 'handleSpinner'} className='fa fa-refresh fa-spin'
@@ -151,6 +144,19 @@ export abstract class AbstractOutputComponent<P extends AbstractOutputProps, S e
     abstract renderMainArea(): React.ReactNode;
 
     abstract resultsAreEmpty(): boolean;
+
+    protected showOptionsMenu(): React.ReactNode {
+        return <React.Fragment>
+            {(this.props.pinned !== false || this.state.additionalOptions) && <div className='options-menu-container'>
+                <button title="Show View Options" className='options-menu-button' onClick={this.openOptionsMenu}>
+                    <FontAwesomeIcon icon={faBars} />
+                </button>
+                {this.state.optionsDropdownOpen && <div className="options-menu-drop-down" ref={this.optionsMenuRef}>
+                    {this.showOptions()}
+                </div>}
+            </div>}
+        </React.Fragment>;
+    }
 
     protected showOptions(): React.ReactNode {
         return <React.Fragment>
