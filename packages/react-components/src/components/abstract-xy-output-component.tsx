@@ -348,7 +348,7 @@ export abstract class AbstractXYOutputComponent<P extends AbstractOutputProps, S
     protected chooseChart(): JSX.Element {
 
         const param: XYChartFactoryParams = {
-            viewRange: this.props.viewRange,
+            viewRange: this.getDisplayedRange(),
             allMax: this.state.allMax,
             allMin: this.state.allMin,
             isScatterPlot: this.isScatterPlot

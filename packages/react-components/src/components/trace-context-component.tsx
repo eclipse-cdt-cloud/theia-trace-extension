@@ -541,16 +541,13 @@ export class TraceContextComponent extends React.Component<TraceContextProps, Tr
         rowHeight={rowHeight}
         draggableHandle={'.title-bar-label'}>
             {outputs.map(output => {
-                let isPinned;
                 let onOutputRemove;
                 let responseType;
                 if (isOverview) {
-                    isPinned = false;
                     onOutputRemove = this.props.onOverviewRemove;
                     responseType = 'OVERVIEW';
                 }
                 else {
-                    isPinned =  this.state.pinnedView ? (this.state.pinnedView.id === output.id) : undefined;
                     onOutputRemove = this.props.onOutputRemove;
                     responseType = output.type;
                 }
@@ -574,11 +571,13 @@ export class TraceContextComponent extends React.Component<TraceContextProps, Tr
                     outputWidth: this.state.style.width,
                     backgroundTheme: this.state.backgroundTheme,
                     setChartOffset: this.setChartOffset,
-                    pinned: isPinned
+                    pinned: this.state.pinnedView ? (this.state.pinnedView === output) : undefined
                 };
                 switch (responseType) {
                     case 'OVERVIEW':
-                        return <TraceOverviewComponent key={this.OVERVIEW_OUTPUT_GRID_LAYOUT_ID} {...outputProps}></TraceOverviewComponent>;
+                        return <TraceOverviewComponent key={this.OVERVIEW_OUTPUT_GRID_LAYOUT_ID}
+                        experiment={this.props.experiment}
+                        {...outputProps}></TraceOverviewComponent>;
                     case 'TIME_GRAPH':
                         if (this.chartPersistedState && this.chartPersistedState.output.id === output.id) {
                             outputProps.persistChartState = this.chartPersistedState.payload;
