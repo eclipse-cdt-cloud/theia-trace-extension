@@ -45,6 +45,12 @@ export class TimeGraphShortcutsTable extends React.Component {
                                     <span className='monaco-keybinding-key'><i className='fa fa-arrow-down' /></span>
                                 </td>
                             </tr>
+                            <tr>
+                                <td>Zoom to selected</td>
+                                <td className='monaco-keybinding shortcuts-table-keybinding'>
+                                    <span className='monaco-keybinding-key'>Z</span>
+                                </td>
+                            </tr>
                         </tbody>
                     </table>
                 </div>
