@@ -434,6 +434,10 @@ export class TraceContextComponent extends React.Component<TraceContextProps, Tr
                 this.zoomButton(false);
                 break;
             }
+            case 'z': {
+                this.zoomToSelected();
+                break;
+            }
         }
     }
 
@@ -455,6 +459,13 @@ export class TraceContextComponent extends React.Component<TraceContextProps, Tr
                     break;
                 }
             }
+        }
+    }
+
+    private zoomToSelected(): void {
+        const newZoom = this.unitController.selectionRange;
+        if (newZoom) {
+            this.unitController.viewRange = newZoom;
         }
     }
 
