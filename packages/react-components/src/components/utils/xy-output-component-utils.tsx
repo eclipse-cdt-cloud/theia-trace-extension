@@ -100,7 +100,7 @@ function getDefaultChartOptions(params: XYChartFactoryParams): Chart.ChartOption
                 display: false,
                 stacked: false,
                 ticks: {
-                    max: params.allMax,
+                    max: params.allMax > 0 ? params.allMax : 100,
                     min: params.allMin
                 }
             }]
