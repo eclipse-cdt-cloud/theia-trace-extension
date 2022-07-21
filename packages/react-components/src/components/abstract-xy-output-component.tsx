@@ -218,7 +218,8 @@ export abstract class AbstractXYOutputComponent<P extends AbstractOutputProps, S
         const viewRangeChanged = this.props.viewRange !== prevProps.viewRange;
         const checkedSeriesChanged = this.state.checkedSeries !== prevState.checkedSeries;
         const collapsedNodesChanged = this.state.collapsedNodes !== prevState.collapsedNodes;
-        const chartWidthChanged = this.props.style.width !== prevProps.style.width || this.props.style.chartOffset !== prevProps.style.chartOffset;
+        const chartWidthChanged = this.props.style.width !== prevProps.style.width || this.props.style.chartOffset !== prevProps.style.chartOffset
+                                || this.props.style.componentLeft !== prevProps.style.componentLeft;
         const outputStatusChanged = this.state.outputStatus !== prevState.outputStatus;
         const needToUpdate = viewRangeChanged || checkedSeriesChanged || collapsedNodesChanged || chartWidthChanged || outputStatusChanged;
 
