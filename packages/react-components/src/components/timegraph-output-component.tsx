@@ -285,12 +285,9 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
     }
 
     private doHandleSelectionChangedSignal(payload: { [key: string]: string }) {
-        const offset = this.props.viewRange.getOffset() || BigInt(0);
         const startTimestamp = payload['startTimestamp'];
         const endTimestamp = payload['endTimestamp'];
         if (startTimestamp !== undefined && endTimestamp !== undefined) {
-            const selectionRangeStart = BigInt(startTimestamp) - offset;
-            const selectionRangeEnd = BigInt(endTimestamp) - offset;
             const foundElement = this.findElement(payload);
 
             // Scroll vertically
@@ -302,12 +299,6 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
                     this.pendingSelection = foundElement;
                 }
             }
-
-            // Scroll horizontally
-            this.props.unitController.selectionRange = {
-                start: selectionRangeStart,
-                end: selectionRangeEnd
-            };
             this.chartCursors.maybeCenterCursor();
         }
     }
