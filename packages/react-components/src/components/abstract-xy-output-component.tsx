@@ -17,7 +17,6 @@ import { BIMath } from 'timeline-chart/lib/bigint-utils';
 import { XYChartFactoryParams, xyChartFactory, GetClosestPointParam, getClosestPointForScatterPlot } from './utils/xy-output-component-utils';
 import { ChartOptions } from 'chart.js';
 import { Line, Scatter } from 'react-chartjs-2';
-import { signalManager, Signals } from 'traceviewer-base/lib/signals/signal-manager';
 import { getAllExpandedNodeIds } from './utils/filter-tree/utils';
 import { throttle } from 'lodash';
 
@@ -98,8 +97,6 @@ export abstract class AbstractXYOutputComponent<P extends AbstractOutputProps, S
     protected positionXMove = 0;
     protected startPositionMouseRightClick = BigInt(0);
 
-    // Event handlers
-    protected onSelectionChanged = (payload: { [key: string]: string; }) => this.doHandleSelectionChangedSignal(payload);
     protected endSelection = (event: MouseEvent): void => {
         if (this.clickedMouseButton === MouseButton.RIGHT) {
            this.applySelectionZoom();
@@ -136,7 +133,6 @@ export abstract class AbstractXYOutputComponent<P extends AbstractOutputProps, S
         this.divRef = React.createRef();
         this.chartRef = React.createRef();
 
-        signalManager().on(Signals.SELECTION_CHANGED, this.onSelectionChanged);
         this.afterChartDraw = this.afterChartDraw.bind(this);
     }
 
@@ -184,20 +180,6 @@ export abstract class AbstractXYOutputComponent<P extends AbstractOutputProps, S
             }
         });
         this.setState({checkedSeries: newList});
-    }
-
-    private doHandleSelectionChangedSignal(payload: { [key: string]: string }) {
-        const offset = this.props.viewRange.getOffset() || BigInt(0);
-        const startTimestamp = payload['startTimestamp'];
-        const endTimestamp = payload['endTimestamp'];
-        if (startTimestamp !== undefined && endTimestamp !== undefined) {
-            const selectionRangeStart = BigInt(startTimestamp) - offset;
-            const selectionRangeEnd = BigInt(endTimestamp) - offset;
-            this.props.unitController.selectionRange = {
-                start: selectionRangeStart,
-                end: selectionRangeEnd
-            };
-        }
     }
 
     private updateRange(rangeStart: bigint, rangeEnd: bigint): void {
@@ -264,7 +246,6 @@ export abstract class AbstractXYOutputComponent<P extends AbstractOutputProps, S
 
     componentWillUnmount(): void {
         super.componentWillUnmount();
-        signalManager().off(Signals.SELECTION_CHANGED, this.onSelectionChanged);
     }
 
     async fetchTree(): Promise<ResponseStatus> {

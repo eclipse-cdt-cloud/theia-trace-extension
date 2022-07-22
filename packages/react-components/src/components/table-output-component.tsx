@@ -427,7 +427,22 @@ export class TableOutputComponent extends AbstractOutputComponent<TableOutputPro
             const payload = { startTimestamp, endTimestamp, load };
             this.prevStartTimestamp = BigInt(startTimestamp);
             this.eventSignal = true;
+            this.handleSelectionRangeUpdate(payload);
             signalManager().fireSelectionChangedSignal(payload);
+        }
+    }
+
+    private handleSelectionRangeUpdate(payload: { [key: string]: string; }) {
+        const offset = this.props.viewRange.getOffset() || BigInt(0);
+        const startTimestamp = payload['startTimestamp'];
+        const endTimestamp = payload['endTimestamp'];
+        if (startTimestamp !== undefined && endTimestamp !== undefined) {
+            const selectionRangeStart = BigInt(startTimestamp) - offset;
+            const selectionRangeEnd = BigInt(endTimestamp) - offset;
+            this.props.unitController.selectionRange = {
+                start: selectionRangeStart,
+                end: selectionRangeEnd
+            };
         }
     }
 
