@@ -2,7 +2,10 @@
 
 exports[`Checked status 1`] = `
 <tr>
-  <td>
+  <td
+    className=""
+    onClick={[Function]}
+  >
     <span>
       <div
         style={
@@ -51,7 +54,10 @@ exports[`Checked status 1`] = `
 
 exports[`Checked status 2`] = `
 <tr>
-  <td>
+  <td
+    className=""
+    onClick={[Function]}
+  >
     <span>
       <div
         style={
@@ -100,7 +106,10 @@ exports[`Checked status 2`] = `
 
 exports[`Checked status 3`] = `
 <tr>
-  <td>
+  <td
+    className=""
+    onClick={[Function]}
+  >
     <span>
       <div
         style={
@@ -149,7 +158,10 @@ exports[`Checked status 3`] = `
 
 exports[`Levels 1`] = `
 <tr>
-  <td>
+  <td
+    className=""
+    onClick={[Function]}
+  >
     <span>
       <div
         style={
@@ -198,7 +210,10 @@ exports[`Levels 1`] = `
 
 exports[`Levels 2`] = `
 <tr>
-  <td>
+  <td
+    className=""
+    onClick={[Function]}
+  >
     <span>
       <div
         style={
@@ -248,7 +263,10 @@ exports[`Levels 2`] = `
 exports[`Multiple labels With children and labels 1`] = `
 Array [
   <tr>
-    <td>
+    <td
+      className=""
+      onClick={[Function]}
+    >
       <span>
         <div
           onClick={[Function]}
@@ -309,7 +327,10 @@ Array [
         parent 1 text
       </span>
     </td>
-    <td>
+    <td
+      className=""
+      onClick={[Function]}
+    >
       <span>
         parent 2 text
       </span>
@@ -319,7 +340,10 @@ Array [
     />
   </tr>,
   <tr>
-    <td>
+    <td
+      className=""
+      onClick={[Function]}
+    >
       <span>
         <div
           style={
@@ -360,7 +384,10 @@ Array [
         child1
       </span>
     </td>
-    <td>
+    <td
+      className=""
+      onClick={[Function]}
+    >
       <span>
         child 1 text
       </span>
@@ -370,7 +397,10 @@ Array [
     />
   </tr>,
   <tr>
-    <td>
+    <td
+      className=""
+      onClick={[Function]}
+    >
       <span>
         <div
           style={
@@ -411,7 +441,10 @@ Array [
         child2
       </span>
     </td>
-    <td>
+    <td
+      className=""
+      onClick={[Function]}
+    >
       <span>
         child 2 text
       </span>
@@ -425,7 +458,10 @@ Array [
 
 exports[`Uncheckable 1`] = `
 <tr>
-  <td>
+  <td
+    className=""
+    onClick={[Function]}
+  >
     <span>
       <div
         style={
@@ -448,7 +484,10 @@ exports[`Uncheckable 1`] = `
 exports[`with children With children 1`] = `
 Array [
   <tr>
-    <td>
+    <td
+      className=""
+      onClick={[Function]}
+    >
       <span>
         <div
           onClick={[Function]}
@@ -514,7 +553,10 @@ Array [
     />
   </tr>,
   <tr>
-    <td>
+    <td
+      className=""
+      onClick={[Function]}
+    >
       <span>
         <div
           style={
@@ -560,7 +602,10 @@ Array [
     />
   </tr>,
   <tr>
-    <td>
+    <td
+      className=""
+      onClick={[Function]}
+    >
       <span>
         <div
           style={
@@ -610,7 +655,10 @@ Array [
 
 exports[`with children With children collapsed 1`] = `
 <tr>
-  <td>
+  <td
+    className=""
+    onClick={[Function]}
+  >
     <span>
       <div
         onClick={[Function]}

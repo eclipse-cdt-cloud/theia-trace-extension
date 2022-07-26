@@ -1,9 +1,11 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
+
 exports[`Empty tree 1`] = `
 <span>
   
 </span>
 `;
+
 exports[`Entry with children All unchecked 1`] = `
 <div>
   <table
@@ -58,7 +60,10 @@ exports[`Entry with children All unchecked 1`] = `
     </thead>
     <tbody>
       <tr>
-        <td>
+        <td
+          className=""
+          onClick={[Function]}
+        >
           <span>
             <div
               onClick={[Function]}
@@ -119,7 +124,10 @@ exports[`Entry with children All unchecked 1`] = `
             parent
           </span>
         </td>
-        <td>
+        <td
+          className=""
+          onClick={[Function]}
+        >
           <span>
             parent second column
           </span>
@@ -129,7 +137,10 @@ exports[`Entry with children All unchecked 1`] = `
         />
       </tr>
       <tr>
-        <td>
+        <td
+          className=""
+          onClick={[Function]}
+        >
           <span>
             <div
               style={
@@ -170,7 +181,10 @@ exports[`Entry with children All unchecked 1`] = `
             child1
           </span>
         </td>
-        <td>
+        <td
+          className=""
+          onClick={[Function]}
+        >
           <span>
             child1 second column
           </span>
@@ -180,7 +194,10 @@ exports[`Entry with children All unchecked 1`] = `
         />
       </tr>
       <tr>
-        <td>
+        <td
+          className=""
+          onClick={[Function]}
+        >
           <span>
             <div
               onClick={[Function]}
@@ -241,7 +258,10 @@ exports[`Entry with children All unchecked 1`] = `
             child2
           </span>
         </td>
-        <td>
+        <td
+          className=""
+          onClick={[Function]}
+        >
           <span>
             child2 second column
           </span>
@@ -251,7 +271,10 @@ exports[`Entry with children All unchecked 1`] = `
         />
       </tr>
       <tr>
-        <td>
+        <td
+          className=""
+          onClick={[Function]}
+        >
           <span>
             <div
               style={
@@ -292,7 +315,10 @@ exports[`Entry with children All unchecked 1`] = `
             grandchild1
           </span>
         </td>
-        <td>
+        <td
+          className=""
+          onClick={[Function]}
+        >
           <span>
             grandchild1 second column
           </span>
@@ -302,7 +328,10 @@ exports[`Entry with children All unchecked 1`] = `
         />
       </tr>
       <tr>
-        <td>
+        <td
+          className=""
+          onClick={[Function]}
+        >
           <span>
             <div
               style={
@@ -343,7 +372,10 @@ exports[`Entry with children All unchecked 1`] = `
             grandchild2
           </span>
         </td>
-        <td>
+        <td
+          className=""
+          onClick={[Function]}
+        >
           <span>
             grandchild2 second column
           </span>
@@ -356,6 +388,7 @@ exports[`Entry with children All unchecked 1`] = `
   </table>
 </div>
 `;
+
 exports[`Entry with children Check one grandchild 1`] = `
 <div>
   <table
@@ -410,7 +443,10 @@ exports[`Entry with children Check one grandchild 1`] = `
     </thead>
     <tbody>
       <tr>
-        <td>
+        <td
+          className=""
+          onClick={[Function]}
+        >
           <span>
             <div
               onClick={[Function]}
@@ -471,7 +507,10 @@ exports[`Entry with children Check one grandchild 1`] = `
             parent
           </span>
         </td>
-        <td>
+        <td
+          className=""
+          onClick={[Function]}
+        >
           <span>
             parent second column
           </span>
@@ -481,7 +520,10 @@ exports[`Entry with children Check one grandchild 1`] = `
         />
       </tr>
       <tr>
-        <td>
+        <td
+          className=""
+          onClick={[Function]}
+        >
           <span>
             <div
               style={
@@ -522,7 +564,10 @@ exports[`Entry with children Check one grandchild 1`] = `
             child1
           </span>
         </td>
-        <td>
+        <td
+          className=""
+          onClick={[Function]}
+        >
           <span>
             child1 second column
           </span>
@@ -532,7 +577,10 @@ exports[`Entry with children Check one grandchild 1`] = `
         />
       </tr>
       <tr>
-        <td>
+        <td
+          className=""
+          onClick={[Function]}
+        >
           <span>
             <div
               onClick={[Function]}
@@ -593,7 +641,10 @@ exports[`Entry with children Check one grandchild 1`] = `
             child2
           </span>
         </td>
-        <td>
+        <td
+          className=""
+          onClick={[Function]}
+        >
           <span>
             child2 second column
           </span>
@@ -603,7 +654,10 @@ exports[`Entry with children Check one grandchild 1`] = `
         />
       </tr>
       <tr>
-        <td>
+        <td
+          className=""
+          onClick={[Function]}
+        >
           <span>
             <div
               style={
@@ -644,7 +698,10 @@ exports[`Entry with children Check one grandchild 1`] = `
             grandchild1
           </span>
         </td>
-        <td>
+        <td
+          className=""
+          onClick={[Function]}
+        >
           <span>
             grandchild1 second column
           </span>
@@ -654,7 +711,10 @@ exports[`Entry with children Check one grandchild 1`] = `
         />
       </tr>
       <tr>
-        <td>
+        <td
+          className=""
+          onClick={[Function]}
+        >
           <span>
             <div
               style={
@@ -695,7 +755,10 @@ exports[`Entry with children Check one grandchild 1`] = `
             grandchild2
           </span>
         </td>
-        <td>
+        <td
+          className=""
+          onClick={[Function]}
+        >
           <span>
             grandchild2 second column
           </span>
@@ -708,6 +771,7 @@ exports[`Entry with children Check one grandchild 1`] = `
   </table>
 </div>
 `;
+
 exports[`Entry with children Collapse one child 1`] = `
 <div>
   <table
@@ -762,7 +826,10 @@ exports[`Entry with children Collapse one child 1`] = `
     </thead>
     <tbody>
       <tr>
-        <td>
+        <td
+          className=""
+          onClick={[Function]}
+        >
           <span>
             <div
               onClick={[Function]}
@@ -823,7 +890,10 @@ exports[`Entry with children Collapse one child 1`] = `
             parent
           </span>
         </td>
-        <td>
+        <td
+          className=""
+          onClick={[Function]}
+        >
           <span>
             parent second column
           </span>
@@ -833,7 +903,10 @@ exports[`Entry with children Collapse one child 1`] = `
         />
       </tr>
       <tr>
-        <td>
+        <td
+          className=""
+          onClick={[Function]}
+        >
           <span>
             <div
               style={
@@ -874,7 +947,10 @@ exports[`Entry with children Collapse one child 1`] = `
             child1
           </span>
         </td>
-        <td>
+        <td
+          className=""
+          onClick={[Function]}
+        >
           <span>
             child1 second column
           </span>
@@ -884,7 +960,10 @@ exports[`Entry with children Collapse one child 1`] = `
         />
       </tr>
       <tr>
-        <td>
+        <td
+          className=""
+          onClick={[Function]}
+        >
           <span>
             <div
               onClick={[Function]}
@@ -945,7 +1024,10 @@ exports[`Entry with children Collapse one child 1`] = `
             child2
           </span>
         </td>
-        <td>
+        <td
+          className=""
+          onClick={[Function]}
+        >
           <span>
             child2 second column
           </span>
@@ -958,6 +1040,7 @@ exports[`Entry with children Collapse one child 1`] = `
   </table>
 </div>
 `;
+
 exports[`Entry with children With filter element 1`] = `
 Array [
   <div
@@ -1032,7 +1115,10 @@ Array [
       </thead>
       <tbody>
         <tr>
-          <td>
+          <td
+            className=""
+            onClick={[Function]}
+          >
             <span>
               <div
                 onClick={[Function]}
@@ -1093,7 +1179,10 @@ Array [
               parent
             </span>
           </td>
-          <td>
+          <td
+            className=""
+            onClick={[Function]}
+          >
             <span>
               parent second column
             </span>
@@ -1103,7 +1192,10 @@ Array [
           />
         </tr>
         <tr>
-          <td>
+          <td
+            className=""
+            onClick={[Function]}
+          >
             <span>
               <div
                 style={
@@ -1144,7 +1236,10 @@ Array [
               child1
             </span>
           </td>
-          <td>
+          <td
+            className=""
+            onClick={[Function]}
+          >
             <span>
               child1 second column
             </span>
@@ -1154,7 +1249,10 @@ Array [
           />
         </tr>
         <tr>
-          <td>
+          <td
+            className=""
+            onClick={[Function]}
+          >
             <span>
               <div
                 onClick={[Function]}
@@ -1215,7 +1313,10 @@ Array [
               child2
             </span>
           </td>
-          <td>
+          <td
+            className=""
+            onClick={[Function]}
+          >
             <span>
               child2 second column
             </span>
@@ -1225,7 +1326,10 @@ Array [
           />
         </tr>
         <tr>
-          <td>
+          <td
+            className=""
+            onClick={[Function]}
+          >
             <span>
               <div
                 style={
@@ -1266,7 +1370,10 @@ Array [
               grandchild1
             </span>
           </td>
-          <td>
+          <td
+            className=""
+            onClick={[Function]}
+          >
             <span>
               grandchild1 second column
             </span>
@@ -1276,7 +1383,10 @@ Array [
           />
         </tr>
         <tr>
-          <td>
+          <td
+            className=""
+            onClick={[Function]}
+          >
             <span>
               <div
                 style={
@@ -1317,7 +1427,10 @@ Array [
               grandchild2
             </span>
           </td>
-          <td>
+          <td
+            className=""
+            onClick={[Function]}
+          >
             <span>
               grandchild2 second column
             </span>
@@ -1331,6 +1444,7 @@ Array [
   </div>,
 ]
 `;
+
 exports[`one level of entries 1`] = `
 <div>
   <table
@@ -1385,7 +1499,10 @@ exports[`one level of entries 1`] = `
     </thead>
     <tbody>
       <tr>
-        <td>
+        <td
+          className=""
+          onClick={[Function]}
+        >
           <span>
             <div
               style={
@@ -1399,7 +1516,10 @@ exports[`one level of entries 1`] = `
             entry1
           </span>
         </td>
-        <td>
+        <td
+          className=""
+          onClick={[Function]}
+        >
           <span>
             
           </span>
@@ -1409,7 +1529,10 @@ exports[`one level of entries 1`] = `
         />
       </tr>
       <tr>
-        <td>
+        <td
+          className=""
+          onClick={[Function]}
+        >
           <span>
             <div
               style={
@@ -1423,7 +1546,10 @@ exports[`one level of entries 1`] = `
             entry2
           </span>
         </td>
-        <td>
+        <td
+          className=""
+          onClick={[Function]}
+        >
           <span>
             entry2 column2
           </span>
@@ -1436,6 +1562,7 @@ exports[`one level of entries 1`] = `
   </table>
 </div>
 `;
+
 exports[`one level of entries 2`] = `
 <div>
   <table
@@ -1490,7 +1617,10 @@ exports[`one level of entries 2`] = `
     </thead>
     <tbody>
       <tr>
-        <td>
+        <td
+          className=""
+          onClick={[Function]}
+        >
           <span>
             <div
               style={
@@ -1531,7 +1661,10 @@ exports[`one level of entries 2`] = `
             entry1
           </span>
         </td>
-        <td>
+        <td
+          className=""
+          onClick={[Function]}
+        >
           <span>
             
           </span>
@@ -1541,7 +1674,10 @@ exports[`one level of entries 2`] = `
         />
       </tr>
       <tr>
-        <td>
+        <td
+          className=""
+          onClick={[Function]}
+        >
           <span>
             <div
               style={
@@ -1582,7 +1718,10 @@ exports[`one level of entries 2`] = `
             entry2
           </span>
         </td>
-        <td>
+        <td
+          className=""
+          onClick={[Function]}
+        >
           <span>
             entry2 column2
           </span>
@@ -1595,6 +1734,7 @@ exports[`one level of entries 2`] = `
   </table>
 </div>
 `;
+
 exports[`one level of entries 3`] = `
 <div>
   <table
@@ -1607,7 +1747,10 @@ exports[`one level of entries 3`] = `
   >
     <tbody>
       <tr>
-        <td>
+        <td
+          className=""
+          onClick={[Function]}
+        >
           <span>
             <div
               style={
@@ -1648,7 +1791,10 @@ exports[`one level of entries 3`] = `
             entry1
           </span>
         </td>
-        <td>
+        <td
+          className=""
+          onClick={[Function]}
+        >
           <span>
             
           </span>
@@ -1658,7 +1804,10 @@ exports[`one level of entries 3`] = `
         />
       </tr>
       <tr>
-        <td>
+        <td
+          className=""
+          onClick={[Function]}
+        >
           <span>
             <div
               style={
@@ -1699,7 +1848,10 @@ exports[`one level of entries 3`] = `
             entry2
           </span>
         </td>
-        <td>
+        <td
+          className=""
+          onClick={[Function]}
+        >
           <span>
             entry2 column2
           </span>
