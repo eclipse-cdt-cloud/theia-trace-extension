@@ -194,11 +194,17 @@ export class TraceViewerToolbarContribution implements TabBarToolbarContribution
                 <div id="trace.viewer.toolbar.filter" className="fa fa-filter" title="Markers filter" onClick={async (event: React.MouseEvent) => {
                     const toDisposeOnHide = new DisposableCollection();
                     const menuPath = TraceViewerToolbarMenus.MARKER_CATEGORIES_MENU;
-                    let index = 0;
+                    let index = 1;
                     const traceViewerWidget = widget as TraceViewerWidget;
                     const markerCategories = traceViewerWidget.getMarkerCategories();
+                    let selectAll = true;
                     markerCategories.forEach((categoryInfo, categoryName) => {
                         const toggleInd = categoryInfo.toggleInd;
+
+                        if (!toggleInd) {
+                            selectAll = false;
+                        }
+
                         index += 1;
                         toDisposeOnHide.push(this.menus.registerMenuAction(menuPath, {
                             label: categoryName,
@@ -215,6 +221,22 @@ export class TraceViewerToolbarContribution implements TabBarToolbarContribution
                             isToggled: () => toggleInd,
                         }));
                     });
+
+                    toDisposeOnHide.push(this.menus.registerMenuAction(menuPath, {
+                        label: 'Select all',
+                        commandId: 'Select all' + index.toString(),
+                        order: '0',
+                    }));
+                    toDisposeOnHide.push(this.commands.registerCommand({
+                        id: 'Select all' + index.toString(),
+                        label: 'Select all'
+                    }, {
+                        execute: () => {
+                            traceViewerWidget.updateAllMarkerCategoryState(!selectAll);
+                            return;
+                        },
+                        isToggled: () => selectAll,
+                    }));
 
                     return this.contextMenuRenderer.render({
                         menuPath,

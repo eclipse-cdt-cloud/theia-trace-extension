@@ -499,7 +499,7 @@ export class TraceViewerWidget extends ReactWidget implements StatefulWidget {
         return this.toolbarMarkerCategoriesMap;
     }
 
-    updateMarkerCategoryState(categoryName: string): void {
+    updateMarkerCategoryState(categoryName: string, skipUpdate?: boolean): void {
         const toggledmarkerCategory = this.toolbarMarkerCategoriesMap.get(categoryName);
         if (toggledmarkerCategory) {
             const categoryCount = toggledmarkerCategory?.categoryCount;
@@ -512,6 +512,19 @@ export class TraceViewerWidget extends ReactWidget implements StatefulWidget {
                 });
                 this.selectedMarkerCategoriesMap.set(outputId, selectedMarkerCategories);
             });
+        }
+        if (!skipUpdate) {
+            this.update();
+        }
+    }
+
+    updateAllMarkerCategoryState(selectAll: boolean): void {
+        const markerCategories = this.getMarkerCategories();
+        for (const [key, value] of markerCategories) {
+            if (value.toggleInd === selectAll) {
+                continue;
+            }
+            this.updateMarkerCategoryState(key, true);
         }
         this.update();
     }
