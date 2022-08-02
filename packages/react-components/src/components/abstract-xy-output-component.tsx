@@ -85,6 +85,7 @@ export abstract class AbstractXYOutputComponent<P extends AbstractOutputProps, S
     private preventDefaultHandler: ((event: WheelEvent) => void) | undefined;
     protected posPixelSelect = 0;
     protected positionYMove = 0;
+    protected isHistogram: boolean = this.props.outputDescriptor.id.includes('histogram');
 
     // Event flags
     protected isMouseLeave = false;
@@ -263,11 +264,21 @@ export abstract class AbstractXYOutputComponent<P extends AbstractOutputProps, S
                 } else {
                     columns.push({title: 'Name', sortable: true});
                 }
-                this.setState({
-                    outputStatus: treeResponse.status,
-                    xyTree: treeResponse.model.entries,
-                    columns
-                });
+                if (this.isHistogram) {
+                    const checkedSeries = this.getAllCheckedIds(treeResponse.model.entries);
+                    this.setState({
+                        outputStatus: treeResponse.status,
+                        xyTree: treeResponse.model.entries,
+                        checkedSeries: checkedSeries,
+                        columns
+                    });
+                } else {
+                    this.setState({
+                        outputStatus: treeResponse.status,
+                        xyTree: treeResponse.model.entries,
+                        columns
+                    });
+                }
             } else {
                 this.setState({
                     outputStatus: treeResponse.status
@@ -279,6 +290,14 @@ export abstract class AbstractXYOutputComponent<P extends AbstractOutputProps, S
             outputStatus: ResponseStatus.FAILED
         });
         return ResponseStatus.FAILED;
+    }
+
+    getAllCheckedIds(entries: Array<Entry>): Array<number> {
+        const checkedSeries: number[] = [];
+        for (const entry of entries) {
+            checkedSeries.push(entry.id);
+        }
+        return checkedSeries;
     }
 
     renderTree(): React.ReactNode | undefined {
