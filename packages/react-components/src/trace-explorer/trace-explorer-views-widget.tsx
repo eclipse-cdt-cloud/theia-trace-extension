@@ -1,11 +1,11 @@
 import * as React from 'react';
-import { List, ListRowProps, AutoSizer } from 'react-virtualized';
 import { OutputAddedSignalPayload } from 'traceviewer-base/lib/signals/output-added-signal-payload';
 import { signalManager, Signals } from 'traceviewer-base/lib/signals/signal-manager';
 import { OutputDescriptor } from 'tsp-typescript-client/lib/models/output-descriptor';
 import { Experiment } from 'tsp-typescript-client/lib/models/experiment';
 import { ITspClientProvider } from 'traceviewer-base/lib/tsp-client-provider';
 import { ExperimentManager } from 'traceviewer-base/lib/experiment-manager';
+import { AvailableViewsComponent } from '../components/utils/available-views-component';
 
 export interface ReactAvailableViewsProps {
     id: string,
@@ -15,16 +15,10 @@ export interface ReactAvailableViewsProps {
 }
 
 export interface ReactAvailableViewsState {
-    availableOutputDescriptors: OutputDescriptor[],
-    lastSelectedOutputIndex: number;
+    availableOutputDescriptors: OutputDescriptor[]
 }
 
 export class ReactAvailableViewsWidget extends React.Component<ReactAvailableViewsProps, ReactAvailableViewsState> {
-    static LIST_MARGIN = 2;
-    static LINE_HEIGHT = 16;
-    static ROW_HEIGHT = (2 * ReactAvailableViewsWidget.LINE_HEIGHT) + ReactAvailableViewsWidget.LIST_MARGIN;
-
-    private _forceUpdateKey = false;
     private _selectedExperiment: Experiment | undefined;
     private _experimentManager: ExperimentManager;
 
@@ -39,7 +33,7 @@ export class ReactAvailableViewsWidget extends React.Component<ReactAvailableVie
         });
         signalManager().on(Signals.EXPERIMENT_SELECTED, this._onExperimentSelected);
         signalManager().on(Signals.EXPERIMENT_CLOSED, this._onExperimentClosed);
-        this.state = { availableOutputDescriptors: [], lastSelectedOutputIndex: -1 };
+        this.state = { availableOutputDescriptors: []};
     }
 
     componentWillUnmount(): void {
@@ -48,85 +42,25 @@ export class ReactAvailableViewsWidget extends React.Component<ReactAvailableVie
     }
 
     render(): React.ReactNode {
-        this._forceUpdateKey = !this._forceUpdateKey;
-        const key = Number(this._forceUpdateKey);
-        let outputsRowCount = 0;
-        const outputs = this.state.availableOutputDescriptors;
-        if (outputs) {
-            outputsRowCount = outputs.length;
-        }
-        const totalHeight = this.getTotalHeight();
         return (
             <div className='trace-explorer-views'>
-                <div className='trace-explorer-panel-content disable-select'>
-                    <AutoSizer>
-                        {({ width }) =>
-                            <List
-                                key={key}
-                                height={totalHeight}
-                                width={width}
-                                rowCount={outputsRowCount}
-                                rowHeight={ReactAvailableViewsWidget.ROW_HEIGHT}
-                                rowRenderer={this.renderRowOutputs}
-                            />
-                        }
-                    </AutoSizer>
-                </div>
+                <AvailableViewsComponent
+                    traceID={this._selectedExperiment?.UUID}
+                    outputDescriptors={this.state.availableOutputDescriptors}
+                    onContextMenuEvent={this.handleContextMenuEvent}
+                    onOutputClicked={this.handleOutputClicked}
+                    highlightAfterSelection={true}
+                ></AvailableViewsComponent>
             </div>
         );
     }
 
-    protected renderRowOutputs = (props: ListRowProps): React.ReactNode => this.doRenderRowOutputs(props);
-
-    private doRenderRowOutputs(props: ListRowProps): React.ReactNode {
-        let outputName = '';
-        let outputDescription = '';
-        let output: OutputDescriptor | undefined;
-        const outputDescriptors = this.state.availableOutputDescriptors;
-        if (outputDescriptors && outputDescriptors.length && props.index < outputDescriptors.length) {
-            output = outputDescriptors[props.index];
-            outputName = output.name;
-            outputDescription = output.description;
-        }
-        let traceContainerClassName = 'outputs-list-container';
-        if (props.index === this.state.lastSelectedOutputIndex) {
-            traceContainerClassName = traceContainerClassName + ' theia-mod-selected';
-        }
-        return <div className={traceContainerClassName}
-            title={outputName + ':\n' + outputDescription}
-            id={`${traceContainerClassName}-${props.index}`}
-            key={props.key}
-            style={props.style}
-            onClick={this.handleOutputClicked}
-            onContextMenu={event => { this.handleContextMenuEvent(event, output); }}
-            data-id={`${props.index}`}
-        >
-            <h4 className='outputs-element-name'>
-                {outputName}
-            </h4>
-            <div className='outputs-element-description child-element'>
-                {outputDescription}
-            </div>
-        </div>;
-    }
-
-    protected getTotalHeight(): number {
-        let totalHeight = 0;
-        const outputDescriptors = this.state.availableOutputDescriptors;
-        outputDescriptors?.forEach(() => totalHeight += ReactAvailableViewsWidget.ROW_HEIGHT);
-        return totalHeight;
-    }
-
-    protected handleOutputClicked = (e: React.MouseEvent<HTMLDivElement>): void => this.doHandleOutputClicked(e);
+    protected handleOutputClicked = (outputDescriptor: OutputDescriptor): void => this.doHandleOutputClicked(outputDescriptor);
     protected handleContextMenuEvent = (e: React.MouseEvent<HTMLDivElement>, output: OutputDescriptor | undefined): void => this.doHandleContextMenuEvent(e, output);
 
-    private doHandleOutputClicked(e: React.MouseEvent<HTMLDivElement>) {
-        const index = Number(e.currentTarget.getAttribute('data-id'));
-        this.setState({ lastSelectedOutputIndex: index });
-        const outputs = this.state.availableOutputDescriptors;
-
-        if (outputs && this._selectedExperiment) {
-            signalManager().fireOutputAddedSignal(new OutputAddedSignalPayload(outputs[index], this._selectedExperiment));
+    private doHandleOutputClicked(selectedOutput: OutputDescriptor) {
+        if (selectedOutput && this._selectedExperiment) {
+            signalManager().fireOutputAddedSignal(new OutputAddedSignalPayload(selectedOutput, this._selectedExperiment));
         }
     }
 
@@ -141,7 +75,7 @@ export class ReactAvailableViewsWidget extends React.Component<ReactAvailableVie
     protected doHandleExperimentSelectedSignal(experiment: Experiment | undefined): void {
         if ((this._selectedExperiment?.UUID !== experiment?.UUID) || this.state.availableOutputDescriptors.length === 0) {
             this._selectedExperiment = experiment;
-            this.setState({ availableOutputDescriptors: [], lastSelectedOutputIndex: -1 });
+            this.setState({ availableOutputDescriptors: []});
             this.updateAvailableViews();
         }
     }
