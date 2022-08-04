@@ -32,12 +32,10 @@ export class TraceOverviewSelectionDialogComponent extends AbstractDialogCompone
                 Loading available outputs...
             </div>);
         }
-
-        const key = Number(true);
         return (
             <div id="trace-overview-selection-dialog-content-container">
                 <AvailableViewsComponent
-                    availableViewListKey={key}
+                    traceID={this.props.traceID}
                     onOutputClicked={e => {this.doHandleOutputClicked(e);}}
                     outputDescriptors={this.state.outputDescriptors}
                     listRowWidth='95%'

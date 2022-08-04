@@ -1,15 +1,17 @@
 import { ListRowProps, AutoSizer, List } from 'react-virtualized';
 import React from 'react';
 import { OutputDescriptor } from 'tsp-typescript-client/lib/models/output-descriptor';
+import { Experiment } from 'tsp-typescript-client/lib/models/experiment';
+import { signalManager, Signals } from 'traceviewer-base/lib/signals/signal-manager';
 
 export interface AvailableViewsComponentProps {
-    availableViewListKey: number,
+    traceID: string | undefined,
     outputDescriptors: OutputDescriptor[],
     onContextMenuEvent?: (event: React.MouseEvent<HTMLDivElement, MouseEvent>, output: OutputDescriptor | undefined) => void,
     onOutputClicked: (selectedOutput: OutputDescriptor) => void,
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     listRowWidth?: string,
-    listRowPadding?: string
+    listRowPadding?: string,
+    highlightAfterSelection?: boolean
 }
 
 export interface AvailableViewsComponentState {
@@ -21,14 +23,23 @@ export class AvailableViewsComponent  extends React.Component<AvailableViewsComp
     static LINE_HEIGHT = 16;
     static ROW_HEIGHT = (2 * AvailableViewsComponent.LINE_HEIGHT) + AvailableViewsComponent.LIST_MARGIN;
 
+    private _forceUpdateKey = false;
     protected handleOutputClicked = (e: React.MouseEvent<HTMLDivElement>): void => this.doHandleOutputClicked(e);
+    private _onExperimentSelected = (experiment: Experiment): void => this.doHandleExperimentSelectedSignal(experiment);
 
     constructor(props: AvailableViewsComponentProps){
         super(props);
+        signalManager().on(Signals.EXPERIMENT_SELECTED, this._onExperimentSelected);
         this.state = { lastSelectedOutputIndex: -1 };
     }
 
+    componentWillUnmount(): void {
+        signalManager().off(Signals.EXPERIMENT_SELECTED, this._onExperimentSelected);
+    }
+
     render(): React.ReactNode {
+        this._forceUpdateKey = !this._forceUpdateKey;
+        const key = Number(this._forceUpdateKey);
         let outputsRowCount = 0;
         const outputs = this.props.outputDescriptors;
         if (outputs) {
@@ -36,21 +47,19 @@ export class AvailableViewsComponent  extends React.Component<AvailableViewsComp
         }
         const totalHeight = this.getTotalHeight();
         return (
-            <div>
-                <div className='trace-explorer-panel-content disable-select' style={{height: totalHeight}}>
-                    <AutoSizer>
-                        {({ width }) =>
-                            <List
-                                key={this.props.availableViewListKey}
-                                height={totalHeight}
-                                width={width}
-                                rowCount={outputsRowCount}
-                                rowHeight={AvailableViewsComponent.ROW_HEIGHT}
-                                rowRenderer={this.renderRowOutputs}
-                            />
-                        }
-                    </AutoSizer>
-                </div>
+            <div className='trace-explorer-panel-content disable-select' style={{height: totalHeight}}>
+                <AutoSizer>
+                    {({ width }) =>
+                        <List
+                            key={key}
+                            height={totalHeight}
+                            width={width}
+                            rowCount={outputsRowCount}
+                            rowHeight={AvailableViewsComponent.ROW_HEIGHT}
+                            rowRenderer={this.renderRowOutputs}
+                        />
+                    }
+                </AutoSizer>
             </div>
         );
     }
@@ -68,7 +77,7 @@ export class AvailableViewsComponent  extends React.Component<AvailableViewsComp
             outputDescription = output.description;
         }
         let traceContainerClassName = 'outputs-list-container';
-        if (props.index === this.state.lastSelectedOutputIndex) {
+        if (this.props.highlightAfterSelection && props.index === this.state.lastSelectedOutputIndex) {
             traceContainerClassName = traceContainerClassName + ' theia-mod-selected';
         }
 
@@ -106,8 +115,15 @@ export class AvailableViewsComponent  extends React.Component<AvailableViewsComp
             {this.props.onContextMenuEvent(event, output);}
     }
 
+    protected doHandleExperimentSelectedSignal(experiment: Experiment | undefined): void {
+        if ((this.props.traceID !== experiment?.UUID) || this.props.outputDescriptors.length === 0) {
+            this.setState({ lastSelectedOutputIndex: -1 });
+        }
+    }
+
     private doHandleOutputClicked(e: React.MouseEvent<HTMLDivElement>) {
         const index = Number(e.currentTarget.getAttribute('data-id'));
+        this.setState({lastSelectedOutputIndex: index});
         const selectedOutput = this.props.outputDescriptors[index];
 
         this.props.onOutputClicked(selectedOutput);
