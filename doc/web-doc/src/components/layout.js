@@ -8,8 +8,10 @@
 import * as React from "react"
 import PropTypes from "prop-types"
 import { useStaticQuery, graphql } from "gatsby"
-import Sidebar from "./Sidebar"
+import Sidebar from "./Sidebar2/Sidebar"
 import styled from 'styled-components'
+
+import { BrowserRouter } from 'react-router-dom';
 
 import Header from "./header"
 import "./layout.css"
@@ -33,7 +35,11 @@ const Layout = ({ children }) => {
     <>
       <Header siteTitle={data.site.siteMetadata?.title || `Title`} />
       <Content>
-      <Sidebar />
+	<div style={{marginLeft: `10px`}}>
+	  <BrowserRouter>
+	    <Sidebar />
+	  </BrowserRouter>
+	</div>
       <div
         style={{
           margin: `0 auto`,
