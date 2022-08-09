@@ -137,7 +137,7 @@ export class TraceViewerToolbarContribution implements TabBarToolbarContribution
             isVisible: (w: Widget) => {
                 if (w instanceof TraceViewerWidget) {
                     const traceWidget = w as TraceViewerWidget;
-                    return traceWidget.isTimeRelatedChartOpened() || traceWidget.isTraceOverviewOpened();
+                    return traceWidget.isTimeRelatedChartOpened() || traceWidget.isTraceOverviewOpened() || traceWidget.isTableRelatedChartOpened();
                 }
                 return false;
             },

@@ -6,6 +6,7 @@ import { Message } from '@theia/core/lib/browser/widgets/widget';
 import { EssentialShortcutsTable } from './essential-shortcuts-table';
 import { ZoomPanShortcutsTable } from './zoom-pan-shortcuts-table';
 import { TimeGraphShortcutsTable } from './time-graph-navigation-shortcuts-table';
+import { EventsTableShortcutsTable } from './events-table-shortcuts-table';
 import { SelectShortcutsTable } from './select-shortcuts-table';
 
 @injectable()
@@ -36,6 +37,7 @@ export class ChartShortcutsDialog extends ReactDialog<void> {
                 <EssentialShortcutsTable />
                 <ZoomPanShortcutsTable />
                 <TimeGraphShortcutsTable />
+                <EventsTableShortcutsTable />
                 <SelectShortcutsTable />
             </div>
         );
