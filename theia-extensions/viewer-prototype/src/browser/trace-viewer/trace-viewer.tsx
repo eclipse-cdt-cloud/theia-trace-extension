@@ -550,6 +550,11 @@ export class TraceViewerWidget extends ReactWidget implements StatefulWidget {
         return timeRelatedOutputs.length > 0;
     }
 
+    isTableRelatedChartOpened(): boolean {
+        const tableRelatedOutputs = this.outputDescriptors.filter(output => output.type === 'TABLE');
+        return tableRelatedOutputs.length > 0;
+    }
+
     isTraceOverviewOpened(): boolean {
         if (this.overviewOutputDescriptor){
             return true;
