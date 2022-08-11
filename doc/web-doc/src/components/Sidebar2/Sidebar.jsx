@@ -1,7 +1,6 @@
 import React from 'react';
 import * as style from './sidebar.module.css';
 import NavItem from './navItem/NavItem.jsx';
-import { sideMenu } from './menu.config.js';
 import styled from 'styled-components'
 
 const SidebarContainer = styled.div`
@@ -22,7 +21,7 @@ const Sidebar = props => {
   return (
    <SidebarContainer>
     <nav className={style.sidebar}>
-      {sideMenu.map((item, index) => {
+      {props.sideMenu.map((item, index) => {
         return <NavItem key={`${item.label}-${index}`} item={item} />;
       })}
     </nav>
@@ -30,4 +29,4 @@ const Sidebar = props => {
   );
 };
 
-export default Sidebar
+export default Sidebar;

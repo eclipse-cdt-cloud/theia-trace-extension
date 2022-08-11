@@ -10,17 +10,21 @@ import PropTypes from "prop-types"
 import { useStaticQuery, graphql } from "gatsby"
 import Sidebar from "./Sidebar2/Sidebar"
 import styled from 'styled-components'
+import { sideMenu } from './Sidebar2/menu.config.js';
 
 import { BrowserRouter } from 'react-router-dom';
 
 import Header from "./header"
 import "./layout.css"
 
+const path = require('path');
+
 const Content = styled.div`
   display: flex;
 `
 
 const Layout = ({ children }) => {
+
   const data = useStaticQuery(graphql`
     query SiteTitleQuery {
       site {
@@ -28,8 +32,28 @@ const Layout = ({ children }) => {
           title
         }
       }
+      allMarkdownRemark {
+        edges {
+          node {
+            fileAbsolutePath
+          }
+        }
+      }
     }
   `)
+
+  const edges = data.allMarkdownRemark.edges
+  var mySideMenu = [];
+
+  var edgesLength = edges.length;
+  for (var i = 0; i < edgesLength; i++) {
+    mySideMenu.push(
+      {
+	label: path.parse(edges[i].node.fileAbsolutePath).name,
+	to: "/" + path.parse(edges[i].node.fileAbsolutePath).name
+      }
+    )
+  }
 
   return (
     <>
@@ -37,7 +61,7 @@ const Layout = ({ children }) => {
       <Content>
 	<div style={{marginLeft: `10px`}}>
 	  <BrowserRouter>
-	    <Sidebar />
+	    <Sidebar sideMenu={mySideMenu}/>
 	  </BrowserRouter>
 	</div>
       <div
