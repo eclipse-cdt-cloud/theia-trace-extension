@@ -159,6 +159,18 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
                 }
             }
         });
+        this.markersChartLayer.registerMouseInteractions({
+            click: el => {
+                if (el instanceof TimeGraphStateComponent) {
+                    if (el.model.range.start !== undefined && el.model.range.end !== undefined) {
+                        this.props.unitController.selectionRange = {
+                            start: el.model.range.start,
+                            end: el.model.range.end
+                        };
+                    }
+                }
+            }
+        });
 
     }
 
