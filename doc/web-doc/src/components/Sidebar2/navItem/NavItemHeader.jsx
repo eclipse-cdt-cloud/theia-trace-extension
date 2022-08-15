@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { NavLink, useLocation } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 import * as style from './navItem.module.css';
+import Link from 'gatsby-link'
 
 const resolveLinkPath = (childTo, parentTo) => `${parentTo}/${childTo}`;
 
@@ -48,14 +49,14 @@ const NavItemHeader = props => {
             }
 
             return (
-              <NavLink
+              <Link
                 key={key}
                 to={resolveLinkPath(item.to, props.item.to)}
                 className={style.navItem}
                 activeClassName={style.activeNavItem}
               >
                 <span className={style.navLabel}>{label}</span>
-              </NavLink>
+              </Link>
             );
           })}
         </div>

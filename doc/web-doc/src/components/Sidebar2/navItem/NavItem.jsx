@@ -1,7 +1,7 @@
 import React from 'react';
-import { NavLink } from 'react-router-dom';
 import * as style from './navItem.module.css';
 import NavItemHeader from './NavItemHeader.jsx';
+import Link from 'gatsby-link'
 
 console.log({ style });
 const NavItem = props => {
@@ -12,14 +12,14 @@ const NavItem = props => {
   }
 
   return (
-    <NavLink
+    <Link
       exact
       to={to}
       className={style.navItem}
       activeClassName={style.activeNavItem}
     >
       <span className={style.navLabel}>{label}</span>
-    </NavLink>
+    </Link>
   );
 };
 
