@@ -51,7 +51,7 @@ const NavItemHeader = props => {
             return (
               <Link
                 key={key}
-                to={resolveLinkPath(item.to, props.item.to)}
+                to={"/" + resolveLinkPath(item.to, props.item.to)}
                 className={style.navItem}
                 activeClassName={style.activeNavItem}
               >

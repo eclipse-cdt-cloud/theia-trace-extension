@@ -47,12 +47,22 @@ const Layout = ({ children }) => {
 
   var edgesLength = edges.length;
   for (var i = 0; i < edgesLength; i++) {
-    mySideMenu.push(
-      {
-	label: path.parse(edges[i].node.fileAbsolutePath).name,
-	to: "/" + path.parse(edges[i].node.fileAbsolutePath).name
-      }
-    )
+    var absPathAsString = path.parse(edges[i].node.fileAbsolutePath).dir
+    const dirs = absPathAsString.split('theia-trace-extension/')
+    if (dirs.length > 1) {
+      const dirsForSidebarString = dirs[dirs.length-1]
+      var dirsForSidebar = dirsForSidebarString.split('/')
+      mySideMenu.push(
+	createChildren(dirsForSidebar, path.parse(edges[i].node.fileAbsolutePath).name,path.parse(edges[i].node.fileAbsolutePath).name)
+      )
+    } else {
+      mySideMenu.push(
+	createLeaf(
+	  path.parse(edges[i].node.fileAbsolutePath).name,
+	  path.parse(edges[i].node.fileAbsolutePath).name
+	)
+      )
+    }
   }
 
   return (
@@ -91,5 +101,36 @@ const Layout = ({ children }) => {
 Layout.propTypes = {
   children: PropTypes.node.isRequired,
 }
+
+function createLeaf(pLabel, pTo) {
+  return {
+	label: pLabel,
+	to: "/" + pTo
+  }
+}
+
+function createChildren(children, pLabel, pTo) {
+  if (children.length === 1) {
+    return {
+      label: children[0],
+      to: children[0],
+      children: [
+	{
+	label: pLabel,
+	to: pTo
+	}
+      ]
+    }
+  } else {
+    return {
+      label: children[0],
+      to: children[0],
+      children: [
+	createChildren(children.slice(1, children.length), pLabel, pTo)
+      ]
+    }
+  }
+}
+
 
 export default Layout

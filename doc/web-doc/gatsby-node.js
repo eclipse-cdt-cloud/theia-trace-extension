@@ -23,8 +23,16 @@ exports.createPages = async ({ graphql, actions }) => {
       }
       result.data.allMarkdownRemark.edges
         .forEach(({ node }) => {
+	  var pagePath = ""
+	  var absPathAsString = path.parse(node.fileAbsolutePath).dir
+	  const dirs = absPathAsString.split('theia-trace-extension/')
+	  if (dirs.length > 1) {
+	    pagePath = dirs[dirs.length-1] + "/" + path.parse(node.fileAbsolutePath).name
+	  } else {
+	    pagePath = path.parse(node.fileAbsolutePath).name
+	  }
           createPage({
-            path: path.parse(node.fileAbsolutePath).name,
+            path: pagePath,
             component: docTemplate,
             context: {
               // used for Template.pageQuery
