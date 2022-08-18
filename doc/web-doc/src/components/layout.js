@@ -43,33 +43,34 @@ const Layout = ({ children }) => {
   `)
 
   const edges = data.allMarkdownRemark.edges
-  var mySideMenu = [];
+  const foldableRowToContent = createFoldableRowToContent(edges)
 
-  const mySideMenuMap = new Map();
-  var leaves = []
-  var edgesLength = edges.length;
-  for (var i = 0; i < edgesLength; i++) {
-    var absPathAsString = path.parse(edges[i].node.fileAbsolutePath).dir
-    const dirs = absPathAsString.split('theia-trace-extension/')
-    if (dirs.length > 1) {
-      // identified md file inside top folder
-      const dirsForSidebarString = dirs[dirs.length-1]
-      if (mySideMenuMap.has(dirsForSidebarString)){
-	leaves = mySideMenuMap.get(dirsForSidebarString)
-      } else {
-	leaves = []
-      }
-      leaves.push(path.parse(edges[i].node.fileAbsolutePath).name)
-      mySideMenuMap.set(dirsForSidebarString, leaves)
-    }
-  }
-
-  mySideMenuMap.forEach(
+  /*
+   * mySideMenu array should contain the structure of the side menu,
+   * similar to the following:
+   *
+   * {
+   *   label: 'Profile',
+   *   to: '/profile',
+   * },
+   * {
+   *   label: 'Settings',
+   *   to: '/settings',
+   *   children: [
+   *   {
+   *     label: 'Account',
+   *     to: 'account',
+   *   },
+   *   {...}]
+   * }
+   *
+   */
+  var mySideMenu = []
+  foldableRowToContent.forEach(
     (value, key) => {
-      console.log(`map.get('${key}') = ${value}`)
-      var dirsForSidebar = key.split('/')
+      var foldableRowElements = key.split('/')
       mySideMenu.push(
-	createChildren(dirsForSidebar, value)
+	createChildren(foldableRowElements, value)
       )
     }
   )
@@ -147,6 +148,40 @@ function createChildren(children, pLeafs) {
       ]
     }
   }
+}
+
+/**
+ * Given edges representing the identified md files,
+ * this function returns a Map, where:
+ * - key: is a string representing the folder where the md files are located
+ * - value: is an array of strings representing the md files located in that folder
+ *
+ * NOTE: this logic is far from being beautiful, it is just a quick proof of concept
+ *
+ * @param edges The edges representing the identified md files
+ *
+ * @returns a Map of folder to array of md files
+ */
+function createFoldableRowToContent (edges) {
+  const mySideMenuMap = new Map();
+  var leaves = []
+  var edgesLength = edges.length;
+  for (var i = 0; i < edgesLength; i++) {
+    var absPathAsString = path.parse(edges[i].node.fileAbsolutePath).dir
+    const dirs = absPathAsString.split('theia-trace-extension/')
+    if (dirs.length > 1) {
+      // identified md file inside top folder
+      const dirsForSidebarString = dirs[dirs.length-1]
+      if (mySideMenuMap.has(dirsForSidebarString)){
+	leaves = mySideMenuMap.get(dirsForSidebarString)
+      } else {
+	leaves = []
+      }
+      leaves.push(path.parse(edges[i].node.fileAbsolutePath).name)
+      mySideMenuMap.set(dirsForSidebarString, leaves)
+    }
+  }
+  return mySideMenuMap
 }
 
 export default Layout
