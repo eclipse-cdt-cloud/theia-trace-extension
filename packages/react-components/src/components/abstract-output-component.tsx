@@ -48,7 +48,7 @@ export interface AbstractOutputProps {
 export interface AbstractOutputState {
     outputStatus: string;
     styleModel?: OutputStyleModel;
-    optionsDropdownOpen: boolean;
+    optionsDropdownOpen?: boolean;
     additionalOptions?: boolean;
 }
 
@@ -151,7 +151,7 @@ export abstract class AbstractOutputComponent<P extends AbstractOutputProps, S e
                 <button title="Show View Options" className='options-menu-button' onClick={this.openOptionsMenu}>
                     <FontAwesomeIcon icon={faBars} />
                 </button>
-                {this.state.optionsDropdownOpen && <div className="options-menu-drop-down" ref={this.optionsMenuRef}>
+                {this.state?.optionsDropdownOpen && <div className="options-menu-drop-down" ref={this.optionsMenuRef}>
                     {this.showOptions()}
                 </div>}
             </div>}
