@@ -45,25 +45,34 @@ const Layout = ({ children }) => {
   const edges = data.allMarkdownRemark.edges
   var mySideMenu = [];
 
+  const mySideMenuMap = new Map();
+  var leaves = []
   var edgesLength = edges.length;
   for (var i = 0; i < edgesLength; i++) {
     var absPathAsString = path.parse(edges[i].node.fileAbsolutePath).dir
     const dirs = absPathAsString.split('theia-trace-extension/')
     if (dirs.length > 1) {
+      // identified md file inside top folder
       const dirsForSidebarString = dirs[dirs.length-1]
-      var dirsForSidebar = dirsForSidebarString.split('/')
-      mySideMenu.push(
-	createChildren(dirsForSidebar, path.parse(edges[i].node.fileAbsolutePath).name,path.parse(edges[i].node.fileAbsolutePath).name)
-      )
-    } else {
-      mySideMenu.push(
-	createLeaf(
-	  path.parse(edges[i].node.fileAbsolutePath).name,
-	  path.parse(edges[i].node.fileAbsolutePath).name
-	)
-      )
+      if (mySideMenuMap.has(dirsForSidebarString)){
+	leaves = mySideMenuMap.get(dirsForSidebarString)
+      } else {
+	leaves = []
+      }
+      leaves.push(path.parse(edges[i].node.fileAbsolutePath).name)
+      mySideMenuMap.set(dirsForSidebarString, leaves)
     }
   }
+
+  mySideMenuMap.forEach(
+    (value, key) => {
+      console.log(`map.get('${key}') = ${value}`)
+      var dirsForSidebar = key.split('/')
+      mySideMenu.push(
+	createChildren(dirsForSidebar, value)
+      )
+    }
+  )
 
   return (
     <>
@@ -102,35 +111,42 @@ Layout.propTypes = {
   children: PropTypes.node.isRequired,
 }
 
-function createLeaf(pLabel, pTo) {
-  return {
-	label: pLabel,
-	to: "/" + pTo
-  }
-}
-
-function createChildren(children, pLabel, pTo) {
+/**
+ * Create and object that can be used to configure a foldable sidebar.
+ *
+ * @param children An array representing the foldable elements of the
+ * sidebar.
+ *
+ * @param pLeafs An object representing the clickable elements at the
+ * end of the foldable items of the sidebar.
+ *
+ * @returns an object used to configure a row of the foldable sidebar.
+ */
+function createChildren(children, pLeafs) {
   if (children.length === 1) {
+    var leafs = []
+    for (const leaf of pLeafs){
+      leafs.push(
+	{
+	label: leaf,
+	to: leaf
+	}
+      )
+    }
     return {
       label: children[0],
       to: children[0],
-      children: [
-	{
-	label: pLabel,
-	to: pTo
-	}
-      ]
+      children: leafs
     }
   } else {
     return {
       label: children[0],
       to: children[0],
       children: [
-	createChildren(children.slice(1, children.length), pLabel, pTo)
+	createChildren(children.slice(1, children.length), pLeafs)
       ]
     }
   }
 }
-
 
 export default Layout
