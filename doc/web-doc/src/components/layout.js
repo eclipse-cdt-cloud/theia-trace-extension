@@ -8,9 +8,9 @@
 import * as React from "react"
 import PropTypes from "prop-types"
 import { useStaticQuery, graphql } from "gatsby"
-import Sidebar from "./Sidebar2/Sidebar"
+import Sidebar from "./Sidebar/Sidebar"
 import styled from 'styled-components'
-import { sideMenu } from './Sidebar2/menu.config.js';
+// import { sideMenu } from './Sidebar/menu.config.js';
 
 import { BrowserRouter } from 'react-router-dom';
 
