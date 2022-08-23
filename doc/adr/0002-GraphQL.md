@@ -318,6 +318,7 @@ graph TD
 
 ```bash
 cd ./0002/graphql-server-prototype
+yarn
 node index.js
 ./test
 ````
