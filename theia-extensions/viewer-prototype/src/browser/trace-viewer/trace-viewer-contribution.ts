@@ -5,7 +5,7 @@ import URI from '@theia/core/lib/common/uri';
 import { TraceViewerWidget, TraceViewerWidgetOptions } from './trace-viewer';
 import { FileDialogService, OpenFileDialogProps } from '@theia/filesystem/lib/browser';
 import { WorkspaceService } from '@theia/workspace/lib/browser/workspace-service';
-import { OpenTraceCommand, StartServerCommand, StopServerCommand, TraceViewerCommand, KeyboardShortcutsCommand } from './trace-viewer-commands';
+import { OpenTraceCommand, StartServerCommand, StopServerCommand, TraceViewerCommand, KeyboardShortcutsCommand, OpenTraceWithRootPathCommand } from './trace-viewer-commands';
 import { PortBusy, TraceServerConfigService } from '../../common/trace-server-config';
 import { TracePreferences, TRACE_PATH, TRACE_ARGS } from '../trace-server-preference';
 import { TspClient } from 'tsp-typescript-client/lib/protocol/tsp-client';
@@ -13,6 +13,7 @@ import { TspClientProvider } from '../tsp-client-provider-impl';
 import { ChartShortcutsDialog } from './../trace-explorer/trace-explorer-sub-widgets/trace-explorer-keyboard-shortcuts/charts-cheatsheet-component';
 import { signalManager } from 'traceviewer-base/lib/signals/signal-manager';
 import { TraceServerConnectionStatusService } from '../trace-server-status';
+import { FileStat } from '@theia/filesystem/lib/common/files';
 
 interface TraceViewerWidgetOpenerOptions extends WidgetOpenerOptions {
     traceUUID: string;
@@ -56,7 +57,7 @@ export class TraceViewerContribution extends WidgetOpenHandler<TraceViewerWidget
         };
     }
 
-    protected async launchTraceServer(): Promise<void> {
+    protected async launchTraceServer(rootPath?: string): Promise<void> {
         let healthResponse;
         try {
             healthResponse = await this.tspClient.checkHealth();
@@ -64,7 +65,7 @@ export class TraceViewerContribution extends WidgetOpenHandler<TraceViewerWidget
             // continue to start trace server
         }
         if (healthResponse && healthResponse.isOk() && healthResponse.getModel()?.status === 'UP') {
-            this.openDialog();
+            this.openDialog(rootPath);
         } else {
             const progress = await this.messageService.showProgress({ text: '' });
             progress.report({ message: 'Launching trace server... ', work: { done: 10, total: 100 } });
@@ -78,7 +79,7 @@ export class TraceViewerContribution extends WidgetOpenHandler<TraceViewerWidget
                         progress.report({ message: 'Trace server started.', work: { done: 100, total: 100 } });
                     }
                     progress.cancel();
-                    this.openDialog();
+                    this.openDialog(rootPath);
                 }
             } catch (err) {
                 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -99,15 +100,21 @@ export class TraceViewerContribution extends WidgetOpenHandler<TraceViewerWidget
         }
     }
 
-    async openDialog(): Promise<void> {
+    async openDialog(rootPath?: string): Promise<void> {
         const props: OpenFileDialogProps = {
             title: 'Open Trace',
             // Only support selecting folders, both folders and file doesn't work in Electron (issue #227)
             canSelectFolders: true,
             canSelectFiles: false
         };
-        const root = this.workspaceService.tryGetRoots()[0];
-        const fileURI = await this.fileDialogService.showOpenDialog(props, root);
+        let fileURI = undefined;
+        if (rootPath !== undefined) {
+            const root = FileStat.dir(rootPath);
+            fileURI = await this.fileDialogService.showOpenDialog(props, root);
+        } else {
+            const root = this.workspaceService.tryGetRoots()[0];
+            fileURI = await this.fileDialogService.showOpenDialog(props, root);
+        }
         if (fileURI) {
             await this.open(fileURI);
         }
@@ -170,6 +177,10 @@ export class TraceViewerContribution extends WidgetOpenHandler<TraceViewerWidget
     registerCommands(registry: CommandRegistry): void {
         registry.registerCommand(OpenTraceCommand, {
             execute: () => this.launchTraceServer()
+        });
+        registry.registerCommand(OpenTraceWithRootPathCommand, {
+            isVisible: () => false,
+            execute: rootPath => this.launchTraceServer(rootPath)
         });
         registry.registerCommand(TraceViewerCommand, {
             execute: (options: TraceViewerWidgetOpenerOptions) => this.open(new URI(''), options)

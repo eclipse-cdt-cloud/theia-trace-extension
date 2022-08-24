@@ -24,3 +24,8 @@ export const KeyboardShortcutsCommand: Command = {
     id: 'trace-viewer-keyboard-shortcuts',
     label: 'Trace Viewer Keyboard and Mouse Shortcuts'
 };
+
+export const OpenTraceWithRootPathCommand: Command = {
+    id: 'open-trace-with-root-path',
+    label: 'Open Trace With Root Path'
+};
