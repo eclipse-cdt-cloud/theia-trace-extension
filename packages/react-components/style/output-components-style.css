@@ -35,8 +35,19 @@
     justify-self: center;
     cursor: move;
     overflow: hidden;
-    text-overflow: ellipsis;
     white-space: nowrap;
+    position: relative;
+    background: inherit;
+}
+.custom-ellipsis {
+    position: absolute;
+    z-index: 1;
+    background-color: inherit;
+    height: 15px;
+    bottom: 0;
+}
+.hidden-ellipsis {
+    display: none;
 }
 .title-bar-label:hover {
     background-color: var(--theia-list-hoverBackground); 
