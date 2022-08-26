@@ -60,6 +60,10 @@ export abstract class AbstractOutputComponent<P extends AbstractOutputProps, S e
 
     private optionsMenuRef: React.RefObject<HTMLDivElement>;
 
+    private titleRef: React.RefObject<HTMLSpanElement>;
+
+    private titleBarLabelRef: React.RefObject<HTMLDivElement>;
+
     constructor(props: P) {
         super(props);
         this.mainOutputContainer = React.createRef();
@@ -68,6 +72,8 @@ export abstract class AbstractOutputComponent<P extends AbstractOutputProps, S e
         this.openOptionsMenu = this.openOptionsMenu.bind(this);
         this.closeOptionsMenu = this.closeOptionsMenu.bind(this);
         this.optionsMenuRef = React.createRef();
+        this.titleRef = React.createRef();
+        this.titleBarLabelRef = React.createRef();
     }
 
     render(): JSX.Element {
@@ -99,13 +105,25 @@ export abstract class AbstractOutputComponent<P extends AbstractOutputProps, S e
     private renderTitleBar(): React.ReactNode {
         const outputName = this.getOutputComponentName();
         const outputTooltip = this.getTitleBarTooltip();
+        // Manually check overflown titles to fix ellipsis not shown on Safari (issue #764).
+        const isOverflown = () => {
+            const el = this.titleRef.current;
+            const labelHeight = this.titleBarLabelRef.current;
+            if (!el || !labelHeight) {
+                return false;
+            }
+            return el.getBoundingClientRect().height > labelHeight.getBoundingClientRect().height;
+        };
+        const titleOverflown = this.titleRef.current && isOverflown() ? 'custom-ellipsis' : 'hidden-ellipsis';
+
         return <React.Fragment>
             <button className='remove-component-button' onClick={this.closeComponent}>
                 <FontAwesomeIcon icon={faTimes} />
             </button>
             {this.showOptionsMenu()}
-            <div className='title-bar-label' title={outputTooltip} onClick={() => this.setFocus()}>
-                {outputName}
+            <div ref={this.titleBarLabelRef} className='title-bar-label' title={outputTooltip} onClick={() => this.setFocus()}>
+                <span ref={this.titleRef}>{outputName}</span>
+                <span className={titleOverflown}>...</span>
                 <i id={this.getOutputComponentDomId() + 'handleSpinner'} className='fa fa-refresh fa-spin'
                     style={{ marginTop: '5px', visibility: 'hidden'}} />
                 {this.props.pinned === true && <i title='Pinned View' className='fa fa-thumb-tack pin-view-icon' />}
