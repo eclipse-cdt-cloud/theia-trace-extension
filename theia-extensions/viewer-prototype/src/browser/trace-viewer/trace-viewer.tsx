@@ -1,4 +1,4 @@
-import { DisposableCollection, MessageService, Path } from '@theia/core';
+import { Disposable, DisposableCollection, MessageService, Path } from '@theia/core';
 import { ApplicationShell, Message, StatusBar, WidgetManager, StatefulWidget } from '@theia/core/lib/browser';
 import { ReactWidget } from '@theia/core/lib/browser/widgets/react-widget';
 import { inject, injectable, postConstruct } from 'inversify';
@@ -92,7 +92,7 @@ export class TraceViewerWidget extends ReactWidget implements StatefulWidget {
         this.title.closable = true;
         this.addClass('theia-trace-open');
         this.backgroundTheme = this.themeService.getCurrentTheme().type;
-        this.themeService.onDidColorThemeChange(() => this.updateBackgroundTheme());
+        this.toDispose.push(this.themeService.onDidColorThemeChange(() => this.updateBackgroundTheme()));
         if (!this.options.traceUUID) {
             this.initialize();
         }
@@ -100,11 +100,14 @@ export class TraceViewerWidget extends ReactWidget implements StatefulWidget {
         this.tspClient = this.tspClientProvider.getTspClient();
         this.traceManager = this.tspClientProvider.getTraceManager();
         this.experimentManager = this.tspClientProvider.getExperimentManager();
-        this.tspClientProvider.addTspClientChangeListener(tspClient => {
-            this.tspClient = tspClient;
-            this.traceManager = this.tspClientProvider.getTraceManager();
-            this.experimentManager = this.tspClientProvider.getExperimentManager();
-        });
+        this.toDispose.push(Disposable.create(() => {
+            this.tspClientProvider.addTspClientChangeListener(tspClient => {
+                this.tspClient = tspClient;
+                this.traceManager = this.tspClientProvider.getTraceManager();
+                this.experimentManager = this.tspClientProvider.getExperimentManager();
+            });
+        }));
+
         if (this.options.traceUUID) {
             const experiment = await this.experimentManager.updateExperiment(this.options.traceUUID);
             if (experiment) {
