@@ -82,6 +82,7 @@ export class TraceViewerWidget extends ReactWidget implements StatefulWidget {
     @inject(MessageService) protected readonly messageService: MessageService;
     @inject(TraceExplorerContribution) protected readonly traceExplorerContribution: TraceExplorerContribution;
     @inject(WidgetManager) protected readonly widgetManager!: WidgetManager;
+    @inject(ThemeService) protected readonly themeService: ThemeService;
 
     @postConstruct()
     async init(): Promise<void> {
@@ -90,8 +91,8 @@ export class TraceViewerWidget extends ReactWidget implements StatefulWidget {
         this.title.label = 'Trace: ' + this.uri.base;
         this.title.closable = true;
         this.addClass('theia-trace-open');
-        this.backgroundTheme = ThemeService.get().getCurrentTheme().type;
-        ThemeService.get().onDidColorThemeChange(() => this.updateBackgroundTheme());
+        this.backgroundTheme = this.themeService.getCurrentTheme().type;
+        this.themeService.onDidColorThemeChange(() => this.updateBackgroundTheme());
         if (!this.options.traceUUID) {
             this.initialize();
         }
@@ -143,7 +144,7 @@ export class TraceViewerWidget extends ReactWidget implements StatefulWidget {
     }
 
     protected updateBackgroundTheme(): void {
-        const currentThemeType = ThemeService.get().getCurrentTheme().type;
+        const currentThemeType = this.themeService.getCurrentTheme().type;
         signalManager().fireThemeChangedSignal(currentThemeType);
     }
 
