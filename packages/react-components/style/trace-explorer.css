@@ -47,7 +47,8 @@
 
 .trace-list-container:hover,
 .outputs-list-container:hover {
-    background-color: var(--theia-menu-selectionBackground);
+    background-color: var(--theia-list-hoverBackground);
+    color: var(--theia-list-hoverForeground);
     cursor: pointer;
 }
 
