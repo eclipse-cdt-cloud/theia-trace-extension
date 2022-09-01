@@ -5,12 +5,12 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/theia-ide/theia-trace-extension"
+    "url": "https://github.com/eclipse-cdt-cloud/theia-trace-extension"
   },
   "bugs": {
-    "url": "https://github.com/theia-ide/theia-trace-extension/issues"
+    "url": "https://github.com/eclipse-cdt-cloud/theia-trace-extension/issues"
   },
-  "homepage": "https://github.com/theia-ide/theia-trace-extension",
+  "homepage": "https://github.com/eclipse-cdt-cloud/theia-trace-extension",
   "files": [
     "lib",
     "src"
