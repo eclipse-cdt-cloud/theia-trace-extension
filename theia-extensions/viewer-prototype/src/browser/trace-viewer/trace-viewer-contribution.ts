@@ -176,16 +176,23 @@ export class TraceViewerContribution extends WidgetOpenHandler<TraceViewerWidget
         });
         registry.registerCommand(StartServerCommand, {
             execute: async () => {
+                const progress = await this.messageService.showProgress({ text: '' });
+                progress.report({ message: 'Launching trace server... ', work: { done: 10, total: 100 } });
                 const { path, args } = this;
                 try {
-                    await this.traceServerConfigService.startTraceServer({ path, args });
-                    if (this.args && this.args.length > 0) {
-                        this.messageService.info(`Trace server started using the following arguments:  ${this.args}.`);
-                    } else {
-                        this.messageService.info('Trace server started.');
+                    const resolve = await this.traceServerConfigService.startTraceServer({ path, args });
+                    if (resolve === 'success') {
+                        await this.waitForTraceServer(10000);
+                        if (this.args && this.args.length > 0) {
+                            progress.report({ message: `Trace server started using the following arguments:  ${args}.`, work: { done: 100, total: 100 } });
+                        } else {
+                            progress.report({ message: 'Trace server started.', work: { done: 100, total: 100 } });
+                        }
+                        TraceServerConnectionStatusService.renderStatus(true);
+                        signalManager().fireTraceServerStartedSignal();
+                        return;
                     }
-                    TraceServerConnectionStatusService.renderStatus(true);
-                    signalManager().fireTraceServerStartedSignal();
+                    throw new Error('Could not start trace server: ' + resolve);
                 } catch (error) {
                     // eslint-disable-next-line @typescript-eslint/no-explicit-any
                     if (PortBusy.is(error as any)) {
@@ -201,7 +208,8 @@ export class TraceViewerContribution extends WidgetOpenHandler<TraceViewerWidget
                             'Failed to start the trace server: no such file or directory. Please make sure that the path is correct in Trace Viewer settings and retry'
                         );
                     }
-
+                } finally {
+                    progress.cancel();
                 }
             }
         });
