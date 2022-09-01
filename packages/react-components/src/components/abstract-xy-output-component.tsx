@@ -18,7 +18,7 @@ import { XYChartFactoryParams, xyChartFactory, GetClosestPointParam, getClosestP
 import { ChartOptions } from 'chart.js';
 import { Line, Scatter } from 'react-chartjs-2';
 import { getAllExpandedNodeIds } from './utils/filter-tree/utils';
-import { throttle } from 'lodash';
+import { debounce } from 'lodash';
 
 export const ZOOM_IN_RATE = 0.8;
 export const ZOOM_OUT_RATE = 1.25;
@@ -124,7 +124,7 @@ export abstract class AbstractXYOutputComponent<P extends AbstractOutputProps, S
         afterDraw: (chartInstance: Chart, _easing: Chart.Easing, _options?: any) => { this.afterChartDraw(chartInstance.ctx, chartInstance.chartArea); }
     };
 
-    private _throttledUpdateXY = throttle(() => this.updateXY(), 500);
+    private _debouncedUpdateXY = debounce(() => this.updateXY(), 500);
 
     constructor(props: P) {
         super(props);
@@ -224,7 +224,7 @@ export abstract class AbstractXYOutputComponent<P extends AbstractOutputProps, S
         const needToUpdate = viewRangeChanged || checkedSeriesChanged || collapsedNodesChanged || chartWidthChanged || outputStatusChanged;
 
         if (needToUpdate) {
-            this._throttledUpdateXY();
+            this._debouncedUpdateXY();
         }
 
         if (this.chartRef.current) {
