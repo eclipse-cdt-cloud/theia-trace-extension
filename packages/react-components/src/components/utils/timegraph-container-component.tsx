@@ -23,9 +23,10 @@ export class ReactTimeGraphContainer extends React.Component<ReactTimeGraphConta
     private _resizeHandler: { (): void; (): void; (): void; } | undefined;
 
     componentDidMount(): void {
-        this.container = new TimeGraphContainer(this.props.options, this.props.unitController, this.ref);
+        const { options, unitController, layers } = this.props;
+        this.container = new TimeGraphContainer(options, unitController, this.ref);
         if (this.container) {
-            this.container.addLayers(this.props.layers);
+            this.container.addLayers(layers);
         }
         this._resizeHandler = debounce(() => this.resize(), 500, { trailing: true, leading: false });
         this.props.addWidgetResizeHandler(this._resizeHandler);
