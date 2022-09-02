@@ -42,10 +42,10 @@ export class TspDataProvider {
      * @param annotationMarkers requested annotation categories
      * @returns time graph model
      */
-    async getData(ids: number[], entries: TimeGraphEntry[], totalTimeRange: TimeRange, viewRange?: TimelineChart.TimeGraphRange,
+    async getData(ids: number[], entries: TimeGraphEntry[], totalTimeRange: TimeRange, worldRange?: TimelineChart.TimeGraphRange,
         nbTimes?: number, annotationMarkers?: string[], markerSetId?: string): Promise<TimelineChart.TimeGraphModel> {
         this.timeGraphEntries = [...entries];
-        if (!this.timeGraphEntries.length || !viewRange || !nbTimes) {
+        if (!this.timeGraphEntries.length || !worldRange || !nbTimes) {
             return {
                 id: 'model',
                 totalLength: this.totalRange,
@@ -58,8 +58,8 @@ export class TspDataProvider {
 
         // Fire all TSP requests
         this.totalRange = totalTimeRange.getEnd() - totalTimeRange.getStart();
-        const start = totalTimeRange.getStart() + viewRange.start;
-        const end = totalTimeRange.getStart() + viewRange.end;
+        const start = totalTimeRange.getStart() + worldRange.start;
+        const end = totalTimeRange.getStart() + worldRange.end;
         const timeGraphStateParams = QueryHelper.selectionTimeRangeQuery(start, end, nbTimes, ids);
         const statesPromise = this.client.fetchTimeGraphStates(this.traceUUID, this.outputId, timeGraphStateParams);
 
@@ -74,8 +74,8 @@ export class TspDataProvider {
         const annotations: Map<number, TimelineChart.TimeGraphAnnotation[]> = new Map();
         const annotationsPromise = this.client.fetchAnnotations(this.traceUUID, this.outputId, annotationParams);
 
-        const arrowStart = viewRange.start + this.timeGraphEntries[0].start;
-        const arrowEnd = viewRange.end + this.timeGraphEntries[0].start;
+        const arrowStart = worldRange.start + this.timeGraphEntries[0].start;
+        const arrowEnd = worldRange.end + this.timeGraphEntries[0].start;
         const fetchParameters = QueryHelper.timeRangeQuery(arrowStart, arrowEnd, nbTimes);
         const arrowsPromise = this.client.fetchTimeGraphArrows(this.traceUUID, this.outputId, fetchParameters);
 
@@ -131,7 +131,7 @@ export class TspDataProvider {
             }
         }
 
-        const arrows = this.getArrows(tspClientArrowsResponse, viewRange, nbTimes);
+        const arrows = this.getArrows(tspClientArrowsResponse, worldRange, nbTimes);
 
         return {
             id: 'model',
