@@ -38,8 +38,14 @@
     "url": "https://github.com/eclipse-cdt-cloud/theia-trace-extension/issues"
   },
   "homepage": "https://github.com/eclipse-cdt-cloud/theia-trace-extension",
+  "resolutions": {
+    "react": "^18.0.0",
+    "react-dom": "^18.0.0",
+    "@types/react": "^18.0.0",
+    "@types/react-dom": "^18.0.0"
+  },
   "devDependencies": {
-    "@theia/cli": "1.28.0",
+    "@theia/cli": "1.29.0",
     "jsonc-parser": "^3.0.0",
     "lerna": "^4.0.0",
     "typescript": "4.5.5"
