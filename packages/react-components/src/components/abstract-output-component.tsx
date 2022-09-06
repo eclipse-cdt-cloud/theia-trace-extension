@@ -43,6 +43,7 @@ export interface AbstractOutputProps {
     pinned?: boolean
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     persistChartState?: any;
+    children?: string;
 }
 
 export interface AbstractOutputState {
@@ -212,22 +213,22 @@ export abstract class AbstractOutputComponent<P extends AbstractOutputProps, S e
         }
     }
 
-    protected renderAnalysisFailed(): React.ReactFragment {
-        return <React.Fragment>
+    protected renderAnalysisFailed(): React.ReactElement {
+        return <>
             <div className='message-main-area'>
                 Trace analysis failed.
             </div>
-        </React.Fragment>;
+        </>;
     }
 
-    protected renderEmptyResults(): React.ReactFragment {
-        return <React.Fragment>
+    protected renderEmptyResults(): React.ReactElement {
+        return <>
                 <div className='message-main-area'>
                     Trace analysis complete.
                     <br />
                     No results: Trace missing required events.
                 </div>
-        </React.Fragment>;
+        </>;
     }
 
     private openOptionsMenu(): void {

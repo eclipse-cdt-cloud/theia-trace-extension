@@ -10,6 +10,7 @@ export namespace ReactTimeGraphContainer {
         options: TimeGraphContainerOptions,
         unitController: TimeGraphUnitController,
         layers: TimeGraphLayer[],
+        children?: never[],
         addWidgetResizeHandler: (handler: () => void) => void
         removeWidgetResizeHandler: (handler: () => void) => void
     }
