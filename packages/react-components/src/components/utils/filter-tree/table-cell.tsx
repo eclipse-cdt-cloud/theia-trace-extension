@@ -15,7 +15,9 @@ export class TableCell extends React.Component<TableCellProps> {
 
     private onClick = () => {
         const { node, onRowClick } = this.props;
-        onRowClick(node.id);
+        if (onRowClick) {
+            onRowClick(node.id);
+        }
     };
 
     render(): React.ReactNode {
