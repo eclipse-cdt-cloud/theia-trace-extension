@@ -166,7 +166,7 @@ export class TableOutputComponent extends AbstractOutputComponent<TableOutputPro
         const data = event.data;
         const mouseEvent = event.event as MouseEvent;
         const gridApi = event.api;
-        const rowIndex = event.rowIndex;
+        const rowIndex = event.rowIndex ?? 0;
         const itemPropsObj: { [key: string]: string } | undefined = this.fetchItemProperties(columns, data);
 
         const currTimestamp = (this.timestampCol && data) ? data[this.timestampCol] : undefined;
@@ -202,9 +202,9 @@ export class TableOutputComponent extends AbstractOutputComponent<TableOutputPro
         signalManager().fireTooltipSignal(itemPropsObj);
     }
 
-    private fetchItemProperties(columns: Column[], data: any) {
+    private fetchItemProperties(columns: Column[] | null, data: any) {
         const itemPropsObj: { [key: string]: string } = {};
-        columns.forEach(column => {
+        columns?.forEach(column => {
             const headerName = column.getColDef().headerName;
             const colField = column.getColDef().field;
             if (headerName && colField && data && data[colField]) {
@@ -217,7 +217,7 @@ export class TableOutputComponent extends AbstractOutputComponent<TableOutputPro
     private onKeyDown(event: CellKeyDownEvent) {
         const gridApi = event.api;
         const keyEvent = event.event as KeyboardEvent;
-        const rowIndex = event.rowIndex;
+        const rowIndex = event.rowIndex ?? 0;
         this.enableIndexSelection = true;
         const currTimestamp = (this.timestampCol && event.data) ? event.data[this.timestampCol] : undefined;
 
@@ -228,19 +228,21 @@ export class TableOutputComponent extends AbstractOutputComponent<TableOutputPro
             let isContiguous = true;
             if (keyEvent.shiftKey) {
                 if (keyEvent.code === 'ArrowDown') {
-                    if (!currentRow.isSelected()) {
+                    if (currentRow && !currentRow.isSelected()) {
                         gridApi.deselectAll();
                         isContiguous = false;
                     }
 
                     nextRow = gridApi.getRowNode(String(rowIndex + 1));
                     if (isContiguous === false) {
-                        if (this.timestampCol && nextRow.data) {
+                        if (this.timestampCol && nextRow?.data) {
                             this.startTimestamp = this.endTimestamp = BigInt(nextRow.data[this.timestampCol]);
                         }
-                        this.selectStartIndex = this.selectEndIndex = nextRow.rowIndex;
+                        if (nextRow && nextRow.rowIndex) {
+                            this.selectStartIndex = this.selectEndIndex = nextRow.rowIndex;
+                        }
                     } else {
-                        if (this.selectEndIndex < this.selectStartIndex) {
+                        if (this.selectStartIndex !== null && this.selectEndIndex < this.selectStartIndex) {
                             if (currentRow && currentRow.id) {
                                 currentRow.setSelected(false);
                             }
@@ -250,22 +252,24 @@ export class TableOutputComponent extends AbstractOutputComponent<TableOutputPro
                             }
                         }
                         this.selectEndIndex += 1;
-                        if (this.timestampCol && nextRow.data) {
+                        if (this.timestampCol && nextRow?.data) {
                             this.endTimestamp = BigInt(nextRow.data[this.timestampCol]);
                         }
                     }
                 } else if (keyEvent.code === 'ArrowUp') {
-                    if (!currentRow.isSelected()) {
+                    if (currentRow && !currentRow.isSelected()) {
                         gridApi.deselectAll();
                         isContiguous = false;
                     }
                     nextRow = gridApi.getRowNode(String(rowIndex - 1));
 
                     if (isContiguous === false) {
-                        if (this.timestampCol && nextRow.data) {
+                        if (this.timestampCol && nextRow && nextRow.data) {
                             this.startTimestamp = this.endTimestamp = BigInt(nextRow.data[this.timestampCol]);
                         }
-                        this.selectStartIndex = this.selectEndIndex = nextRow.rowIndex;
+                        if (nextRow && nextRow.rowIndex) {
+                            this.selectStartIndex = this.selectEndIndex = nextRow.rowIndex;
+                        }
                     } else {
                         if (this.selectStartIndex < this.selectEndIndex) {
                             if (currentRow && currentRow.id) {
@@ -277,7 +281,7 @@ export class TableOutputComponent extends AbstractOutputComponent<TableOutputPro
                             }
                         }
                         this.selectEndIndex -= 1;
-                        if (this.timestampCol && nextRow.data) {
+                        if (this.timestampCol && nextRow?.data) {
                             this.endTimestamp = BigInt(nextRow.data[this.timestampCol]);
                         }
                     }
@@ -300,16 +304,20 @@ export class TableOutputComponent extends AbstractOutputComponent<TableOutputPro
                 gridApi.deselectAll();
                 if (keyEvent.code === 'ArrowDown') {
                     nextRow = gridApi.getRowNode(String(rowIndex + 1));
-                    if (this.timestampCol && nextRow.data) {
+                    if (this.timestampCol && nextRow?.data) {
                         this.startTimestamp = this.endTimestamp = BigInt(nextRow.data[this.timestampCol]);
                     }
-                    this.selectStartIndex = this.selectEndIndex = nextRow.rowIndex;
+                    if (nextRow && nextRow.rowIndex) {
+                        this.selectStartIndex = this.selectEndIndex = nextRow.rowIndex;
+                    }
                 } else if (keyEvent.code === 'ArrowUp') {
                     nextRow = gridApi.getRowNode(String(rowIndex - 1));
-                    if (this.timestampCol && nextRow.data) {
+                    if (this.timestampCol && nextRow?.data) {
                         this.startTimestamp = this.endTimestamp = BigInt(nextRow.data[this.timestampCol]);
                     }
-                    this.selectStartIndex = this.selectEndIndex = nextRow.rowIndex;
+                    if (nextRow && nextRow.rowIndex) {
+                        this.selectStartIndex = this.selectEndIndex = nextRow.rowIndex;
+                    }
                 }
                 if (nextRow && nextRow.id) {
                     nextRow.setSelected(true);
@@ -409,7 +417,7 @@ export class TableOutputComponent extends AbstractOutputComponent<TableOutputPro
 
         if (this.columnApi) {
             const columns = this.columnApi.getAllColumns();
-            const timestampHeader = columns.find(column => column.getColDef().headerName === 'Timestamp ns');
+            const timestampHeader = columns?.find(column => column.getColDef().headerName === 'Timestamp ns');
             if (timestampHeader) {
                 this.timestampCol = timestampHeader.getColDef().field;
             }
@@ -653,7 +661,7 @@ export class TableOutputComponent extends AbstractOutputComponent<TableOutputPro
                     // non-contiguous row found, stop searching in cache
                     currRowIndexFound = false;
                 }
-                if (currRowIndexFound && !isFound && rowNode.data && rowNode.data['isMatched']) {
+                if (currRowIndexFound && !isFound && rowNode.rowIndex && rowNode.data && rowNode.data['isMatched']) {
                     this.gridApi?.ensureIndexVisible(rowNode.rowIndex);
                     this.selectStartIndex = this.selectEndIndex = rowNode.rowIndex;
                     if (this.timestampCol) {
@@ -707,7 +715,7 @@ export class TableOutputComponent extends AbstractOutputComponent<TableOutputPro
     }
 
     private isValidRowSelection(rowNode: RowNode): boolean {
-        if ((this.enableIndexSelection && this.selectStartIndex !== -1 && this.selectEndIndex !== -1 && rowNode.rowIndex >= Math.min(this.selectStartIndex, this.selectEndIndex)
+        if ((this.enableIndexSelection && this.selectStartIndex !== -1 && this.selectEndIndex !== -1 && rowNode.rowIndex && rowNode.rowIndex >= Math.min(this.selectStartIndex, this.selectEndIndex)
             && rowNode.rowIndex <= Math.max(this.selectStartIndex, this.selectEndIndex)) || (!this.enableIndexSelection
                 && this.timestampCol && BigInt(rowNode.data[this.timestampCol]) >= (this.startTimestamp <= this.endTimestamp ? this.startTimestamp : this.endTimestamp)
                 && BigInt(rowNode.data[this.timestampCol]) <= (this.startTimestamp <= this.endTimestamp ? this.endTimestamp : this.startTimestamp))) {
@@ -731,12 +739,12 @@ export class TableOutputComponent extends AbstractOutputComponent<TableOutputPro
             return;
         }
 
-        columnApi.setColumnsVisible([column.field], !columnApi.getColumn(column).isVisible());
+        columnApi.setColumnsVisible([column.field], !columnApi.getColumn(column)?.isVisible());
         const allCols = cloneDeep(this.state.tableColumns);
 
         allCols.map(item => {
             if (item.field === column.field) {
-                item.hide = columnApi.getColumn(column).isVisible();
+                item.hide = columnApi.getColumn(column)?.isVisible();
             }
         });
 

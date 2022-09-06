@@ -31,6 +31,6 @@ export abstract class AbstractDialogComponent<P extends DialogComponentProps, S>
         </ReactModal>;
     }
 
-    protected abstract renderDialogBody(): React.ReactFragment;
-    protected abstract renderFooter(): React.ReactFragment;
+    protected abstract renderDialogBody(): React.ReactElement;
+    protected abstract renderFooter(): React.ReactElement;
 }

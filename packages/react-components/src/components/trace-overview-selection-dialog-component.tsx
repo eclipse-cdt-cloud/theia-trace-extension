@@ -26,7 +26,7 @@ export class TraceOverviewSelectionDialogComponent extends AbstractDialogCompone
         this.getAvailableOutputDescriptors();
     }
 
-    protected renderDialogBody(): React.ReactFragment{
+    protected renderDialogBody(): React.ReactElement {
         if (!this.state.outputDescriptors) {
             return (<div>
                 Loading available outputs...
@@ -45,7 +45,7 @@ export class TraceOverviewSelectionDialogComponent extends AbstractDialogCompone
         );
     }
 
-    protected renderFooter(): React.ReactFragment {
+    protected renderFooter(): React.ReactElement {
         return (
            <button className="theia-button secondary" onClick={this.props.onCloseDialog}>Close</button>
         );
