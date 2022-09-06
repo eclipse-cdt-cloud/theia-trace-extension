@@ -162,7 +162,7 @@ export class TableOutputComponent extends AbstractOutputComponent<TableOutputPro
     }
 
     private onEventClick(event: CellClickedEvent) {
-        const columns = event.columnApi.getAllColumns();
+        const columns = event.columnApi.getColumns();
         const data = event.data;
         const mouseEvent = event.event as MouseEvent;
         const gridApi = event.api;
@@ -242,7 +242,7 @@ export class TableOutputComponent extends AbstractOutputComponent<TableOutputPro
                             this.selectStartIndex = this.selectEndIndex = nextRow.rowIndex;
                         }
                     } else {
-                        if (this.selectStartIndex !== null && this.selectEndIndex < this.selectStartIndex) {
+                        if (this.selectStartIndex && this.selectEndIndex && this.selectEndIndex < this.selectStartIndex) {
                             if (currentRow && currentRow.id) {
                                 currentRow.setSelected(false);
                             }
@@ -324,7 +324,7 @@ export class TableOutputComponent extends AbstractOutputComponent<TableOutputPro
                 }
             }
             let itemPropsObj;
-            const columns = event.columnApi.getAllColumns();
+            const columns = event.columnApi.getColumns();
             itemPropsObj = undefined;
             if (nextRow && nextRow.data) {
                 itemPropsObj = this.fetchItemProperties(columns, nextRow.data);
@@ -416,7 +416,7 @@ export class TableOutputComponent extends AbstractOutputComponent<TableOutputPro
         });
 
         if (this.columnApi) {
-            const columns = this.columnApi.getAllColumns();
+            const columns = this.columnApi.getColumns();
             const timestampHeader = columns?.find(column => column.getColDef().headerName === 'Timestamp ns');
             if (timestampHeader) {
                 this.timestampCol = timestampHeader.getColDef().field;
@@ -669,7 +669,7 @@ export class TableOutputComponent extends AbstractOutputComponent<TableOutputPro
                     }
                     let itemPropsObj;
                     if (this.columnApi) {
-                        itemPropsObj = this.fetchItemProperties(this.columnApi.getAllColumns(), rowNode.data);
+                        itemPropsObj = this.fetchItemProperties(this.columnApi.getColumns(), rowNode.data);
                     }
                     // Notify selection changed
                     this.handleRowSelectionChange(itemPropsObj);
@@ -703,7 +703,7 @@ export class TableOutputComponent extends AbstractOutputComponent<TableOutputPro
             if (this.selectStartIndex !== -1 && this.selectEndIndex !== -1) {
                 let itemPropsObj;
                 if (this.columnApi && syncData) {
-                    itemPropsObj = this.fetchItemProperties(this.columnApi.getAllColumns(), syncData);
+                    itemPropsObj = this.fetchItemProperties(this.columnApi.getColumns(), syncData);
                 }
                 // Notfiy selection changed
                 this.handleRowSelectionChange(itemPropsObj);
@@ -715,7 +715,8 @@ export class TableOutputComponent extends AbstractOutputComponent<TableOutputPro
     }
 
     private isValidRowSelection(rowNode: RowNode): boolean {
-        if ((this.enableIndexSelection && this.selectStartIndex !== -1 && this.selectEndIndex !== -1 && rowNode.rowIndex && rowNode.rowIndex >= Math.min(this.selectStartIndex, this.selectEndIndex)
+        if ((this.enableIndexSelection && this.selectStartIndex !== -1 && this.selectEndIndex !== -1
+            && rowNode.rowIndex && rowNode.rowIndex >= Math.min(this.selectStartIndex, this.selectEndIndex)
             && rowNode.rowIndex <= Math.max(this.selectStartIndex, this.selectEndIndex)) || (!this.enableIndexSelection
                 && this.timestampCol && BigInt(rowNode.data[this.timestampCol]) >= (this.startTimestamp <= this.endTimestamp ? this.startTimestamp : this.endTimestamp)
                 && BigInt(rowNode.data[this.timestampCol]) <= (this.startTimestamp <= this.endTimestamp ? this.endTimestamp : this.startTimestamp))) {
@@ -768,7 +769,7 @@ export class TableOutputComponent extends AbstractOutputComponent<TableOutputPro
                             <td>
                                 <input
                                     type='checkbox'
-                                    checked={this.columnApi!.getColumn(column).isVisible()}
+                                    checked={this.columnApi!.getColumn(column)?.isVisible()}
                                     onChange={() => this.toggleColumnVisibility(this.columnApi!, column.getColDef())}
                                 />
                             </td>
