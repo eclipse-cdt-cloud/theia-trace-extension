@@ -218,7 +218,7 @@ export class DataTreeOutputComponent extends AbstractOutputComponent<AbstractOut
 
                 const link = document.createElement('a');
                 link.setAttribute('href', `data:text/csv;charset=utf-8,${encodeURIComponent(tableString)}`);
-                link.setAttribute('download', (this.props.traceName ?? 'export') + ' - ' + this.props.outputDescriptor.name);
+                link.setAttribute('download', (this.props.traceName ?? 'export') + ' - ' + this.props.outputDescriptor.name + '.csv');
 
                 link.style.display = 'none';
                 document.body.appendChild(link);
