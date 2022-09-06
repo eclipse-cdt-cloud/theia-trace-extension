@@ -975,14 +975,14 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
                     <li className='drop-down-list-item'
                         onClick={() => this.pinView({ collapsedNodes: this.state.collapsedNodes,
                                                     collapsedMarkerNodes: this.state.collapsedMarkerNodes })}>
-                        Pin View
+                        <div className='drop-down-list-item-text'>Pin View</div>
                     </li>}
                 {this.props.pinned === true &&
-                <li className='drop-down-list-item'
-                    onClick={() => this.unPinView({ collapsedNodes: this.state.collapsedNodes,
-                                                    collapsedMarkerNodes: this.state.collapsedMarkerNodes })}>
-                    Unpin View
-                </li>}
+                    <li className='drop-down-list-item'
+                        onClick={() => this.unPinView({ collapsedNodes: this.state.collapsedNodes,
+                                                        collapsedMarkerNodes: this.state.collapsedMarkerNodes })}>
+                        <div className='drop-down-list-item-text'>Unpin View</div>
+                    </li>}
             </ul>
             {this.state.additionalOptions && this.showAdditionalOptions()}
         </React.Fragment>;

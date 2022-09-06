@@ -382,13 +382,13 @@ export class XYOutputComponent extends AbstractXYOutputComponent<AbstractOutputP
                         onClick={() => this.pinView({ checkedSeries: this.state.checkedSeries,
                                                     collapsedNodes: this.state.collapsedNodes })}
                     >
-                        Pin View
+                        <div className='drop-down-list-item-text'>Pin View</div>
                     </li>}
                 {this.props.pinned === true &&
                     <li className='drop-down-list-item'
                         onClick={() => this.unPinView({ checkedSeries: this.state.checkedSeries,
                                                     collapsedNodes: this.state.collapsedNodes })}>
-                        Unpin View
+                        <div className='drop-down-list-item-text'>Unpin View</div>
                     </li>}
             </ul>
             {this.state.additionalOptions && this.showAdditionalOptions()}
