@@ -5,7 +5,6 @@ exports[`Table output component tests Cell renderer 1`] = `"test cell"`;
 exports[`Table output component tests Cell renderer with search selection 1`] = `
 Array [
   <span>
-    
     <span
       style={
         Object {

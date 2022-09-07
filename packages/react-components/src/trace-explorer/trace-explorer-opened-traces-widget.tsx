@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { flushSync } from 'react-dom';
 import { List, ListRowProps, Index, AutoSizer } from 'react-virtualized';
 import { Experiment } from 'tsp-typescript-client/lib/models/experiment';
 import { ExperimentManager } from 'traceviewer-base/lib/experiment-manager';
@@ -272,7 +273,10 @@ export class ReactOpenTracesWidget extends React.Component<ReactOpenTracesWidget
         });
         const selectedIndex = remoteExperiments.findIndex(experiment => this._selectedExperiment &&
             experiment.UUID === this._selectedExperiment.UUID);
-        this.setState({ openedExperiments: remoteExperiments, selectedExperimentIndex: selectedIndex });
+        // flushSync: force immediate state update instead of waiting for React 18's automatic batching
+        flushSync(() => {
+            this.setState({ openedExperiments: remoteExperiments, selectedExperimentIndex: selectedIndex });
+        });
         signalManager().fireOpenedTracesChangedSignal(new OpenedTracesUpdatedSignalPayload(remoteExperiments ? remoteExperiments.length : 0));
     }
 

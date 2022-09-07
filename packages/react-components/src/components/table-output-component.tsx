@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { AbstractOutputComponent, AbstractOutputProps, AbstractOutputState } from './abstract-output-component';
 import * as React from 'react';
+import { flushSync } from 'react-dom';
 import { AgGridReact } from 'ag-grid-react';
 import { ColDef, IDatasource, GridReadyEvent, CellClickedEvent, GridApi, ColumnApi, Column, RowNode } from 'ag-grid-community';
 import { QueryHelper } from 'tsp-typescript-client/lib/models/query/query-helper';
@@ -238,7 +239,7 @@ export class TableOutputComponent extends AbstractOutputComponent<TableOutputPro
                         if (this.timestampCol && nextRow?.data) {
                             this.startTimestamp = this.endTimestamp = BigInt(nextRow.data[this.timestampCol]);
                         }
-                        if (nextRow && nextRow.rowIndex) {
+                        if (nextRow?.rowIndex) {
                             this.selectStartIndex = this.selectEndIndex = nextRow.rowIndex;
                         }
                     } else {
@@ -247,7 +248,7 @@ export class TableOutputComponent extends AbstractOutputComponent<TableOutputPro
                                 currentRow.setSelected(false);
                             }
                         } else {
-                            if (nextRow && nextRow.id) {
+                            if (nextRow?.id) {
                                 nextRow.setSelected(true);
                             }
                         }
@@ -257,17 +258,17 @@ export class TableOutputComponent extends AbstractOutputComponent<TableOutputPro
                         }
                     }
                 } else if (keyEvent.code === 'ArrowUp') {
-                    if (currentRow && !currentRow.isSelected()) {
+                    if (!currentRow?.isSelected()) {
                         gridApi.deselectAll();
                         isContiguous = false;
                     }
                     nextRow = gridApi.getRowNode(String(rowIndex - 1));
 
                     if (isContiguous === false) {
-                        if (this.timestampCol && nextRow && nextRow.data) {
+                        if (this.timestampCol && nextRow?.data) {
                             this.startTimestamp = this.endTimestamp = BigInt(nextRow.data[this.timestampCol]);
                         }
-                        if (nextRow && nextRow.rowIndex) {
+                        if (nextRow?.rowIndex) {
                             this.selectStartIndex = this.selectEndIndex = nextRow.rowIndex;
                         }
                     } else {
@@ -276,7 +277,7 @@ export class TableOutputComponent extends AbstractOutputComponent<TableOutputPro
                                 currentRow.setSelected(false);
                             }
                         } else {
-                            if (nextRow && nextRow.id) {
+                            if (nextRow?.id) {
                                 nextRow.setSelected(true);
                             }
                         }
@@ -307,7 +308,7 @@ export class TableOutputComponent extends AbstractOutputComponent<TableOutputPro
                     if (this.timestampCol && nextRow?.data) {
                         this.startTimestamp = this.endTimestamp = BigInt(nextRow.data[this.timestampCol]);
                     }
-                    if (nextRow && nextRow.rowIndex) {
+                    if (nextRow?.rowIndex) {
                         this.selectStartIndex = this.selectEndIndex = nextRow.rowIndex;
                     }
                 } else if (keyEvent.code === 'ArrowUp') {
@@ -315,11 +316,11 @@ export class TableOutputComponent extends AbstractOutputComponent<TableOutputPro
                     if (this.timestampCol && nextRow?.data) {
                         this.startTimestamp = this.endTimestamp = BigInt(nextRow.data[this.timestampCol]);
                     }
-                    if (nextRow && nextRow.rowIndex) {
+                    if (nextRow?.rowIndex) {
                         this.selectStartIndex = this.selectEndIndex = nextRow.rowIndex;
                     }
                 }
-                if (nextRow && nextRow.id) {
+                if (nextRow?.id) {
                     nextRow.setSelected(true);
                 }
             }
@@ -410,9 +411,12 @@ export class TableOutputComponent extends AbstractOutputComponent<TableOutputPro
         this.columnIds = colIds;
         this.columnArray = columnsArray;
 
-        this.setState({
-            outputStatus: columnsResponse.status,
-            tableColumns: this.columnArray
+        // flushSync: force immediate state update instead of waiting for React 18's automatic batching
+        flushSync(() => {
+            this.setState({
+                outputStatus: columnsResponse.status,
+                tableColumns: this.columnArray
+            });
         });
 
         if (this.columnApi) {

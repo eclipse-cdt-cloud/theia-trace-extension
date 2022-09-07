@@ -4,7 +4,6 @@ exports[`Checked status 1`] = `
 <tr>
   <td
     className=""
-    onClick={[Function]}
   >
     <span>
       <div
@@ -56,7 +55,6 @@ exports[`Checked status 2`] = `
 <tr>
   <td
     className=""
-    onClick={[Function]}
   >
     <span>
       <div
@@ -108,7 +106,6 @@ exports[`Checked status 3`] = `
 <tr>
   <td
     className=""
-    onClick={[Function]}
   >
     <span>
       <div
@@ -160,7 +157,6 @@ exports[`Levels 1`] = `
 <tr>
   <td
     className=""
-    onClick={[Function]}
   >
     <span>
       <div
@@ -212,7 +208,6 @@ exports[`Levels 2`] = `
 <tr>
   <td
     className=""
-    onClick={[Function]}
   >
     <span>
       <div
@@ -265,7 +260,6 @@ Array [
   <tr>
     <td
       className=""
-      onClick={[Function]}
     >
       <span>
         <div
@@ -329,7 +323,6 @@ Array [
     </td>
     <td
       className=""
-      onClick={[Function]}
     >
       <span>
         parent 2 text
@@ -342,7 +335,6 @@ Array [
   <tr>
     <td
       className=""
-      onClick={[Function]}
     >
       <span>
         <div
@@ -386,7 +378,6 @@ Array [
     </td>
     <td
       className=""
-      onClick={[Function]}
     >
       <span>
         child 1 text
@@ -399,7 +390,6 @@ Array [
   <tr>
     <td
       className=""
-      onClick={[Function]}
     >
       <span>
         <div
@@ -443,7 +433,6 @@ Array [
     </td>
     <td
       className=""
-      onClick={[Function]}
     >
       <span>
         child 2 text
@@ -460,7 +449,6 @@ exports[`Uncheckable 1`] = `
 <tr>
   <td
     className=""
-    onClick={[Function]}
   >
     <span>
       <div
@@ -486,7 +474,6 @@ Array [
   <tr>
     <td
       className=""
-      onClick={[Function]}
     >
       <span>
         <div
@@ -555,7 +542,6 @@ Array [
   <tr>
     <td
       className=""
-      onClick={[Function]}
     >
       <span>
         <div
@@ -604,7 +590,6 @@ Array [
   <tr>
     <td
       className=""
-      onClick={[Function]}
     >
       <span>
         <div
@@ -657,7 +642,6 @@ exports[`with children With children collapsed 1`] = `
 <tr>
   <td
     className=""
-    onClick={[Function]}
   >
     <span>
       <div

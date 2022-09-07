@@ -166,26 +166,38 @@ export abstract class AbstractOutputComponent<P extends AbstractOutputProps, S e
 
     protected showOptionsMenu(): React.ReactNode {
         return <React.Fragment>
-            {(this.props.pinned !== false || this.state.additionalOptions) && <div className='options-menu-container'>
-                <button title="Show View Options" className='options-menu-button' onClick={this.openOptionsMenu}>
-                    <FontAwesomeIcon icon={faBars} />
-                </button>
-                {this.state?.optionsDropdownOpen && <div className="options-menu-drop-down" ref={this.optionsMenuRef}>
-                    {this.showOptions()}
-                </div>}
-            </div>}
+            {
+                (this.props.pinned !== false || this.state.additionalOptions) &&
+                    <div className='options-menu-container'>
+                        <button title="Show View Options" className='options-menu-button' onClick={this.openOptionsMenu}>
+                            <FontAwesomeIcon icon={faBars} />
+                        </button>
+                        {
+                            this.state?.optionsDropdownOpen &&
+                                <div className="options-menu-drop-down" ref={this.optionsMenuRef}>
+                                    {this.showOptions()}
+                                </div>
+                        }
+                    </div>
+            }
         </React.Fragment>;
     }
 
     protected showOptions(): React.ReactNode {
         return <React.Fragment>
             <ul>
-                {this.props.pinned === undefined && <li className='drop-down-list-item' onClick={() => this.pinView()}>
-                    <div className='drop-down-list-item-text'>Pin View</div>
-                </li>}
-                {this.props.pinned === true && <li className='drop-down-list-item' onClick={() => this.unPinView()}>
-                    <div className='drop-down-list-item-text'>Unpin View</div>
-                </li>}
+                {
+                    this.props.pinned === undefined &&
+                        <li className='drop-down-list-item' onClick={() => this.pinView()}>
+                            <div className='drop-down-list-item-text'>Pin View</div>
+                        </li>
+                }
+                {
+                    this.props.pinned === true &&
+                        <li className='drop-down-list-item' onClick={() => this.unPinView()}>
+                            <div className='drop-down-list-item-text'>Unpin View</div>
+                        </li>
+                }
             </ul>
             {this.state.additionalOptions && this.showAdditionalOptions()}
         </React.Fragment>;
@@ -233,7 +245,10 @@ export abstract class AbstractOutputComponent<P extends AbstractOutputProps, S e
 
     private openOptionsMenu(): void {
         this.setState({optionsDropdownOpen: true}, () => {
-            document.addEventListener('click', this.closeOptionsMenu);
+            // Timeout used to avoid bubble up and immediate triggering of the event listener
+            setTimeout(() => {
+                document.addEventListener('click', this.closeOptionsMenu);
+            }, 10);
         });
     }
 
@@ -246,7 +261,10 @@ export abstract class AbstractOutputComponent<P extends AbstractOutputProps, S e
         }
         this.closeOptionsDropDown();
         this.setState({optionsDropdownOpen: false}, () => {
-            document.removeEventListener('click', this.closeOptionsMenu);
+            // Timeout used to avoid bubble up and immediate triggering of the event listener
+            setTimeout(() => {
+                document.removeEventListener('click', this.closeOptionsMenu);
+            }, 10);
         });
     }
 
