@@ -12,6 +12,7 @@ import { select } from 'd3-selection';
 import { EntryTree } from './utils/filter-tree/entry-tree';
 import { XYSeries } from 'tsp-typescript-client/lib/models/xy';
 import * as React from 'react';
+import { flushSync } from 'react-dom';
 import { TimeRange } from 'traceviewer-base/src/utils/time-range';
 import { BIMath } from 'timeline-chart/lib/bigint-utils';
 import { XYChartFactoryParams, xyChartFactory, GetClosestPointParam, getClosestPointForScatterPlot } from './utils/xy-output-component-utils';
@@ -179,7 +180,7 @@ export abstract class AbstractXYOutputComponent<P extends AbstractOutputProps, S
                 newList = newList.concat(id);
             }
         });
-        this.setState({checkedSeries: newList});
+        this.setState({ checkedSeries: newList });
     }
 
     private updateRange(rangeStart: bigint, rangeEnd: bigint): void {
@@ -451,8 +452,9 @@ export abstract class AbstractXYOutputComponent<P extends AbstractOutputProps, S
             datasets: dataSetArray
         };
 
-        this.setState({
-            xyData: scatterData
+        // flushSync: force immediate state update instead of waiting for React 18's automatic batching
+        flushSync(() => {
+            this.setState({ xyData: scatterData});
         });
 
         this.calculateYRange();
@@ -478,8 +480,9 @@ export abstract class AbstractXYOutputComponent<P extends AbstractOutputProps, S
             datasets: dataSetArray
         };
 
-        this.setState({
-            xyData: lineData
+        // flushSync: force immediate state update instead of waiting for React 18's automatic batching
+        flushSync(() => {
+            this.setState({ xyData: lineData });
         });
 
         this.calculateYRange();

@@ -57,7 +57,7 @@ jobs:
 
     - uses: actions/setup-node@v1
       with:
-        node-version: '12'
+        node-version: '16'
 
     # ESLint and Prettier must be in `package.json`
     - run: yarn --frozen-lockfile --ignore-scripts

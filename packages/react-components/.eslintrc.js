@@ -28,7 +28,8 @@ module.exports = {
         'plugins',
         '**/*/__tests__',
         '**/*/__mocks__',
-        'jestSetup.ts'
+        'jestSetup.ts',
+        'jest-shim.ts'
     ],
     parserOptions: {
         tsconfigRootDir: __dirname,
