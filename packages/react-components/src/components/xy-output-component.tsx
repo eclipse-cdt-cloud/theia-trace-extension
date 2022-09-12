@@ -209,7 +209,7 @@ export class XYOutputComponent extends AbstractXYOutputComponent<AbstractOutputP
                     start: this.props.unitController.selectionRange.start,
                     end: startTime
                 };
-            } else if (event.ctrlKey && !event.shiftKey) {
+            } else if ((event.ctrlKey && !event.shiftKey) || (!(event.shiftKey && event.ctrlKey) && this.clickedMouseButton === MouseButton.MID)) {
                 this.resolution = this.getChartWidth() / Number(this.props.unitController.viewRangeLength);
                 this.mousePanningStart = this.props.unitController.viewRange.start + BIMath.round(event.nativeEvent.x / this.resolution);
                 this.isPanning = true;
