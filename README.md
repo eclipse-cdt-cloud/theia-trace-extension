@@ -1,6 +1,6 @@
 # Trace Viewer extension for Theia applications
 
-Theia trace viewer extension using the [tsp-typescript-client][tspc]) and [Trace Server Protocol][tsp].
+Theia trace viewer extension using the [tsp-typescript-client][tspc] and [Trace Server Protocol][tsp].
 
 Prerequisites for running this extension are the same as those for [running the Theia IDE][theia-prereq].
 
