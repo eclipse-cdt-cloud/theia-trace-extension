@@ -357,7 +357,6 @@ pip install -r requirements.txt
 [app-image]: https://www.dorsal.polymtl.ca/files/other/electron-theia-trace-example-app-0.0.1.AppImage
 [docs]: https://wiki.eclipse.org/Trace_Compass/Design_Documents
 [eclipsecon2021-slides]: https://www.eclipsecon.org/sites/default/files/slides/EclipseCon2021-TraceCompassCloud.pdf
-[ext]: https://marketplace.visualstudio.com/items?itemName=bierner.markdown-mermaid
 [gh]: https://github.blog/2022-02-14-include-diagrams-markdown-files-mermaid/
 [gitpod-ext]: https://gitpod.io/#https://github.com/eclipse-cdt-cloud/theia-trace-extension
 [gitpod-live-demo-setup]: https://raw.githubusercontent.com/eclipse-cdt-cloud/theia-trace-extension/master/doc/images/gitpod-live-demo-setup-0.0.2.gif
