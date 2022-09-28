@@ -22,9 +22,15 @@ export class TimeGraphShortcutsTable extends React.Component {
                                 </td>
                             </tr>
                             <tr>
-                                <td>Zoom to state&apos;s range</td>
+                                <td>Next Marker</td>
                                 <td className='monaco-keybinding shortcuts-table-keybinding'>
-                                    <span>Double-click state</span>
+                                    <span className='monaco-keybinding-key'>.</span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Previous Marker</td>
+                                <td className='monaco-keybinding shortcuts-table-keybinding'>
+                                    <span className='monaco-keybinding-key'>,</span>
                                 </td>
                             </tr>
                         </tbody>
@@ -49,6 +55,12 @@ export class TimeGraphShortcutsTable extends React.Component {
                                 <td>Zoom to selected</td>
                                 <td className='monaco-keybinding shortcuts-table-keybinding'>
                                     <span className='monaco-keybinding-key'>Z</span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Zoom to state&apos;s range</td>
+                                <td className='monaco-keybinding shortcuts-table-keybinding'>
+                                    <span>Double-click state</span>
                                 </td>
                             </tr>
                         </tbody>
