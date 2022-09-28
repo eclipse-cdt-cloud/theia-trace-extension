@@ -61,14 +61,12 @@ export class TableRow extends React.Component<TableRowProps> {
             : undefined;
 
     renderRow = (): React.ReactNode => {
-        const { node, onRowClick, selectedRow } = this.props;
+        const { node } = this.props;
         const row = node.labels.map((_label: string, index) =>
             <TableCell
                 key={node.id + '-' + index}
                 index={index}
                 node={node}
-                onRowClick={onRowClick}
-                selectedRow={selectedRow}
             >
                 { (index === 0) ? this.renderToggleCollapse() : undefined }
                 { (index === 0) ? this.renderCheckbox() : undefined }
@@ -93,13 +91,25 @@ export class TableRow extends React.Component<TableRowProps> {
         return undefined;
     };
 
+    onClick = (): void => {
+        const { node, onRowClick } = this.props;
+        if (onRowClick) {
+            onRowClick(node.id);
+        }
+    };
+
     render(): React.ReactNode | undefined {
         if (!this.props.node) { return undefined; }
         const children = this.renderChildren();
+        const { node, selectedRow } = this.props;
+        const className = selectedRow === node.id ? 'selected' : '';
 
         return (
             <React.Fragment>
-                <tr>{this.renderRow()}</tr>
+                <tr
+                    className={className}
+                    onClick={this.onClick}
+                >{this.renderRow()}</tr>
                 {children}
             </React.Fragment>
         );

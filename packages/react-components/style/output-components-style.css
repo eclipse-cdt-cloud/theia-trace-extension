@@ -235,7 +235,7 @@ canvas {
     display: block;
 }
 
-.table-tree td.selected {
+.table-tree tr.selected td {
     background-color: var(--theia-selection-background) !important;
 }
 

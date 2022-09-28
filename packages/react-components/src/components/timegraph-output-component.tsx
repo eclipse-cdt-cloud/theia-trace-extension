@@ -5,6 +5,7 @@ import { TimeGraphChart, TimeGraphChartProviders } from 'timeline-chart/lib/laye
 import { TimeGraphChartArrows } from 'timeline-chart/lib/layer/time-graph-chart-arrows';
 import { TimeGraphRangeEventsLayer } from 'timeline-chart/lib/layer/time-graph-range-events-layer';
 import { TimeGraphChartCursors } from 'timeline-chart/lib/layer/time-graph-chart-cursors';
+import { TimeGraphMarkersChartCursors } from 'timeline-chart/lib/layer/time-graph-markers-chart-cursors';
 import { TimeGraphChartGrid } from 'timeline-chart/lib/layer/time-graph-chart-grid';
 import { TimeGraphChartSelectionRange } from 'timeline-chart/lib/layer/time-graph-chart-selection-range';
 import { TimeGraphVerticalScrollbar } from 'timeline-chart/lib/layer/time-graph-vertical-scrollbar';
@@ -40,6 +41,7 @@ type TimegraphOutputState = AbstractTreeOutputState & {
     markerCategoryEntries: Entry[];
     markerLayerData: { rows: TimelineChart.TimeGraphRowModel[], range: TimelineChart.TimeGraphRange, resolution: number } | undefined;
     selectedRow?: number;
+    selectedMarkerRow?: number;
     collapsedNodes: number[];
     collapsedMarkerNodes: number[];
     columns: ColumnHeader[];
@@ -56,6 +58,7 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
     private markersChartLayer: TimeGraphChart;
     private vscrollLayer: TimeGraphVerticalScrollbar;
     private chartCursors: TimeGraphChartCursors;
+    private markerChartCursors: TimeGraphChartCursors;
     private arrowLayer: TimeGraphChartArrows;
     private rangeEventsLayer: TimeGraphRangeEventsLayer;
 
@@ -81,6 +84,7 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
             markerLayerData: undefined,
             collapsedNodes: validateNumArray(this.props.persistChartState?.collapsedNodes) ? this.props.persistChartState.collapsedNodes as number[] : [],
             selectedRow: undefined,
+            selectedMarkerRow: undefined,
             columns: [],
             collapsedMarkerNodes: validateNumArray(this.props.persistChartState?.collapsedMarkerNodes) ? this.props.persistChartState.collapsedMarkerNodes as number[] : [],
             optionsDropdownOpen: false,
@@ -124,6 +128,7 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
         this.vscrollLayer = new TimeGraphVerticalScrollbar('timeGraphVerticalScrollbar', this.rowController);
         this.chartCursors = new TimeGraphChartCursors('chart-cursors', this.chartLayer, this.rowController, { color: this.props.style.cursorColor });
         this.rowController.onSelectedRowChangedHandler(this.onSelectionChange);
+        this.markerRowController.onSelectedRowChangedHandler(this.onMarkerSelectionChange);
         this.rowController.onVerticalOffsetChangedHandler(() => {
             if (this.timeGraphTreeRef.current) {
                 this.timeGraphTreeRef.current.scrollTop = this.rowController.verticalOffset;
@@ -131,6 +136,7 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
         });
 
         this.markersChartLayer = new TimeGraphChart('timeGraphChart', markersProvider, this.markerRowController);
+        this.markerChartCursors = new TimeGraphMarkersChartCursors('chart-cursors-new', this.markersChartLayer, this.markerRowController, { color: this.props.style.cursorColor });
         this.chartLayer.onSelectedStateChanged(model => {
             this.pendingSelection = undefined;
             if (model) {
@@ -407,6 +413,8 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
                     entries={this.state.markerCategoryEntries}
                     showCheckboxes={false}
                     showCloseIcons={true}
+                    onRowClick={this.onMarkerRowClick}
+                    selectedRow={this.state.selectedMarkerRow}
                     onToggleCollapse={this.onToggleAnnotationCollapse}
                     onClose={this.onMarkerCategoryRowClose}
                     showHeader={false}
@@ -525,7 +533,7 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
             removeWidgetResizeHandler={this.props.removeWidgetResizeHandler}
             unitController={this.props.unitController}
             id='timegraph-chart-1'
-            layers={[this.markersChartLayer]}
+            layers={[this.markersChartLayer, this.markerChartCursors]}
         />;
 
     }
@@ -957,9 +965,13 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
         }
     };
 
-    public onSelectionChange = (row: TimelineChart.TimeGraphRowModel): void => {
-        this.setState({ selectedRow: row.id });
+    public onMarkerRowClick = (id: number): void => {
+        const rowIndex = getIndexOfNode(id, listToTree(this.state.markerCategoryEntries, this.state.columns), this.state.collapsedNodes);
+        this.markersChartLayer.selectAndReveal(rowIndex);
     };
+
+    public onSelectionChange = (row: TimelineChart.TimeGraphRowModel): void => this.setState({ selectedRow: row.id });
+    public onMarkerSelectionChange = (row: TimelineChart.TimeGraphRowModel): void => this.setState({ selectedMarkerRow: row.id });
 
     private selectAndReveal(item: TimeGraphEntry) {
         const rowIndex = getIndexOfNode(item.id, listToTree(this.state.timegraphTree, this.state.columns), this.state.collapsedNodes);
