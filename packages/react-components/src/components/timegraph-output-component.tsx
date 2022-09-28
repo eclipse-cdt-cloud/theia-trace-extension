@@ -2,6 +2,7 @@ import * as React from 'react';
 import { TimeGraphComponent } from 'timeline-chart/lib/components/time-graph-component';
 import { TimeGraphStateComponent, TimeGraphStateStyle } from 'timeline-chart/lib/components/time-graph-state';
 import { TimeGraphChart, TimeGraphChartProviders } from 'timeline-chart/lib/layer/time-graph-chart';
+import { TimeGraphMarkersChart } from 'timeline-chart/lib/layer/time-graph-markers-chart';
 import { TimeGraphChartArrows } from 'timeline-chart/lib/layer/time-graph-chart-arrows';
 import { TimeGraphRangeEventsLayer } from 'timeline-chart/lib/layer/time-graph-range-events-layer';
 import { TimeGraphChartCursors } from 'timeline-chart/lib/layer/time-graph-chart-cursors';
@@ -12,7 +13,7 @@ import { TimelineChart } from 'timeline-chart/lib/time-graph-model';
 import { TimeGraphRowController } from 'timeline-chart/lib/time-graph-row-controller';
 import { QueryHelper } from 'tsp-typescript-client/lib/models/query/query-helper';
 import { ResponseStatus } from 'tsp-typescript-client/lib/models/response/responses';
-import { TimeGraphEntry } from 'tsp-typescript-client/lib/models/timegraph';
+import { TimeGraphEntry, TimeGraphRow } from 'tsp-typescript-client/lib/models/timegraph';
 import { signalManager, Signals } from 'traceviewer-base/lib/signals/signal-manager';
 import { AbstractOutputProps } from './abstract-output-component';
 import { AbstractTreeOutputComponent, AbstractTreeOutputState } from './abstract-tree-output-component';
@@ -53,7 +54,7 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
     private rowController: TimeGraphRowController;
     private markerRowController: TimeGraphRowController;
     private chartLayer: TimeGraphChart;
-    private markersChartLayer: TimeGraphChart;
+    private markersChartLayer: TimeGraphMarkersChart;
     private vscrollLayer: TimeGraphVerticalScrollbar;
     private chartCursors: TimeGraphChartCursors;
     private arrowLayer: TimeGraphChartArrows;
@@ -130,7 +131,7 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
             }
         });
 
-        this.markersChartLayer = new TimeGraphChart('timeGraphChart', markersProvider, this.markerRowController);
+        this.markersChartLayer = new TimeGraphMarkersChart('timeGraphChart', markersProvider, this.markerRowController);
         this.chartLayer.onSelectedStateChanged(model => {
             this.pendingSelection = undefined;
             if (model) {
@@ -160,18 +161,19 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
                 }
             }
         });
-        this.markersChartLayer.registerMouseInteractions({
-            click: el => {
-                if (el instanceof TimeGraphStateComponent) {
-                    if (el.model.range.start !== undefined && el.model.range.end !== undefined) {
-                        this.props.unitController.selectionRange = {
-                            start: el.model.range.start,
-                            end: el.model.range.end
-                        };
-                    }
-                }
-            }
-        });
+        // this.markersChartLayer.registerMouseInteractions({
+        //     click: el => {
+        //         if (el instanceof TimeGraphStateComponent) {
+        //             if (el.model.range.start !== undefined && el.model.range.end !== undefined) {
+        //                 this.props.unitController.selectionRange = {
+        //                     start: el.model.range.start,
+        //                     end: el.model.range.end
+        //                 };
+        //             }
+        //         }
+        //     }
+        // });
+
     }
 
     synchronizeTreeScroll(): void {
@@ -707,9 +709,12 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
             resolution: newResolution
         };
 
+        // Can we make this cleaner?
+        this.markersChartLayer.selectedMarker = undefined;
         this.setState({ markerCategoryEntries: annotationEntries, markerLayerData: markerLayerData });
     }
 
+    
     private getMarkersRowIds() {
         const rows = (this.state.collapsedMarkerNodes.length !== 0 || !!!this.state.markerLayerData) ? [] : this.state.markerLayerData.rows;
         const rowIds: number[] = [];
