@@ -32,6 +32,7 @@ export declare interface SignalManager {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     fireUnPinView(output: OutputDescriptor, payload?: any): void;
     fireOverviewOutputSelectedSignal(payload: { traceId: string, outputDescriptor: OutputDescriptor}): void;
+    fireDatatreeOutputOpenContextMenu(payload: { xPos: number, yPos: number, nodeId: number, cellIndex: number, outputId: string}): void;
 }
 
 export const Signals = {
@@ -60,7 +61,8 @@ export const Signals = {
     PIN_VIEW: 'view pinned',
     UNPIN_VIEW: 'view unpinned',
     OPEN_OVERVIEW_OUTPUT: 'open overview output',
-    OVERVIEW_OUTPUT_SELECTED: 'overview output selected'
+    OVERVIEW_OUTPUT_SELECTED: 'overview output selected',
+    DATATREE_OUTPUT_OPEN_CONTEXT_MENU: 'datatree output open context menu'
 };
 
 export class SignalManager extends EventEmitter implements SignalManager {
@@ -140,6 +142,9 @@ export class SignalManager extends EventEmitter implements SignalManager {
     }
     fireOverviewOutputSelectedSignal(payload: { traceId: string, outputDescriptor: OutputDescriptor}): void {
         this.emit(Signals.OVERVIEW_OUTPUT_SELECTED, payload);
+    }
+    fireDatatreeOutputOpenContextMenu(payload: { xPos: number, yPos: number, nodeId: number, cellIndex: number, outputId: string}): void {
+        this.emit(Signals.DATATREE_OUTPUT_OPEN_CONTEXT_MENU, payload);
     }
 }
 

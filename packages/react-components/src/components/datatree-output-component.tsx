@@ -8,7 +8,12 @@ import { EntryTree } from './utils/filter-tree/entry-tree';
 import { getAllExpandedNodeIds } from './utils/filter-tree/utils';
 import { TreeNode } from './utils/filter-tree/tree-node';
 import ColumnHeader from './utils/filter-tree/column-header';
+import { signalManager, Signals } from 'traceviewer-base/lib/signals/signal-manager';
 import debounce from 'lodash.debounce';
+import { ClickEvent, ControlledMenu, MenuItem } from '@szhsin/react-menu';
+import '@szhsin/react-menu/dist/index.css';
+import { QueryablePropertyDescriptor, QueryablePropertyModel } from 'tsp-typescript-client/lib/models/queryable-property';
+import { Query } from 'tsp-typescript-client';
 
 type DataTreeOutputProps = AbstractOutputProps & {
 };
@@ -19,6 +24,12 @@ type DataTreeOuputState = AbstractOutputState & {
     collapsedNodes: number[];
     orderedNodes: number[];
     columns: ColumnHeader[];
+    createContextMenu: boolean;
+    toggleContextMenu: boolean;
+    contextMenuPosX: number;
+    contextMenuPosY: number;
+    dataTreeSelectedRow: number;
+    dataTreeSelectedCell: number;
 };
 
 export class DataTreeOutputComponent extends AbstractOutputComponent<AbstractOutputProps, DataTreeOuputState> {
@@ -26,8 +37,20 @@ export class DataTreeOutputComponent extends AbstractOutputComponent<AbstractOut
 
     private _debouncedFetchSelectionData = debounce(() => this.fetchSelectionData(), 500);
 
+    private _doHandleShowContextMenu = (payload: { xPos: number, yPos: number, nodeId: number, cellIndex: number, outputId: string}): void => this.showContextMenu(payload);
+
     constructor(props: AbstractOutputProps) {
         super(props);
+
+        let takesQueryableProperties = false;
+        if (this.props.outputDescriptor.queryableProperties) {
+            for (const property of this.props.outputDescriptor.queryableProperties) {
+                if (property.inputType == 'entry' && property.actionType == 'APPLY') {
+                    takesQueryableProperties = true;
+                }
+            }
+        }
+
         this.state = {
             outputStatus: ResponseStatus.RUNNING,
             selectedSeriesId: [],
@@ -36,12 +59,32 @@ export class DataTreeOutputComponent extends AbstractOutputComponent<AbstractOut
             orderedNodes: [],
             columns: [{title: 'Name', sortable: true}],
             optionsDropdownOpen: false,
-            additionalOptions: true
+            additionalOptions: true,
+            createContextMenu: takesQueryableProperties,
+            contextMenuPosX: 0,
+            contextMenuPosY: 0,
+            toggleContextMenu: false,
+            dataTreeSelectedRow: 0,
+            dataTreeSelectedCell: 0,
         };
+
+        signalManager().on(Signals.DATATREE_OUTPUT_OPEN_CONTEXT_MENU, this._doHandleShowContextMenu);
     }
 
     componentDidMount(): void {
         this.waitAnalysisCompletion();
+    }
+
+    private showContextMenu(payload: { xPos: number, yPos: number, nodeId: number, cellIndex: number, outputId: string}): void {
+        if (payload.outputId === this.props.outputDescriptor?.id) {
+            this.setState({
+                contextMenuPosX: payload.xPos,
+                contextMenuPosY: payload.yPos,
+                dataTreeSelectedRow: payload.nodeId,
+                dataTreeSelectedCell: payload.cellIndex,
+                toggleContextMenu: true
+            });
+        }
     }
 
     async fetchTree(): Promise<ResponseStatus> {
@@ -98,6 +141,7 @@ export class DataTreeOutputComponent extends AbstractOutputComponent<AbstractOut
                     onToggleCollapse={this.onToggleCollapse}
                     onOrderChange={this.onOrderChange}
                     headers={this.state.columns}
+                    outputDescriptorId={this.state.createContextMenu ? this.props.outputDescriptor.id : undefined}
                 />
             </div>
             : undefined
@@ -107,11 +151,14 @@ export class DataTreeOutputComponent extends AbstractOutputComponent<AbstractOut
     renderMainArea(): React.ReactNode {
         return <React.Fragment>
             {this.state.outputStatus === ResponseStatus.COMPLETED ?
-                <div ref={this.treeRef} className='output-component-tree disable-select'
-                    style={{ height: this.props.style.height, width: this.props.outputWidth }}
-                >
-                    {this.renderTree()}
-                </div> :
+                <>
+                    {this.state.createContextMenu && this.renderContextMenu()}
+                    <div ref={this.treeRef} className='output-component-tree disable-select'
+                        style={{ height: this.props.style.height, width: this.props.outputWidth }}
+                    >
+                        {this.renderTree()}
+                    </div>
+                </>:
                 <div tabIndex={0} id={this.props.traceId + this.props.outputDescriptor.id + 'focusContainer'} className='analysis-running-main-area'>
                     <i className='fa fa-refresh fa-spin' style={{ marginRight: '5px' }} />
                     <span>Analysis running</span>
@@ -120,6 +167,85 @@ export class DataTreeOutputComponent extends AbstractOutputComponent<AbstractOut
         </React.Fragment>;
     }
 
+    renderContextMenu(): React.ReactNode {
+        return <React.Fragment>
+            {this.props.outputDescriptor.queryableProperties &&
+                <ControlledMenu
+                    state={this.state.toggleContextMenu ? 'open' : 'closed'}
+                    onClose={() => this.setState({toggleContextMenu: false})}
+                    anchorPoint={{x: this.state.contextMenuPosX, y: this.state.contextMenuPosY}}
+                >
+                    {this.props.outputDescriptor.queryableProperties.map((property, index) => (
+                        property.inputType == 'entry' && property.actionType == 'APPLY' &&
+                        <MenuItem
+                            value={property.name}
+                            key={index}
+                            onClick={(e) => {
+                                e.stopPropagation = true;
+                                this.clickContextMenuItem(e, property);
+                            }} 
+                        >
+                            {property.name}
+                        </MenuItem>
+                    ))
+                    }
+                </ControlledMenu>
+            }
+        </React.Fragment>;
+    }
+
+    private async clickContextMenuItem(e: ClickEvent, property: QueryablePropertyDescriptor) {
+        let queryParams: any = {};
+        for (const parameter of property.queryParams) {
+            if (parameter == QueryHelper.REQUESTED_TIMERANGE_KEY) {
+                if (this.props.selectionRange) {
+                    if (this.props.selectionRange.getStart() < this.props.selectionRange.getEnd()) {
+                        queryParams.requested_timerange = {start: this.props.range.getStart(), end: this.props.range.getEnd()};
+                    } else {
+                        queryParams.requested_timerange = {start: this.props.range.getEnd(), end: this.props.range.getStart()};
+                    }
+                }
+            } else if (parameter == QueryHelper.REQUESTED_ITEMS_KEY) {
+                queryParams.requested_items = [this.state.dataTreeSelectedRow];
+            } else if (parameter == QueryHelper.REQUESTED_ELEMENT_KEY) {
+                queryParams.REQUESTED_ELEMENT_KEY = this.state.dataTreeSelectedRow;
+            } else if (parameter == QueryHelper.IS_FILTERED_KEY) {
+                if (this.props.selectionRange) {
+                    queryParams.isFiltered = true;
+                }
+            } else if (parameter == QueryHelper.REQUESTED_TABLE_INDEX_KEY) {
+                queryParams.requested_table_index = this.state.dataTreeSelectedRow;
+            } else if (parameter == QueryHelper.REQUESTED_TIMES_KEY) {
+                if (this.props.selectionRange) {
+                    if (this.props.selectionRange.getStart() < this.props.selectionRange.getEnd()) {
+                        queryParams.requested_times = [this.props.range.getStart(), this.props.range.getEnd()];
+                    } else {
+                        queryParams.requested_times = [this.props.range.getEnd(), this.props.range.getStart()];
+                    }
+                }
+            }
+        }
+        
+        const tspClientResponse = await this.props.tspClient.fetchQueryableProperty(this.props.traceId, this.props.outputDescriptor.id, property.id, new Query(queryParams));
+        const propertyResponse: any = tspClientResponse.getModel();
+        if (tspClientResponse.isOk() && propertyResponse) {
+            if (propertyResponse.model) {
+                const model: QueryablePropertyModel = propertyResponse.model;
+                for (const parameter of property.returnType) {
+                    if (parameter == QueryHelper.REQUESTED_TIMERANGE_KEY) {
+                        if (model.values && model.values.time_range_start && model.values.time_range_end) {
+                            const offset = this.props.viewRange.getOffset() || BigInt(0);
+                            this.props.unitController.selectionRange = {
+                                start: BigInt(model.values.time_range_start) - offset,
+                                end: BigInt(model.values.time_range_end) - offset
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+     
     setFocus(): void {
         if (document.getElementById(this.props.traceId + this.props.outputDescriptor.id + 'focusContainer')) {
             document.getElementById(this.props.traceId + this.props.outputDescriptor.id + 'focusContainer')?.focus();
@@ -158,6 +284,7 @@ export class DataTreeOutputComponent extends AbstractOutputComponent<AbstractOut
     componentWillUnmount(): void {
         // fix Warning: Can't perform a React state update on an unmounted component
         this.setState = (_state, _callback) => undefined;
+        signalManager().off(Signals.DATATREE_OUTPUT_OPEN_CONTEXT_MENU, this._doHandleShowContextMenu);
     }
 
     protected async fetchSelectionData(): Promise<void> {

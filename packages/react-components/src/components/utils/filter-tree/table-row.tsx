@@ -16,6 +16,7 @@ interface TableRowProps {
     onClose: (id: number) => void;
     onToggleCheck: (id: number) => void;
     onRowClick: (id: number) => void;
+    outputDescriptorId?: string;
 }
 
 export class TableRow extends React.Component<TableRowProps> {
@@ -69,6 +70,7 @@ export class TableRow extends React.Component<TableRowProps> {
                 node={node}
                 onRowClick={onRowClick}
                 selectedRow={selectedRow}
+                outputDescriptorId={this.props.outputDescriptorId}
             >
                 { (index === 0) ? this.renderToggleCollapse() : undefined }
                 { (index === 0) ? this.renderCheckbox() : undefined }
@@ -99,7 +101,9 @@ export class TableRow extends React.Component<TableRowProps> {
 
         return (
             <React.Fragment>
-                <tr>{this.renderRow()}</tr>
+                <tr>
+                    {this.renderRow()}
+                </tr>
                 {children}
             </React.Fragment>
         );

@@ -24,6 +24,7 @@ interface FilterTreeProps {
     showHeader: boolean;
     headers: ColumnHeader[];
     className: string;
+    outputDescriptorId?: string;
 }
 
 interface FilterTreeState {
@@ -270,6 +271,7 @@ export class FilterTree extends React.Component<FilterTreeProps, FilterTreeState
             showHeader={this.props.showHeader}
             headers={this.props.headers}
             className={this.props.className}
+            outputDescriptorId={this.props.outputDescriptorId}
         />;
 
     render(): JSX.Element | undefined {

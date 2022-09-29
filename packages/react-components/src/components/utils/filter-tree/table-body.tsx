@@ -13,6 +13,7 @@ interface TableBodyProps {
     onRowClick: (id: number) => void;
     onClose: (id: number) => void;
     onToggleCheck: (id: number) => void;
+    outputDescriptorId?: string;
 }
 
 export class TableBody extends React.Component<TableBodyProps> {

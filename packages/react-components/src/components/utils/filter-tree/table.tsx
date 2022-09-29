@@ -22,6 +22,7 @@ interface TableProps {
     showHeader: boolean;
     headers: ColumnHeader[];
     className: string;
+    outputDescriptorId?: string;
 }
 
 export class Table extends React.Component<TableProps> {

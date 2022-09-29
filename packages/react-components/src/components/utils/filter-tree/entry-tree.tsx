@@ -21,6 +21,7 @@ interface EntryTreeProps {
     showHeader: boolean;
     headers: ColumnHeader[];
     className: string;
+    outputDescriptorId?: string;
 }
 
 export class EntryTree extends React.Component<EntryTreeProps> {
