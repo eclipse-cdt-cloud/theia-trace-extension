@@ -251,6 +251,7 @@ export abstract class AbstractXYOutputComponent<P extends AbstractOutputProps, S
     }
 
     async fetchTree(): Promise<ResponseStatus> {
+        this.viewSpinner(true);
         const parameters = QueryHelper.timeRangeQuery(this.props.range.getStart(), this.props.range.getEnd());
         const tspClientResponse = await this.props.tspClient.fetchXYTree(this.props.traceId, this.props.outputDescriptor.id, parameters);
         const treeResponse = tspClientResponse.getModel();
@@ -265,31 +266,27 @@ export abstract class AbstractXYOutputComponent<P extends AbstractOutputProps, S
                 } else {
                     columns.push({title: 'Name', sortable: true});
                 }
-                if (treeResponse.status === ResponseStatus.COMPLETED) {
-                    const checkedSeries = this.getAllCheckedIds(treeResponse.model.entries);
-                    this.setState({
-                        outputStatus: treeResponse.status,
-                        xyTree: treeResponse.model.entries,
-                        checkedSeries,
-                        columns
-                    });
-                } else {
-                    this.setState({
-                        outputStatus: treeResponse.status,
-                        xyTree: treeResponse.model.entries,
-                        columns
-                    });
-                }
+                const checkedSeries = this.getAllCheckedIds(treeResponse.model.entries);
+                this.setState({
+                    outputStatus: treeResponse.status,
+                    xyTree: treeResponse.model.entries,
+                    checkedSeries,
+                    columns
+                }, () => {
+                    this.updateXY();
+                });
             } else {
                 this.setState({
                     outputStatus: treeResponse.status
                 });
             }
+            this.viewSpinner(false);
             return treeResponse.status;
         }
         this.setState({
             outputStatus: ResponseStatus.FAILED
         });
+        this.viewSpinner(false);
         return ResponseStatus.FAILED;
     }
 
@@ -368,7 +365,6 @@ export abstract class AbstractXYOutputComponent<P extends AbstractOutputProps, S
     }
 
     protected chooseChart(): JSX.Element {
-
         const param: XYChartFactoryParams = {
             viewRange: this.getDisplayedRange(),
             allMax: this.state.allMax,
@@ -402,11 +398,6 @@ export abstract class AbstractXYOutputComponent<P extends AbstractOutputProps, S
     }
 
     private async updateXY(): Promise<void> {
-        if (document.getElementById(this.getOutputComponentDomId() + 'handleSpinner')) {
-            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-            document.getElementById(this.getOutputComponentDomId() + 'handleSpinner')!.style.visibility = 'visible';
-        }
-
         let start = BigInt(0);
         let end = BigInt(0);
         const viewRange = this.getDisplayedRange();
@@ -419,7 +410,7 @@ export abstract class AbstractXYOutputComponent<P extends AbstractOutputProps, S
 
         const tspClientResponse = await this.props.tspClient.fetchXY(this.props.traceId, this.props.outputDescriptor.id, xyDataParameters);
         const xyDataResponse = tspClientResponse.getModel();
-        if (tspClientResponse.isOk() && xyDataResponse) {
+        if (tspClientResponse.isOk() && xyDataResponse?.model?.series) {
             const series = xyDataResponse.model.series;
             if (series.length !== 0 && series[0].style) {
                 // Rely on type set for the first series to conclude for all series, if many.
@@ -432,10 +423,12 @@ export abstract class AbstractXYOutputComponent<P extends AbstractOutputProps, S
                 this.buildXYData(series);
             }
         }
+    }
 
+    private viewSpinner(status: boolean): void {
         if (document.getElementById(this.getOutputComponentDomId() + 'handleSpinner')) {
             // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-            document.getElementById(this.getOutputComponentDomId() + 'handleSpinner')!.style.visibility = 'hidden';
+            document.getElementById(this.getOutputComponentDomId() + 'handleSpinner')!.style.visibility = status ? 'visible' : 'hidden';
         }
     }
 

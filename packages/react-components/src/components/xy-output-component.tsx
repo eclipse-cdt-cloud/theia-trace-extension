@@ -41,29 +41,32 @@ export class XYOutputComponent extends AbstractXYOutputComponent<AbstractOutputP
             </React.Fragment>;
         }
         return <React.Fragment>
-            {this.state.outputStatus === ResponseStatus.COMPLETED ?
+            <div
+                id={this.props.traceId + this.props.outputDescriptor.id + 'focusContainer'}
+                className='xy-main'
+                tabIndex={0}
+                onKeyDown={event => this.onKeyDown(event)}
+                onKeyUp={event => this.onKeyUp(event)}
+                onWheel={event => this.onWheel(event)}
+                onMouseMove={event => this.onMouseMove(event)}
+                onContextMenu={event => event.preventDefault()}
+                onMouseLeave={event => this.onMouseLeave(event)}
+                onMouseDown={event => this.onMouseDown(event)}
+                style={{ height: this.props.style.height, position: 'relative', cursor: this.state.cursor }}
+                ref={this.divRef}
+            >
+                {this.isBarPlot ? this.drawD3Chart() : this.chooseChart()}
+            </div>
+            {(this.state.outputStatus === ResponseStatus.RUNNING) &&
                 <div
                     id={this.props.traceId + this.props.outputDescriptor.id + 'focusContainer'}
-                    className='xy-main'
-                    tabIndex={0}
-                    onKeyDown={event => this.onKeyDown(event)}
-                    onKeyUp={event => this.onKeyUp(event)}
-                    onWheel={event => this.onWheel(event)}
-                    onMouseMove={event => this.onMouseMove(event)}
-                    onContextMenu={event => event.preventDefault()}
-                    onMouseLeave={event => this.onMouseLeave(event)}
-                    onMouseDown={event => this.onMouseDown(event)}
-                    style={{ height: this.props.style.height, position: 'relative', cursor: this.state.cursor }}
-                    ref={this.divRef}
+                    className='analysis-running-overflow'
+                    style={{ width: this.getChartWidth() }}
                 >
-                    {this.isBarPlot ? this.drawD3Chart() : this.chooseChart()}
-                </div> :
-                <div
-                    id={this.props.traceId + this.props.outputDescriptor.id + 'focusContainer'}
-                    className='analysis-running'
-                >
-                    <i className='fa fa-refresh fa-spin' style={{ marginRight: '5px' }} />
-                    <span>Analysis running</span>
+                    <div>
+                        <i className='fa fa-refresh fa-spin' style={{ marginRight: '5px' }} />
+                        <span>Analysis running</span>
+                    </div>
                 </div>
             }
         </React.Fragment>;
