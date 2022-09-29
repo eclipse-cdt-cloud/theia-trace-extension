@@ -18,7 +18,7 @@ type XYOutputOverviewState = AbstractXYOutputState & {
     showModal: boolean
 };
 
-type XYoutputOverviewProps = AbstractOutputProps & {
+type XYOutputOverviewProps = AbstractOutputProps & {
     experiment: Experiment;
 };
 
@@ -27,13 +27,13 @@ type XYoutputOverviewProps = AbstractOutputProps & {
  * It will only be setting these properties.
  */
 
-export class XYOutputOverviewComponent extends AbstractXYOutputComponent<XYoutputOverviewProps, XYOutputOverviewState> {
+export class XYOutputOverviewComponent extends AbstractXYOutputComponent<XYOutputOverviewProps, XYOutputOverviewState> {
     private initialViewRangeStartPosition = 0;
     private initialViewRangeEndPosition = 0;
     private viewRangeMoveStartOffsetX = 0;
     private keyMapping: Map<string, XY_OUTPUT_KEY_ACTIONS>;
 
-    constructor(props: XYoutputOverviewProps) {
+    constructor(props: XYOutputOverviewProps) {
         super(props);
         this.state = {
             outputStatus: ResponseStatus.RUNNING,
@@ -66,29 +66,31 @@ export class XYOutputOverviewComponent extends AbstractXYOutputComponent<XYoutpu
             </React.Fragment>;
         }
         return <React.Fragment>
-            {this.state.outputStatus === ResponseStatus.COMPLETED ?
+            <div
+                id={this.getOutputComponentDomId() + 'focusContainer'}
+                className='xy-main'
+                tabIndex={0}
+                onKeyDown={event => this.onKeyDown(event)}
+                onKeyUp={event => this.onKeyUp(event)}
+                onWheel={event => this.onWheel(event)}
+                onMouseMove={event => this.onMouseMove(event)}
+                onContextMenu={event => event.preventDefault()}
+                onMouseLeave={event => this.onMouseLeave(event)}
+                onMouseDown={event => this.onMouseDown(event)}
+                style={{ height: this.props.style.height, position: 'relative', cursor: this.state.cursor }}
+                ref={this.divRef}
+            >
+                {this.chooseChart()}
+            </div>
+            {(this.state.outputStatus === ResponseStatus.RUNNING) &&
                 <div
-                    id={this.getOutputComponentDomId() + 'focusContainer'}
-                    className='xy-main'
-                    tabIndex={0}
-                    onKeyDown={event => this.onKeyDown(event)}
-                    onKeyUp={event => this.onKeyUp(event)}
-                    onWheel={event => this.onWheel(event)}
-                    onMouseMove={event => this.onMouseMove(event)}
-                    onContextMenu={event => event.preventDefault()}
-                    onMouseLeave={event => this.onMouseLeave(event)}
-                    onMouseDown={event => this.onMouseDown(event)}
-                    style={{ height: this.props.style.height, position: 'relative', cursor: this.state.cursor }}
-                    ref={this.divRef}
+                    className='analysis-running-overflow'
+                    style={{ width: this.getChartWidth() }}
                 >
-                    {this.chooseChart()}
-                </div> :
-                <div
-                    id={this.getOutputComponentDomId() + 'focusContainer'}
-                    className='analysis-running'
-                >
-                    <i className='fa fa-refresh fa-spin' style={{ marginRight: '5px' }} />
-                    <span>Analysis running</span>
+                    <div>
+                        <i className='fa fa-refresh fa-spin' style={{ marginRight: '5px' }} />
+                        <span> Analysis running </span>
+                    </div>
                 </div>
             }
         </React.Fragment>;

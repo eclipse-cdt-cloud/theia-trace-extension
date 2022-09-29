@@ -160,6 +160,20 @@ canvas {
     margin: auto;
 }
 
+.analysis-running-overflow {
+    font-size: 24px;
+    display: flex;
+    position: absolute;
+    top: 0;
+    height: 100%;
+}
+
+.analysis-running-overflow div {
+    margin: auto;
+    padding: 5px;
+    border-radius: 5px;
+}
+
 .chart-message {
     font-size: 20px;
     text-align: center;

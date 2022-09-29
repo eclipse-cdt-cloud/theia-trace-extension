@@ -83,10 +83,13 @@ export abstract class AbstractTreeOutputComponent<P extends AbstractOutputProps,
 
     protected async waitAnalysisCompletion(): Promise<void> {
         let outputStatus = this.state.outputStatus;
-        const timeout = 500;
+        let factor = 1.0;
+        const maxFactor = 10;
         while (this.state && outputStatus === ResponseStatus.RUNNING) {
             outputStatus = await this.fetchTree();
+            const timeout = 500 * factor;
             await new Promise(resolve => setTimeout(resolve, timeout));
+            factor = factor > maxFactor ? factor: factor + 1;
         }
     }
 
