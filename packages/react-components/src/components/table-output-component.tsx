@@ -37,6 +37,8 @@ export class TableOutputComponent extends AbstractOutputComponent<TableOutputPro
     private columnIds: Array<number> = [];
     private fetchColumns = true;
     private columnArray = new Array<any>();
+    private pagination = true;
+    private paginationPageSize = 500000;
     private showIndexColumn = false;
     private frameworkComponents: any;
     private gridApi: GridApi | undefined = undefined;
@@ -94,6 +96,7 @@ export class TableOutputComponent extends AbstractOutputComponent<TableOutputPro
                 params.successCallback(rowsThisPage, this.tableSize);
             }
         };
+        this.pagination = this.props.nbEvents >= this.paginationPageSize;
         this.onEventClick = this.onEventClick.bind(this);
         this.onModelUpdated = this.onModelUpdated.bind(this);
         this.onKeyDown = this.onKeyDown.bind(this);
@@ -114,6 +117,8 @@ export class TableOutputComponent extends AbstractOutputComponent<TableOutputPro
                 cacheBlockSize={this.props.cacheBlockSize}
                 maxBlocksInCache={this.props.maxBlocksInCache}
                 blockLoadDebounceMillis={this.props.blockLoadDebounce}
+                pagination={this.pagination}
+                paginationPageSize={this.paginationPageSize}
                 debug={this.debugMode}
                 onGridReady={this.onGridReady}
                 onCellClicked={this.onEventClick}
@@ -481,6 +486,8 @@ export class TableOutputComponent extends AbstractOutputComponent<TableOutputPro
 
                 const index = await this.fetchTableIndex(this.startTimestamp > this.endTimestamp ? this.startTimestamp + BigInt(1) : this.startTimestamp);
                 if (index) {
+                    const pageNumber = Math.floor(index / this.paginationPageSize);
+                    this.gridApi.paginationGoToPage(pageNumber);
                     const startIndex = this.startTimestamp > this.endTimestamp ? index - 1 : index;
                     this.selectStartIndex = this.selectStartIndex === -1 ? startIndex : this.selectStartIndex;
                     this.selectEndIndex = (this.enableIndexSelection && this.selectEndIndex === -1) ? startIndex : this.selectEndIndex;
@@ -650,6 +657,8 @@ export class TableOutputComponent extends AbstractOutputComponent<TableOutputPro
             }
 
             this.gridApi.deselectAll();
+            let indexPage = 0;
+            let indexRow = 0;
             // consider only rows starting from the current row index and contiguous rows after that
             let currRowIndexFound = false;
             rowNodes.forEach(rowNode => {
@@ -680,12 +689,20 @@ export class TableOutputComponent extends AbstractOutputComponent<TableOutputPro
                     // Notify properties changed
                     signalManager().fireTooltipSignal(itemPropsObj);
                     isFound = true;
+                    indexPage = Math.floor(rowNode.rowIndex / this.paginationPageSize);
+                    indexRow = rowNode.rowIndex;
                     rowNode.setSelected(true);
                 }
             });
 
             if (isFound) {
-                // match found in cache
+                // Match found in cache
+                // Change page if match is not on current page
+                if (indexPage !== this.gridApi.paginationGetCurrentPage()) {
+                    this.gridApi.paginationGoToPage(indexPage);
+                    this.gridApi.ensureIndexVisible(indexRow);
+                }
+
                 return;
             }
             // find match outside the cache
@@ -694,6 +711,11 @@ export class TableOutputComponent extends AbstractOutputComponent<TableOutputPro
             if (currRowIndex >= 0) {
                 const data = await this.findMatchIndex(currRowIndex, direction);
                 if (data !== undefined) {
+                    // Change page if match is not on current page
+                    indexPage = Math.floor(data.index / this.paginationPageSize);
+                    if (indexPage !== this.gridApi.paginationGetCurrentPage()) {
+                        this.gridApi.paginationGoToPage(indexPage);
+                    }
                     this.gridApi.ensureIndexVisible(data.index);
                     this.selectStartIndex = this.selectEndIndex = data.index;
                     if (this.timestampCol) {
