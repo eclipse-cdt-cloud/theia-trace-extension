@@ -21,6 +21,8 @@ import { BackendFileService } from '../../common/backend-file-service';
 import { CancellationTokenSource } from '@theia/core';
 import * as React from 'react';
 import 'animate.css';
+import { DEFAULT_OVERVIEW_OUTPUT_NAME, TRACE_OVERVIEW_DEFAULT_VIEW_KEY,
+    getOpenTraceOverviewFailErrorMessage, getSwitchToDefaultViewErrorMessage, OverviewPreferences } from '../trace-overview-preference';
 
 export const TraceViewerWidgetOptions = Symbol('TraceViewerWidgetOptions');
 export interface TraceViewerWidgetOptions {
@@ -32,7 +34,6 @@ export interface TraceViewerWidgetOptions {
 export class TraceViewerWidget extends ReactWidget implements StatefulWidget {
     static ID = 'trace-viewer';
     static LABEL = 'Trace Viewer';
-    static DEFAULT_OVERVIEW_DATA_PROVIDER_ID = 'org.eclipse.tracecompass.internal.tmf.core.histogram.HistogramDataProvider';
 
     protected uri: Path;
     protected openedExperiment: Experiment | undefined;
@@ -83,6 +84,7 @@ export class TraceViewerWidget extends ReactWidget implements StatefulWidget {
     @inject(TraceExplorerContribution) protected readonly traceExplorerContribution: TraceExplorerContribution;
     @inject(WidgetManager) protected readonly widgetManager!: WidgetManager;
     @inject(ThemeService) protected readonly themeService: ThemeService;
+    @inject(OverviewPreferences) protected overviewPreferences: OverviewPreferences;
 
     @postConstruct()
     async init(): Promise<void> {
@@ -583,7 +585,27 @@ export class TraceViewerWidget extends ReactWidget implements StatefulWidget {
      */
     protected async getDefaultTraceOverviewOutputDescriptor(): Promise<OutputDescriptor | undefined> {
         const availableDescriptors = await this.getAvailableTraceOverviewOutputDescriptor();
-        return availableDescriptors?.find(output => output.id === TraceViewerWidget.DEFAULT_OVERVIEW_DATA_PROVIDER_ID);
+
+        // First, check if there is a preferred view
+        const preferredViewName: string | undefined = this.overviewPreferences[TRACE_OVERVIEW_DEFAULT_VIEW_KEY];
+        let descriptor: OutputDescriptor | undefined = availableDescriptors?.find(output => output.name.toLowerCase() === preferredViewName?.toLowerCase());
+
+        // Failed to find an output that matches the user preference, fallback to default
+        if (!descriptor) {
+            const defaultViewName = DEFAULT_OVERVIEW_OUTPUT_NAME;
+            descriptor = availableDescriptors?.find(output => output.name.toLowerCase() === defaultViewName?.toLowerCase());
+
+            if (descriptor && preferredViewName) {
+                this.messageService.error(getSwitchToDefaultViewErrorMessage(preferredViewName, descriptor.name));
+            }
+        }
+
+        // For the current implementation of the overview, we only support XY views
+        if (descriptor?.type === 'TREE_TIME_XY') {
+            return descriptor;
+        }
+
+        this.messageService.error(getOpenTraceOverviewFailErrorMessage());
     }
 
     /**
