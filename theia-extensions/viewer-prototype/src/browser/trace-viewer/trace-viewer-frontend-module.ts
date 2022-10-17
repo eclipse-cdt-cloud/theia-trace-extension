@@ -22,6 +22,7 @@ import { LazyTspClientFactory } from 'traceviewer-base/lib/lazy-tsp-client';
 import { BackendFileService, backendFileServicePath } from '../../common/backend-file-service';
 import { ChartShortcutsDialog, ChartShortcutsDialogProps } from '../trace-explorer/trace-explorer-sub-widgets/trace-explorer-keyboard-shortcuts/charts-cheatsheet-component';
 import { TraceServerConnectionStatusService } from '../trace-server-status';
+import { bindTraceOverviewPreferences } from '../trace-overview-binding';
 
 export default new ContainerModule(bind => {
     bind(TraceServerUrlProviderImpl).toSelf().inSingletonScope();
@@ -68,6 +69,8 @@ export default new ContainerModule(bind => {
         return connection.createProxy<TraceServerConfigService>(traceServerPath);
     }).inSingletonScope();
     bindTraceServerPreferences(bind);
+
+    bindTraceOverviewPreferences(bind);
 
     bind(BackendFileService).toDynamicValue(ctx => {
         const connection = ctx.container.get(WebSocketConnectionProvider);
