@@ -2,7 +2,11 @@ import { AbstractOutputComponent, AbstractOutputProps, AbstractOutputState } fro
 import * as React from 'react';
 import { ResponseStatus } from 'tsp-typescript-client/lib/models/response/responses';
 
-export abstract class AbstractTreeOutputComponent<P extends AbstractOutputProps, S extends AbstractOutputState> extends AbstractOutputComponent<P, S> {
+export type AbstractTreeOutputState = AbstractOutputState & {
+    showTree: boolean
+};
+
+export abstract class AbstractTreeOutputComponent<P extends AbstractOutputProps, S extends AbstractTreeOutputState> extends AbstractOutputComponent<P, S> {
 
     private readonly DEFAULT_Y_AXIS_WIDTH = 40;
     private readonly DEFAULT_SASH_WIDTH = 4;
@@ -19,11 +23,11 @@ export abstract class AbstractTreeOutputComponent<P extends AbstractOutputProps,
 
     renderMainArea(): React.ReactNode {
         return <React.Fragment>
-            <div ref={this.treeRef} className='output-component-tree disable-select'
+            {this.state.showTree && <div ref={this.treeRef} className='output-component-tree disable-select'
                 style={{ width: this.getTreeWidth(), height: this.props.style.height }}
             >
                 {this.renderTree()}
-            </div>
+            </div>}
             <div className='output-component-y-axis' style={{
                 height: this.props.style.height,
                 backgroundColor: '#' + this.props.style.chartBackgroundColor.toString(16)
@@ -47,7 +51,7 @@ export abstract class AbstractTreeOutputComponent<P extends AbstractOutputProps,
         this.sashDownOffset = this.props.style.chartOffset;
         window.addEventListener('mousemove', this.onSashMove);
         window.addEventListener('mouseup', this.onSashUp);
-}
+    }
 
     private onSashMove(ev: MouseEvent): void {
         if (this.sashDownX !== -1 && this.props?.setChartOffset) {
@@ -107,6 +111,10 @@ export abstract class AbstractTreeOutputComponent<P extends AbstractOutputProps,
     }
 
     public getChartWidth(): number {
-        return Math.max(0, this.props.outputWidth - this.props.style.chartOffset);
+        if (this.state.showTree) {
+            return Math.max(0, this.props.outputWidth - this.props.style.chartOffset);
+        } else {
+            return Math.max(0, this.props.outputWidth);
+        }
     }
 }

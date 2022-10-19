@@ -27,7 +27,8 @@ export class XYOutputComponent extends AbstractXYOutputComponent<AbstractOutputP
             allMax: 0,
             allMin: 0,
             cursor: 'default',
-            optionsDropdownOpen: false
+            optionsDropdownOpen: false,
+            showTree: true
         };
     }
 

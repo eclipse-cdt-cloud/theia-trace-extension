@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { AbstractOutputProps, AbstractOutputState } from './abstract-output-component';
-import { AbstractTreeOutputComponent } from './abstract-tree-output-component';
+import { AbstractOutputProps } from './abstract-output-component';
+import { AbstractTreeOutputComponent, AbstractTreeOutputState } from './abstract-tree-output-component';
 import { ResponseStatus } from 'tsp-typescript-client/lib/models/response/responses';
 import { QueryHelper } from 'tsp-typescript-client/lib/models/query/query-helper';
 import { Entry } from 'tsp-typescript-client/lib/models/entry';
@@ -44,7 +44,7 @@ export enum MouseButton {
     RIGHT = 2
 }
 
-export type AbstractXYOutputState = AbstractOutputState & {
+export type AbstractXYOutputState = AbstractTreeOutputState & {
     selectedSeriesId: number[];
     xyTree: Entry[];
     checkedSeries: number[];

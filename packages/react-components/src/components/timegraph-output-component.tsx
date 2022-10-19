@@ -14,8 +14,8 @@ import { QueryHelper } from 'tsp-typescript-client/lib/models/query/query-helper
 import { ResponseStatus } from 'tsp-typescript-client/lib/models/response/responses';
 import { TimeGraphEntry } from 'tsp-typescript-client/lib/models/timegraph';
 import { signalManager, Signals } from 'traceviewer-base/lib/signals/signal-manager';
-import { AbstractOutputProps, AbstractOutputState } from './abstract-output-component';
-import { AbstractTreeOutputComponent } from './abstract-tree-output-component';
+import { AbstractOutputProps } from './abstract-output-component';
+import { AbstractTreeOutputComponent, AbstractTreeOutputState } from './abstract-tree-output-component';
 import { StyleProperties } from './data-providers/style-properties';
 import { StyleProvider } from './data-providers/style-provider';
 import { TspDataProvider } from './data-providers/tsp-data-provider';
@@ -35,7 +35,7 @@ type TimegraphOutputProps = AbstractOutputProps & {
     removeWidgetResizeHandler: (handler: () => void) => void;
 };
 
-type TimegraphOutputState = AbstractOutputState & {
+type TimegraphOutputState = AbstractTreeOutputState & {
     timegraphTree: TimeGraphEntry[];
     markerCategoryEntries: Entry[];
     markerLayerData: { rows: TimelineChart.TimeGraphRowModel[], range: TimelineChart.TimeGraphRange, resolution: number } | undefined;
@@ -84,7 +84,8 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
             columns: [],
             collapsedMarkerNodes: validateNumArray(this.props.persistChartState?.collapsedMarkerNodes) ? this.props.persistChartState.collapsedMarkerNodes as number[] : [],
             optionsDropdownOpen: false,
-            dataRows: []
+            dataRows: [],
+            showTree: true
         };
         this.selectedMarkerCategories = this.props.markerCategories;
         this.onToggleCollapse = this.onToggleCollapse.bind(this);

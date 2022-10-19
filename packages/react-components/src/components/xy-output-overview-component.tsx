@@ -5,8 +5,6 @@ import { drawSelection } from './utils/xy-output-component-utils';
 import { TimeRange } from 'traceviewer-base/src/utils/time-range';
 import { AbstractXYOutputState, MouseButton } from './abstract-xy-output-component';
 import { AbstractXYOutputComponent, FLAG_PAN_LEFT, FLAG_PAN_RIGHT, FLAG_ZOOM_IN, FLAG_ZOOM_OUT, XY_OUTPUT_KEY_ACTIONS } from './abstract-xy-output-component';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faCog } from '@fortawesome/free-solid-svg-icons';
 import { Experiment } from 'tsp-typescript-client';
 import { TraceOverviewSelectionDialogComponent } from './trace-overview-selection-dialog-component';
 
@@ -51,7 +49,8 @@ export class XYOutputOverviewComponent extends AbstractXYOutputComponent<XYoutpu
             cursor: 'default',
             shiftKey: false,
             optionsDropdownOpen: false,
-            showModal: false
+            showModal: false,
+            showTree: true
         };
         this.keyMapping = this.getKeyActionMap();
         this.afterChartDraw = this.afterChartDraw.bind(this);
@@ -346,21 +345,24 @@ export class XYOutputOverviewComponent extends AbstractXYOutputComponent<XYoutpu
         return this.props.outputDescriptor.name + ' overview';
     }
 
-    protected showOptionsMenu(): React.ReactNode {
+    protected showOptions(): React.ReactNode {
         return <React.Fragment>
-            {<div className='options-menu-container'>
-                <button title="Select overview output source" className='options-menu-button'
-                onClick={()=>{this.openOverviewOutputSelector();}}>
-                    <FontAwesomeIcon icon={faCog} />
-                </button>
-                <TraceOverviewSelectionDialogComponent
-                    isOpen={this.state.showModal}
-                    title="Select overview output source"
-                    tspClient={this.props.tspClient}
-                    traceID={this.props.traceId}
-                    onCloseDialog={this.closeOverviewOutputSelector}
-                ></TraceOverviewSelectionDialogComponent>
-            </div>}
+            <ul>
+                <li className='drop-down-list-item' onClick={() => this.openOverviewOutputSelector()}>
+                    <div className='drop-down-list-item-text'>Select source output</div>
+                </li>
+                <li className='drop-down-list-item' onClick={() => this.toggleTree()}>
+                    <div className='drop-down-list-item-text'>Toggle filter tree</div>
+                </li>
+            </ul>
+            <TraceOverviewSelectionDialogComponent
+                isOpen={this.state.showModal}
+                title="Select overview output source"
+                tspClient={this.props.tspClient}
+                traceID={this.props.traceId}
+                onCloseDialog={this.closeOverviewOutputSelector}
+            ></TraceOverviewSelectionDialogComponent>
+            {this.state.additionalOptions && this.showAdditionalOptions()}
         </React.Fragment>;
     }
 
@@ -370,5 +372,14 @@ export class XYOutputOverviewComponent extends AbstractXYOutputComponent<XYoutpu
 
     private openOverviewOutputSelector() {
         this.setState({showModal: true});
+    }
+
+    private toggleTree() {
+        this.setState({
+            showTree: !this.state.showTree,
+            optionsDropdownOpen: false
+        }, () => {
+            document.removeEventListener('click', this.closeOptionsMenu);
+        });
     }
 }

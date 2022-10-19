@@ -252,7 +252,7 @@ export abstract class AbstractOutputComponent<P extends AbstractOutputProps, S e
         });
     }
 
-    private closeOptionsMenu(event: Event): void {
+    protected closeOptionsMenu(event: Event): void {
         if (event && event.target instanceof Node && this.optionsMenuRef.current?.contains(event.target)) {
             return;
         }
