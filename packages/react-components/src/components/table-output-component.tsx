@@ -42,6 +42,7 @@ export class TableOutputComponent extends AbstractOutputComponent<TableOutputPro
     private showIndexColumn = false;
     private frameworkComponents: any;
     private gridApi: GridApi | undefined = undefined;
+    private gridRedrawn = false;
     private columnApi: ColumnApi | undefined = undefined;
     private prevStartTimestamp = -BigInt(2 ** 63);
     private startTimestamp = BigInt(2 ** 63);
@@ -586,6 +587,7 @@ export class TableOutputComponent extends AbstractOutputComponent<TableOutputPro
     };
 
     private searchEvents(colName: string, filterValue: string) {
+        this.gridRedrawn = true;
         if (filterValue === '') {
             this.filterModel.delete(colName);
         } else {
@@ -603,6 +605,7 @@ export class TableOutputComponent extends AbstractOutputComponent<TableOutputPro
             });
             this.gridApi.redrawRows();
         }
+        this.gridRedrawn = false;
     }
 
     private async findMatchIndex(currRowIndex: number, direction = Direction.NEXT) {
@@ -626,6 +629,11 @@ export class TableOutputComponent extends AbstractOutputComponent<TableOutputPro
     private async findMatchedEvent(direction: Direction) {
         let isFound = false;
         if (this.gridApi) {
+            const msBetweenChecks = 100;
+            while (this.gridRedrawn) {
+                // wait for grid to be done being redrawn -elsewhere (before assuming it)
+                await new Promise(cb => setTimeout(cb, msBetweenChecks));
+            }
 
             // make sure that both index are either both -1 or both have a valid number
             if (this.selectStartIndex !== -1 && this.selectEndIndex === -1) {
