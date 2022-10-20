@@ -674,7 +674,8 @@ export class TableOutputComponent extends AbstractOutputComponent<TableOutputPro
                     // non-contiguous row found, stop searching in cache
                     currRowIndexFound = false;
                 }
-                if (currRowIndexFound && !isFound && rowNode.rowIndex && rowNode.data && rowNode.data['isMatched']) {
+                // only checking 'rowNode.rowIndex' below makes its '=== 0' case false:
+                if (currRowIndexFound && !isFound && (rowNode.rowIndex || rowNode.rowIndex === 0) && rowNode.data && rowNode.data['isMatched']) {
                     this.gridApi?.ensureIndexVisible(rowNode.rowIndex);
                     this.selectStartIndex = this.selectEndIndex = rowNode.rowIndex;
                     if (this.timestampCol) {
