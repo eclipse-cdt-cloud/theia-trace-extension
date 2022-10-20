@@ -641,6 +641,10 @@ export class TableOutputComponent extends AbstractOutputComponent<TableOutputPro
                     currRowIndex = Math.max(this.selectStartIndex, this.selectEndIndex) + 1;
                 } else {
                     currRowIndex = Math.min(this.selectStartIndex, this.selectEndIndex) - 1;
+                    if (currRowIndex < 0) {
+                        // no backward search if already at index 0
+                        return;
+                    }
                 }
             } else if (direction === Direction.PREVIOUS) {
                 // no backward search if there is no selection
