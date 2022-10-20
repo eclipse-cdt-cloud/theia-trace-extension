@@ -632,7 +632,7 @@ export class TableOutputComponent extends AbstractOutputComponent<TableOutputPro
                 this.selectEndIndex = this.selectStartIndex;
             }
             if (this.selectEndIndex !== -1 && this.selectStartIndex === -1) {
-                this.selectStartIndex = this.selectStartIndex;
+                this.selectStartIndex = this.selectEndIndex;
             }
 
             let currRowIndex = 0;
