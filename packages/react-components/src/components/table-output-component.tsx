@@ -42,6 +42,7 @@ export class TableOutputComponent extends AbstractOutputComponent<TableOutputPro
     private showIndexColumn = false;
     private frameworkComponents: any;
     private gridApi: GridApi | undefined = undefined;
+    private gridMatched = false;
     private gridRedrawn = false;
     private gridSearched = false;
     private columnApi: ColumnApi | undefined = undefined;
@@ -500,7 +501,6 @@ export class TableOutputComponent extends AbstractOutputComponent<TableOutputPro
                 this.selectRows();
             }
         }
-
     }
 
     private async fetchTableIndex(timestamp: bigint) {
@@ -537,7 +537,6 @@ export class TableOutputComponent extends AbstractOutputComponent<TableOutputPro
             }
         }
         return additionalParams;
-
     }
 
     private async fetchTableLines(fetchIndex: number, linesToFetch: number) {
@@ -587,7 +586,12 @@ export class TableOutputComponent extends AbstractOutputComponent<TableOutputPro
         }
     };
 
-    private searchEvents(colName: string, filterValue: string) {
+    private async searchEvents(colName: string, filterValue: string) {
+        const msBetweenChecks = 100;
+        while (this.gridMatched) {
+            // wait for grid to be done being matched -elsewhere (concurrently)
+            await new Promise(cb => setTimeout(cb, msBetweenChecks));
+        }
         this.gridRedrawn = true;
         if (filterValue === '') {
             this.filterModel.delete(colName);
@@ -636,10 +640,15 @@ export class TableOutputComponent extends AbstractOutputComponent<TableOutputPro
         let isFound = false;
         if (this.gridApi) {
             const msBetweenChecks = 100;
+            while (this.gridMatched) {
+                // wait for grid to be done being matched -from elsewhere (concurrently)
+                await new Promise(cb => setTimeout(cb, msBetweenChecks));
+            }
             while (this.gridRedrawn) {
                 // wait for grid to be done being redrawn -elsewhere (before assuming it)
                 await new Promise(cb => setTimeout(cb, msBetweenChecks));
             }
+            this.gridMatched = true;
             if (this.gridSearched) {
                 // reset the selection once, upon new search filter just applied
                 this.selectStartIndex = this.selectEndIndex = -1;
@@ -662,11 +671,13 @@ export class TableOutputComponent extends AbstractOutputComponent<TableOutputPro
                     currRowIndex = Math.min(this.selectStartIndex, this.selectEndIndex) - 1;
                     if (currRowIndex < 0) {
                         // no backward search if already at index 0
+                        this.gridMatched = false;
                         return;
                     }
                 }
             } else if (direction === Direction.PREVIOUS) {
                 // no backward search if there is no selection
+                this.gridMatched = false;
                 return;
             }
 
@@ -726,7 +737,7 @@ export class TableOutputComponent extends AbstractOutputComponent<TableOutputPro
                     this.gridApi.paginationGoToPage(indexPage);
                     this.gridApi.ensureIndexVisible(indexRow);
                 }
-
+                this.gridMatched = false;
                 return;
             }
             // find match outside the cache
@@ -761,6 +772,7 @@ export class TableOutputComponent extends AbstractOutputComponent<TableOutputPro
                 signalManager().fireTooltipSignal(itemPropsObj);
                 this.selectRows();
             }
+            this.gridMatched = false;
         }
     }
 
