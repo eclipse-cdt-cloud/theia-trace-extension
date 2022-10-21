@@ -43,6 +43,7 @@ export class TableOutputComponent extends AbstractOutputComponent<TableOutputPro
     private frameworkComponents: any;
     private gridApi: GridApi | undefined = undefined;
     private gridRedrawn = false;
+    private gridSearched = false;
     private columnApi: ColumnApi | undefined = undefined;
     private prevStartTimestamp = -BigInt(2 ** 63);
     private startTimestamp = BigInt(2 ** 63);
@@ -609,6 +610,7 @@ export class TableOutputComponent extends AbstractOutputComponent<TableOutputPro
             });
             this.gridApi.redrawRows();
         }
+        this.gridSearched = true;
         this.gridRedrawn = false;
     }
 
@@ -637,6 +639,11 @@ export class TableOutputComponent extends AbstractOutputComponent<TableOutputPro
             while (this.gridRedrawn) {
                 // wait for grid to be done being redrawn -elsewhere (before assuming it)
                 await new Promise(cb => setTimeout(cb, msBetweenChecks));
+            }
+            if (this.gridSearched) {
+                // reset the selection once, upon new search filter just applied
+                this.selectStartIndex = this.selectEndIndex = -1;
+                this.gridSearched = false;
             }
 
             // make sure that both index are either both -1 or both have a valid number
