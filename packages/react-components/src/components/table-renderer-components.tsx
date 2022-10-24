@@ -84,7 +84,7 @@ export class SearchFilterRenderer extends React.Component<SearchFilterRendererPr
 
         this.debouncedChangeHandler = debounce((colName, inputVal) => {
             this.props.onFilterChange(colName, inputVal);
-        }, 500);
+        }, 10);
 
         this.onInputBoxChanged = this.onInputBoxChanged.bind(this);
         this.onMouseEnterHandler = this.onMouseEnterHandler.bind(this);
