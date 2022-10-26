@@ -116,7 +116,6 @@
     "vscode-builtin-vb": "https://open-vsx.org/api/vscode/vb/1.50.0/file/vscode.vb-1.50.0.vsix",
     "vscode-builtin-icon-theme-seti": "https://open-vsx.org/api/vscode/vscode-theme-seti/1.50.0/file/vscode.vscode-theme-seti-1.50.0.vsix",
     "vscode-builtin-xml": "https://open-vsx.org/api/vscode/xml/1.50.0/file/vscode.xml-1.50.0.vsix",
-    "vscode-builtin-yaml": "https://open-vsx.org/api/vscode/yaml/1.50.0/file/vscode.yaml-1.50.0.vsix",
     "vscode-editorconfig": "https://open-vsx.org/api/EditorConfig/EditorConfig/0.14.4/file/EditorConfig.EditorConfig-0.14.4.vsix",
     "vscode-clangd": "https://open-vsx.org/api/llvm-vs-code-extensions/vscode-clangd/0.1.7/file/llvm-vs-code-extensions.vscode-clangd-0.1.7.vsix"
   }
