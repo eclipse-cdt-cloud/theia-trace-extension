@@ -65,7 +65,7 @@ export class TraceViewerWidget extends ReactWidget implements StatefulWidget {
     private selectedMarkerSetId = '';
 
     private onOutputAdded = (payload: OutputAddedSignalPayload): Promise<void> => this.doHandleOutputAddedSignal(payload);
-    private onTraceOverviewOpened = (): Promise<void> => this.doHandleTraceOverviewOpenedSignal();
+    private onTraceOverviewOpened = (traceId: string): Promise<void> => this.doHandleTraceOverviewOpenedSignal(traceId);
     private onTraceOverviewOutputSelected = (payload: {traceId: string, outputDescriptor: OutputDescriptor}): Promise<void> => this.doHandleTraceOverviewOutputSelected(payload);
     private onExperimentSelected = (experiment: Experiment): Promise<void> => this.doHandleExperimentSelectedSignal(experiment);
     private onCloseExperiment = (UUID: string): void => this.doHandleCloseExperimentSignal(UUID);
@@ -132,7 +132,7 @@ export class TraceViewerWidget extends ReactWidget implements StatefulWidget {
 
         // Load the trace overview by default
         if (this.loadTraceOverview){
-            this.doHandleTraceOverviewOpenedSignal();
+            this.doHandleTraceOverviewOpenedSignal(this.openedExperiment?.UUID);
         }
     }
 
@@ -426,8 +426,8 @@ export class TraceViewerWidget extends ReactWidget implements StatefulWidget {
         }
     }
 
-    private async doHandleTraceOverviewOpenedSignal(): Promise<void> {
-        if (this.openedExperiment){
+    private async doHandleTraceOverviewOpenedSignal(traceId: string | undefined): Promise<void> {
+        if (this.openedExperiment && this.openedExperiment.UUID === traceId){
             this.loadOverviewOutputDescriptor();
             this.shell.activateWidget(this.openedExperiment.UUID);
         }
@@ -567,6 +567,12 @@ export class TraceViewerWidget extends ReactWidget implements StatefulWidget {
         }
 
         return false;
+    }
+
+    openOverview(): void {
+        if (this.openedExperiment?.UUID) {
+            signalManager().fireOpenOverviewOutputSignal(this.openedExperiment.UUID);
+        }
     }
 
     private async loadOverviewOutputDescriptor(): Promise<void> {

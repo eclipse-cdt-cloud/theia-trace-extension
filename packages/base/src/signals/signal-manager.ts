@@ -26,7 +26,7 @@ export declare interface SignalManager {
     fireTraceServerStartedSignal(): void;
     fireUndoSignal(): void;
     fireRedoSignal(): void;
-    fireOpenOverviewOutputSignal(): void;
+    fireOpenOverviewOutputSignal(traceId: string): void;
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     firePinView(output: OutputDescriptor, payload?: any): void;
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -135,8 +135,8 @@ export class SignalManager extends EventEmitter implements SignalManager {
     fireUnPinView(output: OutputDescriptor, payload?: any): void {
         this.emit(Signals.UNPIN_VIEW, output, payload);
     }
-    fireOpenOverviewOutputSignal(): void {
-        this.emit(Signals.OPEN_OVERVIEW_OUTPUT);
+    fireOpenOverviewOutputSignal(traceId: string): void {
+        this.emit(Signals.OPEN_OVERVIEW_OUTPUT, traceId);
     }
     fireOverviewOutputSelectedSignal(payload: { traceId: string, outputDescriptor: OutputDescriptor}): void {
         this.emit(Signals.OVERVIEW_OUTPUT_SELECTED, payload);
