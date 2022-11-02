@@ -26,6 +26,16 @@ export interface GetClosestPointParam {
     allMin: number,
 }
 
+export interface DrawSelectionParams {
+    ctx: CanvasRenderingContext2D | null,
+    chartArea: Chart.ChartArea | undefined | null,
+    startPixel: number,
+    endPixel: number,
+    isBarPlot: boolean,
+    props: AbstractOutputProps,
+    invertSelection: boolean
+}
+
 export interface XYPoint {
     x: number,
     y: number
@@ -112,17 +122,14 @@ function getDefaultChartOptions(params: XYChartFactoryParams): Chart.ChartOption
     return lineOptions;
 }
 
-export function drawSelection(ctx: CanvasRenderingContext2D | null,
-    chartArea: Chart.ChartArea | undefined | null,
-    startPixel: number,
-    endPixel: number,
-    isBarPlot: boolean,
-    props: AbstractOutputProps): void {
+export function drawSelection(params: DrawSelectionParams): void {
+    const { startPixel, endPixel, isBarPlot, chartArea, props, ctx, invertSelection} = params;
     const minPixel = Math.min(startPixel, endPixel);
     const maxPixel = Math.max(startPixel, endPixel);
     const initialPoint = isBarPlot ? 0 : chartArea?.left ?? 0;
     const chartHeight = parseInt(props.style.height.toString());
     const finalPoint = isBarPlot ? chartHeight : chartArea?.bottom ?? 0;
+
     if (ctx) {
         ctx.save();
 
@@ -143,7 +150,17 @@ export function drawSelection(ctx: CanvasRenderingContext2D | null,
 
         // Selection fill
         ctx.globalAlpha = 0.2;
-        ctx.fillRect(minPixel, 0, maxPixel - minPixel, finalPoint);
+        if (!invertSelection) {
+            ctx.fillRect(minPixel, 0, maxPixel - minPixel, finalPoint);
+        }
+        else {
+            const leftSideWidth = - minPixel;
+            const rightSideWidth = (chartArea?.right ? chartArea.right : 0) - maxPixel;
+
+            ctx.fillRect(minPixel, 0, leftSideWidth, finalPoint);
+            ctx.fillRect(maxPixel, 0, rightSideWidth, finalPoint);
+        }
+
         ctx.restore();
     }
 }
