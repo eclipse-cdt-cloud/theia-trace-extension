@@ -10,7 +10,7 @@ import { TraceOverviewSelectionDialogComponent } from './trace-overview-selectio
 
 const COLOR = {
     SELECTION_RANGE: '#259fd8',
-    VIEW_RANGE: '#ffa500',
+    VIEW_RANGE: '#cccccc'
 };
 
 type XYOutputOverviewState = AbstractXYOutputState & {
@@ -106,7 +106,15 @@ export class XYOutputOverviewComponent extends AbstractXYOutputComponent<XYoutpu
                 ctx.strokeStyle = COLOR.VIEW_RANGE;
                 ctx.fillStyle = COLOR.VIEW_RANGE;
 
-                drawSelection(ctx, chartArea, startPixel, endPixel, this.isBarPlot, this.props);
+                drawSelection({
+                    ctx: ctx,
+                    chartArea: chartArea,
+                    startPixel: startPixel,
+                    endPixel: endPixel,
+                    isBarPlot: this.isBarPlot,
+                    props: this.props,
+                    invertSelection: true
+                });
             }
 
             if (this.props.selectionRange) {
@@ -115,7 +123,15 @@ export class XYOutputOverviewComponent extends AbstractXYOutputComponent<XYoutpu
                 ctx.strokeStyle = COLOR.SELECTION_RANGE;
                 ctx.fillStyle = COLOR.SELECTION_RANGE;
 
-                drawSelection(ctx, chartArea, selectionRangeStart, selectionRangeEnd, this.isBarPlot, this.props);
+                drawSelection({
+                    ctx: ctx,
+                    chartArea: chartArea,
+                    startPixel: selectionRangeStart,
+                    endPixel: selectionRangeEnd,
+                    isBarPlot: this.isBarPlot,
+                    props: this.props,
+                    invertSelection: false
+                });
             }
 
             if (this.clickedMouseButton === MouseButton.RIGHT) {
@@ -124,7 +140,15 @@ export class XYOutputOverviewComponent extends AbstractXYOutputComponent<XYoutpu
                 const endPixel = this.positionXMove;
                 ctx.strokeStyle = COLOR.VIEW_RANGE;
                 ctx.fillStyle = COLOR.VIEW_RANGE;
-                drawSelection(ctx, chartArea, startPixel, endPixel, this.isBarPlot, this.props);
+                drawSelection({
+                    ctx: ctx,
+                    chartArea: chartArea,
+                    startPixel: startPixel,
+                    endPixel: endPixel,
+                    isBarPlot: this.isBarPlot,
+                    props: this.props,
+                    invertSelection: true
+                });
             }
         }
     }
