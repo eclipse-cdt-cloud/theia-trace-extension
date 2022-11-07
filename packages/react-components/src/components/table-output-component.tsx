@@ -41,7 +41,7 @@ export class TableOutputComponent extends AbstractOutputComponent<TableOutputPro
     private fetchColumns = true;
     private columnArray = new Array<any>();
     private pagination = true;
-    private paginationPageSize = 500000;
+    private paginationPageSize = 250000;
     private paginationTotalPages = 0;
     private showIndexColumn = false;
     private frameworkComponents: any;
