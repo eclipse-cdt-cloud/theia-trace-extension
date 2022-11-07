@@ -167,7 +167,7 @@ export class TraceViewerWidget extends ReactWidget implements StatefulWidget {
 
         // This will show a progress dialog with "Cancel" option
         this.messageService.showProgress({
-                text: 'Open traces',
+                text: `Opening "${this.uri.name}"`,
                 options: {
                     cancelable: true
                 }
