@@ -12,6 +12,7 @@ import { CellKeyDownEvent } from 'ag-grid-community/dist/lib/events';
 import { TableModel } from 'tsp-typescript-client/lib/models/table';
 import { SearchFilterRenderer, CellRenderer, LoadingRenderer } from './table-renderer-components';
 import { ResponseStatus } from 'tsp-typescript-client';
+import { PaginationBarComponent } from './utils/pagination-bar-component';
 
 type TableOuputState = AbstractOutputState & {
     tableColumns: ColDef[];
@@ -29,7 +30,9 @@ type TableOutputProps = AbstractOutputProps & {
 
 enum Direction {
     NEXT,
-    PREVIOUS
+    PREVIOUS,
+    FIRST,
+    LAST
 }
 
 export class TableOutputComponent extends AbstractOutputComponent<TableOutputProps, TableOuputState> {
@@ -39,6 +42,7 @@ export class TableOutputComponent extends AbstractOutputComponent<TableOutputPro
     private columnArray = new Array<any>();
     private pagination = true;
     private paginationPageSize = 500000;
+    private paginationTotalPages = 0;
     private showIndexColumn = false;
     private frameworkComponents: any;
     private gridApi: GridApi | undefined = undefined;
@@ -100,6 +104,7 @@ export class TableOutputComponent extends AbstractOutputComponent<TableOutputPro
             }
         };
         this.pagination = this.props.nbEvents >= this.paginationPageSize;
+        this.paginationTotalPages = Math.floor(this.props.nbEvents / this.paginationPageSize);
         this.onEventClick = this.onEventClick.bind(this);
         this.onModelUpdated = this.onModelUpdated.bind(this);
         this.onKeyDown = this.onKeyDown.bind(this);
@@ -113,15 +118,21 @@ export class TableOutputComponent extends AbstractOutputComponent<TableOutputPro
             tabIndex={-1}
             onFocus={event => this.checkFocus(event)}
             className={this.props.backgroundTheme === 'light' ? 'ag-theme-balham' : 'ag-theme-balham-dark'}
-            style={{ height: this.props.style.height, width: this.props.outputWidth }}>
+            style={{
+                height: this.props.style.height,
+                width: this.props.outputWidth,
+                display: 'flex',
+                flexDirection: 'column'
+            }}>
             <AgGridReact
                 columnDefs={this.columnArray}
                 rowModelType='infinite'
                 cacheBlockSize={this.props.cacheBlockSize}
                 maxBlocksInCache={this.props.maxBlocksInCache}
                 blockLoadDebounceMillis={this.props.blockLoadDebounce}
-                pagination={this.pagination}
+                pagination={true}
                 paginationPageSize={this.paginationPageSize}
+                suppressPaginationPanel={true}
                 debug={this.debugMode}
                 onGridReady={this.onGridReady}
                 onCellClicked={this.onEventClick}
@@ -132,6 +143,14 @@ export class TableOutputComponent extends AbstractOutputComponent<TableOutputPro
                 enableBrowserTooltips={true}
             >
             </AgGridReact>
+            {this.pagination &&
+                <PaginationBarComponent
+                    paginationPageSize={this.paginationPageSize}
+                    paginationTotalPages={this.paginationTotalPages}
+                    nbEvents={this.props.nbEvents}
+                    gridApi={this?.gridApi}
+                />
+            }
         </div>;
     }
 
@@ -166,7 +185,13 @@ export class TableOutputComponent extends AbstractOutputComponent<TableOutputPro
 
     async componentDidUpdate(prevProps: TableOutputProps, _prevState: TableOuputState): Promise<void> {
         if (this.props.nbEvents !== prevProps.nbEvents) {
-            this.gridApi?.setInfiniteRowCount(this.props.nbEvents);
+            this.gridApi?.setRowCount(this.props.nbEvents);
+            const newPagination = this.props.nbEvents >= this.paginationPageSize;
+            if (newPagination !== this.pagination) {
+                this.pagination = newPagination;
+            }
+
+            this.paginationTotalPages = Math.floor(this.props.nbEvents / this.paginationPageSize);
         }
     }
 
@@ -489,12 +514,10 @@ export class TableOutputComponent extends AbstractOutputComponent<TableOutputPro
 
                 const index = await this.fetchTableIndex(this.startTimestamp > this.endTimestamp ? this.startTimestamp + BigInt(1) : this.startTimestamp);
                 if (index) {
-                    const pageNumber = Math.floor(index / this.paginationPageSize);
-                    this.gridApi.paginationGoToPage(pageNumber);
                     const startIndex = this.startTimestamp > this.endTimestamp ? index - 1 : index;
                     this.selectStartIndex = this.selectStartIndex === -1 ? startIndex : this.selectStartIndex;
                     this.selectEndIndex = (this.enableIndexSelection && this.selectEndIndex === -1) ? startIndex : this.selectEndIndex;
-                    this.gridApi.ensureIndexVisible(this.selectStartIndex);
+                    this.updatePageIndex(index);
                     this.selectRows();
                 }
             } else {
@@ -691,8 +714,6 @@ export class TableOutputComponent extends AbstractOutputComponent<TableOutputPro
             }
 
             this.gridApi.deselectAll();
-            let indexPage = 0;
-            let indexRow = 0;
             // consider only rows starting from the current row index and contiguous rows after that
             let currRowIndexFound = false;
             rowNodes.forEach(rowNode => {
@@ -711,6 +732,8 @@ export class TableOutputComponent extends AbstractOutputComponent<TableOutputPro
                 // only checking 'rowNode.rowIndex' below makes its '=== 0' case false:
                 if (currRowIndexFound && !isFound && (rowNode.rowIndex || rowNode.rowIndex === 0) && rowNode.data && rowNode.data['isMatched']) {
                     this.gridApi?.ensureIndexVisible(rowNode.rowIndex);
+                    this.updatePageIndex(rowNode.rowIndex);
+
                     this.selectStartIndex = this.selectEndIndex = rowNode.rowIndex;
                     if (this.timestampCol) {
                         this.startTimestamp = this.endTimestamp = BigInt(rowNode.data[this.timestampCol]);
@@ -724,19 +747,12 @@ export class TableOutputComponent extends AbstractOutputComponent<TableOutputPro
                     // Notify properties changed
                     signalManager().fireTooltipSignal(itemPropsObj);
                     isFound = true;
-                    indexPage = Math.floor(rowNode.rowIndex / this.paginationPageSize);
-                    indexRow = rowNode.rowIndex;
                     rowNode.setSelected(true);
                 }
             });
 
             if (isFound) {
                 // Match found in cache
-                // Change page if match is not on current page
-                if (indexPage !== this.gridApi.paginationGetCurrentPage()) {
-                    this.gridApi.paginationGoToPage(indexPage);
-                    this.gridApi.ensureIndexVisible(indexRow);
-                }
                 this.gridMatched = false;
                 return;
             }
@@ -746,12 +762,7 @@ export class TableOutputComponent extends AbstractOutputComponent<TableOutputPro
             if (currRowIndex >= 0) {
                 const data = await this.findMatchIndex(currRowIndex, direction);
                 if (data !== undefined) {
-                    // Change page if match is not on current page
-                    indexPage = Math.floor(data.index / this.paginationPageSize);
-                    if (indexPage !== this.gridApi.paginationGetCurrentPage()) {
-                        this.gridApi.paginationGoToPage(indexPage);
-                    }
-                    this.gridApi.ensureIndexVisible(data.index);
+                    this.updatePageIndex(data.index);
                     this.selectStartIndex = this.selectEndIndex = data.index;
                     if (this.timestampCol) {
                         this.startTimestamp = this.endTimestamp = BigInt(data.row[this.timestampCol]);
@@ -860,5 +871,15 @@ export class TableOutputComponent extends AbstractOutputComponent<TableOutputPro
             </ul>
             {this.state.showToggleColumns && <div className='toggle-columns-table'>{this.renderToggleColumnsTable()}</div>}
         </React.Fragment>;
+    }
+
+    private updatePageIndex(rowIndex: number): void {
+        // Change page if match is not on current page
+        const indexPage = Math.floor(rowIndex / this.paginationPageSize);
+        if (indexPage !== this.gridApi?.paginationGetCurrentPage()) {
+            this.gridApi?.paginationGoToPage(indexPage);
+            this.forceUpdate();
+        }
+        this.gridApi?.ensureIndexVisible(rowIndex);
     }
 }
