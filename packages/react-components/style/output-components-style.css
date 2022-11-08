@@ -368,3 +368,18 @@ canvas {
     margin-top: 5px;
     transform: rotate(180deg);
 }
+
+.pagination-bar {
+    width: calc(100% - 2px);
+    height: 30px;
+    display: flex;
+    color: var(--theia-descriptionForeground);
+    border: thin solid var(--theia-disabledForeground);
+    border-top: none;
+  }
+
+.pagination-button {
+    border: none;
+    background: transparent;
+    color: var(--theia-foreground);
+}

@@ -194,3 +194,7 @@ export function getClosestPointForScatterPlot(params: GetClosestPointParam): XYP
 
     return undefined;
 }
+
+export function numberFormat(rawNumber: number): string{
+    return new Intl.NumberFormat().format(rawNumber);
+}
