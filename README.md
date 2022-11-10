@@ -353,6 +353,11 @@ pip install -r requirements.txt
 * The virtual environment can be replaced with another setup locally.
 * Above, the `./requirements.txt` file has [the ADR tool][tools] to install.
 
+## Test Chapter
+
+This just a test chapter...
+
+
 [adr]: https://adr.github.io
 [app-image]: https://www.dorsal.polymtl.ca/files/other/electron-theia-trace-example-app-0.0.1.AppImage
 [docs]: https://wiki.eclipse.org/Trace_Compass/Design_Documents
