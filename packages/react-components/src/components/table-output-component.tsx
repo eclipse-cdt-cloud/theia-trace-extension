@@ -3,7 +3,7 @@ import { AbstractOutputComponent, AbstractOutputProps, AbstractOutputState } fro
 import * as React from 'react';
 import { flushSync } from 'react-dom';
 import { AgGridReact } from 'ag-grid-react';
-import { ColDef, IDatasource, GridReadyEvent, CellClickedEvent, GridApi, ColumnApi, Column, RowNode } from 'ag-grid-community';
+import { ColDef, IDatasource, GridReadyEvent, CellClickedEvent, GridApi, ColumnApi, Column, RowNode, CellPosition, NavigateToNextCellParams } from 'ag-grid-community';
 import { QueryHelper } from 'tsp-typescript-client/lib/models/query/query-helper';
 import { cloneDeep } from 'lodash';
 import { signalManager } from 'traceviewer-base/lib/signals/signal-manager';
@@ -38,7 +38,7 @@ export class TableOutputComponent extends AbstractOutputComponent<TableOutputPro
     private fetchColumns = true;
     private columnArray = new Array<any>();
     private pagination = true;
-    private paginationPageSize = 500000;
+    private paginationPageSize = 100;
     private showIndexColumn = false;
     private frameworkComponents: any;
     private gridApi: GridApi | undefined = undefined;
@@ -58,7 +58,6 @@ export class TableOutputComponent extends AbstractOutputComponent<TableOutputPro
     private filterModel: Map<string, string> = new Map<string, string>();
     private dataSource: IDatasource;
     private tableSize = 0;
-
     static defaultProps: Partial<TableOutputProps> = {
         cacheBlockSize: 200,
         maxBlocksInCache: 5,
@@ -130,6 +129,7 @@ export class TableOutputComponent extends AbstractOutputComponent<TableOutputPro
                 onCellKeyDown={this.onKeyDown}
                 frameworkComponents={this.frameworkComponents}
                 enableBrowserTooltips={true}
+                navigateToNextCell={this.navigateToNextCell}
             >
             </AgGridReact>
         </div>;
@@ -319,6 +319,10 @@ export class TableOutputComponent extends AbstractOutputComponent<TableOutputPro
                     if (nextRow?.rowIndex) {
                         this.selectStartIndex = this.selectEndIndex = nextRow.rowIndex;
                     }
+
+                    if (rowIndex === gridApi.getLastDisplayedRow() && (rowIndex + 1) % this.paginationPageSize === 0) {
+                        gridApi.paginationGoToNextPage();
+                    }
                 } else if (keyEvent.code === 'ArrowUp') {
                     nextRow = gridApi.getRowNode(String(rowIndex - 1));
                     if (this.timestampCol && nextRow?.data) {
@@ -327,6 +331,17 @@ export class TableOutputComponent extends AbstractOutputComponent<TableOutputPro
                     if (nextRow?.rowIndex) {
                         this.selectStartIndex = this.selectEndIndex = nextRow.rowIndex;
                     }
+                    if (rowIndex === gridApi.getFirstDisplayedRow() && rowIndex > 0) {
+                        gridApi.paginationGoToPreviousPage();
+                    }
+                } else if (keyEvent.code === 'PageDown' &&
+                    rowIndex === gridApi.getLastDisplayedRow() &&
+                    (rowIndex + 1) % this.paginationPageSize === 0) {
+                    gridApi.paginationGoToNextPage();
+                } else if (keyEvent.code === 'PageUp' &&
+                    rowIndex === gridApi.getFirstDisplayedRow() &&
+                    rowIndex > 0) {
+                    gridApi.paginationGoToPreviousPage();
                 }
                 if (nextRow?.id) {
                     nextRow.setSelected(true);
@@ -860,5 +875,14 @@ export class TableOutputComponent extends AbstractOutputComponent<TableOutputPro
             </ul>
             {this.state.showToggleColumns && <div className='toggle-columns-table'>{this.renderToggleColumnsTable()}</div>}
         </React.Fragment>;
+    }
+
+    private navigateToNextCell(params: NavigateToNextCellParams): CellPosition | null {
+        if (params.nextCellPosition?.rowIndex === -1) {
+            // eslint-disable-next-line no-null/no-null
+            return null;
+        }
+
+        return params.nextCellPosition;
     }
 }
