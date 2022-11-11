@@ -172,7 +172,6 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
                 }
             }
         });
-
     }
 
     synchronizeTreeScroll(): void {
@@ -525,8 +524,7 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
             unitController={this.props.unitController}
             id='timegraph-chart-1'
             layers={[this.markersChartLayer]}
-        >
-        </ReactTimeGraphContainer>;
+        />;
 
     }
 
@@ -551,8 +549,7 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
             layers={[
                 grid, this.chartLayer, selectionRange, this.chartCursors, this.arrowLayer, this.rangeEventsLayer
             ]}
-        >
-        </ReactTimeGraphContainer>;
+        />;
     }
 
     setFocus(): void {
@@ -600,10 +597,8 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
         }
 
         const ids = rowIds ? rowIds : this.getTimegraphRowIds().rowIds;
-        const overlap = range.end - range.start;
-        const start = range.start - overlap > 0 ? range.start - overlap : BigInt(0);
-        const end = range.end + overlap < this.props.unitController.absoluteRange ? range.end + overlap : this.props.unitController.absoluteRange;
-        const newRange: TimelineChart.TimeGraphRange = { start, end };
+        const { start, end } = range;
+        const newRange: TimelineChart.TimeGraphRange = range;
         const nbTimes = Math.ceil(Number(end - start) / resolution) + 1;
         const timeGraphData: TimelineChart.TimeGraphModel = await this.tspDataProvider.getData(ids, this.state.timegraphTree,
             this.props.range, newRange, nbTimes, this.props.markerCategories, this.props.markerSetId);
