@@ -14269,9 +14269,9 @@ through@2, "through@>=2.2.7 <3", through@^2.3.4, through@^2.3.6, through@^2.3.8,
   integrity sha1-DdTJ/6q8NXlgsbckEV1+Doai4fU=
 
 timeline-chart@next:
-  version "0.3.0-next.16e8148.0"
-  resolved "https://registry.yarnpkg.com/timeline-chart/-/timeline-chart-0.3.0-next.16e8148.0.tgz#cf569d0e23278bfdc5f4b31d6d12ed8e5f9b31ae"
-  integrity sha512-aPlstBuHFKCv8LI8TxJEjMO5jLfhwonFaxiimzd4WxCSY2MIaPh8IRYqgaAchr1H5tNKhIsj7SwjUGbHt1FXXw==
+  version "0.3.0-next.dbc96fd.0"
+  resolved "https://registry.yarnpkg.com/timeline-chart/-/timeline-chart-0.3.0-next.dbc96fd.0.tgz#9c8e49d6bc700867a5c52a53a4f62fb055ffe9ae"
+  integrity sha512-bxOhPnFIhyqN5fovkrhZapgZ5BZZDxhfA2ojFlJT8Wt/DD+a+MXGp+8j2d+/VDx4/SP3FF5O6eNelv66LxPidw==
   dependencies:
     "@types/lodash.throttle" "^4.1.4"
     glob "^7.1.6"
