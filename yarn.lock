@@ -2729,7 +2729,7 @@
   resolved "https://registry.yarnpkg.com/@stroncium/procfs/-/procfs-1.2.1.tgz#6b9be6fd20fb0a4c20e99a8695e083c699bb2b45"
   integrity sha512-X1Iui3FUNZP18EUvysTHxt+Avu2nlVzyf90YM8OYgP6SGzTzzX/0JgObfO1AQQDzuZtNNz29bVh8h5R97JrjxA==
 
-"@szhsin/react-menu@^3.2.0":
+"@szhsin/react-menu@^3.2.1":
   version "3.2.1"
   resolved "https://registry.yarnpkg.com/@szhsin/react-menu/-/react-menu-3.2.1.tgz#92bbf965175d08f1d430aa4924a8ccfdbbd69501"
   integrity sha512-HEStuXNYHxLcGByiWaxFcE+ZaZ5BPQd/NtwBcxmUvHdvAaCZngmZ2ZddWuDAYZval94Kpahi1ZH0/WSv3oFnFg==
