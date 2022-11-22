@@ -32,6 +32,9 @@ import { isEqual } from 'lodash';
 import { convertColorStringToHexNumber } from 'traceviewer-base/lib/utils/convert-color-string-to-hex';
 import { faSpinner } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import TextField from '@mui/material/TextField';
+import InputAdornment from '@mui/material/InputAdornment';
+import { debounce } from 'lodash';
 
 type TimegraphOutputProps = AbstractOutputProps & {
     addWidgetResizeHandler: (handler: () => void) => void;
@@ -50,6 +53,7 @@ type TimegraphOutputState = AbstractTreeOutputState & {
     collapsedMarkerNodes: number[];
     columns: ColumnHeader[];
     dataRows: TimelineChart.TimeGraphRowModel[];
+    searchString: string;
 };
 
 const COARSE_RESOLUTION_FACTOR = 8; // resolution factor to use for first (coarse) update
@@ -79,6 +83,8 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
     private onSelectionChanged = (payload: { [key: string]: string }) => this.doHandleSelectionChangedSignal(payload);
     private pendingSelection: TimeGraphEntry | undefined;
 
+    private _debouncedUpdateSearch = debounce(() => this.updateSearchFilter(), 500);
+
     constructor(props: TimegraphOutputProps) {
         super(props);
         this.state = {
@@ -96,7 +102,8 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
                 ? (this.props.persistChartState.collapsedMarkerNodes as number[])
                 : [],
             dataRows: [],
-            showTree: true
+            showTree: true,
+            searchString: ''
         };
         this.selectedMarkerCategories = this.props.markerCategories;
         this.onToggleCollapse = this.onToggleCollapse.bind(this);
@@ -117,6 +124,9 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
         this.horizontalContainer = React.createRef();
         this.timeGraphTreeRef = React.createRef();
         this.markerTreeRef = React.createRef();
+        this.handleSearchChange = this.handleSearchChange.bind(this);
+        this.clearSearchBox = this.clearSearchBox.bind(this);
+
         const providers: TimeGraphChartProviders = {
             rowProvider: () => this.getTimegraphRowIds(),
             /**
@@ -124,8 +134,14 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
              * @param resolution requested time interval between samples
              * @returns row models with the actual range and resolution
              */
-            dataProvider: async (range: TimelineChart.TimeGraphRange, resolution: number, rowIds?: number[]) =>
-                this.fetchTimegraphData(range, resolution, rowIds),
+            dataProvider: async (
+                range: TimelineChart.TimeGraphRange,
+                resolution: number,
+                fetchArrows: boolean,
+                rowIds?: number[],
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                additionalProperties?: { [key: string]: any }
+            ) => this.fetchTimegraphData(range, resolution, fetchArrows, rowIds, additionalProperties),
             stateStyleProvider: (state: TimelineChart.TimeGraphState) => this.getStateStyle(state),
             rowAnnotationStyleProvider: (annotation: TimelineChart.TimeGraphAnnotation) =>
                 this.getAnnotationStyle(annotation),
@@ -286,7 +302,11 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
             prevProps.markerSetId !== this.props.markerSetId
         ) {
             this.selectedMarkerCategories = this.props.markerCategories;
-            this.chartLayer.updateChart();
+            if (this.state.searchString && this.state.searchString.length > 0) {
+                this._debouncedUpdateSearch();
+            } else {
+                this.chartLayer.updateChart();
+            }
             this.markersChartLayer.updateChart();
             this.arrowLayer.update();
             this.rangeEventsLayer.update();
@@ -297,6 +317,19 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
             !isEqual(this.state.markerLayerData, prevState.markerLayerData)
         ) {
             this.markersChartLayer.updateChart();
+        }
+        if (!isEqual(this.state.searchString, prevState.searchString)) {
+            this._debouncedUpdateSearch();
+        }
+    }
+
+    async updateSearchFilter(): Promise<void> {
+        if (this.state.searchString && this.state.searchString.length > 0) {
+            const filterExpressionsMap: { [key: number]: string[] } = {};
+            filterExpressionsMap[1] = [this.state.searchString];
+            this.chartLayer.updateChart(filterExpressionsMap);
+        } else {
+            this.chartLayer.updateChart();
         }
     }
 
@@ -439,7 +472,13 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
                     ref={this.timeGraphTreeRef}
                     className="scrollable"
                     onScroll={() => this.synchronizeTreeScroll()}
-                    style={{ height: parseInt(this.props.style.height.toString()) - this.getMarkersLayerHeight() }}
+                    style={{
+                        height:
+                            parseInt(this.props.style.height.toString()) -
+                            this.getMarkersLayerHeight() -
+                            (document.getElementById(this.props.traceId + this.props.outputDescriptor.id + 'searchBar')
+                                ?.offsetHeight ?? 0)
+                    }}
                     tabIndex={0}
                 >
                     <EntryTree
@@ -578,8 +617,56 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
             <div id="main-timegraph-content" ref={this.horizontalContainer} style={{ height: this.props.style.height }}>
                 {this.getChartContainer()}
                 {this.getMarkersContainer()}
+                <div
+                    id={this.props.traceId + this.props.outputDescriptor.id + 'searchBar'}
+                    className="timgraph-search-bar"
+                >
+                    <TextField
+                        InputProps={{
+                            placeholder: 'Search',
+                            startAdornment: (
+                                <InputAdornment
+                                    sx={{
+                                        color: 'var(--theia-ui-font-color0)'
+                                    }}
+                                    position="start"
+                                >
+                                    <i className="codicon codicon-search"></i>
+                                </InputAdornment>
+                            ),
+                            className: 'timegraph-search-box',
+                            endAdornment: (
+                                <InputAdornment
+                                    sx={{
+                                        color: 'var(--theia-ui-font-color0)'
+                                    }}
+                                    position="end"
+                                >
+                                    <button className="remove-search-button" onClick={this.clearSearchBox}>
+                                        <i className="codicon codicon-close"></i>
+                                    </button>
+                                </InputAdornment>
+                            )
+                        }}
+                        value={this.state.searchString}
+                        onChange={this.handleSearchChange}
+                        onKeyDown={event => this.onKeyDown(event)}
+                    />
+                </div>
             </div>
         );
+    }
+
+    private onKeyDown(event: React.KeyboardEvent) {
+        event.stopPropagation();
+    }
+
+    private handleSearchChange(event: React.ChangeEvent<HTMLInputElement>) {
+        this.setState({ searchString: event.target.value ?? '' });
+    }
+
+    private clearSearchBox() {
+        this.setState({ searchString: '' });
     }
 
     private getMarkersContainer() {
@@ -615,7 +702,11 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
             <ReactTimeGraphContainer
                 options={{
                     id: this.props.traceId + this.props.outputDescriptor.id + 'focusContainer',
-                    height: parseInt(this.props.style.height.toString()) - this.getMarkersLayerHeight(),
+                    height:
+                        parseInt(this.props.style.height.toString()) -
+                        this.getMarkersLayerHeight() -
+                        (document.getElementById(this.props.traceId + this.props.outputDescriptor.id + 'searchBar')
+                            ?.offsetHeight ?? 0),
                     width: this.getChartWidth(),
                     backgroundColor: this.props.style.chartBackgroundColor,
                     lineColor: this.props.backgroundTheme === 'light' ? 0xdddddd : 0x34383c,
@@ -680,7 +771,14 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
         };
     }
 
-    private async fetchTimegraphData(range: TimelineChart.TimeGraphRange, resolution: number, rowIds?: number[]) {
+    private async fetchTimegraphData(
+        range: TimelineChart.TimeGraphRange,
+        resolution: number,
+        fetchArrows: boolean,
+        rowIds?: number[],
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        additionalProperties?: { [key: string]: any }
+    ) {
         if (document.getElementById(this.props.traceId + this.props.outputDescriptor.id + 'handleSpinner')) {
             // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
             document.getElementById(
@@ -695,14 +793,18 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
         const timeGraphData: TimelineChart.TimeGraphModel = await this.tspDataProvider.getData(
             ids,
             this.state.timegraphTree,
+            fetchArrows,
             this.props.range,
             newRange,
             nbTimes,
             this.props.markerCategories,
-            this.props.markerSetId
+            this.props.markerSetId,
+            additionalProperties
         );
         this.updateMarkersData(timeGraphData.rangeEvents, newRange, nbTimes);
-        this.arrowLayer.addArrows(timeGraphData.arrows, this.getTimegraphRowIds().rowIds);
+        if (fetchArrows) {
+            this.arrowLayer.addArrows(timeGraphData.arrows, this.getTimegraphRowIds().rowIds);
+        }
         this.rangeEventsLayer.addRangeEvents(timeGraphData.rangeEvents);
 
         if (document.getElementById(this.props.traceId + this.props.outputDescriptor.id + 'handleSpinner')) {
@@ -911,7 +1013,7 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
                 }
                 return {
                     color: backgroundColor ? backgroundColor.color : 0x000000,
-                    opacity: backgroundColor ? backgroundColor.alpha : 1.0,
+                    opacity: metadata.tags && metadata.tags === 1 ? 0.3 : backgroundColor ? backgroundColor.alpha : 1.0,
                     height: height,
                     borderWidth: state.selected ? 2 : borderWidth ? borderWidth : 0,
                     borderColor: state.selected ? 0xeef20c : borderColor ? borderColor.color : 0x000000
