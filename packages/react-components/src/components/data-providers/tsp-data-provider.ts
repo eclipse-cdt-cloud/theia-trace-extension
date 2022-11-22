@@ -50,11 +50,13 @@ export class TspDataProvider {
     async getData(
         ids: number[],
         entries: TimeGraphEntry[],
+        fetchArrows: boolean,
         totalTimeRange: TimeRange,
         worldRange?: TimelineChart.TimeGraphRange,
         nbTimes?: number,
         annotationMarkers?: string[],
-        markerSetId?: string
+        markerSetId?: string,
+        additionalProperties?: { [key: string]: any }
     ): Promise<TimelineChart.TimeGraphModel> {
         this.timeGraphEntries = [...entries];
         if (!this.timeGraphEntries.length || !worldRange || !nbTimes) {
@@ -72,7 +74,13 @@ export class TspDataProvider {
         this.totalRange = totalTimeRange.getEnd() - totalTimeRange.getStart();
         const start = totalTimeRange.getStart() + worldRange.start;
         const end = totalTimeRange.getStart() + worldRange.end;
-        const timeGraphStateParams = QueryHelper.selectionTimeRangeQuery(start, end, nbTimes, ids);
+        const timeGraphStateParams = QueryHelper.selectionTimeRangeQuery(
+            start,
+            end,
+            nbTimes,
+            ids,
+            additionalProperties ? additionalProperties : {}
+        );
         const statesPromise = this.client.fetchTimeGraphStates(this.traceUUID, this.outputId, timeGraphStateParams);
 
         const additionalProps: { [key: string]: any } = {};
@@ -89,13 +97,11 @@ export class TspDataProvider {
         const arrowStart = worldRange.start + this.timeGraphEntries[0].start;
         const arrowEnd = worldRange.end + this.timeGraphEntries[0].start;
         const fetchParameters = QueryHelper.timeRangeQuery(arrowStart, arrowEnd, nbTimes);
-        const arrowsPromise = this.client.fetchTimeGraphArrows(this.traceUUID, this.outputId, fetchParameters);
 
         // Wait for responses
-        const [tspClientAnnotationsResponse, tspClientStatesResponse, tspClientArrowsResponse] = await Promise.all([
+        const [tspClientAnnotationsResponse, tspClientStatesResponse] = await Promise.all([
             annotationsPromise,
-            statesPromise,
-            arrowsPromise
+            statesPromise
         ]);
 
         // the start time which is normalized to logical 0 in timeline chart.
@@ -147,7 +153,15 @@ export class TspDataProvider {
             }
         }
 
-        const arrows = this.getArrows(tspClientArrowsResponse, worldRange, nbTimes);
+        let arrows: TimelineChart.TimeGraphArrow[] = [];
+        if (fetchArrows) {
+            const tspClientArrowsResponse = await this.client.fetchTimeGraphArrows(
+                this.traceUUID,
+                this.outputId,
+                fetchParameters
+            );
+            arrows = this.getArrows(tspClientArrowsResponse, worldRange, nbTimes);
+        }
 
         return {
             id: 'model',
@@ -218,16 +232,14 @@ export class TspDataProvider {
     }
 
     private getRowModel(row: TimeGraphRow, chartStart: bigint, rowId: number, entry: TimeGraphEntry) {
-        let gapStyle: OutputElementStyle;
-        if (!entry.style) {
-            gapStyle = this.getDefaultForGapStyle();
-        } else {
-            gapStyle = entry.style;
-        }
+        let dimGapStates = false;
         const states: TimelineChart.TimeGraphState[] = [];
         let prevPossibleState = entry.start;
         let nextPossibleState = entry.end;
         row.states.forEach((state: TimeGraphState, idx: number) => {
+            if (!dimGapStates && state.tags && state.tags === 1) {
+                dimGapStates = true;
+            }
             const end = state.end - chartStart;
             states.push({
                 id: row.entryId + '-' + idx,
@@ -237,7 +249,8 @@ export class TspDataProvider {
                     end
                 },
                 data: {
-                    style: state.style
+                    style: state.style,
+                    tags: state.tags
                 }
             });
             this.totalRange = this.totalRange < end ? end : this.totalRange;
@@ -248,6 +261,17 @@ export class TspDataProvider {
                 nextPossibleState = state.end - chartStart;
             }
         });
+        let gapStyle: OutputElementStyle;
+        if (!entry.style) {
+            gapStyle = this.getDefaultForGapStyle();
+        } else {
+            gapStyle = entry.style;
+        }
+        if (dimGapStates) {
+            gapStyle.values.opacity = 0.3;
+        } else if (gapStyle.values.opacity) {
+            delete gapStyle.values.opacity;
+        }
 
         return {
             id: rowId,

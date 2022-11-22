@@ -408,3 +408,52 @@ canvas {
     background: transparent;
     color: var(--trace-viewer-foreground);
 }
+
+.timgraph-search-bar {
+    background: var(--theia-editor-background);
+    padding-top: 5px;
+    padding-bottom: 10px;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+}
+
+.timegraph-search-box {
+    height: 24px;
+    margin-left: 2.5px;
+    margin-right: 2.5px;
+    font-family: var(--theia-ui-font-family) !important;
+    font-size: var(--theia-ui-font-size1) !important;
+    color: var(--theia-input-placeholder-foreground) !important;
+    background-color: var(--theia-input-background) !important;
+    border-color: var(--theia-tree-inactiveIndentGuidesStroke) !important;
+    border-style: solid;
+    border-radius: 15px !important;
+    border-width: 1px !important;
+}
+
+.timegraph-search-box fieldset {
+    border-color: var(--theia-tree-inactiveIndentGuidesStroke);
+}
+
+.search-bar-label {
+    font-family: var(--theia-ui-font-family) !important;
+    font-size: var(--theia-ui-font-size1) !important;
+    color: var(--theia-ui-font-color0) !important;
+}
+
+.remove-search-button {
+    background: none;
+    border: none;
+    margin-top: 3px;
+    padding-left: 0px;
+    padding-right: 0px;
+    color: var(--theia-ui-font-color0);
+}
+.remove-search-button:hover {
+    cursor: pointer;
+}
+.remove-search-button:focus {
+    outline: none;
+    box-shadow: none;
+}
