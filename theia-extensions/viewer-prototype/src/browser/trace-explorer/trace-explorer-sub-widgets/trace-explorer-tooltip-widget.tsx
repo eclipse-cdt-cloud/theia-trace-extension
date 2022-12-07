@@ -1,9 +1,9 @@
 import { inject, injectable, postConstruct } from 'inversify';
-import { ReactWidget, Message } from '@theia/core/lib/browser';
+import { Message, ReactWidget, Widget } from '@theia/core/lib/browser';
 import * as React from 'react';
 import { EditorOpenerOptions, EditorManager } from '@theia/editor/lib/browser';
 import URI from '@theia/core/lib/common/uri';
-import { Signals, signalManager } from 'traceviewer-base/lib/signals/signal-manager';
+import { ReactItemPropertiesWidget} from 'traceviewer-react-components/lib/trace-explorer/trace-explorer-tooltip-widget';
 
 @injectable()
 export class TraceExplorerTooltipWidget extends ReactWidget {
@@ -12,53 +12,37 @@ export class TraceExplorerTooltipWidget extends ReactWidget {
 
     @inject(EditorManager) protected readonly editorManager!: EditorManager;
 
-    tooltip?: { [key: string]: string } = undefined;
-
-    private onTooltip = (tooltip?: { [key: string]: string }): void => this.doHandleTooltipSignal(tooltip);
-
     @postConstruct()
     init(): void {
         this.id = TraceExplorerTooltipWidget.ID;
         this.title.label = TraceExplorerTooltipWidget.LABEL;
-        signalManager().on(Signals.TOOLTIP_UPDATED, this.onTooltip);
         this.update();
     }
 
     dispose(): void {
         super.dispose();
-        signalManager().off(Signals.TOOLTIP_UPDATED, this.onTooltip);
     }
 
-    private renderTooltip() {
-        const tooltipArray: JSX.Element[] = [];
-        if (this.tooltip) {
-            Object.entries(this.tooltip).forEach(([key, value]) => {
-                if (key === 'Source') {
-                    const sourceCodeInfo = value;
-                    const matches = sourceCodeInfo.match('(.*):(\\d+)');
-                    let fileLocation;
-                    let line;
-                    if (matches && matches.length === 3) {
-                        fileLocation = matches[1];
-                        line = matches[2];
-                    }
-                    tooltipArray.push(<p className='source-code-tooltip'
-                        key={key}
-                        onClick={this.handleSourcecodeLookup}
-                        data-id={JSON.stringify({ fileLocation, line })}
-                    >{key + ': ' + sourceCodeInfo}</p>);
-                } else {
-                    tooltipArray.push(<p key={key}>{key + ': ' + value}</p>);
-                }
-            });
-        } else {
-            tooltipArray.push(<p key="-1"><i>Select item to view properties</i></p>);
-        }
-
+    render(): React.ReactNode {
         return (
-            <React.Fragment>
-                {tooltipArray.map(element => element)}
-            </React.Fragment>);
+            <div>
+               <ReactItemPropertiesWidget
+               id={this.id}
+               title={this.title.label}
+               handleSourcecodeLookup={this.handleSourcecodeLookup}
+               ></ReactItemPropertiesWidget>
+            </div>
+        );
+    }
+
+    protected onResize(msg: Widget.ResizeMessage): void {
+        super.onResize(msg);
+        this.update();
+    }
+
+    protected onAfterShow(msg: Message): void {
+        super.onAfterShow(msg);
+        this.update();
     }
 
     protected handleSourcecodeLookup = (e: React.MouseEvent<HTMLParagraphElement>): void => this.doHandleSourcecodeLookup(e);
@@ -102,25 +86,5 @@ export class TraceExplorerTooltipWidget extends ReactWidget {
             };
             this.editorManager.open(new URI(fileLocation), opts);
         }
-    }
-
-    render(): React.ReactNode {
-        return (
-            <div className='trace-explorer-tooltip'>
-                <div className='trace-explorer-panel-content'>
-                    {this.renderTooltip()}
-                </div>
-            </div>
-        );
-    }
-
-    private doHandleTooltipSignal(tooltip?: { [key: string]: string }) {
-        this.tooltip = tooltip;
-        this.update();
-    }
-
-    protected onAfterShow(msg: Message): void {
-        super.onAfterShow(msg);
-        this.update();
     }
 }
