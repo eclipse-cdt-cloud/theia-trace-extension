@@ -5,7 +5,15 @@ import URI from '@theia/core/lib/common/uri';
 import { TraceViewerWidget, TraceViewerWidgetOptions } from './trace-viewer';
 import { FileDialogService, OpenFileDialogProps } from '@theia/filesystem/lib/browser';
 import { WorkspaceService } from '@theia/workspace/lib/browser/workspace-service';
-import { OpenTraceCommand, StartServerCommand, StopServerCommand, TraceViewerCommand, KeyboardShortcutsCommand, OpenTraceWithRootPathCommand } from './trace-viewer-commands';
+import {
+  OpenTraceCommand,
+  StartServerCommand,
+  StopServerCommand,
+  TraceViewerCommand,
+  KeyboardShortcutsCommand,
+  OpenTraceWithRootPathCommand,
+  OpenTraceWithPathCommand,
+} from './trace-viewer-commands';
 import { PortBusy, TraceServerConfigService } from '../../common/trace-server-config';
 import { TracePreferences, TRACE_PATH, TRACE_ARGS } from '../trace-server-preference';
 import { TspClient } from 'tsp-typescript-client/lib/protocol/tsp-client';
@@ -177,6 +185,10 @@ export class TraceViewerContribution extends WidgetOpenHandler<TraceViewerWidget
     registerCommands(registry: CommandRegistry): void {
         registry.registerCommand(OpenTraceCommand, {
             execute: () => this.launchTraceServer()
+        });
+        registry.registerCommand(OpenTraceWithPathCommand, {
+            isVisible: () => false,
+            execute: (path: string, options: TraceViewerWidgetOpenerOptions) => path && this.open(new URI(path), options),
         });
         registry.registerCommand(OpenTraceWithRootPathCommand, {
             isVisible: () => false,
