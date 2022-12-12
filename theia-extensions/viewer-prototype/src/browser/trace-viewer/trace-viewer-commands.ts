@@ -29,3 +29,16 @@ export const OpenTraceWithRootPathCommand: Command = {
     id: 'open-trace-with-root-path',
     label: 'Open Trace With Root Path'
 };
+
+/**
+ * A command to open a trace in the trace viewer.
+ *
+ * The command takes two parameters:
+ *
+ * path: a string containing the path to a trace
+ * options: an optional TraceViewerWidgetOpenerOptions
+ */
+export const OpenTraceWithPathCommand: Command = {
+    id: 'open-trace-with-path',
+    label: 'Open Trace With Path'
+};
