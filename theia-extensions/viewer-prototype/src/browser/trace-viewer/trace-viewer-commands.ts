@@ -33,10 +33,9 @@ export const OpenTraceWithRootPathCommand: Command = {
 /**
  * A command to open a trace in the trace viewer.
  *
- * The command takes two parameters:
+ * The command takes a parameter:
  *
  * path: a string containing the path to a trace
- * options: an optional TraceViewerWidgetOpenerOptions
  */
 export const OpenTraceWithPathCommand: Command = {
     id: 'open-trace-with-path',
