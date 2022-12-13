@@ -188,7 +188,7 @@ export class TraceViewerContribution extends WidgetOpenHandler<TraceViewerWidget
         });
         registry.registerCommand(OpenTraceWithPathCommand, {
             isVisible: () => false,
-            execute: (path: string, options: TraceViewerWidgetOpenerOptions) => path && this.open(new URI(path), options),
+            execute: (path: string) => path && this.open(new URI(path)),
         });
         registry.registerCommand(OpenTraceWithRootPathCommand, {
             isVisible: () => false,
