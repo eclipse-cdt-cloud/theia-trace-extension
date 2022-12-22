@@ -7,11 +7,13 @@
 *.tsbuildinfo
 .browser_modules/
 /.venv/
+/packages/base/lib/
 /packages/react-components/coverage/
+/packages/react-components/lib/
 TraceCompassTutorialTraces
 TraceCompassTutorialTraces.tgz
 examples/*
-lib/
 node_modules/
+theia-extensions/viewer-prototype/lib/
 trace-compass-server
 trace-compass-server.tar.gz
