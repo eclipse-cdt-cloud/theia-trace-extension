@@ -22,4 +22,9 @@ RUN bash -c ". .nvm/nvm.sh \
     && nvm use $NODE_VERSION \
     && nvm alias default $NODE_VERSION \
     && npm install -g yarn"
+
+RUN bash -c "source \"/home/gitpod/.sdkman/bin/sdkman-init.sh\"  \
+    && sdk install java 17.0.5.fx-zulu < /dev/null \
+    && sdk default java 17.0.5.fx-zulu < /dev/null"
+
 ENV PATH=$HOME/.nvm/versions/node/v${NODE_VERSION}/bin:$PATH
