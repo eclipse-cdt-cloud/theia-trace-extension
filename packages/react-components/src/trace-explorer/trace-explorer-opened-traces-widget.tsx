@@ -210,7 +210,7 @@ export class ReactOpenTracesWidget extends React.Component<ReactOpenTracesWidget
         return (
             <div className='trace-element-path-container'>
                 {tracePaths.map(trace => (
-                    <div className='trace-element-path child-element' id={trace.UUID} key={trace.UUID}>
+                    <div className='trace-element-path child-element' id={trace.UUID} key={trace.UUID} title={trace.path}>
                         {` > ${trace.name}`}
                     </div>
                 ))}
