@@ -13,7 +13,7 @@ export declare interface SignalManager {
     fireExperimentSelectedSignal(experiment: Experiment | undefined): void;
     fireOpenedTracesChangedSignal(payload: OpenedTracesUpdatedSignalPayload): void;
     fireOutputAddedSignal(payload: OutputAddedSignalPayload): void;
-    fireTooltipSignal(tooltip?: { [key: string]: string }): void;
+    fireItemPropertiesSignalUpdated(properties?: { [key: string]: string }): void;
     fireThemeChangedSignal(theme: string): void;
     fireSelectionChangedSignal(payload: { [key: string]: string }): void;
     fireCloseTraceViewerTabSignal(traceUUID: string): void;
@@ -44,7 +44,7 @@ export const Signals = {
     OPENED_TRACES_UPDATED: 'opened traces updated',
     AVAILABLE_OUTPUTS_CHANGED: 'available outputs changed',
     OUTPUT_ADDED: 'output added',
-    TOOLTIP_UPDATED: 'tooltip updated',
+    ITEM_PROPERTIES_UPDATED: 'item properties updated',
     THEME_CHANGED: 'theme changed',
     SELECTION_CHANGED: 'selection changed',
     CLOSE_TRACEVIEWERTAB: 'tab closed',
@@ -88,8 +88,8 @@ export class SignalManager extends EventEmitter implements SignalManager {
     fireOutputAddedSignal(payload: OutputAddedSignalPayload): void {
         this.emit(Signals.OUTPUT_ADDED, payload);
     }
-    fireTooltipSignal(tooltip?: { [key: string]: string; }): void {
-        this.emit(Signals.TOOLTIP_UPDATED, tooltip);
+    fireItemPropertiesSignalUpdated(properties?: { [key: string]: string; }): void {
+        this.emit(Signals.ITEM_PROPERTIES_UPDATED, properties);
     }
     fireThemeChangedSignal(theme: string): void {
         this.emit(Signals.THEME_CHANGED, theme);

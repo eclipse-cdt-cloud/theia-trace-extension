@@ -6,7 +6,7 @@ import { ExperimentManager } from 'traceviewer-base/lib/experiment-manager';
 import { CommandService } from '@theia/core';
 import { TspClientProvider } from '../../tsp-client-provider-impl';
 import { signalManager} from 'traceviewer-base/lib/signals/signal-manager';
-import { TraceExplorerTooltipWidget } from './trace-explorer-tooltip-widget';
+import { TraceExplorerItemPropertiesWidget } from './theia-trace-explorer-properties-widget';
 import { ContextMenuRenderer } from '@theia/core/lib/browser';
 import { TraceViewerCommand } from '../../trace-viewer/trace-viewer-commands';
 import { ReactOpenTracesWidget} from 'traceviewer-react-components/lib/trace-explorer/trace-explorer-opened-traces-widget';
@@ -21,7 +21,7 @@ export class TraceExplorerOpenedTracesWidget extends ReactWidget {
     static LINE_HEIGHT = 16;
 
     @inject(TspClientProvider) protected readonly tspClientProvider!: TspClientProvider;
-    @inject(TraceExplorerTooltipWidget) protected readonly tooltipWidget!: TraceExplorerTooltipWidget;
+    @inject(TraceExplorerItemPropertiesWidget) protected readonly itemPropertiesWidget!: TraceExplorerItemPropertiesWidget;
     @inject(ContextMenuRenderer) protected readonly contextMenuRenderer!: ContextMenuRenderer;
     @inject(CommandService) protected readonly commandService!: CommandService;
     @inject(WidgetManager) protected readonly widgetManager!: WidgetManager;

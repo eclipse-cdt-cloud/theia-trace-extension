@@ -3,19 +3,19 @@ import { Message, ReactWidget, Widget } from '@theia/core/lib/browser';
 import * as React from 'react';
 import { EditorOpenerOptions, EditorManager } from '@theia/editor/lib/browser';
 import URI from '@theia/core/lib/common/uri';
-import { ReactItemPropertiesWidget} from 'traceviewer-react-components/lib/trace-explorer/trace-explorer-tooltip-widget';
+import { ReactItemPropertiesWidget} from 'traceviewer-react-components/lib/trace-explorer/trace-explorer-properties-widget';
 
 @injectable()
-export class TraceExplorerTooltipWidget extends ReactWidget {
-    static ID = 'trace-explorer-tooltip-widget';
+export class TraceExplorerItemPropertiesWidget extends ReactWidget {
+    static ID = 'trace-explorer-item-properties-widget';
     static LABEL = 'Item Properties';
 
     @inject(EditorManager) protected readonly editorManager!: EditorManager;
 
     @postConstruct()
     init(): void {
-        this.id = TraceExplorerTooltipWidget.ID;
-        this.title.label = TraceExplorerTooltipWidget.LABEL;
+        this.id = TraceExplorerItemPropertiesWidget.ID;
+        this.title.label = TraceExplorerItemPropertiesWidget.LABEL;
         this.update();
     }
 
