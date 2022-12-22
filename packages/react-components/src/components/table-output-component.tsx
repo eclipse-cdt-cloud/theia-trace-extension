@@ -233,7 +233,7 @@ export class TableOutputComponent extends AbstractOutputComponent<TableOutputPro
         // Notfiy selection changed
         this.handleRowSelectionChange(itemPropsObj);
         // Notfiy properties changed
-        signalManager().fireTooltipSignal(itemPropsObj);
+        signalManager().fireItemPropertiesSignalUpdated(itemPropsObj);
     }
 
     private fetchItemProperties(columns: Column[] | null, data: any) {
@@ -366,7 +366,7 @@ export class TableOutputComponent extends AbstractOutputComponent<TableOutputPro
             // Notfiy selection changed
             this.handleRowSelectionChange(itemPropsObj);
             // Notify properties changed
-            signalManager().fireTooltipSignal(itemPropsObj);
+            signalManager().fireItemPropertiesSignalUpdated(itemPropsObj);
         }
     }
 
@@ -745,7 +745,7 @@ export class TableOutputComponent extends AbstractOutputComponent<TableOutputPro
                     // Notify selection changed
                     this.handleRowSelectionChange(itemPropsObj);
                     // Notify properties changed
-                    signalManager().fireTooltipSignal(itemPropsObj);
+                    signalManager().fireItemPropertiesSignalUpdated(itemPropsObj);
                     isFound = true;
                     rowNode.setSelected(true);
                 }
@@ -780,7 +780,7 @@ export class TableOutputComponent extends AbstractOutputComponent<TableOutputPro
                 // Notfiy selection changed
                 this.handleRowSelectionChange(itemPropsObj);
                 // Notfiy properties changed
-                signalManager().fireTooltipSignal(itemPropsObj);
+                signalManager().fireItemPropertiesSignalUpdated(itemPropsObj);
                 this.selectRows();
             }
             this.gridMatched = false;

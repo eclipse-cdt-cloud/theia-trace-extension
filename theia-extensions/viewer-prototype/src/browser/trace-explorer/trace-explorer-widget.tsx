@@ -1,7 +1,7 @@
 import { injectable, inject, postConstruct, interfaces, Container } from 'inversify';
 import { TraceExplorerViewsWidget } from './trace-explorer-sub-widgets/theia-trace-explorer-views-widget';
 import { ViewContainer, BaseWidget, Message, PanelLayout } from '@theia/core/lib/browser';
-import { TraceExplorerTooltipWidget } from './trace-explorer-sub-widgets/trace-explorer-tooltip-widget';
+import { TraceExplorerItemPropertiesWidget } from './trace-explorer-sub-widgets/theia-trace-explorer-properties-widget';
 import { TraceExplorerOpenedTracesWidget } from './trace-explorer-sub-widgets/theia-trace-explorer-opened-traces-widget';
 import { TraceExplorerPlaceholderWidget } from './trace-explorer-sub-widgets/trace-explorer-placeholder-widget';
 import { TraceExplorerServerStatusWidget } from './trace-explorer-sub-widgets/trace-explorer-server-status-widget';
@@ -17,7 +17,7 @@ export class TraceExplorerWidget extends BaseWidget {
     private _numberOfOpenedTraces = 0;
     @inject(TraceExplorerViewsWidget) protected readonly viewsWidget!: TraceExplorerViewsWidget;
     @inject(TraceExplorerOpenedTracesWidget) protected readonly openedTracesWidget!: TraceExplorerOpenedTracesWidget;
-    @inject(TraceExplorerTooltipWidget) protected readonly tooltipWidget!: TraceExplorerTooltipWidget;
+    @inject(TraceExplorerItemPropertiesWidget) protected readonly itemPropertiesWidget!: TraceExplorerItemPropertiesWidget;
     @inject(TraceExplorerPlaceholderWidget) protected readonly placeholderWidget!: TraceExplorerPlaceholderWidget;
     @inject(TraceExplorerServerStatusWidget) protected readonly serverStatusWidget!: TraceExplorerServerStatusWidget;
     @inject(ViewContainer.Factory) protected readonly viewContainerFactory!: ViewContainer.Factory;
@@ -46,7 +46,7 @@ export class TraceExplorerWidget extends BaseWidget {
         child.bind(TraceExplorerOpenedTracesWidget).toSelf();
         child.bind(TraceExplorerPlaceholderWidget).toSelf();
         child.bind(TraceExplorerServerStatusWidget).toSelf();
-        child.bind(TraceExplorerTooltipWidget).toSelf();
+        child.bind(TraceExplorerItemPropertiesWidget).toSelf();
         child.bind(TraceExplorerWidget).toSelf().inSingletonScope();
         return child;
     }
@@ -63,7 +63,7 @@ export class TraceExplorerWidget extends BaseWidget {
         });
         this.traceViewsContainer.addWidget(this.openedTracesWidget);
         this.traceViewsContainer.addWidget(this.viewsWidget);
-        this.traceViewsContainer.addWidget(this.tooltipWidget);
+        this.traceViewsContainer.addWidget(this.itemPropertiesWidget);
         this.toDispose.push(this.traceViewsContainer);
         const layout = this.layout = new PanelLayout();
         layout.addWidget(this.serverStatusWidget);

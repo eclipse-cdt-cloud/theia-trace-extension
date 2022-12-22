@@ -8,7 +8,7 @@ export interface ReactPropertiesWidgetProps {
 }
 
 export interface ReactPropertiesWidgetState {
-    tooltip: { [key: string]: string };
+    itemProperties: { [key: string]: string };
 }
 
 export class ReactItemPropertiesWidget extends React.Component<ReactPropertiesWidgetProps, ReactPropertiesWidgetState> {
@@ -16,18 +16,18 @@ export class ReactItemPropertiesWidget extends React.Component<ReactPropertiesWi
     constructor(props: ReactPropertiesWidgetProps) {
         super(props);
         this.state = {
-            tooltip: {}
+            itemProperties: {}
         };
-        signalManager().on(Signals.TOOLTIP_UPDATED, this._onTooltip);
+        signalManager().on(Signals.ITEM_PROPERTIES_UPDATED, this._onItemProperties);
     }
 
     componentWillUnmount(): void {
-        signalManager().off(Signals.TOOLTIP_UPDATED, this._onTooltip);
+        signalManager().off(Signals.ITEM_PROPERTIES_UPDATED, this._onItemProperties);
     }
 
     render(): React.ReactNode {
         return (
-            <div className='trace-explorer-tooltip'>
+            <div className='trace-explorer-item-properties'>
                 <div className='trace-explorer-panel-content'>
                     {this.renderTooltip()}
                 </div>
@@ -37,8 +37,8 @@ export class ReactItemPropertiesWidget extends React.Component<ReactPropertiesWi
 
     private renderTooltip() {
         const tooltipArray: JSX.Element[] = [];
-        if (this.state.tooltip) {
-            Object.entries(this.state.tooltip).forEach(([key, value]) => {
+        if (this.state.itemProperties) {
+            Object.entries(this.state.itemProperties).forEach(([key, value]) => {
                 if (key === 'Source') {
                     const sourceCodeInfo = value;
                     const matches = sourceCodeInfo.match('(.*):(\\d+)');
@@ -68,10 +68,10 @@ export class ReactItemPropertiesWidget extends React.Component<ReactPropertiesWi
     }
 
     /** Tooltip Signal and Signal Handlers */
-    protected _onTooltip = (tooltip: { [key: string]: string }): void => this.doHandleTooltipSignal(tooltip);
+    protected _onItemProperties = (tooltip: { [key: string]: string }): void => this.doHandleItemPropertiesSignal(tooltip);
 
-    private doHandleTooltipSignal(tooltipProps: { [key: string]: string }): void {
-        this.setState({tooltip: tooltipProps});
+    private doHandleItemPropertiesSignal(tooltipProps: { [key: string]: string }): void {
+        this.setState({itemProperties: tooltipProps});
     }
 }
 

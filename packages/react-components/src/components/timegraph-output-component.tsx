@@ -581,7 +581,7 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
         if (element && this.props.viewRange) {
             tooltipObject = await this.fetchTooltip(element);
         }
-        signalManager().fireTooltipSignal(tooltipObject);
+        signalManager().fireItemPropertiesSignalUpdated(tooltipObject);
     }
 
     private getTimegraphRowIds() {
