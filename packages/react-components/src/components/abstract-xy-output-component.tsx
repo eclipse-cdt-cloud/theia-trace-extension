@@ -10,7 +10,7 @@ import { scaleLinear } from 'd3-scale';
 import { axisLeft } from 'd3-axis';
 import { select } from 'd3-selection';
 import { EntryTree } from './utils/filter-tree/entry-tree';
-import { XYSeries } from 'tsp-typescript-client/lib/models/xy';
+import { XyEntry, XYSeries } from 'tsp-typescript-client/lib/models/xy';
 import * as React from 'react';
 import { flushSync } from 'react-dom';
 import { TimeRange } from 'traceviewer-base/src/utils/time-range';
@@ -265,11 +265,21 @@ export abstract class AbstractXYOutputComponent<P extends AbstractOutputProps, S
                 } else {
                     columns.push({title: 'Name', sortable: true});
                 }
-                this.setState({
-                    outputStatus: treeResponse.status,
-                    xyTree: treeResponse.model.entries,
-                    columns
-                });
+                if (treeResponse.status === ResponseStatus.COMPLETED) {
+                    const checkedSeries = this.getAllCheckedIds(treeResponse.model.entries);
+                    this.setState({
+                        outputStatus: treeResponse.status,
+                        xyTree: treeResponse.model.entries,
+                        checkedSeries,
+                        columns
+                    });
+                } else {
+                    this.setState({
+                        outputStatus: treeResponse.status,
+                        xyTree: treeResponse.model.entries,
+                        columns
+                    });
+                }
             } else {
                 this.setState({
                     outputStatus: treeResponse.status
@@ -281,6 +291,16 @@ export abstract class AbstractXYOutputComponent<P extends AbstractOutputProps, S
             outputStatus: ResponseStatus.FAILED
         });
         return ResponseStatus.FAILED;
+    }
+
+    getAllCheckedIds(entries: Array<XyEntry>): Array<number> {
+        const checkedSeries: number[] = [];
+        for (const entry of entries) {
+            if (entry.isDefault) {
+                checkedSeries.push(entry.id);
+            }
+        }
+        return checkedSeries;
     }
 
     renderTree(): React.ReactNode | undefined {
