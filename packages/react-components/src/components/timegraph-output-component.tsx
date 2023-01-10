@@ -459,11 +459,13 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
             }
             start = start ? start : (elementRange.start + (offset ? offset : BigInt(0))).toString();
             end = end ? end : (elementRange.end + (offset ? offset : BigInt(0))).toString();
+            const duration = (elementRange.end - elementRange.start).toString();
             const tooltip = await this.tspDataProvider.fetchStateTooltip(element, this.props.viewRange);
             return {
                 'Label': label,
                 'Start time': start,
                 'End time': end,
+                'Duration': duration,
                 'Row': element.row.model.name,
                 ...tooltip
             };
