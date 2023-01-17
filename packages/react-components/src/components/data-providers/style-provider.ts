@@ -114,7 +114,7 @@ export class StyleProvider {
         let style: OutputElementStyle | undefined = elementStyle;
         const styleQueue: string[] = [];
         while (style !== undefined) {
-            const styleValues = style.values;
+            const styleValues = style.values ? style.values : {};
             const value = styleValues[property];
             if (value) {
                 return value;
@@ -144,7 +144,7 @@ export class StyleProvider {
         let style: OutputElementStyle | undefined = elementStyle;
         const styleQueue: string[] = [];
         while (style) {
-            const styleValues = style.values;
+            const styleValues = style.values ? style.values : {};
             if (factor === undefined) {
                 const factorValue = styleValues[property + StyleProperties.FACTOR];
                 if (typeof factorValue === 'number') {
@@ -183,7 +183,7 @@ export class StyleProvider {
         let style: OutputElementStyle | undefined = elementStyle;
         const styleQueue: string[] = [];
         while (style) {
-            const styleValues = style.values;
+            const styleValues = style.values ? style.values : {};
             if (blend === undefined) {
                 const blendValue = styleValues[property + StyleProperties.BLEND];
                 if (typeof blendValue === 'string') {
