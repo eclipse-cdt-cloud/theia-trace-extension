@@ -188,6 +188,7 @@ export class TraceContextComponent extends React.Component<TraceContextProps, Tr
             const nanos = zeroPad(theNumber % BigInt(1000));
             return seconds + '.' + millis + ' ' + micros + ' ' + nanos;
         };
+        this.unitController.worldRenderFactor = 0.25;
         this.historyHandler = new UnitControllerHistoryHandler(this.unitController);
         if (this.props.persistedState?.currentTimeSelection) {
             const { start, end } = this.props.persistedState.currentTimeSelection;
