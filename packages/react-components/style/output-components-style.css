@@ -223,6 +223,7 @@ canvas {
 
 .table-tree td.selected {
     background-color: var(--theia-selection-background) !important;
+    width: 500px;
 }
 
 .resize-handle {
