@@ -15,6 +15,7 @@ interface TableRowProps {
     onToggleCollapse: (id: number) => void;
     onClose: (id: number) => void;
     onToggleCheck: (id: number) => void;
+    onRowClick: (id: number) => void;
 }
 
 export class TableRow extends React.Component<TableRowProps> {
@@ -60,13 +61,14 @@ export class TableRow extends React.Component<TableRowProps> {
             : undefined;
 
     renderRow = (): React.ReactNode => {
-        const { node, selectedRow } = this.props;
+        const { node, selectedRow, onRowClick } = this.props;
         const row = node.labels.map((_label: string, index) =>
             <TableCell
                 key={node.id + '-' + index}
                 index={index}
                 node={node}
                 selectedRow={selectedRow}
+                onRowClick={onRowClick}
             >
                 { (index === 0) ? this.renderToggleCollapse() : undefined }
                 { (index === 0) ? this.renderCheckbox() : undefined }
