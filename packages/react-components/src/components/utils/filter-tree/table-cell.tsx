@@ -20,7 +20,7 @@ export class TableCell extends React.Component<TableCellProps> {
     }
 
     render(): React.ReactNode {
-        const { node, selectedRow, index, onRowClick } = this.props;
+        const { node, selectedRow, index } = this.props;
         const content = node.labels[index];
         const className = (selectedRow === node.id) ? 'selected' : '';
 
