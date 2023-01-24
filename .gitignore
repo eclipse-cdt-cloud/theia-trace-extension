@@ -5,6 +5,7 @@
 !examples/*/scripts/
 *.log
 *.tsbuildinfo
+.DS_Store
 .browser_modules/
 /.venv/
 /packages/base/lib/

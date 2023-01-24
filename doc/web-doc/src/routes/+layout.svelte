@@ -1,6 +1,8 @@
 <script>
 	import Header from '$lib/components/Header.svelte';
 	import Sidebar from '$lib/components/Sidebar.svelte';
+
+	export let data;
 </script>
 
 <div class="app">
@@ -8,7 +10,7 @@
 
 	<main>
 		<div class="content">
-			<Sidebar />
+			<Sidebar adrs={data.adrs} />
 			<div class="inner-page">
 				<slot />
 			</div>

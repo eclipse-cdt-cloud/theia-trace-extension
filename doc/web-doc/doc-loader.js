@@ -13,7 +13,7 @@ const errorCallback = (err) => {
 const comparisonOptions = {
 	excludeFilter: '.DS_Store',
 	compareSize: true,
-  compareContent: true
+	compareContent: true
 };
 
 // Sanitizer of markdown files
@@ -46,7 +46,7 @@ const processLineByLine = async (file) => {
 				result += line + '\n';
 			}
 
-      if (line.includes('```mermaid')) {
+			if (line.includes('```mermaid')) {
 				mermaid = true;
 			}
 		});
@@ -62,10 +62,10 @@ const processLineByLine = async (file) => {
 // Compare folders
 
 if (!fs.existsSync('doc-sources')) {
-  fs.mkdirSync('doc-sources');
-  fs.mkdirSync(dest);
+	fs.mkdirSync('doc-sources');
+	fs.mkdirSync(dest);
 } else if (!fs.existsSync(dest)) {
-  fs.mkdirSync(dest);
+	fs.mkdirSync(dest);
 }
 
 const comparison = compareSync(src, dest, comparisonOptions);
@@ -76,10 +76,10 @@ if (!comparison.same) {
 	comparison.diffSet.forEach(async (dif) => {
 		if ((dif.state === 'left' || dif.state === 'distinct') && dif.path1 === src) {
 			if (dif.type1 === 'file' && dif.name1.slice(-3) === '.md') {
-        // Remove outdated file
-        if (dif.state === 'distinct') {
-          fs.rmSync(dest + dif.name2, { force: true })
-        }
+				// Remove outdated file
+				if (dif.state === 'distinct') {
+					fs.rmSync(dest + dif.name2, { force: true });
+				}
 
 				// Sanitize Markdown files
 				const file = fs.createReadStream(src + dif.name1, 'utf8');

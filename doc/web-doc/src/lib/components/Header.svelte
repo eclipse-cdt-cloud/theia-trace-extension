@@ -6,7 +6,7 @@
 
 <header>
 	<div class="corner">
-    <a href="https://projects.eclipse.org/projects/tools.tracecompass">
+		<a href="https://projects.eclipse.org/projects/tools.tracecompass">
 			<img src={logo} alt="Trace Compass" />
 		</a>
 	</div>
