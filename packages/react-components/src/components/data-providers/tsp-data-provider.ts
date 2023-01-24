@@ -118,6 +118,7 @@ export class TspDataProvider {
         const rows: TimelineChart.TimeGraphRowModel[] = [];
         this.timeGraphRows.forEach((row: TimeGraphRow) => {
             const rowId: number = row.entryId;
+
             const entry = this.timeGraphEntries.find(tgEntry => tgEntry.id === rowId);
             if (entry) {
                 rows.push(this.getRowModel(row, chartStart, rowId, entry));
@@ -157,13 +158,13 @@ export class TspDataProvider {
         }
         const offset = this.timeGraphEntries[0].start;
         const arrows = timeGraphArrows.map(arrow => ({
-                sourceId: arrow.sourceId,
-                destinationId: arrow.targetId,
-                range: {
-                    start: arrow.start - offset,
-                    end: arrow.end - offset
-                } as TimelineChart.TimeGraphRange
-            } as TimelineChart.TimeGraphArrow
+            sourceId: arrow.sourceId,
+            destinationId: arrow.targetId,
+            range: {
+                start: arrow.start - offset,
+                end: arrow.end - offset
+            } as TimelineChart.TimeGraphRange
+        } as TimelineChart.TimeGraphArrow
         ));
         return arrows;
     }
@@ -175,7 +176,7 @@ export class TspDataProvider {
             if (timeGraphRow) {
                 newTimeGraphRows.push(timeGraphRow);
             } else {
-                const emptyRow: TimeGraphRow = { states: [{ start: BigInt(0), end: BigInt(0), label: '', tags: 0 }], entryId: id };
+                const emptyRow: TimeGraphRow = { startTime: BigInt(0), labels: [], styles: [], states: [{ start: BigInt(0), end: BigInt(0), label: 0, tags: 0 }], entryId: id };
                 newTimeGraphRows.push(emptyRow);
             }
         });
@@ -205,13 +206,17 @@ export class TspDataProvider {
         let prevPossibleState = entry.start;
         let nextPossibleState = entry.end;
         row.states.forEach((state: TimeGraphState, idx: number) => {
-            const end = state.end - chartStart;
+            const end = state.end - chartStart + state.start;
+            let labelText = ""
+            if (state.label) {
+                labelText = row.labels[state.label]
+            }
             states.push({
                 id: row.entryId + '-' + idx,
-                label: state.label,
+                label: labelText,
                 range: {
-                    start: state.start - chartStart,
-                    end
+                    start: state.start - chartStart + row.startTime,
+                    end: end
                 },
                 data: {
                     style: state.style
