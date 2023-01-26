@@ -55,7 +55,7 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
     private rowController: TimeGraphRowController;
     private markerRowController: TimeGraphRowController;
     private chartLayer: TimeGraphChart;
-    private markersChartLayer: TimeGraphMarkersChart;
+    private markersChartLayer: TimeGraphChart;
     private vscrollLayer: TimeGraphVerticalScrollbar;
     private chartCursors: TimeGraphChartCursors;
     private arrowLayer: TimeGraphChartArrows;
@@ -134,7 +134,7 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
             }
         });
 
-        this.markersChartLayer = new TimeGraphMarkersChart('timeGraphChart', markersProvider, this.markerRowController);
+        this.markersChartLayer = new TimeGraphChart('timeGraphChart', markersProvider, this.markerRowController);
         this.chartLayer.onSelectedStateChanged(model => {
             this.pendingSelection = undefined;
             if (model) {
@@ -164,18 +164,33 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
                 }
             }
         });
-        // this.markersChartLayer.registerMouseInteractions({
-        //     click: el => {
-        //         if (el instanceof TimeGraphStateComponent) {
-        //             if (el.model.range.start !== undefined && el.model.range.end !== undefined) {
-        //                 this.props.unitController.selectionRange = {
-        //                     start: el.model.range.start,
-        //                     end: el.model.range.end
-        //                 };
-        //             }
-        //         }
-        //     }
-        // });
+        this.markersChartLayer.registerMouseInteractions({
+            click: el => {
+                if (el instanceof TimeGraphStateComponent) {
+                    if (el.model.range.start !== undefined && el.model.range.end !== undefined) {
+                        this.props.unitController.selectionRange = {
+                            start: el.model.range.start,
+                            end: el.model.range.end
+                        };
+                    }
+                }
+            }
+        });
+
+    }
+
+    onKeyDown = (e: React.KeyboardEvent): void => {
+
+        switch(e.key) {
+            case ",":
+                this.markersChartLayer.selectClosestStateAndMakeSelectionRange('prev');
+                break;
+            case ".":
+                this.markersChartLayer.selectClosestStateAndMakeSelectionRange('next');
+                break;
+            default:
+                return;
+        }
 
     }
 
@@ -508,7 +523,7 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
     }
 
     private renderTimeGraphContent() {
-        return <div id='main-timegraph-content' ref={this.horizontalContainer} style={{ height: this.props.style.height }} >
+        return <div id='main-timegraph-content' ref={this.horizontalContainer} style={{ height: this.props.style.height }} onKeyDown={this.onKeyDown}>
             {this.getChartContainer()}
             {this.getMarkersContainer()}
         </div>;
@@ -714,8 +729,6 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
             resolution: newResolution
         };
 
-        // Can we make this cleaner?
-        this.markersChartLayer.selectedMarker = undefined;
         this.setState({ markerCategoryEntries: annotationEntries, markerLayerData: markerLayerData });
     }
 
@@ -971,7 +984,6 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
     }
     
     public onSelectionChange = (row: TimelineChart.TimeGraphRowModel): void => this.setState({ selectedRow: row.id });
-
     public onMarkerSelectionChange = (row: TimelineChart.TimeGraphRowModel): void => this.setState({ selectedMarkerRow: row.id });
 
 
