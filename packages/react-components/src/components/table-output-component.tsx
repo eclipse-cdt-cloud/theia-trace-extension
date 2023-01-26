@@ -139,7 +139,7 @@ export class TableOutputComponent extends AbstractOutputComponent<TableOutputPro
                 rowSelection='multiple'
                 onModelUpdated={this.onModelUpdated}
                 onCellKeyDown={this.onKeyDown}
-                frameworkComponents={this.frameworkComponents}
+                components={this.frameworkComponents}
                 enableBrowserTooltips={true}
             >
             </AgGridReact>
@@ -428,7 +428,8 @@ export class TableOutputComponent extends AbstractOutputComponent<TableOutputPro
                     onFilterChange: this.searchEvents,
                     onclickNext: () => this.findMatchedEvent(Direction.NEXT),
                     onclickPrevious: () => this.findMatchedEvent(Direction.PREVIOUS),
-                    colName: columnHeader.id.toString()
+                    colName: columnHeader.id.toString(),
+                    filterModel: this.filterModel
                 },
                 icons: {
                     filter: ''

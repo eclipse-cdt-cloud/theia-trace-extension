@@ -143,6 +143,7 @@ describe('Table output component tests', () => {
             columnApi={new ColumnApi()}
             showParentFilter={mockShowParentFilter}
             context={''}
+            filterModel= {new Map<string,string>()}
         />).toJSON();
         expect(searchFilter).toMatchSnapshot();
     });
@@ -175,6 +176,7 @@ describe('Table output component tests', () => {
             columnApi={new ColumnApi()}
             showParentFilter={mockShowParentFilter}
             context={''}
+            filterModel={new Map<string,string>()}
         />);
 
         const parentDiv = screen.getByTestId('search-filter-element-parent');

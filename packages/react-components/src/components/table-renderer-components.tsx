@@ -14,6 +14,7 @@ type SearchFilterRendererProps = IFloatingFilterParams & {
     onclickNext: () => void;
     onclickPrevious: () => void;
     colName: string;
+    filterModel: Map<string, string>;
 };
 
 interface SearchFilterRendererState {
@@ -79,7 +80,7 @@ export class SearchFilterRenderer extends React.Component<SearchFilterRendererPr
         super(props);
         this.state = {
             hasHovered: false,
-            hasClicked: false
+            hasClicked: this.props.filterModel.has(this.props.colName)
         };
 
         this.debouncedChangeHandler = debounce((colName, inputVal) => {
@@ -111,10 +112,12 @@ export class SearchFilterRenderer extends React.Component<SearchFilterRendererPr
                     <div>
                         <input
                             data-testid="search-filter-element-input"
-                            type="text" autoFocus={true}
+                            type="text"
+                            autoFocus={true}
                             onKeyDown={this.onKeyDownEvent}
                             onInput={this.onInputBoxChanged}
                             style={{ width: '50%', margin: '10px' }}
+                            defaultValue={this.props.filterModel.get(this.props.colName) ?? ''}
                         />
                         <FontAwesomeIcon className='hoverClass' icon={faTimes} style={{ marginTop: '20px' }} onClick={this.onCloseClickHandler} />
                         <FontAwesomeIcon className='hoverClass' icon={faAngleDown} style={{ marginLeft: '10px', marginTop: '20px' }} onClick={this.onDownClickHandler} />
