@@ -42,6 +42,9 @@ Augment the `DataProviderDescriptor` data structure with information about query
                             requested_time_range:     optional, time range the query is for, or full trace if ommitted
                             requested_table_index:    optional, index of event
                         }
+            metadata_keys: {
+                            keys:         optional, list of metadata strings required on element or part of tooltip end-point
+                        }
             propertyModelType: 
                         enum {
                             time_ranges,
@@ -52,6 +55,10 @@ Augment the `DataProviderDescriptor` data structure with information about query
 
         Where:
             queryParams can be any query paramerter that is allowed for a given data provider type.
+
+            metadata_keys:
+                Since often the data provider doesn't know at creation time if an entry or element (e.g. event line, time graph state) can provide certain
+                details (e.g. source code callsite) and only available through either `metadata` field of entry or element or by querying the tooltip endpoint to check the correspoinding `metadata key` is available.
 
             Returned PropertyModel determined by propertyModelType:
 
@@ -251,8 +258,12 @@ sequenceDiagram
     client->>server: POST /experiment/{expUuid}/outputs/{outputId}/table/lines
     server->>client: 200: LineModel
     client->>client: populate rows and states
-    User->>client: open view menu on tree
+    User->>client: right-mouse click on line
+    alt one desc of propertyDescriptors needs metadata_keys
+        client->>server: get metadata_keys (if needed) *
+    end
     loop while descriptor in propertyDescriptors
+        Note over client: Conditionally add menu item (metadata_keys)
         client->>client: create menu entry (using descriptor.name, descriptor.description, descriptor.propertyId)
     end
     User->>client: select "Open source code" menu item
@@ -261,6 +272,8 @@ sequenceDiagram
     server->>client: PropertyModel ([ { callsite: {start, line} ])
     client->>client: Open source code using IDE
 ```
+
+Notes: * This doesn't exists yet and needs to be implemented. Tooltip endpoint can be added for that.
 
 ## Decision
 
