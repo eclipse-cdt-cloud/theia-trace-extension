@@ -1,6 +1,6 @@
 import * as React from 'react';
-import { inject, injectable, postConstruct } from 'inversify';
-import { Dialog, DialogProps } from '@theia/core/lib/browser/dialogs';
+import { inject, injectable } from 'inversify';
+import { DialogProps } from '@theia/core/lib/browser/dialogs';
 import { ReactDialog } from '@theia/core/lib/browser/dialogs/react-dialog';
 import { Message } from '@theia/core/lib/browser/widgets/widget';
 import { EssentialShortcutsTable } from './essential-shortcuts-table';
@@ -14,21 +14,13 @@ export class ChartShortcutsDialogProps extends DialogProps {
 }
 
 @injectable()
-export class ChartShortcutsDialog extends ReactDialog<void> {
+export class ChartShortcutsDialog extends ReactDialog<undefined> {
 
     constructor(
         @inject(ChartShortcutsDialogProps) protected readonly props: ChartShortcutsDialogProps
     ) {
-        super({
-            title: 'Trace Viewer Keyboard and Mouse Shortcuts',
-        });
-        this.appendAcceptButton(Dialog.OK);
-    }
-
-    @postConstruct()
-    protected async init(): Promise<void> {
-        this.title.label = 'Trace Viewer Keyboard and Mouse Shortcuts';
-        this.update();
+        super(props);
+        this.appendAcceptButton();
     }
 
     protected render(): React.ReactNode {

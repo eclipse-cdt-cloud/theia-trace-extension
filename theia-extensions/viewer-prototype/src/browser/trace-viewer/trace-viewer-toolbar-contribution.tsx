@@ -18,7 +18,6 @@ export class TraceViewerToolbarContribution implements TabBarToolbarContribution
     @inject(TspClientProvider) protected readonly tspClientProvider!: TspClientProvider;
     @inject(MenuModelRegistry) protected readonly menus: MenuModelRegistry;
     @inject(CommandRegistry) protected readonly commands: CommandRegistry;
-    @inject(ChartShortcutsDialog) protected readonly chartShortcuts: ChartShortcutsDialog;
 
     private onMarkerCategoriesFetchedSignal = () => this.doHandleMarkerCategoriesFetchedSignal();
     private onMarkerSetsFetchedSignal = () => this.doHandleMarkerSetsFetchedSignal();
@@ -141,8 +140,8 @@ export class TraceViewerToolbarContribution implements TabBarToolbarContribution
                 }
                 return false;
             },
-            execute: () => {
-                this.chartShortcuts.open();
+            execute: async () => {
+                await new ChartShortcutsDialog({title: 'Trace Viewer Keyboard and Mouse Shortcuts'}).open();
             }
         });
     }

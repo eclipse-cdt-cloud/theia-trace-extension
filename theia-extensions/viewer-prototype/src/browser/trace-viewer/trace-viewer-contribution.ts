@@ -45,7 +45,6 @@ export class TraceViewerContribution extends WidgetOpenHandler<TraceViewerWidget
     @inject(TracePreferences) protected tracePreferences: TracePreferences;
     @inject(TraceServerConfigService) protected readonly traceServerConfigService: TraceServerConfigService;
     @inject(MessageService) protected readonly messageService: MessageService;
-    @inject(ChartShortcutsDialog) protected readonly chartShortcuts: ChartShortcutsDialog;
 
     readonly id = TraceViewerWidget.ID;
     readonly label = 'Trace Viewer';
@@ -248,8 +247,8 @@ export class TraceViewerContribution extends WidgetOpenHandler<TraceViewerWidget
             }
         });
         registry.registerCommand(KeyboardShortcutsCommand, {
-            execute: () => {
-                this.chartShortcuts.open();
+            execute: async () => {
+                await new ChartShortcutsDialog({title: 'Trace Viewer Keyboard and Mouse Shortcuts'}).open();
             }
         });
     }

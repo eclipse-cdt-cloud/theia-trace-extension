@@ -20,7 +20,6 @@ import { TabBarToolbarContribution } from '@theia/core/lib/browser/shell/tab-bar
 import { TraceViewerToolbarContribution } from './trace-viewer-toolbar-contribution';
 import { LazyTspClientFactory } from 'traceviewer-base/lib/lazy-tsp-client';
 import { BackendFileService, backendFileServicePath } from '../../common/backend-file-service';
-import { ChartShortcutsDialog, ChartShortcutsDialogProps } from '../trace-explorer/trace-explorer-sub-widgets/trace-explorer-keyboard-shortcuts/charts-cheatsheet-component';
 import { TraceServerConnectionStatusService } from '../trace-server-status';
 import { bindTraceOverviewPreferences } from '../trace-overview-binding';
 
@@ -30,8 +29,6 @@ export default new ContainerModule(bind => {
     bind(TraceServerUrlProvider).toService(TraceServerUrlProviderImpl);
     bind(LazyTspClientFactory).toFunction(LazyTspClientFactory);
     bind(TspClientProvider).toSelf().inSingletonScope();
-    bind(ChartShortcutsDialog).toSelf().inSingletonScope();
-    bind(ChartShortcutsDialogProps).toConstantValue({ title: 'Trace Viewer Keyboard and Mouse Shortcuts' });
     bind(TheiaMessageManager).toSelf().inSingletonScope();
 
     bind(TraceViewerToolbarContribution).toSelf().inSingletonScope();
