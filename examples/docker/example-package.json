@@ -1,0 +1,47 @@
+{
+  "private": true,
+  "name": "docker-theia-trace-example",
+  "version": "0.1.0",
+  "theia": {
+    "target": "browser",
+    "frontend": {
+      "config": {
+        "applicationName": "Theia-Trace Example Application",
+        "preferences": {
+          "editor.autoSave": "on",
+          "trace-viewer.port": 8080
+        }
+      }
+    }
+  },
+  "dependencies": {
+    "@theia/core": "1.34.2",
+    "@theia/editor": "1.34.2",
+    "@theia/filesystem": "1.34.2",
+    "@theia/getting-started": "1.34.2",
+    "@theia/keymaps": "1.34.2",
+    "@theia/markers": "1.34.2",
+    "@theia/messages": "1.34.2",
+    "@theia/monaco": "1.34.2",
+    "@theia/navigator": "1.34.2",
+    "@theia/preferences": "1.34.2",
+    "@theia/process": "1.34.2",
+    "@theia/terminal": "1.34.2",
+    "@theia/vsx-registry": "1.34.2",
+    "@theia/workspace": "1.34.2",
+    "theia-traceviewer": "next"
+  },
+  "devDependencies": {
+    "@theia/cli": "1.34.2"
+  },
+  "scripts": {
+    "prepare": "theia build",
+    "start": "theia start",
+    "watch": "theia build --watch"
+  },
+  "engines": {
+    "yarn": "1.0.x || >=1.2.1",
+    "node": ">=12.14.1 <17"
+  },
+  "theiaPluginsDir": "../plugins"
+}
