@@ -87,10 +87,11 @@ You can also run two scripts to watch for changes and rebuild automatically:
 
 ## Try the trace extension
 
-This repository contains an example trace-viewer application that includes the trace extension. It has two versions:
+This repository contains an example trace-viewer application that includes the trace extension. It has three versions:
 
 * *browser*: a "browser" application, accessed with a web browser
 * *electron*: a native desktop application
+* *docker*: a Docker-izable "browser" application, accessed with a web browser
 
 You can find those example applications under `examples/`.
 
