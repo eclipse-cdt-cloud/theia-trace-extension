@@ -58,6 +58,7 @@ exports[`Entry with children All unchecked 1`] = `
       <tr
         className=""
         onClick={[Function]}
+        onContextMenu={[Function]}
       >
         <td>
           <span>
@@ -132,6 +133,7 @@ exports[`Entry with children All unchecked 1`] = `
       <tr
         className=""
         onClick={[Function]}
+        onContextMenu={[Function]}
       >
         <td>
           <span>
@@ -186,6 +188,7 @@ exports[`Entry with children All unchecked 1`] = `
       <tr
         className=""
         onClick={[Function]}
+        onContextMenu={[Function]}
       >
         <td>
           <span>
@@ -260,6 +263,7 @@ exports[`Entry with children All unchecked 1`] = `
       <tr
         className=""
         onClick={[Function]}
+        onContextMenu={[Function]}
       >
         <td>
           <span>
@@ -314,6 +318,7 @@ exports[`Entry with children All unchecked 1`] = `
       <tr
         className=""
         onClick={[Function]}
+        onContextMenu={[Function]}
       >
         <td>
           <span>
@@ -426,6 +431,7 @@ exports[`Entry with children Check one grandchild 1`] = `
       <tr
         className=""
         onClick={[Function]}
+        onContextMenu={[Function]}
       >
         <td>
           <span>
@@ -500,6 +506,7 @@ exports[`Entry with children Check one grandchild 1`] = `
       <tr
         className=""
         onClick={[Function]}
+        onContextMenu={[Function]}
       >
         <td>
           <span>
@@ -554,6 +561,7 @@ exports[`Entry with children Check one grandchild 1`] = `
       <tr
         className=""
         onClick={[Function]}
+        onContextMenu={[Function]}
       >
         <td>
           <span>
@@ -628,6 +636,7 @@ exports[`Entry with children Check one grandchild 1`] = `
       <tr
         className=""
         onClick={[Function]}
+        onContextMenu={[Function]}
       >
         <td>
           <span>
@@ -682,6 +691,7 @@ exports[`Entry with children Check one grandchild 1`] = `
       <tr
         className=""
         onClick={[Function]}
+        onContextMenu={[Function]}
       >
         <td>
           <span>
@@ -794,6 +804,7 @@ exports[`Entry with children Collapse one child 1`] = `
       <tr
         className=""
         onClick={[Function]}
+        onContextMenu={[Function]}
       >
         <td>
           <span>
@@ -868,6 +879,7 @@ exports[`Entry with children Collapse one child 1`] = `
       <tr
         className=""
         onClick={[Function]}
+        onContextMenu={[Function]}
       >
         <td>
           <span>
@@ -922,6 +934,7 @@ exports[`Entry with children Collapse one child 1`] = `
       <tr
         className=""
         onClick={[Function]}
+        onContextMenu={[Function]}
       >
         <td>
           <span>
@@ -1074,6 +1087,7 @@ Array [
         <tr
           className=""
           onClick={[Function]}
+          onContextMenu={[Function]}
         >
           <td>
             <span>
@@ -1148,6 +1162,7 @@ Array [
         <tr
           className=""
           onClick={[Function]}
+          onContextMenu={[Function]}
         >
           <td>
             <span>
@@ -1202,6 +1217,7 @@ Array [
         <tr
           className=""
           onClick={[Function]}
+          onContextMenu={[Function]}
         >
           <td>
             <span>
@@ -1276,6 +1292,7 @@ Array [
         <tr
           className=""
           onClick={[Function]}
+          onContextMenu={[Function]}
         >
           <td>
             <span>
@@ -1330,6 +1347,7 @@ Array [
         <tr
           className=""
           onClick={[Function]}
+          onContextMenu={[Function]}
         >
           <td>
             <span>
@@ -1443,6 +1461,7 @@ exports[`one level of entries 1`] = `
       <tr
         className=""
         onClick={[Function]}
+        onContextMenu={[Function]}
       >
         <td>
           <span>
@@ -1468,6 +1487,7 @@ exports[`one level of entries 1`] = `
       <tr
         className=""
         onClick={[Function]}
+        onContextMenu={[Function]}
       >
         <td>
           <span>
@@ -1553,6 +1573,7 @@ exports[`one level of entries 2`] = `
       <tr
         className=""
         onClick={[Function]}
+        onContextMenu={[Function]}
       >
         <td>
           <span>
@@ -1605,6 +1626,7 @@ exports[`one level of entries 2`] = `
       <tr
         className=""
         onClick={[Function]}
+        onContextMenu={[Function]}
       >
         <td>
           <span>
@@ -1675,6 +1697,7 @@ exports[`one level of entries 3`] = `
       <tr
         className=""
         onClick={[Function]}
+        onContextMenu={[Function]}
       >
         <td>
           <span>
@@ -1727,6 +1750,7 @@ exports[`one level of entries 3`] = `
       <tr
         className=""
         onClick={[Function]}
+        onContextMenu={[Function]}
       >
         <td>
           <span>

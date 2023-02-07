@@ -4,6 +4,7 @@ exports[`Checked status 1`] = `
 <tr
   className=""
   onClick={[Function]}
+  onContextMenu={[Function]}
 >
   <td>
     <span>
@@ -56,6 +57,7 @@ exports[`Checked status 2`] = `
 <tr
   className=""
   onClick={[Function]}
+  onContextMenu={[Function]}
 >
   <td>
     <span>
@@ -108,6 +110,7 @@ exports[`Checked status 3`] = `
 <tr
   className=""
   onClick={[Function]}
+  onContextMenu={[Function]}
 >
   <td>
     <span>
@@ -160,6 +163,7 @@ exports[`Levels 1`] = `
 <tr
   className=""
   onClick={[Function]}
+  onContextMenu={[Function]}
 >
   <td>
     <span>
@@ -212,6 +216,7 @@ exports[`Levels 2`] = `
 <tr
   className=""
   onClick={[Function]}
+  onContextMenu={[Function]}
 >
   <td>
     <span>
@@ -265,6 +270,7 @@ Array [
   <tr
     className=""
     onClick={[Function]}
+    onContextMenu={[Function]}
   >
     <td>
       <span>
@@ -339,6 +345,7 @@ Array [
   <tr
     className=""
     onClick={[Function]}
+    onContextMenu={[Function]}
   >
     <td>
       <span>
@@ -393,6 +400,7 @@ Array [
   <tr
     className=""
     onClick={[Function]}
+    onContextMenu={[Function]}
   >
     <td>
       <span>
@@ -451,6 +459,7 @@ exports[`Uncheckable 1`] = `
 <tr
   className=""
   onClick={[Function]}
+  onContextMenu={[Function]}
 >
   <td>
     <span>
@@ -477,6 +486,7 @@ Array [
   <tr
     className=""
     onClick={[Function]}
+    onContextMenu={[Function]}
   >
     <td>
       <span>
@@ -546,6 +556,7 @@ Array [
   <tr
     className=""
     onClick={[Function]}
+    onContextMenu={[Function]}
   >
     <td>
       <span>
@@ -595,6 +606,7 @@ Array [
   <tr
     className=""
     onClick={[Function]}
+    onContextMenu={[Function]}
   >
     <td>
       <span>
@@ -648,6 +660,7 @@ exports[`with children With children collapsed 1`] = `
 <tr
   className=""
   onClick={[Function]}
+  onContextMenu={[Function]}
 >
   <td>
     <span>

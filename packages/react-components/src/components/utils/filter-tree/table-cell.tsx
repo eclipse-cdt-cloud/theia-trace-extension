@@ -11,7 +11,6 @@ export class TableCell extends React.Component<TableCellProps> {
     constructor(props: TableCellProps) {
         super(props);
     }
-
     render(): React.ReactNode {
         const { node, index } = this.props;
         const content = node.labels[index];
