@@ -9,6 +9,7 @@ const mockOnChecked = jest.fn();
 const mockOnCollapse = jest.fn();
 const mockOnClose = jest.fn();
 const mockOnClick = jest.fn();
+const mockOnContext = jest.fn();
 
 const cell1Text = "cell1 - text";
 const testTreeNode = {
@@ -28,6 +29,7 @@ test('Checked status', () => {
         collapsedNodes={[]}
         onToggleCollapse={mockOnCollapse}
         onRowClick={mockOnClick}
+        onContextMenu={mockOnContext}
         onToggleCheck={mockOnChecked} isClosable={false} onClose={mockOnClose}    />)
         .toJSON();
     expect(treeNodeUnchecked).toMatchSnapshot();
@@ -40,6 +42,7 @@ test('Checked status', () => {
         collapsedNodes={[]}
         onToggleCollapse={mockOnCollapse}
         onRowClick={mockOnClick}
+        onContextMenu={mockOnContext}
         onToggleCheck={mockOnChecked} isClosable={false} onClose={mockOnClose}    />)
         .toJSON();
     expect(treeNodeChecked).toMatchSnapshot();
@@ -52,6 +55,7 @@ test('Checked status', () => {
         collapsedNodes={[]}
         onToggleCollapse={mockOnCollapse}
         onRowClick={mockOnClick}
+        onContextMenu={mockOnContext}
         onToggleCheck={mockOnChecked} isClosable={false} onClose={mockOnClose}    />)
         .toJSON();
     expect(treeNodePartialCheck).toMatchSnapshot();
@@ -66,6 +70,7 @@ test('Uncheckable', () => {
         collapsedNodes={[]}
         onToggleCollapse={mockOnCollapse}
         onRowClick={mockOnClick}
+        onContextMenu={mockOnContext}
         onToggleCheck={mockOnChecked} isClosable={false} onClose={mockOnClose}    />)
         .toJSON();
     expect(uncheckableTree).toMatchSnapshot();
@@ -80,6 +85,7 @@ test('Levels', () => {
         collapsedNodes={[]}
         onToggleCollapse={mockOnCollapse}
         onRowClick={mockOnClick}
+        onContextMenu={mockOnContext}
         onToggleCheck={mockOnChecked} isClosable={false} onClose={mockOnClose}    />)
         .toJSON();
     expect(lessPadding).toMatchSnapshot();
@@ -92,6 +98,7 @@ test('Levels', () => {
         collapsedNodes={[]}
         onToggleCollapse={mockOnCollapse}
         onRowClick={mockOnClick}
+        onContextMenu={mockOnContext}
         onToggleCheck={mockOnChecked} isClosable={false} onClose={mockOnClose}    />)
         .toJSON();
     expect(morePadding).toMatchSnapshot();
@@ -107,6 +114,7 @@ test('Toggle check', async () => {
         collapsedNodes={[]}
         onToggleCollapse={mockOnCollapse}
         onRowClick={mockOnClick}
+        onContextMenu={mockOnContext}
         onToggleCheck={mockOnChecked} isClosable={false} onClose={mockOnClose}    />)
     const element = getByText(cell1Text);
     let {getByRole} = within(element);
@@ -155,6 +163,7 @@ describe('with children', () => {
             collapsedNodes={[]}
             onToggleCollapse={mockOnCollapse}
             onRowClick={mockOnClick}
+            onContextMenu={mockOnContext}
             onToggleCheck={mockOnChecked} isClosable={false} onClose={mockOnClose}        />)
             .toJSON();
         expect(nodeWithChildren).toMatchSnapshot();
@@ -170,6 +179,7 @@ describe('with children', () => {
             collapsedNodes={[parentNode.id]}
             onToggleCollapse={mockOnCollapse}
             onRowClick={mockOnClick}
+            onContextMenu={mockOnContext}
             onToggleCheck={mockOnChecked} isClosable={false} onClose={mockOnClose}        />)
             .toJSON();
         expect(nodeWithChildren).toMatchSnapshot();
@@ -186,6 +196,7 @@ describe('with children', () => {
             collapsedNodes={[]}
             onToggleCollapse={mockOnCollapse}
             onRowClick={mockOnClick}
+            onContextMenu={mockOnContext}
             onToggleCheck={mockOnChecked} isClosable={false} onClose={mockOnClose}        />)
         const element = getByText(parentText);
         const collapsedEl = within(element).getAllByRole("img", {hidden: true})[0];
@@ -232,6 +243,7 @@ describe('Multiple labels', () => {
             collapsedNodes={[]}
             onToggleCollapse={mockOnCollapse}
             onRowClick={mockOnClick}
+            onContextMenu={mockOnContext}
             onToggleCheck={mockOnChecked} isClosable={false} onClose={mockOnClose}        />)
             .toJSON();
         expect(nodeWithChildren).toMatchSnapshot();

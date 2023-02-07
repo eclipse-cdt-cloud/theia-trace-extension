@@ -13,6 +13,7 @@ interface TableBodyProps {
     onRowClick: (id: number) => void;
     onClose: (id: number) => void;
     onToggleCheck: (id: number) => void;
+    onContextMenu: (event: React.MouseEvent<HTMLDivElement>, id: number) => void;
 }
 
 export class TableBody extends React.Component<TableBodyProps> {

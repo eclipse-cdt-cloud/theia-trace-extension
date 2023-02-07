@@ -12560,6 +12560,13 @@ react-chartjs-2@^2.7.6:
     lodash "^4.17.19"
     prop-types "^15.7.2"
 
+react-contexify@^5.0.0:
+  version "5.0.0"
+  resolved "https://registry.yarnpkg.com/react-contexify/-/react-contexify-5.0.0.tgz#11b477550a0ee5a9a144399bc17c7c56bbc60057"
+  integrity sha512-2FIp7lxJ6dtfGr8EZ4uVV5p5TQjd0n2h/JU7PrejNIMiCeZWvSVPFh4lj1ZvjXosglBvP7q5JQQ8yUCdSaMSaw==
+  dependencies:
+    clsx "^1.1.1"
+
 react-dom@^18.2.0:
   version "18.2.0"
   resolved "https://registry.yarnpkg.com/react-dom/-/react-dom-18.2.0.tgz#22aaf38708db2674ed9ada224ca4aa708d821e3d"
@@ -14343,9 +14350,9 @@ tslib@^2.2.0, tslib@^2.3.1:
   integrity sha512-77EbyPPpMz+FRFRuAFlWMtmgUWGe9UOG2Z25NqCwiIjRhOf5iKGuzSe5P2w1laq+FkRy4p+PCuVkJSGkzTEKVw==
 
 tsp-typescript-client@next:
-  version "0.4.0-next.9b23dfe.0"
-  resolved "https://registry.yarnpkg.com/tsp-typescript-client/-/tsp-typescript-client-0.4.0-next.9b23dfe.0.tgz#5ba0d1486daf12c4ffff0085e9f47cd37c2acbfa"
-  integrity sha512-hDEy7n/8sEyqPAAEajyIVek5FSmiMk/FoFceypVScSSi6cC2swf3SD83aM2FWp6zWK3DVpgK3XvzgrMAgNuD8A==
+  version "0.4.0-next.143a5ab.0"
+  resolved "https://registry.yarnpkg.com/tsp-typescript-client/-/tsp-typescript-client-0.4.0-next.143a5ab.0.tgz#b7258f168cab720b3892dedc54a8794de3d6867f"
+  integrity sha512-vyJATe8mvY3mbBSCr9THPEh2+wTqbwb1MdAxJO6tanZagOt+zqMuNh+k9ZOKCyaWBqndkUOLX6W6hF8cbH5NaQ==
   dependencies:
     json-bigint sidorares/json-bigint#2c0a5f896d7888e68e5f4ae3c7ea5cd42fd54473
     node-fetch "^2.5.0"

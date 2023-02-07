@@ -15,6 +15,7 @@ interface EntryTreeProps {
     showFilter: boolean;
     onToggleCheck: (ids: number[]) => void;
     onRowClick: (id: number) => void;
+    onContextMenu: (event: React.MouseEvent<HTMLDivElement>, id: number) => void;
     onClose: (id: number) => void;
     onToggleCollapse: (id: number, nodes: TreeNode[]) => void;
     onOrderChange: (ids: number[]) => void;

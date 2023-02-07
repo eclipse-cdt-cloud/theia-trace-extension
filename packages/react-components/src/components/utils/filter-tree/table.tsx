@@ -13,6 +13,7 @@ interface TableProps {
     isClosable: boolean;
     sortConfig: SortConfig[];
     onRowClick: (id: number) => void;
+    onContextMenu: (event: React.MouseEvent<HTMLDivElement>, id: number) => void;
     getCheckedStatus: (id: number) => number;
     onToggleCollapse: (id: number) => void;
     onToggleCheck: (id: number) => void;

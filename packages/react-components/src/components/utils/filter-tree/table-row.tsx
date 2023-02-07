@@ -16,6 +16,7 @@ interface TableRowProps {
     onClose: (id: number) => void;
     onToggleCheck: (id: number) => void;
     onRowClick: (id: number) => void;
+    onContextMenu: (event: React.MouseEvent<HTMLDivElement>, id: number) => void;
 }
 
 export class TableRow extends React.Component<TableRowProps> {
@@ -61,7 +62,7 @@ export class TableRow extends React.Component<TableRowProps> {
             : undefined;
 
     renderRow = (): React.ReactNode => {
-        const { node } = this.props;
+        const { node} = this.props;
         const row = node.labels.map((_label: string, index) =>
             <TableCell
                 key={node.id + '-' + index}
@@ -98,6 +99,13 @@ export class TableRow extends React.Component<TableRowProps> {
         }
     };
 
+    onContextMenu = (event: React.MouseEvent<HTMLDivElement>): void => {
+        const { node, onContextMenu } = this.props;
+        if (onContextMenu) {
+            onContextMenu(event, node.id);
+        }
+    };
+
     render(): React.ReactNode | undefined {
         if (!this.props.node) { return undefined; }
         const children = this.renderChildren();
@@ -109,6 +117,7 @@ export class TableRow extends React.Component<TableRowProps> {
                 <tr
                     className={className}
                     onClick={this.onClick}
+                    onContextMenu={this.onContextMenu}
                 >{this.renderRow()}</tr>
                 {children}
             </React.Fragment>
