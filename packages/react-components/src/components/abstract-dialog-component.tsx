@@ -19,6 +19,7 @@ export abstract class AbstractDialogComponent<P extends DialogComponentProps, S>
         overlayClassName="dialog-overlay"
         className="dialog"
         ariaHideApp={false}
+        onRequestClose={this.props.onCloseDialog}
         shouldFocusAfterRender={false}>
             <div onClick={e => {e.preventDefault();}}>
                 <div className='dialog-header'>
