@@ -6,7 +6,9 @@ interface TableCellProps {
     index: number;
     children?: React.ReactNode | React.ReactNode[];
     onRowClick: (id: number) => void;
+    onCellClick: (id: number, index: number) => void;
     selectedRow?: number;
+    clickable?: boolean;
 }
 
 export class TableCell extends React.Component<TableCellProps> {
@@ -15,16 +17,23 @@ export class TableCell extends React.Component<TableCellProps> {
     }
 
     private onClick = () => {
-        const { node, onRowClick } = this.props;
+        const { node, onRowClick, onCellClick, index } = this.props;
         if (onRowClick) {
             onRowClick(node.id);
+        }
+        if (onCellClick) {
+            onCellClick(node.id, index);
         }
     };
 
     render(): React.ReactNode {
-        const { node, selectedRow, index } = this.props;
+        const { node, selectedRow, index, clickable } = this.props;
         const content = node.labels[index];
-        const className = (selectedRow === node.id) ? 'selected' : '';
+        let className = (selectedRow === node.id) ? 'selected' : '';
+        // FIXME hardcoded
+        if (index > 6) {
+            className = clickable ? 'clickable' : className;
+        }
 
         return (
             <td key={this.props.index+'-td-'+this.props.node.id} onClick={this.onClick} className={className}>

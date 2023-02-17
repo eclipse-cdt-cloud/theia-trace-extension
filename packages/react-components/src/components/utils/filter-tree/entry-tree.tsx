@@ -15,6 +15,7 @@ interface EntryTreeProps {
     showFilter: boolean;
     onToggleCheck: (ids: number[]) => void;
     onRowClick: (id: number) => void;
+    onCellClick: (id: number, index: number) => void;
     onClose: (id: number) => void;
     onToggleCollapse: (id: number, nodes: TreeNode[]) => void;
     onOrderChange: (ids: number[]) => void;

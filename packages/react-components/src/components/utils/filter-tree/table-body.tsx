@@ -11,6 +11,7 @@ interface TableBodyProps {
     getCheckedStatus: (id: number) => number;
     onToggleCollapse: (id: number) => void;
     onRowClick: (id: number) => void;
+    onCellClick: (id: number, index: number) => void;
     onClose: (id: number) => void;
     onToggleCheck: (id: number) => void;
 }

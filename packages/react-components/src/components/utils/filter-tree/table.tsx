@@ -13,6 +13,7 @@ interface TableProps {
     isClosable: boolean;
     sortConfig: SortConfig[];
     onRowClick: (id: number) => void;
+    onCellClick: (id: number, index: number) => void;
     getCheckedStatus: (id: number) => number;
     onToggleCollapse: (id: number) => void;
     onToggleCheck: (id: number) => void;

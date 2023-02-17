@@ -19,6 +19,7 @@ interface FilterTreeProps {
     onToggleCheck: (ids: number[]) => void;     // Optional
     onClose: (id: number) => void;
     onRowClick: (id: number) => void;
+    onCellClick: (id: number, index: number) => void;
     onToggleCollapse: (id: number, nodes: TreeNode[]) => void;
     onOrderChange: (ids: number[]) => void;
     showHeader: boolean;
@@ -264,6 +265,7 @@ export class FilterTree extends React.Component<FilterTreeProps, FilterTreeState
             onToggleCollapse={this.handleCollapse}
             onToggleCheck={this.handleCheck}
             onRowClick={this.props.onRowClick}
+            onCellClick={this.props.onCellClick}
             onClose={this.handleClose}
             onSort={this.handleOrderChange}
             onSortConfigChange={this.handleSortConfigChange}

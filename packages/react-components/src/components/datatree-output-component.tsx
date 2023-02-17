@@ -9,6 +9,7 @@ import { getAllExpandedNodeIds } from './utils/filter-tree/utils';
 import { TreeNode } from './utils/filter-tree/tree-node';
 import ColumnHeader from './utils/filter-tree/column-header';
 import debounce from 'lodash.debounce';
+import { DataType } from 'tsp-typescript-client/lib/models/data-type';
 
 type DataTreeOutputProps = AbstractOutputProps & {
 };
@@ -55,7 +56,7 @@ export class DataTreeOutputComponent extends AbstractOutputComponent<AbstractOut
                 const columns = [];
                 if (headers && headers.length > 0) {
                     headers.forEach(header => {
-                        columns.push({title: header.name, sortable: true, resizable: true, tooltip: header.tooltip});
+                        columns.push({ title: header.name, sortable: true, resizable: true, tooltip: header.tooltip, dataType: header.dataType });
                     });
                 } else {
                     columns.push({title: 'Name', sortable: true});
@@ -85,6 +86,7 @@ export class DataTreeOutputComponent extends AbstractOutputComponent<AbstractOut
     renderTree(): React.ReactNode | undefined {
         this.onToggleCollapse = this.onToggleCollapse.bind(this);
         this.onOrderChange = this.onOrderChange.bind(this);
+        this.onCellClick = this.onCellClick.bind(this);
         return this.state.xyTree.length
             ?   <div
                     tabIndex={0}
@@ -97,6 +99,7 @@ export class DataTreeOutputComponent extends AbstractOutputComponent<AbstractOut
                     collapsedNodes={this.state.collapsedNodes}
                     onToggleCollapse={this.onToggleCollapse}
                     onOrderChange={this.onOrderChange}
+                    onCellClick={this.onCellClick}
                     headers={this.state.columns}
                 />
             </div>
@@ -144,6 +147,39 @@ export class DataTreeOutputComponent extends AbstractOutputComponent<AbstractOut
 
     private onOrderChange(ids: number[]) {
         this.setState({orderedNodes: ids});
+    }
+
+    private onCellClick(id: number, index: number) {
+
+        console.log(id + ' ' + index);
+        if (this.state.xyTree && this.state.columns && index < this.state.columns.length) {
+            if (this.state.columns[index].dataType === DataType.TIME_RANGE) {
+                const entry = this.state.xyTree.find(e => e.id === id);
+                if (entry && index < entry.labels.length) {
+                    const timeRange = entry.labels[index];
+                    console.log('handleItemClick: ' + '=' + timeRange);
+                    let rx = /\[(\d*),.*/g;
+                    let arr = rx.exec(timeRange);
+                    let start: bigint | undefined = undefined;
+                    if (arr) {
+                        start = BigInt(arr[1]) - this.props.unitController.offset;
+                    }
+                    rx = /.*,(\d*)\]/g;
+                    arr = rx.exec(timeRange);
+                    let end: bigint | undefined = undefined;
+                    if (arr) {
+                        end = BigInt(arr[1]) - this.props.unitController.offset;
+                    }
+                    if (start !== undefined && end !== undefined) {
+                        this.props.unitController.selectionRange = {
+                            start,
+                            end
+                        };
+                    }
+                }
+            }
+        }
+
     }
 
     protected async waitAnalysisCompletion(): Promise<void> {

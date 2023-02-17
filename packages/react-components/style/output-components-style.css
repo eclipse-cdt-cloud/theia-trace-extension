@@ -219,7 +219,6 @@ canvas {
     padding: 3px 5px;
     border-bottom: 1px solid var(--theia-tree-inactiveIndentGuidesStroke);
     border-right: 1px solid var(--theia-tree-inactiveIndentGuidesStroke);
-    text-align: left;
 }
 
 .table-tree th span {
@@ -237,6 +236,17 @@ canvas {
 
 .table-tree td.selected {
     background-color: var(--theia-selection-background) !important;
+}
+
+.table-tree td.selectedclickable {
+    background-color: var(--theia-selection-background) !important;
+    text-decoration: underline;
+    cursor: pointer;
+}
+
+.table-tree td.clickable {
+    text-decoration: underline;
+    cursor: pointer;
 }
 
 .resize-handle {
