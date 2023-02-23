@@ -469,14 +469,14 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
             end = end ? end : (elementRange.end + (offset ? offset : BigInt(0))).toString();
             const duration = (elementRange.end - elementRange.start).toString();
             const tooltip = await this.tspDataProvider.fetchStateTooltip(element, this.props.viewRange);
-            return {
+            return this.filterTooltip({
                 'Label': label,
                 'Start time': start,
                 'End time': end,
                 'Duration': duration,
                 'Row': element.row.model.name,
                 ...tooltip
-            };
+            });
         } else if (element instanceof TimeGraphAnnotationComponent) {
             const category = element.model.category ? element.model.category : 'Label';
             const label = element.model.label ? element.model.label : '';
@@ -492,22 +492,32 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
             end = end ? end : (elementRange.end + (offset ? offset : BigInt(0))).toString();
             const tooltip = await this.tspDataProvider.fetchAnnotationTooltip(element, this.props.viewRange);
             if (start === end) {
-                return {
+                return this.filterTooltip({
                     [category]: label,
                     'Timestamp': start,
                     'Row': element.row.model.name,
                     ...tooltip
-                };
+                });
             } else {
-                return {
+                return this.filterTooltip({
                     [category]: label,
                     'Start time': start,
                     'End time': end,
                     'Row': element.row.model.name,
                     ...tooltip
-                };
+                });
             }
         }
+    }
+
+    private filterTooltip(fullTooltip: { [key: string]: string; }) {
+        Object.keys(fullTooltip).forEach(key => {
+            // eslint-disable-next-line no-null/no-null
+            if (fullTooltip[key as keyof typeof fullTooltip] === null) {
+                delete fullTooltip[key as keyof typeof fullTooltip];
+            }
+        });
+        return fullTooltip;
     }
 
     private renderTimeGraphContent() {
