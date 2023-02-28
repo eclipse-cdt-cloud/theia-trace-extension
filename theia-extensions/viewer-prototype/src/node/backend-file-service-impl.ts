@@ -2,12 +2,21 @@ import { injectable } from 'inversify';
 import fs = require('fs');
 import { Dirent } from 'fs';
 import { Path } from '@theia/core/lib/common/path';
-import { CancellationToken } from '@theia/core';
+import { CancellationToken, URI } from '@theia/core';
 import { BackendFileService } from '../common/backend-file-service';
 import { FileUri } from '@theia/core/lib/node';
 
 @injectable()
 export class BackendFileServiceImpl implements BackendFileService {
+
+    async writeToFile(uri: URI, data: string): Promise<string> {
+        fs.writeFile(uri.path.fsPath(), data, err => {
+            if (err) {
+                throw new Error(err.message);
+            }
+          });
+        return 'success';
+    }
 
     async findTraces(path: string, cancellationToken: CancellationToken): Promise<string[]> {
         /*

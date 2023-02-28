@@ -9,6 +9,7 @@ import { getAllExpandedNodeIds } from './utils/filter-tree/utils';
 import { TreeNode } from './utils/filter-tree/tree-node';
 import ColumnHeader from './utils/filter-tree/column-header';
 import debounce from 'lodash.debounce';
+import { signalManager } from 'traceviewer-base/lib/signals/signal-manager';
 
 type DataTreeOutputProps = AbstractOutputProps & {
 };
@@ -215,17 +216,10 @@ export class DataTreeOutputComponent extends AbstractOutputComponent<AbstractOut
                     csvArray.push(row.join(','));
                 }
                 const tableString = csvArray.join('\n');
-
-                const link = document.createElement('a');
-                link.setAttribute('href', `data:text/csv;charset=utf-8,${encodeURIComponent(tableString)}`);
-                link.setAttribute('download', (this.props.traceName ?? 'export') + ' - ' + this.props.outputDescriptor.name + '.csv');
-
-                link.style.display = 'none';
-                document.body.appendChild(link);
-
-                link.click();
-
-                document.body.removeChild(link);
+                signalManager().fireSaveDatatreeAsCsv({
+                    traceId: this.props.traceId,
+                    data: tableString
+                });
             }
         }
     }

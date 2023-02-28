@@ -1,4 +1,4 @@
-import { Disposable, DisposableCollection, MessageService, Path } from '@theia/core';
+import { Disposable, DisposableCollection, MessageService, Path, URI } from '@theia/core';
 import { ApplicationShell, Message, StatusBar, WidgetManager, StatefulWidget } from '@theia/core/lib/browser';
 import { ReactWidget } from '@theia/core/lib/browser/widgets/react-widget';
 import { inject, injectable, postConstruct } from 'inversify';
@@ -19,6 +19,7 @@ import { TraceExplorerContribution } from '../trace-explorer/trace-explorer-cont
 import { MarkerSet } from 'tsp-typescript-client/lib/models/markerset';
 import { BackendFileService } from '../../common/backend-file-service';
 import { CancellationTokenSource } from '@theia/core';
+import { FileDialogService, SaveFileDialogProps } from '@theia/filesystem/lib/browser';
 import * as React from 'react';
 import 'animate.css';
 import { DEFAULT_OVERVIEW_OUTPUT_NAME, TRACE_OVERVIEW_DEFAULT_VIEW_KEY,
@@ -70,6 +71,7 @@ export class TraceViewerWidget extends ReactWidget implements StatefulWidget {
     private onExperimentSelected = (experiment: Experiment): Promise<void> => this.doHandleExperimentSelectedSignal(experiment);
     private onCloseExperiment = (UUID: string): void => this.doHandleCloseExperimentSignal(UUID);
     private onMarkerCategoryClosedSignal = (payload: { traceViewerId: string, markerCategory: string }) => this.doHandleMarkerCategoryClosedSignal(payload);
+    private onSaveDatatreeCSV= (payload: {traceId: string, data: string}): Promise<void> => this.doHandleSaveDatatreeCSVSignal(payload);
 
     private overviewOutputDescriptor: OutputDescriptor | undefined;
     private prevOverviewOutputDescriptor: OutputDescriptor | undefined;
@@ -85,6 +87,7 @@ export class TraceViewerWidget extends ReactWidget implements StatefulWidget {
     @inject(WidgetManager) protected readonly widgetManager!: WidgetManager;
     @inject(ThemeService) protected readonly themeService: ThemeService;
     @inject(OverviewPreferences) protected overviewPreferences: OverviewPreferences;
+    @inject(FileDialogService) protected readonly fileDialogService: FileDialogService;
 
     @postConstruct()
     async init(): Promise<void> {
@@ -146,6 +149,7 @@ export class TraceViewerWidget extends ReactWidget implements StatefulWidget {
         signalManager().on(Signals.MARKER_CATEGORY_CLOSED, this.onMarkerCategoryClosedSignal);
         signalManager().on(Signals.OPEN_OVERVIEW_OUTPUT, this.onTraceOverviewOpened);
         signalManager().on(Signals.OVERVIEW_OUTPUT_SELECTED, this.onTraceOverviewOutputSelected);
+        signalManager().on(Signals.SAVE_DATATREE_CSV, this.onSaveDatatreeCSV);
     }
 
     protected updateBackgroundTheme(): void {
@@ -160,6 +164,7 @@ export class TraceViewerWidget extends ReactWidget implements StatefulWidget {
         signalManager().off(Signals.CLOSE_TRACEVIEWERTAB, this.onCloseExperiment);
         signalManager().off(Signals.OPEN_OVERVIEW_OUTPUT, this.onTraceOverviewOpened);
         signalManager().off(Signals.OVERVIEW_OUTPUT_SELECTED, this.onTraceOverviewOutputSelected);
+        signalManager().off(Signals.SAVE_DATATREE_CSV, this.onSaveDatatreeCSV);
     }
 
     async initialize(): Promise<void> {
@@ -415,6 +420,28 @@ export class TraceViewerWidget extends ReactWidget implements StatefulWidget {
             }
 
             this.shell.activateWidget(this.openedExperiment.UUID);
+        }
+    }
+
+    private async doHandleSaveDatatreeCSVSignal(payload: {traceId: string, data: string}) {
+        if (this.openedExperiment && payload && payload.traceId === this.openedExperiment.UUID) {
+            const props: SaveFileDialogProps = {
+                inputValue: (this.openedExperiment !== undefined ? (this.openedExperiment.name) : 'trace')+'.csv',
+                filters: {
+                    'CSV Files': ['csv']
+                },
+                title: 'Save Statistics as CSV'
+            };
+
+            const uri: URI | undefined = await this.fileDialogService.showSaveDialog(props);
+            if (uri) {
+                const resolve = await this.backendFileService.writeToFile(uri, payload.data);
+                if (resolve === 'success') {
+                    this.messageService.info('CSV saved successfully');
+                } else {
+                    this.messageService.error(`Failed to save trace CSV: ${resolve}`);
+                }
+            }
         }
     }
 
