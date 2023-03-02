@@ -47,7 +47,7 @@ export class DataTreeOutputComponent extends AbstractOutputComponent<AbstractOut
     async fetchTree(): Promise<ResponseStatus> {
         const parameters = QueryHelper.timeRangeQuery(this.props.range.getStart(), this.props.range.getEnd());
         // TODO: use the data tree endpoint instead of the xy tree endpoint
-        const tspClientResponse = await this.props.tspClient.fetchXYTree(this.props.traceId, this.props.outputDescriptor.id, parameters);
+        const tspClientResponse = await this.tryFetchDataTree(parameters);
         const treeResponse = tspClientResponse.getModel();
         if (tspClientResponse.isOk() && treeResponse) {
             if (treeResponse.model) {
@@ -172,7 +172,7 @@ export class DataTreeOutputComponent extends AbstractOutputComponent<AbstractOut
             payload.parameters.isFiltered = true;
 
             // TODO: use the data tree endpoint instead of the xy tree endpoint
-            const tspClientResponse = await this.props.tspClient.fetchXYTree(this.props.traceId, this.props.outputDescriptor.id, payload);
+            const tspClientResponse = await this.tryFetchDataTree(payload);
             const treeResponse = tspClientResponse.getModel();
             if (tspClientResponse.isOk() && treeResponse) {
                 if (treeResponse.model) {
@@ -238,5 +238,14 @@ export class DataTreeOutputComponent extends AbstractOutputComponent<AbstractOut
                 </li>
             </ul>
         </React.Fragment>;
+    }
+
+    private async tryFetchDataTree(payload: any) {
+        let tspClientResponse = await this.props.tspClient.fetchDataTree(this.props.traceId, this.props.outputDescriptor.id, payload);
+        if (!tspClientResponse.isOk()) {
+            // Older trace servers might not support fetchDatatTree endpoint. Fall-back to fetchXYTree
+            tspClientResponse = await this.props.tspClient.fetchXYTree(this.props.traceId, this.props.outputDescriptor.id, payload);
+        }
+        return tspClientResponse;
     }
 }
