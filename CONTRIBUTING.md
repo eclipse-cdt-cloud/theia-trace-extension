@@ -96,6 +96,26 @@ you'll learn high-level context about the project's different components without
   the code as well as learning the submission and review process (which is a significant learning step if you've
   never submitted a PR before).
 
+## Uplifting the Theia dependencies version
+
+Should one be willing to contribute such an uplift, these are the steps to consider, while
+more may be necessary depending on the case. Here is an example used to uplift from version
+`1.34.1` to `1.34.2`:
+
+1. `cd theia` or go to the Theia repository using a local terminal.
+1. `git fetch && git tag` can be used to explore the latest released version tags.
+1. `git diff v1.34.1-community v1.34.2 CHANGELOG.md` (e.g.).
+   * To assess if any change may break the extension.
+   * If any breaking change, then consider it before uplifting; then, continue.
+1. `git diff v1.34.1-community v1.34.2` (adding `--name-only` first if need be).
+   * To assess if any noteworthy dependency versions were bumped since the previous uplift.
+   * Some bumps may then be required also in the extension; consider applying them.
+1. Uplift the version of each `@theia/` dependency in these `package.json` files, from `1.34.1` to `1.34.2` (replacing the former with the latter):
+   * `./examples/browser/package.json`
+   * `./examples/electron/package.json`
+   * `./package.json`
+   * `./theia-extensions/viewer-prototype/package.json`
+
 ## Contact
 
 For issues related to the Trace Viewer, please open a GitHub tracker for the [Theia Trace Extension][trace-viewer].
