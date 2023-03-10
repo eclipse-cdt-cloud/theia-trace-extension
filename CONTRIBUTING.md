@@ -113,7 +113,7 @@ For issues concerning `eclipse-cdt-cloud`, please refer to the contact options l
 [dev-process]: https://eclipse.org/projects/dev_process
 [eca]: http://www.eclipse.org/legal/ECA.php
 [external-components]: https://github.com/theia-ide/theia-trace-extension#related-code
-[first-issues]: https://github.com/theia-ide/theia-trace-extension/issues?q=is%3Aopen+is%3Aissue+label%3A%22good+first+issue%22
+[good-first-issues]: https://github.com/theia-ide/theia-trace-extension/issues?q=is%3Aopen+is%3Aissue+label%3A%22good+first+issue%22
 [flexible-architecture-video]: https://www.youtube.com/watch?v=8s5vGf45e-g
 [flexible-architecture-slides]: https://tracingsummit.org/ts/2019/files/Tracingsummit2019-theia-dagenais.pdf
 [gitpod-demo]: https://github.com/theia-ide/theia-trace-extension#try-a-live-demo-via-gitpod
