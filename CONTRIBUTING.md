@@ -121,6 +121,8 @@ more may be necessary depending on the case. Here is an example used to uplift f
    * `"@types/react"`
    * `"@types/react-dom"`
 1. Do the same also for `react-test-renderer` in `packages/react-components/package.json`, and potentially elsewhere in the extension.
+1. Align `node-version` in `.github/workflows` yaml files with Theia's.
+   * Referring also to Theia's `"node"` and `@types/node` versions in its root `package.json` file.
 
 ## Contact
 
