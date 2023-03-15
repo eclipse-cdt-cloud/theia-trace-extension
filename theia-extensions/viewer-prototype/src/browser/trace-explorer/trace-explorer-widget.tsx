@@ -6,7 +6,7 @@ import { TraceExplorerOpenedTracesWidget } from './trace-explorer-sub-widgets/th
 import { TraceExplorerPlaceholderWidget } from './trace-explorer-sub-widgets/trace-explorer-placeholder-widget';
 import { TraceExplorerServerStatusWidget } from './trace-explorer-sub-widgets/trace-explorer-server-status-widget';
 import { signalManager, Signals } from 'traceviewer-base/lib/signals/signal-manager';
-import { OpenedTracesUpdatedSignalPayload } from 'traceviewer-base/src/signals/opened-traces-updated-signal-payload';
+import { OpenedTracesUpdatedSignalPayload } from 'traceviewer-base/lib/signals/opened-traces-updated-signal-payload';
 import { TraceServerConnectionStatusService } from '../trace-server-status';
 
 @injectable()
