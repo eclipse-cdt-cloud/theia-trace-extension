@@ -272,7 +272,7 @@ export class TraceViewerContribution extends WidgetOpenHandler<TraceViewerWidget
                 }
                 error = new Error('Unsuccessful health check: ' + healthResponse.getStatusMessage() + ' status: ' + healthResponse.getModel()?.status);
             } catch (err) {
-                error = error;
+                error = err;
             }
             if (timeout) {
                 throw error;
