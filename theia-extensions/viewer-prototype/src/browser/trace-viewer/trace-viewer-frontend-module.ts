@@ -73,11 +73,4 @@ export default new ContainerModule(bind => {
         const connection = ctx.container.get(WebSocketConnectionProvider);
         return connection.createProxy<BackendFileService>(backendFileServicePath);
     }).inSingletonScope();
-
-    // bindViewContribution(bind, TracePropertiesContribution);
-    // bind(TracePropertiesWidget).toSelf();
-    // bind(WidgetFactory).toDynamicValue(context => ({
-    //     id: TRACE_PROPERTIES_ID,
-    //     createWidget: () => context.container.get<TracePropertiesWidget>(TracePropertiesWidget)
-    // }));
 });
