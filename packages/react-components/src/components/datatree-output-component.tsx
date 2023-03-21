@@ -216,7 +216,7 @@ export class DataTreeOutputComponent extends AbstractOutputComponent<AbstractOut
                     csvArray.push(row.join(','));
                 }
                 const tableString = csvArray.join('\n');
-                signalManager().fireSaveDatatreeAsCsv({
+                signalManager().fireSaveAsCsv({
                     traceId: this.props.traceId,
                     data: tableString
                 });
