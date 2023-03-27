@@ -4,6 +4,8 @@ import { Experiment } from 'tsp-typescript-client/lib/models/experiment';
 import { Trace } from 'tsp-typescript-client/lib/models/trace';
 import { OpenedTracesUpdatedSignalPayload } from './opened-traces-updated-signal-payload';
 import { OutputAddedSignalPayload } from './output-added-signal-payload';
+import { TimeRangeUpdatePayload } from './time-range-data-signal-payloads';
+
 export declare interface SignalManager {
     fireTraceOpenedSignal(trace: Trace): void;
     fireTraceDeletedSignal(trace: Trace): void;
@@ -11,10 +13,12 @@ export declare interface SignalManager {
     fireExperimentClosedSignal(experiment: Experiment): void;
     fireExperimentDeletedSignal(experiment: Experiment): void;
     fireExperimentSelectedSignal(experiment: Experiment | undefined): void;
+    fireExperimentUpdatedSignal(experiment: Experiment): void;
     fireOpenedTracesChangedSignal(payload: OpenedTracesUpdatedSignalPayload): void;
     fireOutputAddedSignal(payload: OutputAddedSignalPayload): void;
     fireItemPropertiesSignalUpdated(properties?: { [key: string]: string }): void;
     fireThemeChangedSignal(theme: string): void;
+    // TODO - Refactor or remove this signal.  Similar signal to fireRequestSelectionRangeChange
     fireSelectionChangedSignal(payload: { [key: string]: string }): void;
     fireCloseTraceViewerTabSignal(traceUUID: string): void;
     fireTraceViewerTabActivatedSignal(experiment: Experiment): void;
@@ -33,6 +37,9 @@ export declare interface SignalManager {
     fireUnPinView(output: OutputDescriptor, payload?: any): void;
     fireOverviewOutputSelectedSignal(payload: { traceId: string, outputDescriptor: OutputDescriptor}): void;
     fireSaveAsCsv(payload: {traceId: string, data: string}): void;
+    fireSelectionRangeUpdated(payload: TimeRangeUpdatePayload): void;
+    fireViewRangeUpdated(payload: TimeRangeUpdatePayload): void;
+    fireRequestSelectionRangeChange(payload: TimeRangeUpdatePayload): void;
 }
 
 export const Signals = {
@@ -42,6 +49,7 @@ export const Signals = {
     EXPERIMENT_CLOSED: 'experiment closed',
     EXPERIMENT_DELETED: 'experiment deleted',
     EXPERIMENT_SELECTED: 'experiment selected',
+    EXPERIMENT_UPDATED: 'experiment updated',
     OPENED_TRACES_UPDATED: 'opened traces updated',
     AVAILABLE_OUTPUTS_CHANGED: 'available outputs changed',
     OUTPUT_ADDED: 'output added',
@@ -62,7 +70,10 @@ export const Signals = {
     UNPIN_VIEW: 'view unpinned',
     OPEN_OVERVIEW_OUTPUT: 'open overview output',
     OVERVIEW_OUTPUT_SELECTED: 'overview output selected',
-    SAVE_AS_CSV: 'save as csv'
+    SAVE_AS_CSV: 'save as csv',
+    VIEW_RANGE_UPDATED: 'view range updated',
+    SELECTION_RANGE_UPDATED: 'selection range updated',
+    REQUEST_SELECTION_RANGE_CHANGE: 'change selection range',
 };
 
 export class SignalManager extends EventEmitter implements SignalManager {
@@ -83,6 +94,9 @@ export class SignalManager extends EventEmitter implements SignalManager {
     }
     fireExperimentSelectedSignal(experiment: Experiment | undefined): void {
         this.emit(Signals.EXPERIMENT_SELECTED, experiment);
+    }
+    fireExperimentUpdatedSignal(experiment: Experiment): void {
+        this.emit(Signals.EXPERIMENT_UPDATED, experiment);
     }
     fireOpenedTracesChangedSignal(payload: OpenedTracesUpdatedSignalPayload): void {
         this.emit(Signals.OPENED_TRACES_UPDATED, payload);
@@ -146,6 +160,16 @@ export class SignalManager extends EventEmitter implements SignalManager {
     fireSaveAsCsv(payload: {traceId: string, data: string}): void {
         this.emit(Signals.SAVE_AS_CSV, payload);
     }
+    fireViewRangeUpdated(payload: TimeRangeUpdatePayload): void {
+        this.emit(Signals.VIEW_RANGE_UPDATED, payload);
+    }
+    fireSelectionRangeUpdated(payload: TimeRangeUpdatePayload): void {
+        this.emit(Signals.SELECTION_RANGE_UPDATED, payload);
+    }
+    fireRequestSelectionRangeChange(payload: TimeRangeUpdatePayload): void {
+        this.emit(Signals.REQUEST_SELECTION_RANGE_CHANGE, payload);
+    }
+
 }
 
 let instance: SignalManager = new SignalManager();

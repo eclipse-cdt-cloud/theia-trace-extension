@@ -5,6 +5,7 @@ import { TraceExplorerItemPropertiesWidget } from './trace-explorer-sub-widgets/
 import { TraceExplorerOpenedTracesWidget } from './trace-explorer-sub-widgets/theia-trace-explorer-opened-traces-widget';
 import { TraceExplorerPlaceholderWidget } from './trace-explorer-sub-widgets/theia-trace-explorer-placeholder-widget';
 import { TraceExplorerServerStatusWidget } from './trace-explorer-sub-widgets/trace-explorer-server-status-widget';
+import { TraceExplorerTimeRangeDataWidget } from './trace-explorer-sub-widgets/theia-trace-explorer-time-range-data-widget';
 import { signalManager, Signals } from 'traceviewer-base/lib/signals/signal-manager';
 import { OpenedTracesUpdatedSignalPayload } from 'traceviewer-base/lib/signals/opened-traces-updated-signal-payload';
 import { TraceServerConnectionStatusService } from '../trace-server-status';
@@ -20,6 +21,7 @@ export class TraceExplorerWidget extends BaseWidget {
     @inject(TraceExplorerItemPropertiesWidget) protected readonly itemPropertiesWidget!: TraceExplorerItemPropertiesWidget;
     @inject(TraceExplorerPlaceholderWidget) protected readonly placeholderWidget!: TraceExplorerPlaceholderWidget;
     @inject(TraceExplorerServerStatusWidget) protected readonly serverStatusWidget!: TraceExplorerServerStatusWidget;
+    @inject(TraceExplorerTimeRangeDataWidget) protected readonly timeRangeDataWidget!: TraceExplorerTimeRangeDataWidget;
     @inject(ViewContainer.Factory) protected readonly viewContainerFactory!: ViewContainer.Factory;
     @inject(TraceServerConnectionStatusService) protected readonly connectionStatusService: TraceServerConnectionStatusService;
 
@@ -47,6 +49,7 @@ export class TraceExplorerWidget extends BaseWidget {
         child.bind(TraceExplorerPlaceholderWidget).toSelf();
         child.bind(TraceExplorerServerStatusWidget).toSelf();
         child.bind(TraceExplorerItemPropertiesWidget).toSelf();
+        child.bind(TraceExplorerTimeRangeDataWidget).toSelf();
         child.bind(TraceExplorerWidget).toSelf().inSingletonScope();
         return child;
     }
@@ -64,6 +67,7 @@ export class TraceExplorerWidget extends BaseWidget {
         this.traceViewsContainer.addWidget(this.openedTracesWidget);
         this.traceViewsContainer.addWidget(this.viewsWidget);
         this.traceViewsContainer.addWidget(this.itemPropertiesWidget);
+        this.traceViewsContainer.addWidget(this.timeRangeDataWidget);
         this.toDispose.push(this.traceViewsContainer);
         const layout = this.layout = new PanelLayout();
         layout.addWidget(this.serverStatusWidget);
