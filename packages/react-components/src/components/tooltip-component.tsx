@@ -26,7 +26,7 @@ export class TooltipComponent extends React.Component<unknown, TooltipComponentS
     }
 
     render(): React.ReactNode {
-        return <div
+        return <div data-testid="tooltip-component"
             onMouseEnter={() => {
                 if (this.timerId) {
                     clearTimeout(this.timerId);
