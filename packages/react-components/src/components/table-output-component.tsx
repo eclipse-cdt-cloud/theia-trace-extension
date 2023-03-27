@@ -779,7 +779,7 @@ export class TableOutputComponent extends AbstractOutputComponent<TableOutputPro
                 }
                 // Notfiy selection changed
                 this.handleRowSelectionChange(itemPropsObj);
-                // Notfiy properties changed
+                // Notify properties changed
                 signalManager().fireItemPropertiesSignalUpdated(itemPropsObj);
                 this.selectRows();
             }

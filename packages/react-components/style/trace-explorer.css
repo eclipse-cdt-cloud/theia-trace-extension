@@ -45,6 +45,47 @@
     white-space: nowrap;
 }
 
+.trace-explorer-panel-content > form > .view-range-widget-section {
+    margin: 6px;
+}
+
+.trace-explorer-panel-content > form > .view-range-widget-section.invalid-input {
+    color: red;
+}
+
+.trace-explorer-panel-content > form > .view-range-widget-section > h4 {
+    margin-bottom: 3px;
+}
+
+.trace-explorer-panel-content > form > .view-range-widget-section > input[type=number] {
+    -moz-appearance: textfield; /* Remove arrows from input in Firefox */
+    background: var(--theia-input-background);
+    color: var(--theia-input-foreground);
+    border: var(--theia-border-width) solid var(--theia-input-border);
+    font-family: var(--theia-ui-font-family);
+    font-size: var(--theia-ui-font-size1);
+    line-height: var(--theia-content-line-height);
+    padding-left: 5px;
+}
+
+.trace-explorer-panel-content > form > .view-range-widget-section > input::-webkit-outer-spin-button,
+.trace-explorer-panel-content > form > .view-range-widget-section > input::-webkit-inner-spin-button {
+    /* Remove arrows from input in Chrom / Safari */
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.trace-explorer-panel-content > form > .view-range-widget-section > .input-button {
+    border: none;
+    color: var(--theia-button-foreground);
+    background-color: var(--theia-button-background);
+    min-width: 65px;
+    outline: none;
+    cursor: pointer;
+    padding: 4px 9px;
+    margin: 3px;
+}
+
 .trace-list-container:hover,
 .outputs-list-container:hover {
     background-color: var(--theia-list-hoverBackground);

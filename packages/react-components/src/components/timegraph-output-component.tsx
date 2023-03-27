@@ -327,7 +327,6 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
         const endTimestamp = payload['endTimestamp'];
         if (startTimestamp !== undefined && endTimestamp !== undefined) {
             const foundElement = this.findElement(payload);
-
             // Scroll vertically
             if (foundElement) {
                 // Expand parent

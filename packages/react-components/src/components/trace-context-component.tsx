@@ -29,6 +29,7 @@ import { DataTreeOutputComponent } from './datatree-output-component';
 import { cloneDeep } from 'lodash';
 import { UnitControllerHistoryHandler } from './utils/unit-controller-history-handler';
 import { TraceOverviewComponent } from './trace-overview-component';
+import { TimeRangeUpdatePayload } from 'traceviewer-base/lib/signals/time-range-data-signal-payloads';
 
 const ResponsiveGridLayout = WidthProvider(Responsive);
 
@@ -231,6 +232,7 @@ export class TraceContextComponent extends React.Component<TraceContextProps, Tr
         }
         this.historyHandler.clear();
         this.historyHandler.addCurrentState();
+        this.emitTimeRangeData();
     }
 
     private async updateTrace() {
@@ -259,6 +261,10 @@ export class TraceContextComponent extends React.Component<TraceContextProps, Tr
                 }
             }
         }
+        // When indexing is completed
+        const finalResponse = await this.props.tspClient.fetchExperiment(this.props.experiment.UUID);
+        signalManager().fireExperimentUpdatedSignal(finalResponse.getModel() || this.props.experiment);
+        this.emitTimeRangeData();
         this.props.messageManager.removeStatusMessage(this.INDEXING_STATUS_BAR_KEY);
     }
 
@@ -285,6 +291,7 @@ export class TraceContextComponent extends React.Component<TraceContextProps, Tr
         signalManager().on(Signals.REDO, this.redoHistory);
         signalManager().on(Signals.PIN_VIEW, this.onPinView);
         signalManager().on(Signals.UNPIN_VIEW, this.onUnPinView);
+        signalManager().on(Signals.REQUEST_SELECTION_RANGE_CHANGE, this.onRequestToUpdateSelectionRange);
     }
 
     private unsubscribeToEvents() {
@@ -295,6 +302,7 @@ export class TraceContextComponent extends React.Component<TraceContextProps, Tr
         signalManager().off(Signals.REDO, this.redoHistory);
         signalManager().off(Signals.PIN_VIEW, this.onPinView);
         signalManager().off(Signals.UNPIN_VIEW, this.onUnPinView);
+        signalManager().off(Signals.REQUEST_SELECTION_RANGE_CHANGE, this.onRequestToUpdateSelectionRange);
     }
 
     async componentDidUpdate(prevProps: TraceContextProps, prevState: TraceContextState): Promise<void> {
@@ -371,6 +379,7 @@ export class TraceContextComponent extends React.Component<TraceContextProps, Tr
     }
 
     private handleTimeSelectionChange(range?: TimelineChart.TimeGraphRange) {
+
         if (range) {
             const t1 = range.start + this.state.timeOffset;
             const t2 = range.end + this.state.timeOffset;
@@ -379,6 +388,14 @@ export class TraceContextComponent extends React.Component<TraceContextProps, Tr
                 text: `T1: ${t1} T2: ${t2} Delta: ${t2 - t1}`,
                 category: Messages.MessageCategory.TRACE_CONTEXT
             });
+
+            const { start, end } = range;
+            const payload = {
+                experimentUUID: this.props.experiment.UUID,
+                timeRange: new TimeRange(start, end),
+            } as TimeRangeUpdatePayload;
+            signalManager().fireSelectionRangeUpdated(payload);
+
             this.setState(prevState => ({
                 currentTimeSelection: new TimeRange(range.start, range.end, prevState.timeOffset)
             }), () => this.updateHistory());
@@ -386,10 +403,30 @@ export class TraceContextComponent extends React.Component<TraceContextProps, Tr
     }
 
     private handleViewRangeChange(viewRange: TimelineChart.TimeGraphRange) {
+        const { start, end } = viewRange;
+        const payload = {
+            experimentUUID: this.props.experiment.UUID,
+            timeRange: new TimeRange(start, end)
+        } as TimeRangeUpdatePayload;
+        signalManager().fireViewRangeUpdated(payload);
+
         this.setState(prevState => ({
             currentViewRange: new TimeRange(viewRange.start, viewRange.end, prevState.timeOffset)
         }), () => this.updateHistory());
     }
+
+    private emitTimeRangeData = (): void => {
+        const { viewRange, selectionRange } = this.unitController;
+        const payload = {
+            experimentUUID: this.props.experiment.UUID,
+            timeRange: new TimeRange(viewRange.start, viewRange.end)
+        } as TimeRangeUpdatePayload;
+        signalManager().fireViewRangeUpdated(payload);
+        if (selectionRange) {
+            payload.timeRange = new TimeRange(selectionRange.start, selectionRange.end);
+            signalManager().fireSelectionRangeUpdated(payload);
+        }
+    };
 
     private onContextMenu(event: React.MouseEvent) {
         event.preventDefault();
@@ -660,6 +697,16 @@ export class TraceContextComponent extends React.Component<TraceContextProps, Tr
 
     private updateHistory = (): void => {
         this.historyHandler.addCurrentState();
+    };
+
+    onRequestToUpdateSelectionRange = (payload: TimeRangeUpdatePayload): void => {
+        const { timeRange, experimentUUID } = payload;
+        if (experimentUUID === this.props.experiment.UUID && timeRange) {
+            this.unitController.selectionRange = {
+                start: timeRange.getStart(),
+                end: timeRange.getEnd(),
+            };
+        }
     };
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
