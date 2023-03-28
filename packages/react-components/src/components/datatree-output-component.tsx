@@ -42,10 +42,10 @@ export class DataTreeOutputComponent extends AbstractOutputComponent<AbstractOut
             xyTree: [],
             collapsedNodes: [],
             orderedNodes: [],
-            columns: [{ title: 'Name', sortable: true }],
-            optionsDropdownOpen: false,
-            additionalOptions: true
+            columns: [{title: 'Name', sortable: true}],
         };
+        this.addPinViewOptions();
+        this.addOptions('Export to CSV...', () => this.exportOutput());
     }
 
     componentDidMount(): void {
@@ -331,16 +331,6 @@ export class DataTreeOutputComponent extends AbstractOutputComponent<AbstractOut
                 });
             }
         }
-    }
-
-    protected showAdditionalOptions(): React.ReactNode {
-        return <React.Fragment>
-            <ul>
-                <li className='drop-down-list-item' key={0} onClick={() => this.exportOutput()}>
-                    <div className='drop-down-list-item-text'>Export to csv</div>
-                </li>
-            </ul>
-        </React.Fragment>;
     }
 
     private async tryFetchDataTree(payload: any) {

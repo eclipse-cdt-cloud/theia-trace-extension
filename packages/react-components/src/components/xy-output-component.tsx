@@ -10,6 +10,7 @@ import { TimeRange } from 'traceviewer-base/src/utils/time-range';
 import { validateNumArray } from './utils/filter-tree/utils';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSpinner } from '@fortawesome/free-solid-svg-icons';
+import { signalManager } from 'traceviewer-base/lib/signals/signal-manager';
 
 export class XYOutputComponent extends AbstractXYOutputComponent<AbstractOutputProps, AbstractXYOutputState> {
     private mousePanningStart = BigInt(0);
@@ -25,13 +26,17 @@ export class XYOutputComponent extends AbstractXYOutputComponent<AbstractOutputP
             collapsedNodes: validateNumArray(this.props.persistChartState?.collapsedNodes) ? this.props.persistChartState.collapsedNodes as number[] : [],
             orderedNodes: [],
             xyData: {},
-            columns: [{title: 'Name', sortable: true}],
+            columns: [{ title: 'Name', sortable: true }],
             allMax: 0,
             allMin: 0,
             cursor: 'default',
-            optionsDropdownOpen: false,
             showTree: true
         };
+        this.addPinViewOptions(() => ({
+            checkedSeries: this.state.checkedSeries,
+            collapsedNodes: this.state.collapsedNodes,
+        }));
+        this.addOptions('Export table to CSV...', () => this.exportOutput());
     }
 
     renderChart(): React.ReactNode {
@@ -224,7 +229,7 @@ export class XYOutputComponent extends AbstractXYOutputComponent<AbstractOutputP
                 this.mousePanningStart = this.props.unitController.viewRange.start + BIMath.round(event.nativeEvent.x / this.resolution);
                 this.isPanning = true;
                 this.setState({ cursor: 'grabbing' });
-            } else if (!(event.shiftKey && event.ctrlKey)){
+            } else if (!(event.shiftKey && event.ctrlKey)) {
                 this.isSelecting = true;
                 this.setState({ cursor: 'crosshair' });
                 this.props.unitController.selectionRange = {
@@ -272,7 +277,7 @@ export class XYOutputComponent extends AbstractXYOutputComponent<AbstractOutputP
         this.positionYMove = event.nativeEvent.offsetY;
         this.isMouseLeave = false;
 
-       if (this.mouseIsDown) {
+        if (this.mouseIsDown) {
             if (this.isPanning) {
                 this.panHorizontally(event);
             } else if (this.isSelecting) {
@@ -384,24 +389,16 @@ export class XYOutputComponent extends AbstractXYOutputComponent<AbstractOutputP
         return this.getTimeForX(this.positionXMove);
     }
 
-    protected showOptions(): React.ReactNode {
-        return <React.Fragment>
-            <ul>
-                {this.props.pinned === undefined &&
-                    <li className='drop-down-list-item'
-                        onClick={() => this.pinView({ checkedSeries: this.state.checkedSeries,
-                                                    collapsedNodes: this.state.collapsedNodes })}
-                    >
-                        <div className='drop-down-list-item-text'>Pin View</div>
-                    </li>}
-                {this.props.pinned === true &&
-                    <li className='drop-down-list-item'
-                        onClick={() => this.unPinView({ checkedSeries: this.state.checkedSeries,
-                                                    collapsedNodes: this.state.collapsedNodes })}>
-                        <div className='drop-down-list-item-text'>Unpin View</div>
-                    </li>}
-            </ul>
-            {this.state.additionalOptions && this.showAdditionalOptions()}
-        </React.Fragment>;
+    private exportOutput() {
+        const columnLabels = this.state.columns.map(col => col.title);
+        const tableContent = this.state.xyTree.map(rowData => rowData.labels);
+        const tableString = columnLabels.join(',') + '\n' + tableContent.map(row => row.join(',')).join('\n');
+        signalManager().fireSaveAsCsv({
+            traceId: this.props.traceId,
+            data: tableString
+        });
+        this.setState({
+            dropDownOpen: false
+        });
     }
 }
