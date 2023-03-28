@@ -8,6 +8,7 @@ import { scaleLinear } from 'd3-scale';
 import { AbstractXYOutputComponent, AbstractXYOutputState, FLAG_PAN_LEFT, FLAG_PAN_RIGHT, FLAG_ZOOM_IN, FLAG_ZOOM_OUT, MouseButton } from './abstract-xy-output-component';
 import { TimeRange } from 'traceviewer-base/src/utils/time-range';
 import { validateNumArray } from './utils/filter-tree/utils';
+import { signalManager } from 'traceviewer-base/lib/signals/signal-manager';
 
 export class XYOutputComponent extends AbstractXYOutputComponent<AbstractOutputProps, AbstractXYOutputState> {
     private mousePanningStart = BigInt(0);
@@ -27,9 +28,13 @@ export class XYOutputComponent extends AbstractXYOutputComponent<AbstractOutputP
             allMax: 0,
             allMin: 0,
             cursor: 'default',
-            optionsDropdownOpen: false,
             showTree: true
         };
+        this.addPinViewOptions(() => ({
+            checkedSeries: this.state.checkedSeries,
+            collapsedNodes: this.state.collapsedNodes,
+        }));
+        this.addOptions('Export to CSV...', () => this.exportOutput());
     }
 
     renderChart(): React.ReactNode {
@@ -378,24 +383,13 @@ export class XYOutputComponent extends AbstractXYOutputComponent<AbstractOutputP
         return this.getTimeForX(this.positionXMove);
     }
 
-    protected showOptions(): React.ReactNode {
-        return <React.Fragment>
-            <ul>
-                {this.props.pinned === undefined &&
-                    <li className='drop-down-list-item'
-                        onClick={() => this.pinView({ checkedSeries: this.state.checkedSeries,
-                                                    collapsedNodes: this.state.collapsedNodes })}
-                    >
-                        <div className='drop-down-list-item-text'>Pin View</div>
-                    </li>}
-                {this.props.pinned === true &&
-                    <li className='drop-down-list-item'
-                        onClick={() => this.unPinView({ checkedSeries: this.state.checkedSeries,
-                                                    collapsedNodes: this.state.collapsedNodes })}>
-                        <div className='drop-down-list-item-text'>Unpin View</div>
-                    </li>}
-            </ul>
-            {this.state.additionalOptions && this.showAdditionalOptions()}
-        </React.Fragment>;
+    private exportOutput() {
+        const columnLabels = this.state.columns.map(col => col.title);
+        const tableContent = this.state.xyTree.map(rowData => rowData.labels);
+        const tableString = columnLabels.join(',') + '\n' + tableContent.map(row => row.join(',')).join('\n');
+        signalManager().fireSaveAsCsv({
+            traceId: this.props.traceId,
+            data: tableString
+        });
     }
 }

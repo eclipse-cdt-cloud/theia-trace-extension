@@ -426,13 +426,12 @@ export class TraceViewerWidget extends ReactWidget implements StatefulWidget {
     private async doHandleSaveAsCSVSignal(payload: {traceId: string, data: string}) {
         if (this.openedExperiment && payload && payload.traceId === this.openedExperiment.UUID) {
             const props: SaveFileDialogProps = {
-                inputValue: (this.openedExperiment !== undefined ? (this.openedExperiment.name) : 'trace')+'.csv',
+                inputValue: (this.openedExperiment !== undefined ? (this.openedExperiment.name) : 'trace') + '.csv',
                 filters: {
                     'CSV Files': ['csv']
                 },
-                title: 'Save As CSV'
+                title: 'Save as CSV'
             };
-
             const uri: URI | undefined = await this.fileDialogService.showSaveDialog(props);
             if (uri) {
                 const resolve = await this.backendFileService.writeToFile(uri, payload.data);
