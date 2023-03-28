@@ -77,9 +77,7 @@ export class TableOutputComponent extends AbstractOutputComponent<TableOutputPro
         this.state = {
             outputStatus: ResponseStatus.RUNNING,
             tableColumns: [],
-            optionsDropdownOpen: false,
             showToggleColumns: false,
-            additionalOptions: true
         };
 
         this.frameworkComponents = {
@@ -111,6 +109,7 @@ export class TableOutputComponent extends AbstractOutputComponent<TableOutputPro
         this.searchEvents = this.searchEvents.bind(this);
         this.findMatchedEvent = this.findMatchedEvent.bind(this);
         this.checkFocus = this.checkFocus.bind(this);
+        this.addPinViewOptions();
     }
 
     renderMainArea(): React.ReactNode {

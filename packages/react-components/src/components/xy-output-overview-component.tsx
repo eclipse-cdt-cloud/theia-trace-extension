@@ -50,24 +50,36 @@ export class XYOutputOverviewComponent extends AbstractXYOutputComponent<XYOutpu
             allMin: 0,
             cursor: 'default',
             shiftKey: false,
-            optionsDropdownOpen: false,
             showModal: false,
             showTree: true
         };
         this.keyMapping = this.getKeyActionMap();
         this.afterChartDraw = this.afterChartDraw.bind(this);
         this.closeOverviewOutputSelector = this.closeOverviewOutputSelector.bind(this);
+        this.addOptions('Select source output', () => this.openOverviewOutputSelector());
+        this.addOptions('Toggle filter tree', () => this.toggleTree());
     }
 
     renderChart(): React.ReactNode {
+        const selectionDialog = (
+            <TraceOverviewSelectionDialogComponent
+                isOpen={this.state.showModal}
+                title='Select overview output source'
+                tspClient={this.props.tspClient}
+                traceID={this.props.traceId}
+                onCloseDialog={this.closeOverviewOutputSelector}
+            ></TraceOverviewSelectionDialogComponent>
+        );
         if (this.state.outputStatus === ResponseStatus.COMPLETED && this.state.xyData?.datasets?.length === 0) {
             return <React.Fragment>
+                {selectionDialog}
                 <div className='chart-message'>
                     Select a checkbox to see analysis results
                 </div>
             </React.Fragment>;
         }
         return <React.Fragment>
+            {selectionDialog}
             <div
                 id={this.getOutputComponentDomId() + 'focusContainer'}
                 className='xy-main'
@@ -377,27 +389,6 @@ export class XYOutputOverviewComponent extends AbstractXYOutputComponent<XYOutpu
         return this.props.outputDescriptor.name + ' overview';
     }
 
-    protected showOptions(): React.ReactNode {
-        return <React.Fragment>
-            <ul>
-                <li className='drop-down-list-item' onClick={() => this.openOverviewOutputSelector()}>
-                    <div className='drop-down-list-item-text'>Select source output</div>
-                </li>
-                <li className='drop-down-list-item' onClick={() => this.toggleTree()}>
-                    <div className='drop-down-list-item-text'>Toggle filter tree</div>
-                </li>
-            </ul>
-            <TraceOverviewSelectionDialogComponent
-                isOpen={this.state.showModal}
-                title="Select overview output source"
-                tspClient={this.props.tspClient}
-                traceID={this.props.traceId}
-                onCloseDialog={this.closeOverviewOutputSelector}
-            ></TraceOverviewSelectionDialogComponent>
-            {this.state.additionalOptions && this.showAdditionalOptions()}
-        </React.Fragment>;
-    }
-
     private closeOverviewOutputSelector(): void {
         this.setState({showModal: false});
     }
@@ -409,9 +400,6 @@ export class XYOutputOverviewComponent extends AbstractXYOutputComponent<XYOutpu
     private toggleTree() {
         this.setState({
             showTree: !this.state.showTree,
-            optionsDropdownOpen: false
-        }, () => {
-            document.removeEventListener('click', this.closeOptionsMenu);
-        });
+        }, () => {this.closeDropDown();});
     }
 }

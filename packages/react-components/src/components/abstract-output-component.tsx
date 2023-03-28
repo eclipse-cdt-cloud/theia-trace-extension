@@ -11,6 +11,7 @@ import { TooltipComponent } from './tooltip-component';
 import { TooltipXYComponent } from './tooltip-xy-component';
 import { ResponseStatus } from 'tsp-typescript-client/lib/models/response/responses';
 import { signalManager } from 'traceviewer-base/lib/signals/signal-manager';
+import { DropDownComponent, OptionState } from './drop-down-component';
 
 export interface AbstractOutputProps {
     tspClient: TspClient;
@@ -49,8 +50,7 @@ export interface AbstractOutputProps {
 export interface AbstractOutputState {
     outputStatus: string;
     styleModel?: OutputStyleModel;
-    optionsDropdownOpen?: boolean;
-    additionalOptions?: boolean;
+    dropDownOpen?: boolean;
 }
 
 export abstract class AbstractOutputComponent<P extends AbstractOutputProps, S extends AbstractOutputState> extends React.Component<P, S> {
@@ -59,20 +59,27 @@ export abstract class AbstractOutputComponent<P extends AbstractOutputProps, S e
 
     protected mainOutputContainer: React.RefObject<HTMLDivElement>;
 
-    private optionsMenuRef: React.RefObject<HTMLDivElement>;
+    protected dropDownMenuRef: React.RefObject<DropDownComponent>;
 
     private titleRef: React.RefObject<HTMLSpanElement>;
 
     private titleBarLabelRef: React.RefObject<HTMLDivElement>;
+
+    public readonly PIN_VIEW_LABEL = 'Pin View';
+
+    public readonly UNPIN_VIEW_LABEL = 'Unpin View';
+
+    private dropDownOptions: OptionState[] = [];
 
     constructor(props: P) {
         super(props);
         this.mainOutputContainer = React.createRef();
         this.closeComponent = this.closeComponent.bind(this);
         this.renderTitleBar = this.renderTitleBar.bind(this);
-        this.openOptionsMenu = this.openOptionsMenu.bind(this);
-        this.closeOptionsMenu = this.closeOptionsMenu.bind(this);
-        this.optionsMenuRef = React.createRef();
+        this.toggleDropDown = this.toggleDropDown.bind(this);
+        this.openDropDown = this.openDropDown.bind(this);
+        this.closeDropDown = this.closeDropDown.bind(this);
+        this.dropDownMenuRef = React.createRef();
         this.titleRef = React.createRef();
         this.titleBarLabelRef = React.createRef();
     }
@@ -87,11 +94,11 @@ export abstract class AbstractOutputComponent<P extends AbstractOutputProps, S e
             onTouchStart={this.props.onTouchStart}
             onTouchEnd={this.props.onTouchEnd}
             data-tip=''
-            data-for="tooltip-component">
+            data-for='tooltip-component'>
             <div
                 id={this.getOutputComponentDomId() + 'handle'}
-                className={(this.props.pinned !== false || this.state.additionalOptions) ? 'widget-handle-with-options' : 'widget-handle'}
-                style={{ width: this.getHandleWidth(), height: this.props.style.height }}
+                className={this.showViewOptionsCondition() ?
+                    'widget-handle-with-options' : 'widget-handle'} style={{ width: this.getHandleWidth(), height: this.props.style.height }}
             >
                 {this.renderTitleBar()}
             </div>
@@ -121,7 +128,19 @@ export abstract class AbstractOutputComponent<P extends AbstractOutputProps, S e
             <button className='remove-component-button' onClick={this.closeComponent}>
                 <FontAwesomeIcon icon={faTimes} />
             </button>
-            {this.showOptionsMenu()}
+            {this.showViewOptionsCondition() &&
+                <div className='options-menu-container'>
+                    <button
+                        title='Show View Options'
+                        className='options-menu-button'
+                        onClick={this.toggleDropDown}
+                    >
+                        <FontAwesomeIcon icon={faBars} />
+                    </button>
+                    <DropDownComponent dropDownOpen={this.state.dropDownOpen ?? false} dropDownOptions={this.dropDownOptions}
+                        ref={this.dropDownMenuRef} {...this.props}></DropDownComponent>
+                </div>
+            }
             <div ref={this.titleBarLabelRef} className='title-bar-label' title={outputTooltip} onClick={() => this.setFocus()}>
                 <span ref={this.titleRef}>{outputName}</span>
                 <span className={titleOverflown}>...</span>
@@ -134,6 +153,31 @@ export abstract class AbstractOutputComponent<P extends AbstractOutputProps, S e
                 {this.props.pinned === true && <FontAwesomeIcon icon={faThumbtack} title='Pinned View' className='pin-view-icon'/>}
             </div>
         </React.Fragment>;
+    }
+
+    private showViewOptionsCondition(): boolean {
+        const nonPinViewOptionExists = this.dropDownOptions.some(option => option.label !== this.PIN_VIEW_LABEL && option.label !== this.UNPIN_VIEW_LABEL);
+        return nonPinViewOptionExists || this.props.pinned !== false;
+    }
+
+    protected toggleDropDown(): void {
+        if (this.state.dropDownOpen) {
+            this.closeDropDown();
+        } else {
+            this.openDropDown();
+        }
+    }
+
+    protected closeDropDown(): void {
+        this.setState({
+            dropDownOpen: false
+        });
+    }
+
+    protected openDropDown(): void {
+        this.setState({
+            dropDownOpen: true
+        });
     }
 
     private closeComponent() {
@@ -168,51 +212,37 @@ export abstract class AbstractOutputComponent<P extends AbstractOutputProps, S e
 
     abstract resultsAreEmpty(): boolean;
 
-    protected showOptionsMenu(): React.ReactNode {
-        return <React.Fragment>
-            {
-                (this.props.pinned !== false || this.state.additionalOptions) &&
-                    <div className='options-menu-container'>
-                        <button title="Show View Options" className='options-menu-button' onClick={this.openOptionsMenu}>
-                            <FontAwesomeIcon icon={faBars} />
-                        </button>
-                        {
-                            this.state?.optionsDropdownOpen &&
-                                <div className="options-menu-drop-down" ref={this.optionsMenuRef}>
-                                    {this.showOptions()}
-                                </div>
-                        }
-                    </div>
-            }
-        </React.Fragment>;
+    protected addPinViewOptions(arg?: () => unknown): void {
+        this.addOptions(
+            this.PIN_VIEW_LABEL,
+            () => this.pinView(),
+            arg,
+            () => this.props.pinned === undefined
+        );
+        this.addOptions(
+            this.UNPIN_VIEW_LABEL,
+            () => this.unPinView(),
+            arg,
+            () => this.props.pinned === true
+        );
     }
 
-    protected showOptions(): React.ReactNode {
-        return <React.Fragment>
-            <ul>
-                {
-                    this.props.pinned === undefined &&
-                        <li className='drop-down-list-item' onClick={() => this.pinView()}>
-                            <div className='drop-down-list-item-text'>Pin View</div>
-                        </li>
-                }
-                {
-                    this.props.pinned === true &&
-                        <li className='drop-down-list-item' onClick={() => this.unPinView()}>
-                            <div className='drop-down-list-item-text'>Unpin View</div>
-                        </li>
-                }
-            </ul>
-            {this.state.additionalOptions && this.showAdditionalOptions()}
-        </React.Fragment>;
-    }
-
-    protected showAdditionalOptions(): React.ReactNode {
-        return <></>;
-    }
-
-    protected closeOptionsDropDown(): void {
-        return;
+    protected addOptions(
+        label: string,
+        onClick?: (arg?: unknown) => void,
+        arg?: unknown,
+        condition?: () => boolean
+    ): void {
+        const newOption = {
+            label: label,
+            onClick: onClick,
+            arg: arg,
+            condition: condition,
+        } as OptionState;
+        if (this.dropDownOptions.includes(newOption)) {
+            return;
+        }
+        this.dropDownOptions = [...(this.dropDownOptions ?? []), newOption];
     }
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/explicit-module-boundary-types
@@ -245,31 +275,6 @@ export abstract class AbstractOutputComponent<P extends AbstractOutputProps, S e
                     No results: Trace missing required events.
                 </div>
         </>;
-    }
-
-    private openOptionsMenu(): void {
-        this.setState({optionsDropdownOpen: true}, () => {
-            // Timeout used to avoid bubble up and immediate triggering of the event listener
-            setTimeout(() => {
-                document.addEventListener('click', this.closeOptionsMenu);
-            }, 10);
-        });
-    }
-
-    protected closeOptionsMenu(event: Event): void {
-        if (event && event.target instanceof Node && this.optionsMenuRef.current?.contains(event.target)) {
-            return;
-        }
-        if (!this.optionsMenuRef.current) {
-            return;
-        }
-        this.closeOptionsDropDown();
-        this.setState({optionsDropdownOpen: false}, () => {
-            // Timeout used to avoid bubble up and immediate triggering of the event listener
-            setTimeout(() => {
-                document.removeEventListener('click', this.closeOptionsMenu);
-            }, 10);
-        });
     }
 
     protected getOutputComponentDomId(): string {
