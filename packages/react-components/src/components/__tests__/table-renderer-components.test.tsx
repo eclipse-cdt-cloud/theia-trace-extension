@@ -1,25 +1,31 @@
 import * as React from 'react';
-import { cleanup, render, fireEvent, screen } from '@testing-library/react';
+import { cleanup, render, fireEvent, screen, act } from '@testing-library/react';
 import { create } from 'react-test-renderer';
-import { mount } from 'enzyme';
 import { TableOutputComponent } from '../table-output-component';
 import { CellRenderer, LoadingRenderer, SearchFilterRenderer } from '../table-renderer-components';
 import { AbstractOutputProps } from '../abstract-output-component';
 import { TimeGraphUnitController } from 'timeline-chart/lib/time-graph-unit-controller';
 import { TimeRange } from 'traceviewer-base/lib/utils/time-range';
 import { TspClient } from 'tsp-typescript-client/lib/protocol/tsp-client';
-import { AgGridReact } from 'ag-grid-react';
 import { ColDef, Column, ColumnApi, GridApi, IRowModel, RowNode } from 'ag-grid-community';
 
-afterEach(() => {
-    cleanup
-    jest.clearAllMocks();
-});
+describe('<TableOutputComponent />', () => {
 
-describe('Table output component tests', () => {
-    
-    // Skip until a replacement for Enzyme that works with React 18 is found
-    test.skip('Renders AG-Grid table with provided props & state', async () => {
+    let tableComponent: any;
+    const ref = (el: TableOutputComponent | undefined | null): void => {
+        tableComponent = el;
+    };
+
+    beforeEach(() => {
+        tableComponent = null;
+    });
+
+    afterEach(() => {
+        cleanup();
+        jest.clearAllMocks();
+    });
+
+    test('Renders AG-Grid table with provided props & state', async () => {
         const tableOutputComponentProps: AbstractOutputProps = {
             tooltipComponent: null,
             style: {
@@ -58,7 +64,7 @@ describe('Table output component tests', () => {
             tooltipXYComponent: null,
             outputWidth: 0
         };
-        
+
         const tableOutputComponentState = [
             {
                 "headerName":"Trace",
@@ -77,18 +83,22 @@ describe('Table output component tests', () => {
             }
         ];
 
-        const wrapper = mount(<TableOutputComponent {...tableOutputComponentProps} />);
+        const { container } = render(<TableOutputComponent {...tableOutputComponentProps} ref={ref} />);
+        expect(tableComponent).toBeTruthy();
+        expect(tableComponent instanceof TableOutputComponent).toBe(true);
+        const table: TableOutputComponent = tableComponent;
+        act(() => {
+            // fire events that update state
+            table.setState(
+                {tableColumns: tableOutputComponentState}
+            );
+          });
 
-        wrapper.setState(
-            {tableColumns: tableOutputComponentState}
-        );
-
-        expect(wrapper.contains(<TableOutputComponent {...tableOutputComponentProps} />)).toBe(true);
-        expect(wrapper.state('tableColumns')).toEqual(tableOutputComponentState);
         // Renders with provided props
-        expect(wrapper.props().backgroundTheme).toEqual('light');
-        expect(wrapper.props().tooltipComponent).toEqual(null);
-        expect(wrapper.props().style).toEqual({
+        expect(table.state.tableColumns).toEqual(tableOutputComponentState);
+        expect(table.props.backgroundTheme).toEqual('light');
+        expect(table.props.tooltipComponent).toEqual(null);
+        expect(table.props.style).toEqual({
             width: 0,
             height: 0,
             rowHeight: 0,
@@ -99,9 +109,7 @@ describe('Table output component tests', () => {
             componentLeft: 0,
             chartOffset: 0
         });
-
-        // Instance of AgGrid is present when you render TableOutputComponent
-        expect(wrapper.find(AgGridReact).length).toEqual(1);
+        expect(container).toMatchSnapshot();
     });
 
     const mockOnFilterChange = jest.fn();

@@ -1,8 +1,8 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`Table output component tests Cell renderer 1`] = `"test cell"`;
+exports[`<TableOutputComponent /> Cell renderer 1`] = `"test cell"`;
 
-exports[`Table output component tests Cell renderer with search selection 1`] = `
+exports[`<TableOutputComponent /> Cell renderer with search selection 1`] = `
 Array [
   <span>
     <span
@@ -21,7 +21,7 @@ Array [
 ]
 `;
 
-exports[`Table output component tests Empty search filter renderer 1`] = `
+exports[`<TableOutputComponent /> Empty search filter renderer 1`] = `
 <div
   data-testid="search-filter-element-parent"
   onClick={[Function]}
@@ -52,7 +52,7 @@ exports[`Table output component tests Empty search filter renderer 1`] = `
 </div>
 `;
 
-exports[`Table output component tests Loading renderer in loading 1`] = `
+exports[`<TableOutputComponent /> Loading renderer in loading 1`] = `
 <svg
   aria-hidden="true"
   className="svg-inline--fa fa-spinner fa-w-16 "
@@ -72,4 +72,531 @@ exports[`Table output component tests Loading renderer in loading 1`] = `
 </svg>
 `;
 
-exports[`Table output component tests Loading renderer not loading 1`] = `"test cell"`;
+exports[`<TableOutputComponent /> Loading renderer not loading 1`] = `"test cell"`;
+
+exports[`<TableOutputComponent /> Renders AG-Grid table with provided props & state 1`] = `
+<div>
+  <div
+    class="output-container undefined"
+    data-for="tooltip-component"
+    data-tip=""
+    id="00"
+    style="width: 0px; height: 0px;"
+    tabindex="-1"
+  >
+    <div
+      class="widget-handle-with-options"
+      id="00handle"
+      style="width: 30px; height: 0px;"
+    >
+      <button
+        class="remove-component-button"
+      >
+        <svg
+          aria-hidden="true"
+          class="svg-inline--fa fa-times fa-w-11 "
+          data-icon="times"
+          data-prefix="fas"
+          focusable="false"
+          role="img"
+          viewBox="0 0 352 512"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            d="M242.72 256l100.07-100.07c12.28-12.28 12.28-32.19 0-44.48l-22.24-22.24c-12.28-12.28-32.19-12.28-44.48 0L176 189.28 75.93 89.21c-12.28-12.28-32.19-12.28-44.48 0L9.21 111.45c-12.28 12.28-12.28 32.19 0 44.48L109.28 256 9.21 356.07c-12.28 12.28-12.28 32.19 0 44.48l22.24 22.24c12.28 12.28 32.2 12.28 44.48 0L176 322.72l100.07 100.07c12.28 12.28 32.2 12.28 44.48 0l22.24-22.24c12.28-12.28 12.28-32.19 0-44.48L242.72 256z"
+            fill="currentColor"
+          />
+        </svg>
+      </button>
+      <div
+        class="options-menu-container"
+      >
+        <button
+          class="options-menu-button"
+          title="Show View Options"
+        >
+          <svg
+            aria-hidden="true"
+            class="svg-inline--fa fa-bars fa-w-14 "
+            data-icon="bars"
+            data-prefix="fas"
+            focusable="false"
+            role="img"
+            viewBox="0 0 448 512"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              d="M16 132h416c8.837 0 16-7.163 16-16V76c0-8.837-7.163-16-16-16H16C7.163 60 0 67.163 0 76v40c0 8.837 7.163 16 16 16zm0 160h416c8.837 0 16-7.163 16-16v-40c0-8.837-7.163-16-16-16H16c-8.837 0-16 7.163-16 16v40c0 8.837 7.163 16 16 16zm0 160h416c8.837 0 16-7.163 16-16v-40c0-8.837-7.163-16-16-16H16c-8.837 0-16 7.163-16 16v40c0 8.837 7.163 16 16 16z"
+              fill="currentColor"
+            />
+          </svg>
+        </button>
+      </div>
+      <div
+        class="title-bar-label"
+        title=""
+      >
+        <span />
+        <span
+          class="hidden-ellipsis"
+        >
+          ...
+        </span>
+        <i
+          class="fa fa-refresh fa-spin"
+          id="00handleSpinner"
+          style="margin-top: 5px; visibility: hidden;"
+        />
+      </div>
+    </div>
+    <div
+      class="main-output-container"
+      style="width: -30px; height: 0px;"
+    >
+      <div
+        class="ag-theme-balham"
+        id="00focusContainer"
+        style="height: 0px; width: 0px; display: flex; flex-direction: column;"
+        tabindex="-1"
+      >
+        <div
+          style="height: 100%;"
+        >
+          <!-- AG Grid -->
+          <div
+            class="ag-root-wrapper ag-ltr ag-layout-normal"
+            role="presentation"
+          >
+            <div
+              class="ag-root-wrapper-body ag-focus-managed ag-layout-normal"
+              role="presentation"
+            >
+              <div
+                class="ag-tab-guard ag-tab-guard-top"
+                role="presentation"
+                tabindex="0"
+              />
+              <!-- AG Grid Body -->
+              <div
+                aria-colcount="0"
+                aria-rowcount="-1"
+                class="ag-root ag-unselectable ag-layout-normal"
+                role="grid"
+              >
+                <div
+                  class="ag-header ag-pivot-off"
+                  role="presentation"
+                  style="height: 33px; min-height: 33px;"
+                >
+                  <div
+                    class="ag-pinned-left-header ag-hidden"
+                    role="presentation"
+                    style="width: 0px; min-width: 0px; max-width: 0px;"
+                  >
+                    <div
+                      aria-rowindex="1"
+                      class="ag-header-row ag-header-row-column"
+                      role="row"
+                      style="height: 32px; top: 0px; width: 0px;"
+                    />
+                  </div>
+                  <div
+                    class="ag-header-viewport "
+                    role="presentation"
+                  >
+                    <div
+                      class="ag-header-container"
+                      role="rowgroup"
+                      style="width: 0px;"
+                    >
+                      <div
+                        aria-rowindex="1"
+                        class="ag-header-row ag-header-row-column"
+                        role="row"
+                        style="height: 32px; top: 0px; width: 0px;"
+                      />
+                    </div>
+                  </div>
+                  <div
+                    class="ag-pinned-right-header ag-hidden"
+                    role="presentation"
+                    style="width: 0px; min-width: 0px; max-width: 0px;"
+                  >
+                    <div
+                      aria-rowindex="1"
+                      class="ag-header-row ag-header-row-column"
+                      role="row"
+                      style="height: 32px; top: 0px; width: 0px;"
+                    />
+                  </div>
+                </div>
+                <!-- AG Pinned Top -->
+                <div
+                  class="ag-floating-top"
+                  role="presentation"
+                  style="height: 0px; min-height: 0; display: none; overflow-y: hidden;"
+                >
+                  <!-- AG Row Container topLeft -->
+                  <div
+                    class="ag-pinned-left-floating-top ag-hidden"
+                    role="presentation"
+                  />
+                  <!-- AG Row Container topCenter -->
+                  <div
+                    class="ag-floating-top-viewport"
+                    role="presentation"
+                  >
+                    <div
+                      class="ag-floating-top-container"
+                      role="presentation"
+                      style="width: 0px;"
+                    />
+                  </div>
+                  <!-- AG Row Container topRight -->
+                  <div
+                    class="ag-pinned-right-floating-top ag-hidden"
+                    role="presentation"
+                  />
+                  <!-- AG Row Container topFullWidth -->
+                  <div
+                    class="ag-floating-top-full-width-container"
+                    role="presentation"
+                  />
+                </div>
+                <!-- AG Middle -->
+                <div
+                  class="ag-body-viewport ag-row-no-animation ag-layout-normal"
+                  role="presentation"
+                >
+                  <!-- AG Row Container left -->
+                  <div
+                    class="ag-pinned-left-cols-container ag-hidden"
+                    role="presentation"
+                    style="height: 1px;"
+                  />
+                  <!-- AG Row Container center -->
+                  <div
+                    class="ag-center-cols-clipper"
+                    role="presentation"
+                    style="height: 1px;"
+                  >
+                    <div
+                      class="ag-center-cols-viewport"
+                      role="presentation"
+                      style="height: 100%;"
+                    >
+                      <div
+                        class="ag-center-cols-container"
+                        role="presentation"
+                        style="height: 1px; width: 0px;"
+                      />
+                    </div>
+                  </div>
+                  <!-- AG Row Container right -->
+                  <div
+                    class="ag-pinned-right-cols-container ag-hidden"
+                    role="presentation"
+                    style="height: 1px;"
+                  />
+                  <!-- AG Row Container fullWidth -->
+                  <div
+                    class="ag-full-width-container"
+                    role="presentation"
+                    style="height: 1px;"
+                  />
+                </div>
+                <!-- AG Sticky Top -->
+                <div
+                  class="ag-sticky-top"
+                  role="presentation"
+                  style="height: 0px; top: 33px; width: 100%;"
+                >
+                  <!-- AG Row Container stickyTopLeft -->
+                  <div
+                    class="ag-pinned-left-sticky-top ag-hidden"
+                    role="presentation"
+                  />
+                  <!-- AG Row Container stickyTopCenter -->
+                  <div
+                    class="ag-sticky-top-viewport"
+                    role="presentation"
+                  >
+                    <div
+                      class="ag-sticky-top-container"
+                      role="presentation"
+                      style="width: 0px;"
+                    />
+                  </div>
+                  <!-- AG Row Container stickyTopRight -->
+                  <div
+                    class="ag-pinned-right-sticky-top ag-hidden"
+                    role="presentation"
+                  />
+                  <!-- AG Row Container stickyTopFullWidth -->
+                  <div
+                    class="ag-sticky-top-full-width-container"
+                    role="presentation"
+                  />
+                </div>
+                <!-- AG Pinned Bottom -->
+                <div
+                  class="ag-floating-bottom"
+                  role="presentation"
+                  style="height: 0px; min-height: 0; display: none; overflow-y: hidden;"
+                >
+                  <!-- AG Row Container bottomLeft -->
+                  <div
+                    class="ag-pinned-left-floating-bottom ag-hidden"
+                    role="presentation"
+                  />
+                  <!-- AG Row Container bottomCenter -->
+                  <div
+                    class="ag-floating-bottom-viewport"
+                    role="presentation"
+                  >
+                    <div
+                      class="ag-floating-bottom-container"
+                      role="presentation"
+                      style="width: 0px;"
+                    />
+                  </div>
+                  <!-- AG Row Container bottomRight -->
+                  <div
+                    class="ag-pinned-right-floating-bottom ag-hidden"
+                    role="presentation"
+                  />
+                  <!-- AG Row Container bottomFullWidth -->
+                  <div
+                    class="ag-floating-bottom-full-width-container"
+                    role="presentation"
+                  />
+                </div>
+                <!-- AG Fake Horizontal Scroll -->
+                <div
+                  aria-hidden="true"
+                  class="ag-body-horizontal-scroll ag-hidden"
+                  style="height: 0px; max-height: 0px; min-height: 0px;"
+                >
+                  
+            
+                  <div
+                    class="ag-horizontal-left-spacer"
+                    ref="eLeftSpacer"
+                    style="width: 0px; max-width: 0px; min-width: 0px;"
+                  />
+                  
+            
+                  <div
+                    class="ag-body-horizontal-scroll-viewport"
+                    ref="eViewport"
+                    style="height: 0px; max-height: 0px; min-height: 0px;"
+                  >
+                    
+                
+                    <div
+                      class="ag-body-horizontal-scroll-container"
+                      ref="eContainer"
+                      style="height: 0px; max-height: 0px; min-height: 0px; width: 0px;"
+                    />
+                    
+            
+                  </div>
+                  
+            
+                  <div
+                    class="ag-horizontal-right-spacer"
+                    ref="eRightSpacer"
+                    style="width: 0px; max-width: 0px; min-width: 0px;"
+                  />
+                  
+        
+                </div>
+                <!-- AG Overlay Wrapper -->
+                <div
+                  aria-hidden="true"
+                  class="ag-overlay ag-hidden"
+                >
+                  
+            
+                  <div
+                    class="ag-overlay-panel"
+                  >
+                    
+                
+                    <div
+                      class="ag-overlay-wrapper ag-layout-normal"
+                      ref="eOverlayWrapper"
+                    />
+                    
+            
+                  </div>
+                  
+        
+                </div>
+              </div>
+              <div
+                class="ag-tab-guard ag-tab-guard-bottom"
+                role="presentation"
+                tabindex="0"
+              />
+            </div>
+            <div
+              class="ag-paging-panel ag-unselectable ag-hidden"
+              id="ag-2"
+            >
+              
+                
+              <span
+                class="ag-paging-row-summary-panel"
+                role="status"
+              >
+                
+                    
+                <span
+                  class="ag-paging-row-summary-panel-number"
+                  id="ag-2-first-row"
+                  ref="lbFirstRowOnPage"
+                />
+                
+                    
+                <span
+                  id="ag-2-to"
+                >
+                  to
+                </span>
+                
+                    
+                <span
+                  class="ag-paging-row-summary-panel-number"
+                  id="ag-2-last-row"
+                  ref="lbLastRowOnPage"
+                />
+                
+                    
+                <span
+                  id="ag-2-of"
+                >
+                  of
+                </span>
+                
+                    
+                <span
+                  class="ag-paging-row-summary-panel-number"
+                  id="ag-2-row-count"
+                  ref="lbRecordCount"
+                />
+                
+                
+              </span>
+              
+                
+              <span
+                class="ag-paging-page-summary-panel"
+                role="presentation"
+              >
+                
+                    
+                <div
+                  aria-label="First Page"
+                  class="ag-paging-button"
+                  ref="btFirst"
+                  role="button"
+                >
+                  <span
+                    class="ag-icon ag-icon-first"
+                    role="presentation"
+                    unselectable="on"
+                  />
+                </div>
+                
+                    
+                <div
+                  aria-label="Previous Page"
+                  class="ag-paging-button"
+                  ref="btPrevious"
+                  role="button"
+                >
+                  <span
+                    class="ag-icon ag-icon-previous"
+                    role="presentation"
+                    unselectable="on"
+                  />
+                </div>
+                
+                    
+                <span
+                  class="ag-paging-description"
+                  role="status"
+                >
+                  
+                        
+                  <span
+                    id="ag-2-start-page"
+                  >
+                    Page
+                  </span>
+                  
+                        
+                  <span
+                    class="ag-paging-number"
+                    id="ag-2-start-page-number"
+                    ref="lbCurrent"
+                  />
+                  
+                        
+                  <span
+                    id="ag-2-of-page"
+                  >
+                    of
+                  </span>
+                  
+                        
+                  <span
+                    class="ag-paging-number"
+                    id="ag-2-of-page-number"
+                    ref="lbTotal"
+                  />
+                  
+                    
+                </span>
+                
+                    
+                <div
+                  aria-label="Next Page"
+                  class="ag-paging-button"
+                  ref="btNext"
+                  role="button"
+                >
+                  <span
+                    class="ag-icon ag-icon-next"
+                    role="presentation"
+                    unselectable="on"
+                  />
+                </div>
+                
+                    
+                <div
+                  aria-label="Last Page"
+                  class="ag-paging-button"
+                  ref="btLast"
+                  role="button"
+                >
+                  <span
+                    class="ag-icon ag-icon-last"
+                    role="presentation"
+                    unselectable="on"
+                  />
+                </div>
+                
+                
+              </span>
+              
+            
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+`;
