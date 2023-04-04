@@ -1,15 +1,26 @@
 import * as React from 'react';
-import { cleanup } from '@testing-library/react';
-import { mount } from 'enzyme';
+import { cleanup, render, renderHook } from '@testing-library/react';
 import { TimeAxisComponent } from '../time-axis-component';
 import { TimeGraphUnitController } from 'timeline-chart/lib/time-graph-unit-controller';
 import { OutputComponentStyle } from '../output-component-style';
 
-afterEach(cleanup);
-
 describe('Time axis component', () => {
-  // Skip until a replacement for Enzyme that works with React 18 is found
-  it.skip('renders with provided style', () => {
+
+  let axisComponent: any;
+    const ref = (el: TimeAxisComponent | undefined | null): void => {
+      axisComponent = el;
+    };
+
+  beforeEach(() => {
+    axisComponent = null;
+  });
+
+  afterEach(() => {
+    cleanup();
+    jest.clearAllMocks();
+  });
+
+  it('renders with provided style', () => {
     const unitController: TimeGraphUnitController = new TimeGraphUnitController(BigInt(10), { start: BigInt(0), end: BigInt(10)});
     const style: OutputComponentStyle = {
       width: 600,
@@ -22,13 +33,12 @@ describe('Time axis component', () => {
       cursorColor: 0x259fd8,
       lineColor: 0x757575,
     }
-
-    const wrapper = mount(<TimeAxisComponent unitController={unitController} style={{...style, verticalAlign: 'bottom' }} addWidgetResizeHandler={() => null} removeWidgetResizeHandler={() => null}/>);
-    expect(wrapper.contains(<TimeAxisComponent unitController={unitController} style={{...style, verticalAlign: 'bottom' }} addWidgetResizeHandler={() => null} removeWidgetResizeHandler={() => null}/>));
+    render(<div><TimeAxisComponent unitController={unitController} style={{...style, verticalAlign: 'bottom' }} addWidgetResizeHandler={() => null} removeWidgetResizeHandler={() => null} ref={ref}/></div>);
+    expect(axisComponent).toBeTruthy();
+    expect(axisComponent instanceof TimeAxisComponent).toBe(true);
   });
 
-  // Skip until a replacement for Enzyme that works with React 18 is found
-  it.skip('creates canvas', () => {
+  it('creates canvas', () => {
     const unitController: TimeGraphUnitController = new TimeGraphUnitController(BigInt(10), { start: BigInt(0), end: BigInt(10)});
     const style: OutputComponentStyle = {
       width: 600,
@@ -42,7 +52,7 @@ describe('Time axis component', () => {
       lineColor: 0x757575
     }
 
-    const wrapper = mount(<TimeAxisComponent unitController={unitController} style={{...style, verticalAlign: 'bottom' }} addWidgetResizeHandler={() => null} removeWidgetResizeHandler={() => null}/>);
-    expect(wrapper.find('canvas')).toHaveLength(1);
+    const { container } = render(<div><TimeAxisComponent unitController={unitController} style={{...style, verticalAlign: 'bottom' }} addWidgetResizeHandler={() => null} removeWidgetResizeHandler={() => null}/></div>);
+    expect(container).toMatchSnapshot();
   });
 });
