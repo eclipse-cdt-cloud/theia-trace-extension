@@ -26,7 +26,7 @@ export class TooltipComponent extends React.Component<unknown, TooltipComponentS
     }
 
     render(): React.ReactNode {
-        return <div
+        return <div role={ 'tooltip-component-role' }
             onMouseEnter={() => {
                 if (this.timerId) {
                     clearTimeout(this.timerId);

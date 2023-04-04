@@ -1,9 +1,6 @@
 import * as React from 'react';
-import { cleanup } from '@testing-library/react';
-import { mount } from 'enzyme';
+import { cleanup, fireEvent, render, screen } from '@testing-library/react';
 import { TooltipComponent } from '../tooltip-component';
-
-afterEach(cleanup);
 
 const model = {
   id: '123',
@@ -14,12 +11,49 @@ const tooltip = new TooltipComponent(10);
 tooltip.setState = jest.fn();
 
 describe('Tooltip component', () => {
-  // Skip until a replacement for Enzyme that works with React 18 is found
-  it.skip('renders itself', () => {
-    const wrapper = mount(<TooltipComponent />);
 
-    expect(wrapper.contains(<TooltipComponent />)).toBe(true);
+  let axisComponent: any;
+  const ref = (el: TooltipComponent | undefined | null): void => {
+    axisComponent = el;
+  };
+
+  beforeEach(() => {
+    axisComponent = null;
   });
+
+  afterEach(() => {
+    cleanup();
+    jest.clearAllMocks();
+  });
+
+  /*
+   * Skip due to issues with TooltipComponent:
+   *
+   * react-tooltip v4.2.14 works in the application but causes an exception
+   * in tests (https://github.com/ReactTooltip/react-tooltip/issues/681),
+   * which is fixed in v4.2.17. However, version v4.2.17 breaks the tooltip
+   * when running in the application.
+   */
+  it.skip('renders itself', () => {
+    render(<TooltipComponent />);
+    expect(axisComponent).toBeTruthy();
+    expect(axisComponent instanceof TooltipComponent).toBe(true);
+  });
+
+  // Skip due to issues with TooltipComponent (see above for details)
+  it.skip('resets timer on mouse enter', () => {
+      tooltip.state = {
+        element: model,
+        func: undefined,
+        content: 'Test'
+      }
+      render(<TooltipComponent />);
+      const component = screen.getByRole('tooltip-component-role');
+      fireEvent.mouseEnter(component);
+      fireEvent.mouseLeave(component);
+
+      expect(tooltip.setState).toBeCalledWith({ content: undefined });
+  })
 
   it('displays a tooltip for a time graph state component', () => {
     tooltip.state = {
@@ -51,20 +85,6 @@ describe('Tooltip component', () => {
       content: undefined
     }
     tooltip.setElement(undefined);
-    
-    expect(tooltip.setState).toBeCalledWith({ content: undefined });
-  })
-
-  // Skip until a replacement for Enzyme that works with React 18 is found
-  it.skip('resets timer on mouse enter', () => {
-    tooltip.state = {
-      element: model,
-      func: undefined,
-      content: 'Test'
-    }
-    const wrapper = mount(<TooltipComponent />);
-    wrapper.simulate('mouseenter');
-    wrapper.simulate('mouseleave');
     
     expect(tooltip.setState).toBeCalledWith({ content: undefined });
   })
