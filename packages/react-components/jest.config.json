@@ -21,7 +21,6 @@
         "./jest-shim.ts"
     ],
     "setupFilesAfterEnv": [
-        "jest-canvas-mock",
-        "./jestSetup.ts"
+        "jest-canvas-mock"
     ]
 }
