@@ -1,29 +1,25 @@
 import * as React from 'react';
-import { cleanup } from '@testing-library/react';
+import { cleanup, render } from '@testing-library/react';
 import { TimeNavigatorComponent } from '../time-navigator-component';
 import { TimeGraphUnitController } from 'timeline-chart/lib/time-graph-unit-controller';
-import { mount } from 'enzyme';
-
-afterEach(cleanup);
 
 describe('Time axis component', () => {
-  // Skip until a replacement for Enzyme that works with React 18 is found
-  it.skip('renders with provided style', () => {
-    const unitController: TimeGraphUnitController = new TimeGraphUnitController(BigInt(10), { start: BigInt(0), end: BigInt(10)});
-    const style = {
-      width: 600,
-      chartOffset: 200,
-      naviBackgroundColor: 0xf4f7fb,
-      cursorColor: 0x259fd8,
-      lineColor: 0x757575
-    }
 
-    const wrapper = mount(<TimeNavigatorComponent unitController={unitController} style={style} addWidgetResizeHandler={() => null} removeWidgetResizeHandler={() => null}/>);
-    expect(wrapper.contains(<TimeNavigatorComponent unitController={unitController} style={style} addWidgetResizeHandler={() => null} removeWidgetResizeHandler={() => null}/>));
+  let axisComponent: any;
+  const ref = (el: TimeNavigatorComponent | undefined | null): void => {
+    axisComponent = el;
+  };
+
+  beforeEach(() => {
+    axisComponent = null;
   });
 
-  // Skip until a replacement for Enzyme that works with React 18 is found
-  it.skip('creates canvas', () => {
+  afterEach(() => {
+    cleanup();
+    jest.clearAllMocks();
+  });
+
+  it('renders with provided style', () => {
     const unitController: TimeGraphUnitController = new TimeGraphUnitController(BigInt(10), { start: BigInt(0), end: BigInt(10)});
     const style = {
       width: 600,
@@ -33,7 +29,22 @@ describe('Time axis component', () => {
       lineColor: 0x757575
     }
 
-    const wrapper = mount(<TimeNavigatorComponent unitController={unitController} style={style} addWidgetResizeHandler={() => null} removeWidgetResizeHandler={() => null}/>);
-    expect(wrapper.find('canvas')).toHaveLength(1);
+    render(<div><TimeNavigatorComponent unitController={unitController} style={style} addWidgetResizeHandler={() => null} removeWidgetResizeHandler={() => null} ref={ref}/></div>);
+    expect(axisComponent).toBeTruthy();
+    expect(axisComponent instanceof TimeNavigatorComponent).toBe(true);
+  });
+
+  it('creates canvas', () => {
+    const unitController: TimeGraphUnitController = new TimeGraphUnitController(BigInt(10), { start: BigInt(0), end: BigInt(10)});
+    const style = {
+      width: 600,
+      chartOffset: 200,
+      naviBackgroundColor: 0xf4f7fb,
+      cursorColor: 0x259fd8,
+      lineColor: 0x757575
+    }
+
+    const { container} = render(<div><TimeNavigatorComponent unitController={unitController} style={style} addWidgetResizeHandler={() => null} removeWidgetResizeHandler={() => null} ref={ref}/></div>);
+    expect(container).toMatchSnapshot();
   });
 });
