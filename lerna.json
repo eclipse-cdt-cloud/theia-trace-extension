@@ -7,5 +7,6 @@
     "run": {
       "stream": true
     }
-  }
+  },
+  "verifyAccess": false
 }
