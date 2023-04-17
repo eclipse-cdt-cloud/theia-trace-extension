@@ -3,10 +3,10 @@ import { ReactWidget } from '@theia/core/lib/browser';
 import * as React from 'react';
 import { CommandService } from '@theia/core';
 import { OpenTraceCommand } from '../../trace-viewer/trace-viewer-commands';
+import {ReactExplorerPlaceholderWidget} from 'traceviewer-react-components/lib/trace-explorer/trace-explorer-placeholder-widget';
 
 @injectable()
 export class TraceExplorerPlaceholderWidget extends ReactWidget {
-
     static ID = 'trace-explorer-placeholder-widget';
     static LABEL = 'Trace Explorer Placeholder Widget';
 
@@ -29,22 +29,12 @@ export class TraceExplorerPlaceholderWidget extends ReactWidget {
 
     render(): React.ReactNode {
         const { loading } = this.state;
-        return <div className='theia-navigator-container' tabIndex={0}>
-            <div className='center'>{'You have not yet opened a trace.'}</div>
-            <div className='open-workspace-button-container'>
-                <button className='theia-button open-workspace-button' title='Select a trace to open'
-                    onClick={this.handleOpenTrace} disabled={loading}>
-                    {loading && (
-                        <i
-                            className='fa fa-refresh fa-spin'
-                            style={{ marginRight: '5px' }}
-                        />
-                    )}
-                    {loading && <span>Connecting to trace server</span>}
-                    {!loading && <span>Open Trace</span>}
-                </button>
-            </div>
-        </div>;
+        return (
+            <ReactExplorerPlaceholderWidget
+                loading={loading}
+                handleOpenTrace={this.handleOpenTrace}
+            ></ReactExplorerPlaceholderWidget>
+        );
     }
 
     protected handleOpenTrace = async (): Promise<void> => this.doHandleOpenTrace();
