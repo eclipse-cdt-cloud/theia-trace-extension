@@ -3,7 +3,7 @@ import { TraceExplorerViewsWidget } from './trace-explorer-sub-widgets/theia-tra
 import { ViewContainer, BaseWidget, Message, PanelLayout } from '@theia/core/lib/browser';
 import { TraceExplorerItemPropertiesWidget } from './trace-explorer-sub-widgets/theia-trace-explorer-properties-widget';
 import { TraceExplorerOpenedTracesWidget } from './trace-explorer-sub-widgets/theia-trace-explorer-opened-traces-widget';
-import { TraceExplorerPlaceholderWidget } from './trace-explorer-sub-widgets/trace-explorer-placeholder-widget';
+import { TraceExplorerPlaceholderWidget } from './trace-explorer-sub-widgets/theia-trace-explorer-placeholder-widget';
 import { TraceExplorerServerStatusWidget } from './trace-explorer-sub-widgets/trace-explorer-server-status-widget';
 import { signalManager, Signals } from 'traceviewer-base/lib/signals/signal-manager';
 import { OpenedTracesUpdatedSignalPayload } from 'traceviewer-base/lib/signals/opened-traces-updated-signal-payload';

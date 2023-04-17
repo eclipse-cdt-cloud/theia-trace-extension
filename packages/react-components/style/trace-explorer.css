@@ -303,3 +303,35 @@
     margin-bottom: 2px;
     margin-right: 10px;
 }
+
+.placeholder-container {
+    font-size: var(--theia-ui-font-size1);
+    padding: 5px;
+    position: relative;
+}
+
+.placeholder-container .center {
+    text-align: center;
+}
+
+.placeholder-open-workspace-button-container {
+    margin: auto;
+    margin-top: 5px;
+    display: flex;
+    justify-content: center;
+    align-self: center;
+}
+
+.plcaeholder-open-workspace-button {
+    padding: 4px 12px;
+    margin-left: 0;
+    width: calc(100% - var(--theia-ui-padding)*4);
+    background: var(--theia-button-background);
+    border: none;
+    color: var(--theia-button-foreground);
+    min-width: 65px;
+    outline: none;
+    cursor: pointer;
+    padding: 4px 9px;
+    margin-left: calc(var(--theia-ui-padding)*2);
+}
