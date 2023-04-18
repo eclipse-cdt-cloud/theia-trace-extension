@@ -13,6 +13,8 @@ import ColumnHeader from './utils/filter-tree/column-header';
 import debounce from 'lodash.debounce';
 import { signalManager } from 'traceviewer-base/lib/signals/signal-manager';
 import '../../style/react-contextify.css';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faSpinner } from '@fortawesome/free-solid-svg-icons';
 
 type DataTreeOutputProps = AbstractOutputProps & {
 };
@@ -124,7 +126,11 @@ export class DataTreeOutputComponent extends AbstractOutputComponent<AbstractOut
                 </div>
                 :
                 <div tabIndex={0} id={this.props.traceId + this.props.outputDescriptor.id + 'focusContainer'} className='analysis-running-main-area'>
-                    <i className='fa fa-refresh fa-spin' style={{ marginRight: '5px' }} />
+                    <FontAwesomeIcon
+                        icon={faSpinner}
+                        spin
+                        style={{ marginRight: '5px' }}
+                    />
                     <span>Analysis running</span>
                 </div>
             }

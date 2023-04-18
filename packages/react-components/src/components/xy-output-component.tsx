@@ -8,6 +8,8 @@ import { scaleLinear } from 'd3-scale';
 import { AbstractXYOutputComponent, AbstractXYOutputState, FLAG_PAN_LEFT, FLAG_PAN_RIGHT, FLAG_ZOOM_IN, FLAG_ZOOM_OUT, MouseButton } from './abstract-xy-output-component';
 import { TimeRange } from 'traceviewer-base/src/utils/time-range';
 import { validateNumArray } from './utils/filter-tree/utils';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faSpinner } from '@fortawesome/free-solid-svg-icons';
 
 export class XYOutputComponent extends AbstractXYOutputComponent<AbstractOutputProps, AbstractXYOutputState> {
     private mousePanningStart = BigInt(0);
@@ -64,7 +66,11 @@ export class XYOutputComponent extends AbstractXYOutputComponent<AbstractOutputP
                     style={{ width: this.getChartWidth() }}
                 >
                     <div>
-                        <i className='fa fa-refresh fa-spin' style={{ marginRight: '5px' }} />
+                        <FontAwesomeIcon
+                            icon={faSpinner}
+                            spin
+                            style={{ marginRight: '5px' }}
+                        />
                         <span>Analysis running</span>
                     </div>
                 </div>
