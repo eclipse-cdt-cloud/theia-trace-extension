@@ -95,7 +95,7 @@ export class DataTreeOutputComponent extends AbstractOutputComponent<AbstractOut
             ? <div
                 tabIndex={0}
                 id={this.props.traceId + this.props.outputDescriptor.id + 'focusContainer'}
-                className='scrollable' style={{ height: this.props.style.height, width: this.getMainAreaWidth() }}
+                className='scrollable' style={{ height: this.props.style.height }}
             >
                 <EntryTree
                     entries={this.state.xyTree}
@@ -114,11 +114,13 @@ export class DataTreeOutputComponent extends AbstractOutputComponent<AbstractOut
     renderMainArea(): React.ReactNode {
         return <React.Fragment>
             {this.state.outputStatus === ResponseStatus.COMPLETED ?
-                <div ref={this.treeRef} className='output-component-tree disable-select'
-                    style={{ height: this.props.style.height, width: this.props.outputWidth }}
-                >
+                <div>
                     {this.renderContextMenu()}
-                    {this.renderTree()}
+                    <div ref={this.treeRef} className='output-component-tree disable-select'
+                        style={{ height: this.props.style.height, width: this.props.outputWidth - this.getHandleWidth() }}
+                    >
+                        {this.renderTree()}
+                    </div>
                 </div>
                 :
                 <div tabIndex={0} id={this.props.traceId + this.props.outputDescriptor.id + 'focusContainer'} className='analysis-running-main-area'>
