@@ -2,7 +2,7 @@ import * as React from 'react';
 import { OutputDescriptor } from 'tsp-typescript-client/lib/models/output-descriptor';
 import { TspClient } from 'tsp-typescript-client/lib/protocol/tsp-client';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faBars, faTimes } from '@fortawesome/free-solid-svg-icons';
+import { faBars, faSpinner, faThumbtack, faTimes } from '@fortawesome/free-solid-svg-icons';
 import { TimeGraphUnitController } from 'timeline-chart/lib/time-graph-unit-controller';
 import { TimeRange } from 'traceviewer-base/lib/utils/time-range';
 import { OutputComponentStyle } from './utils/output-component-style';
@@ -125,9 +125,13 @@ export abstract class AbstractOutputComponent<P extends AbstractOutputProps, S e
             <div ref={this.titleBarLabelRef} className='title-bar-label' title={outputTooltip} onClick={() => this.setFocus()}>
                 <span ref={this.titleRef}>{outputName}</span>
                 <span className={titleOverflown}>...</span>
-                <i id={this.getOutputComponentDomId() + 'handleSpinner'} className='fa fa-refresh fa-spin'
-                    style={{ marginTop: '5px', visibility: 'hidden'}} />
-                {this.props.pinned === true && <i title='Pinned View' className='fa fa-thumb-tack pin-view-icon' />}
+                <FontAwesomeIcon
+                    id={this.getOutputComponentDomId() + 'handleSpinner'}
+                    icon={faSpinner}
+                    spin
+                    style={{ marginTop: '5px', visibility: 'hidden'}}
+                />
+                {this.props.pinned === true && <FontAwesomeIcon icon={faThumbtack} title='Pinned View' className='pin-view-icon'/>}
             </div>
         </React.Fragment>;
     }

@@ -7,6 +7,8 @@ import { AbstractXYOutputState, MouseButton } from './abstract-xy-output-compone
 import { AbstractXYOutputComponent, FLAG_PAN_LEFT, FLAG_PAN_RIGHT, FLAG_ZOOM_IN, FLAG_ZOOM_OUT, XY_OUTPUT_KEY_ACTIONS } from './abstract-xy-output-component';
 import { Experiment } from 'tsp-typescript-client';
 import { TraceOverviewSelectionDialogComponent } from './trace-overview-selection-dialog-component';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faSpinner } from '@fortawesome/free-solid-svg-icons';
 
 const COLOR = {
     SELECTION_RANGE: '#259fd8',
@@ -88,7 +90,11 @@ export class XYOutputOverviewComponent extends AbstractXYOutputComponent<XYOutpu
                     style={{ width: this.getChartWidth() }}
                 >
                     <div>
-                        <i className='fa fa-refresh fa-spin' style={{ marginRight: '5px' }} />
+                        <FontAwesomeIcon
+                            icon={faSpinner}
+                            spin
+                            style={{ marginRight: '5px' }}
+                        />
                         <span> Analysis running </span>
                     </div>
                 </div>

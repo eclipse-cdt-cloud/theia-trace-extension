@@ -30,6 +30,8 @@ import { TimeGraphAnnotationComponent } from 'timeline-chart/lib/components/time
 import { Entry } from 'tsp-typescript-client';
 import { isEqual } from 'lodash';
 import { convertColorStringToHexNumber } from 'traceviewer-base/lib/utils/convert-color-string-to-hex';
+import { faSpinner } from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 type TimegraphOutputProps = AbstractOutputProps & {
     addWidgetResizeHandler: (handler: () => void) => void;
@@ -436,8 +438,9 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
                 </div> :
                 <div className='analysis-running'>
                     {(
-                        <i
-                            className='fa fa-refresh fa-spin'
+                        <FontAwesomeIcon
+                            icon={faSpinner}
+                            spin
                             style={{ marginRight: '5px' }}
                         />
                     )}
