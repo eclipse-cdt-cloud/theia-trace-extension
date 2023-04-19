@@ -21,7 +21,8 @@
     "lint": "lerna run lint",
     "test": "lerna run test --",
     "publish:latest": "lerna publish --registry=https://registry.npmjs.org/ --exact --no-git-tag-version --no-push",
-    "publish:next": "lerna publish --registry=https://registry.npmjs.org/ --exact --canary minor --preid=next.$(git rev-parse --short HEAD) --dist-tag=next --no-git-tag-version --no-push --yes"
+    "publish:next": "lerna publish --registry=https://registry.npmjs.org/ --exact --canary minor --preid=next.$(git rev-parse --short HEAD) --dist-tag=next --no-git-tag-version --no-push --yes",
+    "format": "prettier \"./**/*.{ts,tsx}\" --write"
   },
   "keywords": [
     "theia-extension",
@@ -48,7 +49,8 @@
     "@theia/cli": "1.34.2",
     "jsonc-parser": "^3.0.0",
     "lerna": "^4.0.0",
-    "typescript": "4.5.5"
+    "typescript": "4.5.5",
+    "prettier": "^2.1.5"
   },
   "workspaces": [
     "examples/*",
