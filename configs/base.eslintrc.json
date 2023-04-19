@@ -7,19 +7,13 @@
       "jsx": true
     }
   },
-  "plugins": [
-    "@typescript-eslint",
-    "import",
-    "no-null"
-  ],
+  "plugins": ["@typescript-eslint", "prettier", "import", "no-null"],
+  "extends": ["prettier"],
   "env": {
     "browser": true,
     "node": true
   },
-  "ignorePatterns": [
-    "node_modules",
-    "*.d.ts"
-  ],
+  "ignorePatterns": ["node_modules", "*.d.ts"],
   "rules": {
     "@typescript-eslint/no-namespace": "off"
   }
