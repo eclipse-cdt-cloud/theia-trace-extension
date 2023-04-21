@@ -46,7 +46,7 @@ Prerequisites: A GitHub account (for logging into Gitpod)
 
 If you'd like to explore your own traces, you can **[download a Theia IDE build with this trace viewer extension here][app-image]**
 
-* **Prerequisite: Java 11** (required since this tool uses the [Eclipse Trace Compass server][tc-server] which runs on Java)
+* **Prerequisite: Java 17** (required since this tool uses the [Eclipse Trace Compass server][tc-server] which runs on Java)
   * If you get a confusing error "Error opening serial port ${this.port}. (Port busy)" when you try to run the app, it's likely that Java is missing.
 * **No compilation or additional downloads necessary!** Just change the AppImage file's permissions to make it executable (command: `chmod +x <filename>`) and run it.
 
