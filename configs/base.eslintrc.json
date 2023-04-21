@@ -9,8 +9,12 @@
   },
   "plugins": [
     "@typescript-eslint",
+    "prettier",
     "import",
     "no-null"
+  ],
+  "extends": [
+    "prettier"
   ],
   "env": {
     "browser": true,

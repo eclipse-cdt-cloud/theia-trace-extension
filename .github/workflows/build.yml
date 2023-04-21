@@ -63,3 +63,5 @@ jobs:
     - run: yarn --frozen-lockfile --ignore-scripts
 
     - run: yarn lint
+
+      - run: yarn format
