@@ -33,12 +33,12 @@ Prerequisites: A GitHub account (for logging into Gitpod)
 * After logging in, it takes around a minute for Gitpod to set up the in-browser IDE used to build the project.
 * When the workspace has loaded, the project builds automatically in about a minute. Then, the workspace pops a notification saying a service (i.e. the tool) is now available. Open the application in the browser.
 ![gitpod-service-ready-notification][gitpod-service-ready-notification]
-* If you don't see a notification, follow this alternative way to [open the application](#gidpod-open-via-remote-explorer).
+* If you don't see a notification, follow this alternative way to [open the application](#gitpod-open-via-remote-explorer).
 * After opening the tool, the interface loads in a few seconds.
 * Now you're ready to try the trace viewer!
   * Head to the trace viewer tab in the left side menu to get started.
   * Click the "Open Trace" button, and then select a directory containing traces, e.g. “103compare-package-managers → apt”
-  * The tool is loaded with the example traces from a set of [Trace Visualisation Labs][tracevizlab]. To analyze your own traces, [download the application](#download-an-external-build-of-the-application) for Linux.
+  * The tool is loaded with the example traces from a set of [Trace Visualization Labs][tracevizlab]. To analyze your own traces, [download the application](#download-an-external-build-of-the-application) for Linux.
 
 ![gitpod-live-demo-setup][gitpod-live-demo-setup]
 
@@ -291,7 +291,7 @@ When the project is opened in Gitpod, it should build automatically and then pop
 
 ![gitpod-service-ready-notification][gitpod-service-ready-notification]
 
-### Gidpod: Open via Remote Explorer
+### Gitpod: Open via Remote Explorer
 
 If there is no notification, you can open the application directly in the **Remote Explorer** view.
 
