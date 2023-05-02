@@ -334,6 +334,7 @@ ADRs are [Architectural Decision Records][adr].
 * The latter also shows how to activate a Python virtual environment to locally run commands.
 * These aforementioned `adr-` commands are [meant to be executed from this root directory][tools].
 * ADRs should be preferred to [design documents][docs] for their structure and reviewability.
+* ADRs should be owned or led in terms of authoring and review; a companion prototype helps.
 
 [This script][render] is used to generate ADR's Mermaid diagram images for GitHub rendering.
 
