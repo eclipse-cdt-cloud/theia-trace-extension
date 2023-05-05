@@ -208,8 +208,8 @@ export class TraceContextComponent extends React.Component<TraceContextProps, Tr
         this.unitController.onSelectionRangeChange(range => {
             this.handleTimeSelectionChange(range);
         });
-        this.unitController.onViewRangeChanged(viewRangeParam => {
-            this.handleViewRangeChange(viewRangeParam);
+        this.unitController.onViewRangeChanged((oldRange, newRange) => {
+            this.handleViewRangeChange(oldRange, newRange);
         });
         this.tooltipComponent = React.createRef();
         this.tooltipXYComponent = React.createRef();
@@ -442,8 +442,8 @@ export class TraceContextComponent extends React.Component<TraceContextProps, Tr
         }
     }
 
-    private handleViewRangeChange(viewRange: TimelineChart.TimeGraphRange) {
-        const { start, end } = viewRange;
+    private handleViewRangeChange(oldRange: TimelineChart.TimeGraphRange, newRange: TimelineChart.TimeGraphRange) {
+        const { start, end } = newRange;
         const payload = {
             experimentUUID: this.props.experiment.UUID,
             timeRange: new TimeRange(start, end)
@@ -452,7 +452,7 @@ export class TraceContextComponent extends React.Component<TraceContextProps, Tr
 
         this.setState(
             prevState => ({
-                currentViewRange: new TimeRange(viewRange.start, viewRange.end, prevState.timeOffset)
+                currentViewRange: new TimeRange(newRange.start, newRange.end, prevState.timeOffset)
             }),
             () => this.updateHistory()
         );
