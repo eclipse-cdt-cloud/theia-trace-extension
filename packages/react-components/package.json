@@ -63,6 +63,8 @@
     "clean": "rimraf lib *.tsbuildinfo",
     "lint": "eslint .",
     "test": "jest  --config jest.config.json",
-    "watch": "tsc -b -w"
+    "watch": "tsc -b -w",
+    "format:write": "prettier --write ./src",
+    "format:check": "prettier --check ./src"
   }
 }
