@@ -38,7 +38,9 @@
     "clean": "rimraf lib *.tsbuildinfo",
     "lint": "eslint .",
     "test": "echo 'test'",
-    "watch": "tsc -w"
+    "watch": "tsc -w",
+    "format:write": "prettier --write ./src",
+    "format:check": "prettier --check ./src"
   },
   "theiaExtensions": [
     {

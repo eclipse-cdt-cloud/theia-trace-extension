@@ -37,5 +37,22 @@ module.exports = {
         projectFolderIgnoreList: [
             '/lib/'
         ]
-    }
+    },
+    overrides: [
+        {
+            // Apply rule override only to files with the following extensions
+            files: ['*.tsx', '*.jsx'],
+            rules: {
+                '@typescript-eslint/ban-types': [
+                    'error',
+                    {
+                        extendDefaults: true,
+                        types: {
+                            '{}': false,
+                        },
+                    },
+                ],
+            },
+        },
+    ]
 };

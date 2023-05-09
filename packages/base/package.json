@@ -33,7 +33,9 @@
     "clean": "rimraf lib *.tsbuildinfo",
     "lint": "eslint .",
     "test": "echo 'test'",
-    "watch": "tsc -w"
+    "watch": "tsc -w",
+    "format:write": "prettier --write ./src",
+    "format:check": "prettier --check ./src"
   },
   "gitHead": "4f93878b0ef9d58254a1f41daf99d03b4608df13"
 }
