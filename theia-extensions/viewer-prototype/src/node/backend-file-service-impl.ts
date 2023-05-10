@@ -8,22 +8,21 @@ import { FileUri } from '@theia/core/lib/node';
 
 @injectable()
 export class BackendFileServiceImpl implements BackendFileService {
-
     async writeToFile(uri: URI, data: string): Promise<string> {
         fs.writeFile(uri.path.fsPath(), data, err => {
             if (err) {
                 throw new Error(err.message);
             }
-          });
+        });
         return 'success';
     }
 
     async findTraces(path: string, cancellationToken: CancellationToken): Promise<string[]> {
         /*
-        * On Windows, Theia returns a path that starts with "/" (e.g "/c:/"), causing fsPromise.stat
-        * to fail. FileUri.fsPath returns the platform specific path of the orginal Theia path
-        * that fixes this issue.
-        */
+         * On Windows, Theia returns a path that starts with "/" (e.g "/c:/"), causing fsPromise.stat
+         * to fail. FileUri.fsPath returns the platform specific path of the orginal Theia path
+         * that fixes this issue.
+         */
         const cleanedPath = FileUri.fsPath(path);
 
         const traces: string[] = [];

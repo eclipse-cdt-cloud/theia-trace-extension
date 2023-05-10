@@ -21,40 +21,49 @@ enum Direction {
 
 export class PaginationBarComponent extends React.Component<PaginationBarProps> {
     render(): JSX.Element {
-        const currentPage = this.props.gridApi?.paginationGetCurrentPage() ? this.props.gridApi?.paginationGetCurrentPage() + 1 : 1;
+        const currentPage = this.props.gridApi?.paginationGetCurrentPage()
+            ? this.props.gridApi?.paginationGetCurrentPage() + 1
+            : 1;
         const firstRowRaw = (currentPage - 1) * this.props.paginationPageSize + 1;
         const firstRow = numberFormat(firstRowRaw);
-        const lastRow = currentPage === this.props.paginationTotalPages + 1 ?
-            numberFormat(this.props.nbEvents) :
-            numberFormat(firstRowRaw + this.props.paginationPageSize - 1);
+        const lastRow =
+            currentPage === this.props.paginationTotalPages + 1
+                ? numberFormat(this.props.nbEvents)
+                : numberFormat(firstRowRaw + this.props.paginationPageSize - 1);
 
-        return <div className='pagination-bar'>
-            <span style={{ margin: 'auto 10px auto auto'}}>
-                {firstRow} to {lastRow} of {numberFormat(this.props.nbEvents)}
-            </span>
+        return (
+            <div className="pagination-bar">
+                <span style={{ margin: 'auto 10px auto auto' }}>
+                    {firstRow} to {lastRow} of {numberFormat(this.props.nbEvents)}
+                </span>
 
-            <button className='pagination-button' onClick={() => this.paginationJumpTo(Direction.FIRST)}>
-                <FontAwesomeIcon icon={faChevronLeft} />
-                <FontAwesomeIcon icon={faChevronLeft} />
-            </button>
+                <button className="pagination-button" onClick={() => this.paginationJumpTo(Direction.FIRST)}>
+                    <FontAwesomeIcon icon={faChevronLeft} />
+                    <FontAwesomeIcon icon={faChevronLeft} />
+                </button>
 
-            <button className='pagination-button' onClick={() => this.paginationJumpTo(Direction.PREVIOUS)}>
-                <FontAwesomeIcon icon={faChevronLeft} />
-            </button>
+                <button className="pagination-button" onClick={() => this.paginationJumpTo(Direction.PREVIOUS)}>
+                    <FontAwesomeIcon icon={faChevronLeft} />
+                </button>
 
-            <span style={{ margin: 'auto 10px' }}>
-                Page {currentPage} of {this.props.paginationTotalPages + 1}
-            </span>
+                <span style={{ margin: 'auto 10px' }}>
+                    Page {currentPage} of {this.props.paginationTotalPages + 1}
+                </span>
 
-            <button className='pagination-button' onClick={() => this.paginationJumpTo(Direction.NEXT)}>
-                <FontAwesomeIcon icon={faChevronRight} />
-            </button>
+                <button className="pagination-button" onClick={() => this.paginationJumpTo(Direction.NEXT)}>
+                    <FontAwesomeIcon icon={faChevronRight} />
+                </button>
 
-            <button className='pagination-button' style={{ marginRight: '10px' }} onClick={() => this.paginationJumpTo(Direction.LAST)}>
-                <FontAwesomeIcon icon={faChevronRight} />
-                <FontAwesomeIcon icon={faChevronRight} />
-            </button>
-        </div>;
+                <button
+                    className="pagination-button"
+                    style={{ marginRight: '10px' }}
+                    onClick={() => this.paginationJumpTo(Direction.LAST)}
+                >
+                    <FontAwesomeIcon icon={faChevronRight} />
+                    <FontAwesomeIcon icon={faChevronRight} />
+                </button>
+            </div>
+        );
     }
 
     private paginationJumpTo(direction: Direction): void {

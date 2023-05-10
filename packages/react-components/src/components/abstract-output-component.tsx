@@ -41,7 +41,7 @@ export interface AbstractOutputProps {
     onTouchStart?: VoidFunction;
     onTouchEnd?: VoidFunction;
     setChartOffset?: (chartOffset: number) => void;
-    pinned?: boolean
+    pinned?: boolean;
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     persistChartState?: any;
     children?: string;
@@ -53,8 +53,10 @@ export interface AbstractOutputState {
     dropDownOpen?: boolean;
 }
 
-export abstract class AbstractOutputComponent<P extends AbstractOutputProps, S extends AbstractOutputState> extends React.Component<P, S> {
-
+export abstract class AbstractOutputComponent<
+    P extends AbstractOutputProps,
+    S extends AbstractOutputState
+> extends React.Component<P, S> {
     private readonly DEFAULT_HANDLE_WIDTH = 30;
 
     protected mainOutputContainer: React.RefObject<HTMLDivElement>;
@@ -85,29 +87,36 @@ export abstract class AbstractOutputComponent<P extends AbstractOutputProps, S e
     }
 
     render(): JSX.Element {
-        return <div style={{ ...this.props.style, width: this.props.outputWidth }}
-            id={this.getOutputComponentDomId()}
-            tabIndex={-1}
-            className={'output-container ' + this.props.className}
-            onMouseUp={this.props.onMouseUp}
-            onMouseDown={this.props.onMouseDown}
-            onTouchStart={this.props.onTouchStart}
-            onTouchEnd={this.props.onTouchEnd}
-            data-tip=''
-            data-for='tooltip-component'>
+        return (
             <div
-                id={this.getOutputComponentDomId() + 'handle'}
-                className={this.showViewOptionsCondition() ?
-                    'widget-handle-with-options' : 'widget-handle'} style={{ width: this.getHandleWidth(), height: this.props.style.height }}
+                style={{ ...this.props.style, width: this.props.outputWidth }}
+                id={this.getOutputComponentDomId()}
+                tabIndex={-1}
+                className={'output-container ' + this.props.className}
+                onMouseUp={this.props.onMouseUp}
+                onMouseDown={this.props.onMouseDown}
+                onTouchStart={this.props.onTouchStart}
+                onTouchEnd={this.props.onTouchEnd}
+                data-tip=""
+                data-for="tooltip-component"
             >
-                {this.renderTitleBar()}
+                <div
+                    id={this.getOutputComponentDomId() + 'handle'}
+                    className={this.showViewOptionsCondition() ? 'widget-handle-with-options' : 'widget-handle'}
+                    style={{ width: this.getHandleWidth(), height: this.props.style.height }}
+                >
+                    {this.renderTitleBar()}
+                </div>
+                <div
+                    className="main-output-container"
+                    ref={this.mainOutputContainer}
+                    style={{ width: this.props.outputWidth - this.getHandleWidth(), height: this.props.style.height }}
+                >
+                    {this.renderMainOutputContainer()}
+                </div>
+                {this.props.children}
             </div>
-            <div className='main-output-container' ref={this.mainOutputContainer}
-                style={{ width: this.props.outputWidth - this.getHandleWidth(), height: this.props.style.height }}>
-                {this.renderMainOutputContainer()}
-            </div>
-            {this.props.children}
-        </div>;
+        );
     }
 
     private renderTitleBar(): React.ReactNode {
@@ -124,39 +133,50 @@ export abstract class AbstractOutputComponent<P extends AbstractOutputProps, S e
         };
         const titleOverflown = this.titleRef.current && isOverflown() ? 'custom-ellipsis' : 'hidden-ellipsis';
 
-        return <React.Fragment>
-            <button className='remove-component-button' onClick={this.closeComponent}>
-                <FontAwesomeIcon icon={faTimes} />
-            </button>
-            {this.showViewOptionsCondition() &&
-                <div className='options-menu-container'>
-                    <button
-                        title='Show View Options'
-                        className='options-menu-button'
-                        onClick={this.toggleDropDown}
-                    >
-                        <FontAwesomeIcon icon={faBars} />
-                    </button>
-                    <DropDownComponent dropDownOpen={this.state.dropDownOpen ?? false} dropDownOptions={this.dropDownOptions}
-                        ref={this.dropDownMenuRef} {...this.props}></DropDownComponent>
+        return (
+            <React.Fragment>
+                <button className="remove-component-button" onClick={this.closeComponent}>
+                    <FontAwesomeIcon icon={faTimes} />
+                </button>
+                {this.showViewOptionsCondition() && (
+                    <div className="options-menu-container">
+                        <button title="Show View Options" className="options-menu-button" onClick={this.toggleDropDown}>
+                            <FontAwesomeIcon icon={faBars} />
+                        </button>
+                        <DropDownComponent
+                            dropDownOpen={this.state.dropDownOpen ?? false}
+                            dropDownOptions={this.dropDownOptions}
+                            ref={this.dropDownMenuRef}
+                            {...this.props}
+                        ></DropDownComponent>
+                    </div>
+                )}
+                <div
+                    ref={this.titleBarLabelRef}
+                    className="title-bar-label"
+                    title={outputTooltip}
+                    onClick={() => this.setFocus()}
+                >
+                    <span ref={this.titleRef}>{outputName}</span>
+                    <span className={titleOverflown}>...</span>
+                    <FontAwesomeIcon
+                        id={this.getOutputComponentDomId() + 'handleSpinner'}
+                        icon={faSpinner}
+                        spin
+                        style={{ marginTop: '5px', visibility: 'hidden' }}
+                    />
+                    {this.props.pinned === true && (
+                        <FontAwesomeIcon icon={faThumbtack} title="Pinned View" className="pin-view-icon" />
+                    )}
                 </div>
-            }
-            <div ref={this.titleBarLabelRef} className='title-bar-label' title={outputTooltip} onClick={() => this.setFocus()}>
-                <span ref={this.titleRef}>{outputName}</span>
-                <span className={titleOverflown}>...</span>
-                <FontAwesomeIcon
-                    id={this.getOutputComponentDomId() + 'handleSpinner'}
-                    icon={faSpinner}
-                    spin
-                    style={{ marginTop: '5px', visibility: 'hidden'}}
-                />
-                {this.props.pinned === true && <FontAwesomeIcon icon={faThumbtack} title='Pinned View' className='pin-view-icon'/>}
-            </div>
-        </React.Fragment>;
+            </React.Fragment>
+        );
     }
 
     private showViewOptionsCondition(): boolean {
-        const nonPinViewOptionExists = this.dropDownOptions.some(option => option.label !== this.PIN_VIEW_LABEL && option.label !== this.UNPIN_VIEW_LABEL);
+        const nonPinViewOptionExists = this.dropDownOptions.some(
+            option => option.label !== this.PIN_VIEW_LABEL && option.label !== this.UNPIN_VIEW_LABEL
+        );
         return nonPinViewOptionExists || this.props.pinned !== false;
     }
 
@@ -237,7 +257,7 @@ export abstract class AbstractOutputComponent<P extends AbstractOutputProps, S e
             label: label,
             onClick: onClick,
             arg: arg,
-            condition: condition,
+            condition: condition
         } as OptionState;
         if (this.dropDownOptions.includes(newOption)) {
             return;
@@ -260,21 +280,23 @@ export abstract class AbstractOutputComponent<P extends AbstractOutputProps, S e
     }
 
     protected renderAnalysisFailed(): React.ReactElement {
-        return <>
-            <div className='message-main-area'>
-                Trace analysis failed.
-            </div>
-        </>;
+        return (
+            <>
+                <div className="message-main-area">Trace analysis failed.</div>
+            </>
+        );
     }
 
     protected renderEmptyResults(): React.ReactElement {
-        return <>
-                <div className='message-main-area'>
+        return (
+            <>
+                <div className="message-main-area">
                     Trace analysis complete.
                     <br />
                     No results: Trace missing required events.
                 </div>
-        </>;
+            </>
+        );
     }
 
     protected getOutputComponentDomId(): string {

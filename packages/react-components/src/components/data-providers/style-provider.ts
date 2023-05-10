@@ -75,8 +75,10 @@ export class StyleProvider {
             }
         };
         this.tmpStyleObject = {
-            'org.eclipse.tracecompass.internal.analysis.os.linux.core.threadstatus.ThreadStatusDataProvider': threadStyleObject,
-            'org.eclipse.tracecompass.internal.analysis.os.linux.core.threadstatus.ResourcesStatusDataProvider': resourceStyleObject
+            'org.eclipse.tracecompass.internal.analysis.os.linux.core.threadstatus.ThreadStatusDataProvider':
+                threadStyleObject,
+            'org.eclipse.tracecompass.internal.analysis.os.linux.core.threadstatus.ResourcesStatusDataProvider':
+                resourceStyleObject
         };
     }
 
@@ -86,7 +88,11 @@ export class StyleProvider {
      */
     public async getStyleModel(forceUpdate?: boolean): Promise<OutputStyleModel | undefined> {
         if (!this.styleModel || forceUpdate) {
-            const tspClientResponse = await this.tspClient.fetchStyles(this.traceId, this.outputId, QueryHelper.query());
+            const tspClientResponse = await this.tspClient.fetchStyles(
+                this.traceId,
+                this.outputId,
+                QueryHelper.query()
+            );
             const styleResponse = tspClientResponse.getModel();
             if (tspClientResponse.isOk() && styleResponse) {
                 this.styleModel = styleResponse.model;
@@ -154,7 +160,7 @@ export class StyleProvider {
             const value = styleValues[property];
             if (typeof value === 'number') {
                 const numberValue = value as number;
-                return (factor === undefined) ? numberValue : factor * numberValue;
+                return factor === undefined ? numberValue : factor * numberValue;
             }
 
             // Get the next style
@@ -176,7 +182,10 @@ export class StyleProvider {
      *            the style property
      * @return the style property color value, or undefined
      */
-    public getColorStyle(elementStyle: OutputElementStyle, property: string): { color: number, alpha: number } | undefined {
+    public getColorStyle(
+        elementStyle: OutputElementStyle,
+        property: string
+    ): { color: number; alpha: number } | undefined {
         let color: string | undefined = undefined;
         let opacity: number | undefined = undefined;
         let blend = undefined;
@@ -212,9 +221,14 @@ export class StyleProvider {
             // Get the next style
             style = this.popNextStyle(style, styleQueue);
         }
-        const alpha = (opacity === undefined) ? 1.0 : opacity;
-        const rgba = (color === undefined) ? (opacity === undefined ? undefined : this.rgbaToColor(0, 0, 0, alpha)) : this.rgbStringToColor(color, alpha);
-        return (rgba === undefined) ? undefined : (blend === undefined) ? rgba : this.blend(rgba, blend);
+        const alpha = opacity === undefined ? 1.0 : opacity;
+        const rgba =
+            color === undefined
+                ? opacity === undefined
+                    ? undefined
+                    : this.rgbaToColor(0, 0, 0, alpha)
+                : this.rgbStringToColor(color, alpha);
+        return rgba === undefined ? undefined : blend === undefined ? rgba : this.blend(rgba, blend);
     }
 
     private popNextStyle(style: OutputElementStyle, styleQueue: string[]): OutputElementStyle | undefined {
@@ -235,7 +249,10 @@ export class StyleProvider {
         return nextStyle;
     }
 
-    private blend(color1: { color: number, alpha: number }, color2: { color: number, alpha: number }): { color: number, alpha: number } {
+    private blend(
+        color1: { color: number; alpha: number },
+        color2: { color: number; alpha: number }
+    ): { color: number; alpha: number } {
         /**
          * If a color component 'c' with alpha 'a' is blended with color
          * component 'd' with alpha 'b', the blended color and alpha are:
@@ -246,9 +263,21 @@ export class StyleProvider {
          * </pre>
          */
         const alpha = color1.alpha + color2.alpha - color1.alpha * color2.alpha;
-        const r = this.blendComponent(color1.alpha, (color1.color >> 16) & 0xff, color2.alpha, (color2.color >> 16) & 0xff, alpha);
-        const g = this.blendComponent(color1.alpha, (color1.color >> 8) & 0xff, color2.alpha, (color2.color >> 8) & 0xff, alpha);
-        const b = this.blendComponent(color1.alpha, (color1.color) & 0xff, color2.alpha, (color2.color) & 0xff, alpha);
+        const r = this.blendComponent(
+            color1.alpha,
+            (color1.color >> 16) & 0xff,
+            color2.alpha,
+            (color2.color >> 16) & 0xff,
+            alpha
+        );
+        const g = this.blendComponent(
+            color1.alpha,
+            (color1.color >> 8) & 0xff,
+            color2.alpha,
+            (color2.color >> 8) & 0xff,
+            alpha
+        );
+        const b = this.blendComponent(color1.alpha, color1.color & 0xff, color2.alpha, color2.color & 0xff, alpha);
         return this.rgbaToColor(r, g, b, alpha);
     }
 
@@ -256,19 +285,19 @@ export class StyleProvider {
         return Math.floor((alpha1 * (1.0 - alpha2) * color1 + alpha2 * color2) / alpha);
     }
 
-    private rgbStringToColor(rgbString: string, alpha: number): { color: number, alpha: number } {
+    private rgbStringToColor(rgbString: string, alpha: number): { color: number; alpha: number } {
         const color = parseInt(rgbString.replace(/^#/, ''), 16);
         return { color, alpha };
     }
 
-    private rgbaStringToColor(rgbaString: string): { color: number, alpha: number } {
+    private rgbaStringToColor(rgbaString: string): { color: number; alpha: number } {
         const int = parseInt(rgbaString.replace(/^#/, ''), 16);
         const color = (int >> 8) & 0xffffff;
         const alpha = (int & 0xff) / 255;
         return { color, alpha };
     }
 
-    private rgbaToColor(r: number, g: number, b: number, alpha: number): { color: number, alpha: number } {
+    private rgbaToColor(r: number, g: number, b: number, alpha: number): { color: number; alpha: number } {
         const color = (r << 16) + (g << 8) + b;
         return { color, alpha };
     }

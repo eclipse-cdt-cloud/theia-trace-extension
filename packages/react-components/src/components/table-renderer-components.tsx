@@ -24,16 +24,22 @@ interface SearchFilterRendererState {
 
 export class LoadingRenderer extends React.Component<ICellRendererParams> {
     render(): JSX.Element {
-        return <React.Fragment>
-            {this.props.value ? this.props.value : <FontAwesomeIcon icon={faSpinner} />}
-        </React.Fragment>;
+        return (
+            <React.Fragment>
+                {this.props.value ? this.props.value : <FontAwesomeIcon icon={faSpinner} />}
+            </React.Fragment>
+        );
     }
 }
 
 export class CellRenderer extends React.Component<CellRendererProps> {
     render(): JSX.Element {
         if (this.props.value === undefined) {
-            return <React.Fragment><FontAwesomeIcon icon={faSpinner} /></React.Fragment>;
+            return (
+                <React.Fragment>
+                    <FontAwesomeIcon icon={faSpinner} />
+                </React.Fragment>
+            );
         }
         const currField = this.props.colDef?.field;
         const currFieldVal = this.props.value || '';
@@ -42,38 +48,38 @@ export class CellRenderer extends React.Component<CellRendererProps> {
         const searchTerm = (currField && this.props.filterModel.get(currField)) || '';
         if (this.props.filterModel.size > 0) {
             if (isMatched) {
-                cellElement = <>
-                    {currFieldVal.split(new RegExp(searchTerm)).map((tag: string, index: number, array: string[]) =>
-                        <span key={index.toString()}>
-                            <>
-                                {tag}
-                            </>
-                            <>
-                                {
-                                    index < array.length - 1 ?
-                                        <span style={{ backgroundColor: this.props.searchResultsColor }}>{currFieldVal.match(new RegExp(searchTerm))[0]}</span>
-                                        : <></>
-                                }
-                            </>
-                        </span>
-                    )}
-                </>;
-            }
-            else {
+                cellElement = (
+                    <>
+                        {currFieldVal
+                            .split(new RegExp(searchTerm))
+                            .map((tag: string, index: number, array: string[]) => (
+                                <span key={index.toString()}>
+                                    <>{tag}</>
+                                    <>
+                                        {index < array.length - 1 ? (
+                                            <span style={{ backgroundColor: this.props.searchResultsColor }}>
+                                                {currFieldVal.match(new RegExp(searchTerm))[0]}
+                                            </span>
+                                        ) : (
+                                            <></>
+                                        )}
+                                    </>
+                                </span>
+                            ))}
+                    </>
+                );
+            } else {
                 cellElement = <span style={{ color: '#808080' }}> {currFieldVal} </span>;
             }
         } else {
             cellElement = <>{currFieldVal || ''}</>;
         }
 
-        return <React.Fragment>
-            {cellElement}
-        </React.Fragment>;
+        return <React.Fragment>{cellElement}</React.Fragment>;
     }
 }
 
 export class SearchFilterRenderer extends React.Component<SearchFilterRendererProps, SearchFilterRendererState> {
-
     private debouncedChangeHandler: (colName: string, inputVal: string) => void;
 
     constructor(props: SearchFilterRendererProps) {
@@ -95,20 +101,36 @@ export class SearchFilterRenderer extends React.Component<SearchFilterRendererPr
         this.onUpClickHandler = this.onUpClickHandler.bind(this);
         this.onCloseClickHandler = this.onCloseClickHandler.bind(this);
         this.onKeyDownEvent = this.onKeyDownEvent.bind(this);
-
     }
 
     render(): JSX.Element {
         return (
-            <div data-testid="search-filter-element-parent" onMouseEnter={this.onMouseEnterHandler} onMouseLeave={this.onMouseLeaveHandler} onClick={this.onClickHandler}>
-                {!this.state.hasClicked && !this.state.hasHovered &&
-                    <FontAwesomeIcon style={{ marginLeft: '10px' }} icon={faSearch} />}
-                {!this.state.hasClicked && this.state.hasHovered &&
+            <div
+                data-testid="search-filter-element-parent"
+                onMouseEnter={this.onMouseEnterHandler}
+                onMouseLeave={this.onMouseLeaveHandler}
+                onClick={this.onClickHandler}
+            >
+                {!this.state.hasClicked && !this.state.hasHovered && (
+                    <FontAwesomeIcon style={{ marginLeft: '10px' }} icon={faSearch} />
+                )}
+                {!this.state.hasClicked && this.state.hasHovered && (
                     <div style={{ cursor: 'pointer' }}>
                         <FontAwesomeIcon style={{ marginLeft: '10px' }} icon={faSearch} />
-                        <span style={{ marginLeft: '10px', fontSize: '13px', width: '50px', overflow: 'hidden', textOverflow: 'ellipsis' }}>Search</span>
-                    </div>}
-                {this.state.hasClicked &&
+                        <span
+                            style={{
+                                marginLeft: '10px',
+                                fontSize: '13px',
+                                width: '50px',
+                                overflow: 'hidden',
+                                textOverflow: 'ellipsis'
+                            }}
+                        >
+                            Search
+                        </span>
+                    </div>
+                )}
+                {this.state.hasClicked && (
                     <div>
                         <input
                             data-testid="search-filter-element-input"
@@ -119,10 +141,26 @@ export class SearchFilterRenderer extends React.Component<SearchFilterRendererPr
                             style={{ width: '50%', margin: '10px' }}
                             defaultValue={this.props.filterModel.get(this.props.colName) ?? ''}
                         />
-                        <FontAwesomeIcon className='hoverClass' icon={faTimes} style={{ marginTop: '20px' }} onClick={this.onCloseClickHandler} />
-                        <FontAwesomeIcon className='hoverClass' icon={faAngleDown} style={{ marginLeft: '10px', marginTop: '20px' }} onClick={this.onDownClickHandler} />
-                        <FontAwesomeIcon className='hoverClass' icon={faAngleUp} style={{ marginLeft: '10px', marginTop: '20px' }} onClick={this.onUpClickHandler} />
-                    </div>}
+                        <FontAwesomeIcon
+                            className="hoverClass"
+                            icon={faTimes}
+                            style={{ marginTop: '20px' }}
+                            onClick={this.onCloseClickHandler}
+                        />
+                        <FontAwesomeIcon
+                            className="hoverClass"
+                            icon={faAngleDown}
+                            style={{ marginLeft: '10px', marginTop: '20px' }}
+                            onClick={this.onDownClickHandler}
+                        />
+                        <FontAwesomeIcon
+                            className="hoverClass"
+                            icon={faAngleUp}
+                            style={{ marginLeft: '10px', marginTop: '20px' }}
+                            onClick={this.onUpClickHandler}
+                        />
+                    </div>
+                )}
             </div>
         );
     }

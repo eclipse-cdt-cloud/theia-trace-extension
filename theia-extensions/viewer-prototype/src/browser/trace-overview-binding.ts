@@ -3,11 +3,13 @@ import { PreferenceService, createPreferenceProxy, PreferenceContribution } from
 import { OverviewPreferences, OverviewSchema } from './trace-overview-preference';
 
 export function bindTraceOverviewPreferences(bind: interfaces.Bind): void {
-    bind(OverviewPreferences).toDynamicValue(ctx => {
-        const preferences = ctx.container.get<PreferenceService>(PreferenceService);
-        return createPreferenceProxy(preferences, OverviewSchema);
-    }).inSingletonScope();
+    bind(OverviewPreferences)
+        .toDynamicValue(ctx => {
+            const preferences = ctx.container.get<PreferenceService>(PreferenceService);
+            return createPreferenceProxy(preferences, OverviewSchema);
+        })
+        .inSingletonScope();
     bind(PreferenceContribution).toConstantValue({
-        schema: OverviewSchema,
+        schema: OverviewSchema
     });
 }

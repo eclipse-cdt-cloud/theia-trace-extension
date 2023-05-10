@@ -16,8 +16,7 @@ import '../../style/react-contextify.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSpinner } from '@fortawesome/free-solid-svg-icons';
 
-type DataTreeOutputProps = AbstractOutputProps & {
-};
+type DataTreeOutputProps = AbstractOutputProps & {};
 
 type DataTreeOuputState = AbstractOutputState & {
     selectedSeriesId: number[];
@@ -42,7 +41,7 @@ export class DataTreeOutputComponent extends AbstractOutputComponent<AbstractOut
             xyTree: [],
             collapsedNodes: [],
             orderedNodes: [],
-            columns: [{title: 'Name', sortable: true}],
+            columns: [{ title: 'Name', sortable: true }]
         };
         this.addPinViewOptions();
         this.addOptions('Export to CSV...', () => this.exportOutput());
@@ -63,7 +62,13 @@ export class DataTreeOutputComponent extends AbstractOutputComponent<AbstractOut
                 const columns = [];
                 if (headers && headers.length > 0) {
                     headers.forEach(header => {
-                        columns.push({ title: header.name, sortable: true, resizable: true, tooltip: header.tooltip, dataType: header.dataType });
+                        columns.push({
+                            title: header.name,
+                            sortable: true,
+                            resizable: true,
+                            tooltip: header.tooltip,
+                            dataType: header.dataType
+                        });
                     });
                 } else {
                     columns.push({ title: 'Name', sortable: true });
@@ -93,11 +98,12 @@ export class DataTreeOutputComponent extends AbstractOutputComponent<AbstractOut
     renderTree(): React.ReactNode | undefined {
         this.onToggleCollapse = this.onToggleCollapse.bind(this);
         this.onOrderChange = this.onOrderChange.bind(this);
-        return this.state.xyTree.length
-            ? <div
+        return this.state.xyTree.length ? (
+            <div
                 tabIndex={0}
                 id={this.props.traceId + this.props.outputDescriptor.id + 'focusContainer'}
-                className='scrollable' style={{ height: this.props.style.height }}
+                className="scrollable"
+                style={{ height: this.props.style.height }}
             >
                 <EntryTree
                     entries={this.state.xyTree}
@@ -109,32 +115,38 @@ export class DataTreeOutputComponent extends AbstractOutputComponent<AbstractOut
                     headers={this.state.columns}
                 />
             </div>
-            : undefined
-            ;
+        ) : undefined;
     }
 
     renderMainArea(): React.ReactNode {
-        return <React.Fragment>
-            {this.state.outputStatus === ResponseStatus.COMPLETED ?
-                <div>
-                    {this.renderContextMenu()}
-                    <div ref={this.treeRef} className='output-component-tree disable-select'
-                        style={{ height: this.props.style.height, width: this.props.outputWidth - this.getHandleWidth() }}
-                    >
-                        {this.renderTree()}
+        return (
+            <React.Fragment>
+                {this.state.outputStatus === ResponseStatus.COMPLETED ? (
+                    <div>
+                        {this.renderContextMenu()}
+                        <div
+                            ref={this.treeRef}
+                            className="output-component-tree disable-select"
+                            style={{
+                                height: this.props.style.height,
+                                width: this.props.outputWidth - this.getHandleWidth()
+                            }}
+                        >
+                            {this.renderTree()}
+                        </div>
                     </div>
-                </div>
-                :
-                <div tabIndex={0} id={this.props.traceId + this.props.outputDescriptor.id + 'focusContainer'} className='analysis-running-main-area'>
-                    <FontAwesomeIcon
-                        icon={faSpinner}
-                        spin
-                        style={{ marginRight: '5px' }}
-                    />
-                    <span>Analysis running</span>
-                </div>
-            }
-        </React.Fragment>;
+                ) : (
+                    <div
+                        tabIndex={0}
+                        id={this.props.traceId + this.props.outputDescriptor.id + 'focusContainer'}
+                        className="analysis-running-main-area"
+                    >
+                        <FontAwesomeIcon icon={faSpinner} spin style={{ marginRight: '5px' }} />
+                        <span>Analysis running</span>
+                    </div>
+                )}
+            </React.Fragment>
+        );
     }
 
     renderContextMenu(): React.ReactNode {
@@ -145,16 +157,28 @@ export class DataTreeOutputComponent extends AbstractOutputComponent<AbstractOut
                 timeRanges.push(col.title);
             }
         });
-        return <React.Fragment> {
-            <Menu id={MENU_ID + this.props.outputDescriptor.id} theme={this.props.backgroundTheme} animation={'fade'} >
-                {(timeRanges && timeRanges.length > 0) ?
-                       timeRanges.map(key => <Item key={key} id={key} onClick={this.handleItemClick}>Select {key}</Item>)
-                    :
-                    <></>
+        return (
+            <React.Fragment>
+                {' '}
+                {
+                    <Menu
+                        id={MENU_ID + this.props.outputDescriptor.id}
+                        theme={this.props.backgroundTheme}
+                        animation={'fade'}
+                    >
+                        {timeRanges && timeRanges.length > 0 ? (
+                            timeRanges.map(key => (
+                                <Item key={key} id={key} onClick={this.handleItemClick}>
+                                    Select {key}
+                                </Item>
+                            ))
+                        ) : (
+                            <></>
+                        )}
+                    </Menu>
                 }
-            </Menu>
-        }
-        </React.Fragment>;
+            </React.Fragment>
+        );
     }
 
     protected handleItemClick = (args: ItemParams): void => {
@@ -211,25 +235,25 @@ export class DataTreeOutputComponent extends AbstractOutputComponent<AbstractOut
 
             if (Object.keys(timeProperties).length > 0) {
                 const { show } = useContextMenu({
-                    id: MENU_ID + this.props.outputDescriptor.id,
+                    id: MENU_ID + this.props.outputDescriptor.id
                 });
 
                 show(event, {
                     props: {
-                        data: timeProperties,
+                        data: timeProperties
                     },
                     position: this.getMenuPosition(event)
                 });
             }
         }
     }
-    getMenuPosition(event: React.MouseEvent<HTMLDivElement>): { x: number, y: number } {
+    getMenuPosition(event: React.MouseEvent<HTMLDivElement>): { x: number; y: number } {
         const refNode = this.treeRef.current;
         if (refNode) {
             return {
                 // Compute position relative to treeRef
-                x: (event.clientX - refNode.getBoundingClientRect().left),
-                y: (event.clientY - refNode.getBoundingClientRect().top)
+                x: event.clientX - refNode.getBoundingClientRect().left,
+                y: event.clientY - refNode.getBoundingClientRect().top
             };
         }
         return {
@@ -274,9 +298,15 @@ export class DataTreeOutputComponent extends AbstractOutputComponent<AbstractOut
         if (this.props.selectionRange) {
             let payload: any;
             if (this.props.selectionRange.getStart() < this.props.selectionRange.getEnd()) {
-                payload = QueryHelper.timeRangeQuery(this.props.selectionRange.getStart(), this.props.selectionRange.getEnd());
+                payload = QueryHelper.timeRangeQuery(
+                    this.props.selectionRange.getStart(),
+                    this.props.selectionRange.getEnd()
+                );
             } else {
-                payload = QueryHelper.timeRangeQuery(this.props.selectionRange.getEnd(), this.props.selectionRange.getStart());
+                payload = QueryHelper.timeRangeQuery(
+                    this.props.selectionRange.getEnd(),
+                    this.props.selectionRange.getStart()
+                );
             }
 
             payload.parameters.isFiltered = true;
@@ -288,7 +318,7 @@ export class DataTreeOutputComponent extends AbstractOutputComponent<AbstractOut
                 if (treeResponse.model) {
                     this.setState({
                         outputStatus: treeResponse.status,
-                        xyTree: treeResponse.model.entries,
+                        xyTree: treeResponse.model.entries
                     });
                 }
             }
@@ -302,7 +332,9 @@ export class DataTreeOutputComponent extends AbstractOutputComponent<AbstractOut
     }
 
     private async exportOutput(): Promise<void> {
-        const focusContainer = document.getElementById(this.props.traceId + this.props.outputDescriptor.id + 'focusContainer');
+        const focusContainer = document.getElementById(
+            this.props.traceId + this.props.outputDescriptor.id + 'focusContainer'
+        );
         if (focusContainer) {
             const table = focusContainer.querySelector('div:nth-child(2) > table');
             if (table) {
@@ -334,10 +366,18 @@ export class DataTreeOutputComponent extends AbstractOutputComponent<AbstractOut
     }
 
     private async tryFetchDataTree(payload: any) {
-        let tspClientResponse = await this.props.tspClient.fetchDataTree(this.props.traceId, this.props.outputDescriptor.id, payload);
+        let tspClientResponse = await this.props.tspClient.fetchDataTree(
+            this.props.traceId,
+            this.props.outputDescriptor.id,
+            payload
+        );
         if (!tspClientResponse.isOk()) {
             // Older trace servers might not support fetchDatatTree endpoint. Fall-back to fetchXYTree
-            tspClientResponse = await this.props.tspClient.fetchXYTree(this.props.traceId, this.props.outputDescriptor.id, payload);
+            tspClientResponse = await this.props.tspClient.fetchXYTree(
+                this.props.traceId,
+                this.props.outputDescriptor.id,
+                payload
+            );
         }
         return tspClientResponse;
     }

@@ -10,15 +10,11 @@ import { EventsTableShortcutsTable } from './events-table-shortcuts-table';
 import { SelectShortcutsTable } from './select-shortcuts-table';
 
 @injectable()
-export class ChartShortcutsDialogProps extends DialogProps {
-}
+export class ChartShortcutsDialogProps extends DialogProps {}
 
 @injectable()
 export class ChartShortcutsDialog extends ReactDialog<undefined> {
-
-    constructor(
-        @inject(ChartShortcutsDialogProps) protected readonly props: ChartShortcutsDialogProps
-    ) {
+    constructor(@inject(ChartShortcutsDialogProps) protected readonly props: ChartShortcutsDialogProps) {
         super(props);
         this.appendAcceptButton();
     }
@@ -40,5 +36,7 @@ export class ChartShortcutsDialog extends ReactDialog<undefined> {
         this.update();
     }
 
-    get value(): undefined { return undefined; }
+    get value(): undefined {
+        return undefined;
+    }
 }

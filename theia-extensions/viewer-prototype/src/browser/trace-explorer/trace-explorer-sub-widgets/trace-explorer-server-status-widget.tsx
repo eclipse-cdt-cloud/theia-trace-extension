@@ -5,7 +5,6 @@ import { CommandService } from '@theia/core';
 
 @injectable()
 export class TraceExplorerServerStatusWidget extends ReactWidget {
-
     static ID = 'trace-explorer-server-status-widget';
     static LABEL = 'Trace Explorer Server Status Widget';
 
@@ -23,9 +22,16 @@ export class TraceExplorerServerStatusWidget extends ReactWidget {
     }
 
     render(): React.ReactNode {
-        return <div className='server-status-header'>
-            <span className='theia-header'>Server Status </span>
-            <i id='server-status-id' className='fa fa-times-circle-o fa-lg' title='Trace Viewer Critical Error: Trace Server Offline' style={{color: 'red', marginLeft: '5px'}}/>
-        </div>;
+        return (
+            <div className="server-status-header">
+                <span className="theia-header">Server Status </span>
+                <i
+                    id="server-status-id"
+                    className="fa fa-times-circle-o fa-lg"
+                    title="Trace Viewer Critical Error: Trace Server Offline"
+                    style={{ color: 'red', marginLeft: '5px' }}
+                />
+            </div>
+        );
     }
 }

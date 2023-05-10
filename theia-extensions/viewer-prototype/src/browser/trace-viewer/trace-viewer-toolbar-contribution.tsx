@@ -42,9 +42,8 @@ export class TraceViewerToolbarContribution implements TabBarToolbarContribution
     }
 
     registerCommands(registry: CommandRegistry): void {
-        registry.registerCommand(
-            TraceViewerToolbarCommands.OPEN_OVERVIEW_OUTPUT, {
-            isVisible:(widget: Widget) => {
+        registry.registerCommand(TraceViewerToolbarCommands.OPEN_OVERVIEW_OUTPUT, {
+            isVisible: (widget: Widget) => {
                 if (widget instanceof TraceViewerWidget) {
                     return true;
                 }
@@ -57,8 +56,7 @@ export class TraceViewerToolbarContribution implements TabBarToolbarContribution
             }
         });
 
-        registry.registerCommand(
-            TraceViewerToolbarCommands.ZOOM_IN, {
+        registry.registerCommand(TraceViewerToolbarCommands.ZOOM_IN, {
             isVisible: (widget: Widget) => {
                 if (widget instanceof TraceViewerWidget) {
                     return widget.isTimeRelatedChartOpened() || widget.isTraceOverviewOpened();
@@ -69,8 +67,7 @@ export class TraceViewerToolbarContribution implements TabBarToolbarContribution
                 signalManager().fireUpdateZoomSignal(true);
             }
         });
-        registry.registerCommand(
-            TraceViewerToolbarCommands.ZOOM_OUT, {
+        registry.registerCommand(TraceViewerToolbarCommands.ZOOM_OUT, {
             isVisible: (w: Widget) => {
                 if (w instanceof TraceViewerWidget) {
                     const traceWidget = w as TraceViewerWidget;
@@ -82,8 +79,7 @@ export class TraceViewerToolbarContribution implements TabBarToolbarContribution
                 signalManager().fireUpdateZoomSignal(false);
             }
         });
-        registry.registerCommand(
-            TraceViewerToolbarCommands.UNDO, {
+        registry.registerCommand(TraceViewerToolbarCommands.UNDO, {
             isVisible: (widget: Widget) => {
                 if (widget instanceof TraceViewerWidget) {
                     return widget.isTimeRelatedChartOpened() || widget.isTraceOverviewOpened();
@@ -94,8 +90,7 @@ export class TraceViewerToolbarContribution implements TabBarToolbarContribution
                 signalManager().fireUndoSignal();
             }
         });
-        registry.registerCommand(
-            TraceViewerToolbarCommands.REDO, {
+        registry.registerCommand(TraceViewerToolbarCommands.REDO, {
             isVisible: (widget: Widget) => {
                 if (widget instanceof TraceViewerWidget) {
                     return widget.isTimeRelatedChartOpened() || widget.isTraceOverviewOpened();
@@ -106,8 +101,7 @@ export class TraceViewerToolbarContribution implements TabBarToolbarContribution
                 signalManager().fireRedoSignal();
             }
         });
-        registry.registerCommand(
-            TraceViewerToolbarCommands.RESET, {
+        registry.registerCommand(TraceViewerToolbarCommands.RESET, {
             isVisible: (widget: Widget) => {
                 if (widget instanceof TraceViewerWidget) {
                     return widget.isTimeRelatedChartOpened() || widget.isTraceOverviewOpened();
@@ -118,30 +112,32 @@ export class TraceViewerToolbarContribution implements TabBarToolbarContribution
                 signalManager().fireResetZoomSignal();
             }
         });
-        registry.registerCommand(
-            TraceViewerToolbarCommands.OPEN_TRACE, {
-                isVisible: (w: Widget) => {
-                    if (w instanceof TraceExplorerOpenedTracesWidget) {
-                        return true;
-                    }
-                    return false;
-                },
-                execute: async () => {
-                    await registry.executeCommand(OpenTraceCommand.id);
-                }
-            });
-
-        registry.registerCommand(
-            TraceViewerToolbarCommands.CHARTS_CHEATSHEET, {
+        registry.registerCommand(TraceViewerToolbarCommands.OPEN_TRACE, {
             isVisible: (w: Widget) => {
-                if (w instanceof TraceViewerWidget) {
-                    const traceWidget = w as TraceViewerWidget;
-                    return traceWidget.isTimeRelatedChartOpened() || traceWidget.isTraceOverviewOpened() || traceWidget.isTableRelatedChartOpened();
+                if (w instanceof TraceExplorerOpenedTracesWidget) {
+                    return true;
                 }
                 return false;
             },
             execute: async () => {
-                await new ChartShortcutsDialog({title: 'Trace Viewer Keyboard and Mouse Shortcuts'}).open();
+                await registry.executeCommand(OpenTraceCommand.id);
+            }
+        });
+
+        registry.registerCommand(TraceViewerToolbarCommands.CHARTS_CHEATSHEET, {
+            isVisible: (w: Widget) => {
+                if (w instanceof TraceViewerWidget) {
+                    const traceWidget = w as TraceViewerWidget;
+                    return (
+                        traceWidget.isTimeRelatedChartOpened() ||
+                        traceWidget.isTraceOverviewOpened() ||
+                        traceWidget.isTableRelatedChartOpened()
+                    );
+                }
+                return false;
+            },
+            execute: async () => {
+                await new ChartShortcutsDialog({ title: 'Trace Viewer Keyboard and Mouse Shortcuts' }).open();
             }
         });
     }
@@ -151,31 +147,31 @@ export class TraceViewerToolbarContribution implements TabBarToolbarContribution
             id: TraceViewerToolbarCommands.UNDO.id,
             command: TraceViewerToolbarCommands.UNDO.id,
             tooltip: TraceViewerToolbarCommands.UNDO.label,
-            priority: 1,
+            priority: 1
         });
         registry.registerItem({
             id: TraceViewerToolbarCommands.REDO.id,
             command: TraceViewerToolbarCommands.REDO.id,
             tooltip: TraceViewerToolbarCommands.REDO.label,
-            priority: 2,
+            priority: 2
         });
         registry.registerItem({
             id: TraceViewerToolbarCommands.ZOOM_IN.id,
             command: TraceViewerToolbarCommands.ZOOM_IN.id,
             tooltip: TraceViewerToolbarCommands.ZOOM_IN.label,
-            priority: 3,
+            priority: 3
         });
         registry.registerItem({
             id: TraceViewerToolbarCommands.ZOOM_OUT.id,
             command: TraceViewerToolbarCommands.ZOOM_OUT.id,
             tooltip: TraceViewerToolbarCommands.ZOOM_OUT.label,
-            priority: 4,
+            priority: 4
         });
         registry.registerItem({
             id: TraceViewerToolbarCommands.RESET.id,
             command: TraceViewerToolbarCommands.RESET.id,
             tooltip: TraceViewerToolbarCommands.RESET.label,
-            priority: 5,
+            priority: 5
         });
         registry.registerItem({
             id: TraceViewerToolbarCommands.FILTER.id,
@@ -189,65 +185,86 @@ export class TraceViewerToolbarContribution implements TabBarToolbarContribution
             },
             // render() here is not a react component and hence need to disable the react display-name rule
             // eslint-disable-next-line react/display-name
-            render: (widget: Widget) => <div className="item enabled">
-                <div id="trace.viewer.toolbar.filter" className="fa fa-filter" title="Markers filter" onClick={async (event: React.MouseEvent) => {
-                    const toDisposeOnHide = new DisposableCollection();
-                    const menuPath = TraceViewerToolbarMenus.MARKER_CATEGORIES_MENU;
-                    let index = 1;
-                    const traceViewerWidget = widget as TraceViewerWidget;
-                    const markerCategories = traceViewerWidget.getMarkerCategories();
-                    let selectAll = true;
-                    markerCategories.forEach((categoryInfo, categoryName) => {
-                        const toggleInd = categoryInfo.toggleInd;
+            render: (widget: Widget) => (
+                <div className="item enabled">
+                    <div
+                        id="trace.viewer.toolbar.filter"
+                        className="fa fa-filter"
+                        title="Markers filter"
+                        onClick={async (event: React.MouseEvent) => {
+                            const toDisposeOnHide = new DisposableCollection();
+                            const menuPath = TraceViewerToolbarMenus.MARKER_CATEGORIES_MENU;
+                            let index = 1;
+                            const traceViewerWidget = widget as TraceViewerWidget;
+                            const markerCategories = traceViewerWidget.getMarkerCategories();
+                            let selectAll = true;
+                            markerCategories.forEach((categoryInfo, categoryName) => {
+                                const toggleInd = categoryInfo.toggleInd;
 
-                        if (!toggleInd) {
-                            selectAll = false;
-                        }
+                                if (!toggleInd) {
+                                    selectAll = false;
+                                }
 
-                        index += 1;
-                        toDisposeOnHide.push(this.menus.registerMenuAction(menuPath, {
-                            label: categoryName,
-                            commandId: categoryName.toString() + index.toString(),
-                            order: index.toString(),
-                        }));
-                        toDisposeOnHide.push(this.commands.registerCommand({
-                            id: categoryName.toString() + index.toString(),
-                            label: categoryName
-                        }, {
-                            execute: () => {
-                                traceViewerWidget.updateMarkerCategoryState(categoryName);
-                            },
-                            isToggled: () => toggleInd,
-                        }));
-                    });
+                                index += 1;
+                                toDisposeOnHide.push(
+                                    this.menus.registerMenuAction(menuPath, {
+                                        label: categoryName,
+                                        commandId: categoryName.toString() + index.toString(),
+                                        order: index.toString()
+                                    })
+                                );
+                                toDisposeOnHide.push(
+                                    this.commands.registerCommand(
+                                        {
+                                            id: categoryName.toString() + index.toString(),
+                                            label: categoryName
+                                        },
+                                        {
+                                            execute: () => {
+                                                traceViewerWidget.updateMarkerCategoryState(categoryName);
+                                            },
+                                            isToggled: () => toggleInd
+                                        }
+                                    )
+                                );
+                            });
 
-                    toDisposeOnHide.push(this.menus.registerMenuAction(menuPath, {
-                        label: 'Select all',
-                        commandId: 'Select all' + index.toString(),
-                        order: '0',
-                    }));
-                    toDisposeOnHide.push(this.commands.registerCommand({
-                        id: 'Select all' + index.toString(),
-                        label: 'Select all'
-                    }, {
-                        execute: () => {
-                            traceViewerWidget.updateAllMarkerCategoryState(!selectAll);
-                            return;
-                        },
-                        isToggled: () => selectAll,
-                    }));
+                            toDisposeOnHide.push(
+                                this.menus.registerMenuAction(menuPath, {
+                                    label: 'Select all',
+                                    commandId: 'Select all' + index.toString(),
+                                    order: '0'
+                                })
+                            );
+                            toDisposeOnHide.push(
+                                this.commands.registerCommand(
+                                    {
+                                        id: 'Select all' + index.toString(),
+                                        label: 'Select all'
+                                    },
+                                    {
+                                        execute: () => {
+                                            traceViewerWidget.updateAllMarkerCategoryState(!selectAll);
+                                            return;
+                                        },
+                                        isToggled: () => selectAll
+                                    }
+                                )
+                            );
 
-                    return this.contextMenuRenderer.render({
-                        menuPath,
-                        args: [],
-                        anchor: { x: event.clientX, y: event.clientY },
-                        onHide: () => setTimeout(() => toDisposeOnHide.dispose())
-                    });
-                }}></div>
-            </div>,
+                            return this.contextMenuRenderer.render({
+                                menuPath,
+                                args: [],
+                                anchor: { x: event.clientX, y: event.clientY },
+                                onHide: () => setTimeout(() => toDisposeOnHide.dispose())
+                            });
+                        }}
+                    ></div>
+                </div>
+            ),
             priority: 6,
             group: 'navigation',
-            onDidChange: this.onMarkerCategoriesChangedEvent,
+            onDidChange: this.onMarkerCategoriesChangedEvent
         });
         registry.registerItem({
             id: TraceViewerToolbarCommands.MARKER_SETS.id,
@@ -259,61 +276,77 @@ export class TraceViewerToolbarContribution implements TabBarToolbarContribution
             },
             // render() here is not a react component and hence need to disable the react display-name rule
             // eslint-disable-next-line react/display-name
-            render: (widget: TraceViewerWidget) => <div className="item enabled">
-                <div id="trace.viewer.toolbar.markersets" className="fa fa-bars" title="Marker Sets" onClick={async (event: React.MouseEvent) => {
-                    const toDisposeOnHide = new DisposableCollection();
-                    const menuPath = TraceViewerToolbarMenus.MARKER_SETS_MENU;
-                    let index = 0;
-                    const traceViewerWidget = widget as TraceViewerWidget;
-                    const markerSetsMap = traceViewerWidget.getMarkerSets();
-                    const sortedMarkerSets = Array.from(markerSetsMap.keys()).sort((a, b) => a.id < b.id ? -1 : 1);
-                    sortedMarkerSets.forEach(markerSet => {
-                        index += 1;
-                        toDisposeOnHide.push(this.menus.registerMenuAction(menuPath, {
-                            label: markerSet.name,
-                            commandId: markerSet.name.toString() + index.toString(),
-                            order: String.fromCharCode(index),
-                        }));
+            render: (widget: TraceViewerWidget) => (
+                <div className="item enabled">
+                    <div
+                        id="trace.viewer.toolbar.markersets"
+                        className="fa fa-bars"
+                        title="Marker Sets"
+                        onClick={async (event: React.MouseEvent) => {
+                            const toDisposeOnHide = new DisposableCollection();
+                            const menuPath = TraceViewerToolbarMenus.MARKER_SETS_MENU;
+                            let index = 0;
+                            const traceViewerWidget = widget as TraceViewerWidget;
+                            const markerSetsMap = traceViewerWidget.getMarkerSets();
+                            const sortedMarkerSets = Array.from(markerSetsMap.keys()).sort((a, b) =>
+                                a.id < b.id ? -1 : 1
+                            );
+                            sortedMarkerSets.forEach(markerSet => {
+                                index += 1;
+                                toDisposeOnHide.push(
+                                    this.menus.registerMenuAction(menuPath, {
+                                        label: markerSet.name,
+                                        commandId: markerSet.name.toString() + index.toString(),
+                                        order: String.fromCharCode(index)
+                                    })
+                                );
 
-                        toDisposeOnHide.push(this.commands.registerCommand({
-                            id: markerSet.name.toString() + index.toString(),
-                            label: markerSet.name
-                        }, {
-                            execute: () => {
-                                traceViewerWidget.updateMarkerSetState(markerSet);
-                            },
-                            isToggled: () => !!markerSetsMap.get(markerSet)
-                        }));
-                    });
-                    return this.contextMenuRenderer.render({
-                        menuPath,
-                        args: [],
-                        anchor: { x: event.clientX, y: event.clientY },
-                        onHide: () => setTimeout(() => toDisposeOnHide.dispose())
-                    });
-                }}></div>
-            </div>,
+                                toDisposeOnHide.push(
+                                    this.commands.registerCommand(
+                                        {
+                                            id: markerSet.name.toString() + index.toString(),
+                                            label: markerSet.name
+                                        },
+                                        {
+                                            execute: () => {
+                                                traceViewerWidget.updateMarkerSetState(markerSet);
+                                            },
+                                            isToggled: () => !!markerSetsMap.get(markerSet)
+                                        }
+                                    )
+                                );
+                            });
+                            return this.contextMenuRenderer.render({
+                                menuPath,
+                                args: [],
+                                anchor: { x: event.clientX, y: event.clientY },
+                                onHide: () => setTimeout(() => toDisposeOnHide.dispose())
+                            });
+                        }}
+                    ></div>
+                </div>
+            ),
             priority: 7,
             group: 'navigation',
-            onDidChange: this.onMakerSetsChangedEvent,
+            onDidChange: this.onMakerSetsChangedEvent
         });
         registry.registerItem({
             id: TraceViewerToolbarCommands.OPEN_TRACE.id,
             command: TraceViewerToolbarCommands.OPEN_TRACE.id,
             tooltip: TraceViewerToolbarCommands.OPEN_TRACE.label,
-            priority: 8,
+            priority: 8
         });
         registry.registerItem({
             id: TraceViewerToolbarCommands.OPEN_OVERVIEW_OUTPUT.id,
             command: TraceViewerToolbarCommands.OPEN_OVERVIEW_OUTPUT.id,
             tooltip: TraceViewerToolbarCommands.OPEN_OVERVIEW_OUTPUT.label,
-            priority: 9,
+            priority: 9
         });
         registry.registerItem({
             id: TraceViewerToolbarCommands.CHARTS_CHEATSHEET.id,
             command: TraceViewerToolbarCommands.CHARTS_CHEATSHEET.id,
             tooltip: TraceViewerToolbarCommands.CHARTS_CHEATSHEET.label,
-            priority: 10,
+            priority: 10
         });
     }
 }

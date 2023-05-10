@@ -12,15 +12,15 @@ import { ITspClientProvider } from 'traceviewer-base/lib/tsp-client-provider';
 import { faTimes } from '@fortawesome/free-solid-svg-icons';
 
 export interface ReactOpenTracesWidgetProps {
-    id: string,
-    title: string,
-    tspClientProvider: ITspClientProvider,
-    contextMenuRenderer?: (event: React.MouseEvent<HTMLDivElement>, experiment: Experiment) => void,
-    onClick?: (event: React.MouseEvent<HTMLDivElement>, experiment: Experiment) => void
+    id: string;
+    title: string;
+    tspClientProvider: ITspClientProvider;
+    contextMenuRenderer?: (event: React.MouseEvent<HTMLDivElement>, experiment: Experiment) => void;
+    onClick?: (event: React.MouseEvent<HTMLDivElement>, experiment: Experiment) => void;
 }
 
 export interface ReactOpenTracesWidgetState {
-    openedExperiments: Array<Experiment>,
+    openedExperiments: Array<Experiment>;
     selectedExperimentIndex: number;
 }
 
@@ -36,10 +36,13 @@ export class ReactOpenTracesWidget extends React.Component<ReactOpenTracesWidget
     private _selectedExperiment: Experiment | undefined;
     private _experimentManager: ExperimentManager;
 
-    private _onExperimentOpened = (experiment: Experiment): Promise<void> => this.doHandleExperimentOpenedSignal(experiment);
+    private _onExperimentOpened = (experiment: Experiment): Promise<void> =>
+        this.doHandleExperimentOpenedSignal(experiment);
     private _onExperimentClosed = (experiment: Experiment): void => this.doHandleExperimentClosed(experiment);
-    private _onExperimentDeleted = (experiment: Experiment): Promise<void> => this.doHandleExperimentDeletedSignal(experiment);
-    private _onOpenedTracesWidgetActivated = (experiment: Experiment): void => this.doHandleTracesWidgetActivatedSignal(experiment);
+    private _onExperimentDeleted = (experiment: Experiment): Promise<void> =>
+        this.doHandleExperimentDeletedSignal(experiment);
+    private _onOpenedTracesWidgetActivated = (experiment: Experiment): void =>
+        this.doHandleTracesWidgetActivatedSignal(experiment);
     private _onTraceServerStarted = (): Promise<void> => this.doHandleTraceServerStartedSignal();
 
     constructor(props: ReactOpenTracesWidgetProps) {
@@ -96,7 +99,9 @@ export class ReactOpenTracesWidget extends React.Component<ReactOpenTracesWidget
     protected doHandleTracesWidgetActivatedSignal(experiment: Experiment): void {
         if (this._selectedExperiment?.UUID !== experiment.UUID) {
             this._selectedExperiment = experiment;
-            const selectedIndex = this.state.openedExperiments.findIndex(openedExperiment => openedExperiment.UUID === experiment.UUID);
+            const selectedIndex = this.state.openedExperiments.findIndex(
+                openedExperiment => openedExperiment.UUID === experiment.UUID
+            );
             this.selectExperiment(selectedIndex);
         }
     }
@@ -131,15 +136,19 @@ export class ReactOpenTracesWidget extends React.Component<ReactOpenTracesWidget
         const key = Number(this._forceUpdateKey);
         return (
             <>
-                <ReactModal isOpen={this._showShareDialog} onRequestClose={this.handleShareModalClose}
-                    ariaHideApp={false} className='sharing-modal' overlayClassName='sharing-overlay'>
+                <ReactModal
+                    isOpen={this._showShareDialog}
+                    onRequestClose={this.handleShareModalClose}
+                    ariaHideApp={false}
+                    className="sharing-modal"
+                    overlayClassName="sharing-overlay"
+                >
                     {this.renderSharingModal()}
                 </ReactModal>
-                <div className='trace-explorer-opened'>
-                    <div className='trace-explorer-panel-content'
-                        onClick={this.updateOpenedExperiments}>
+                <div className="trace-explorer-opened">
+                    <div className="trace-explorer-panel-content" onClick={this.updateOpenedExperiments}>
                         <AutoSizer>
-                            {({ width }) =>
+                            {({ width }) => (
                                 <List
                                     key={key}
                                     height={totalHeight}
@@ -147,7 +156,8 @@ export class ReactOpenTracesWidget extends React.Component<ReactOpenTracesWidget
                                     rowCount={this.state.openedExperiments.length}
                                     rowHeight={this.getRowHeight}
                                     rowRenderer={this.renderExperimentRow}
-                                />}
+                                />
+                            )}
                         </AutoSizer>
                     </div>
                 </div>
@@ -162,40 +172,57 @@ export class ReactOpenTracesWidget extends React.Component<ReactOpenTracesWidget
         with experiment name as root and traces (name and path) as children
      */
     protected doRenderExperimentRow(props: ListRowProps): React.ReactNode {
-        const traceName = this.state.openedExperiments.length && props.index < this.state.openedExperiments.length
-            ? this.state.openedExperiments[props.index].name : '';
-        const traceUUID = this.state.openedExperiments.length && props.index < this.state.openedExperiments.length
-            ? this.state.openedExperiments[props.index].UUID : '';
+        const traceName =
+            this.state.openedExperiments.length && props.index < this.state.openedExperiments.length
+                ? this.state.openedExperiments[props.index].name
+                : '';
+        const traceUUID =
+            this.state.openedExperiments.length && props.index < this.state.openedExperiments.length
+                ? this.state.openedExperiments[props.index].UUID
+                : '';
         let traceContainerClassName = 'trace-list-container';
         if (props.index === this.state.selectedExperimentIndex && this.state.selectedExperimentIndex >= 0) {
             traceContainerClassName = traceContainerClassName + ' theia-mod-selected';
         }
-        return <div className={traceContainerClassName}
-            id={`${traceContainerClassName}-${props.index}`}
-            key={props.key}
-            style={props.style}
-            onClick={event => { this.handleClickEvent(event, traceUUID); }}
-            onContextMenu={event => { this.handleContextMenuEvent(event, traceUUID); }}
-            data-id={`${props.index}`}>
-            <div className='trace-element-container'>
-                <div className='trace-element-info' >
-                    <h4 className='trace-element-name'>{traceName}</h4>
-                    {this.renderTracesForExperiment(props.index)}
-                </div>
-                <div className='remove-trace-button-container' title='Remove trace from Trace Viewer'>
-                    <button data-tip data-for="removeTip" className='remove-trace-button'
-                        onClick={event => {this.handleOnExperimentDeleted(event,traceUUID);}}
-                    >
-                        <FontAwesomeIcon icon={faTimes} />
-                    </button>
-                </div>
-                {/* <div className='trace-element-options'>
+        return (
+            <div
+                className={traceContainerClassName}
+                id={`${traceContainerClassName}-${props.index}`}
+                key={props.key}
+                style={props.style}
+                onClick={event => {
+                    this.handleClickEvent(event, traceUUID);
+                }}
+                onContextMenu={event => {
+                    this.handleContextMenuEvent(event, traceUUID);
+                }}
+                data-id={`${props.index}`}
+            >
+                <div className="trace-element-container">
+                    <div className="trace-element-info">
+                        <h4 className="trace-element-name">{traceName}</h4>
+                        {this.renderTracesForExperiment(props.index)}
+                    </div>
+                    <div className="remove-trace-button-container" title="Remove trace from Trace Viewer">
+                        <button
+                            data-tip
+                            data-for="removeTip"
+                            className="remove-trace-button"
+                            onClick={event => {
+                                this.handleOnExperimentDeleted(event, traceUUID);
+                            }}
+                        >
+                            <FontAwesomeIcon icon={faTimes} />
+                        </button>
+                    </div>
+                    {/* <div className='trace-element-options'>
                     <button className='share-context-button' onClick={this.handleShareButtonClick.bind(this, props.index)}>
                         <FontAwesomeIcon icon={faShareSquare} />
                     </button>
                 </div> */}
+                </div>
             </div>
-        </div>;
+        );
     }
 
     protected doHandleOnExperimentDeleted(e: React.MouseEvent<HTMLButtonElement>, traceUUID: string): void {
@@ -208,9 +235,14 @@ export class ReactOpenTracesWidget extends React.Component<ReactOpenTracesWidget
     protected renderTracesForExperiment(index: number): React.ReactNode {
         const tracePaths = this.state.openedExperiments[index].traces;
         return (
-            <div className='trace-element-path-container'>
+            <div className="trace-element-path-container">
                 {tracePaths.map(trace => (
-                    <div className='trace-element-path child-element' id={trace.UUID} key={trace.UUID} title={trace.path}>
+                    <div
+                        className="trace-element-path child-element"
+                        id={trace.UUID}
+                        key={trace.UUID}
+                        title={trace.path}
+                    >
                         {` > ${trace.name}`}
                     </div>
                 ))}
@@ -243,25 +275,28 @@ export class ReactOpenTracesWidget extends React.Component<ReactOpenTracesWidget
 
     protected renderSharingModal(): React.ReactNode {
         if (this._sharingLink.length) {
-            return <div className='sharing-container'>
-                <div className='sharing-description'>
-                    {'Copy URL to share your trace context'}
-                </div>
-                <div className='sharing-link-info'>
-                    <div className='sharing-link'>
-                        <textarea rows={1} cols={this._sharingLink.length} readOnly={true} value={this._sharingLink} />
+            return (
+                <div className="sharing-container">
+                    <div className="sharing-description">{'Copy URL to share your trace context'}</div>
+                    <div className="sharing-link-info">
+                        <div className="sharing-link">
+                            <textarea
+                                rows={1}
+                                cols={this._sharingLink.length}
+                                readOnly={true}
+                                value={this._sharingLink}
+                            />
+                        </div>
+                        <div className="sharing-link-copy">
+                            <button className="copy-link-button">
+                                <FontAwesomeIcon icon={faCopy} />
+                            </button>
+                        </div>
                     </div>
-                    <div className='sharing-link-copy'>
-                        <button className='copy-link-button'>
-                            <FontAwesomeIcon icon={faCopy} />
-                        </button>
-                    </div>
                 </div>
-            </div>;
+            );
         }
-        return <div style={{ color: 'white' }}>
-            {'Cannot share this trace'}
-        </div>;
+        return <div style={{ color: 'white' }}>{'Cannot share this trace'}</div>;
     }
 
     protected updateOpenedExperiments = async (): Promise<void> => this.doUpdateOpenedExperiments();
@@ -271,13 +306,16 @@ export class ReactOpenTracesWidget extends React.Component<ReactOpenTracesWidget
         remoteExperiments.forEach(experiment => {
             this._experimentManager.addExperiment(experiment);
         });
-        const selectedIndex = remoteExperiments.findIndex(experiment => this._selectedExperiment &&
-            experiment.UUID === this._selectedExperiment.UUID);
+        const selectedIndex = remoteExperiments.findIndex(
+            experiment => this._selectedExperiment && experiment.UUID === this._selectedExperiment.UUID
+        );
         // flushSync: force immediate state update instead of waiting for React 18's automatic batching
         flushSync(() => {
             this.setState({ openedExperiments: remoteExperiments, selectedExperimentIndex: selectedIndex });
         });
-        signalManager().fireOpenedTracesChangedSignal(new OpenedTracesUpdatedSignalPayload(remoteExperiments ? remoteExperiments.length : 0));
+        signalManager().fireOpenedTracesChangedSignal(
+            new OpenedTracesUpdatedSignalPayload(remoteExperiments ? remoteExperiments.length : 0)
+        );
     }
 
     protected handleShareButtonClick = (index: number): void => this.doHandleShareButtonClick(index);
@@ -286,13 +324,19 @@ export class ReactOpenTracesWidget extends React.Component<ReactOpenTracesWidget
         const traceToShare = this.state.openedExperiments[index];
         this._sharingLink = 'https://localhost:3000/share/trace?' + traceToShare.UUID;
         this._showShareDialog = true;
-        signalManager().fireOpenedTracesChangedSignal(new OpenedTracesUpdatedSignalPayload(this.state.openedExperiments ? this.state.openedExperiments.length : 0));
+        signalManager().fireOpenedTracesChangedSignal(
+            new OpenedTracesUpdatedSignalPayload(this.state.openedExperiments ? this.state.openedExperiments.length : 0)
+        );
     }
 
-    protected handleOnExperimentSelected = (e: React.MouseEvent<HTMLDivElement>): void => this.doHandleOnExperimentSelected(e);
-    protected handleContextMenuEvent = (e: React.MouseEvent<HTMLDivElement>, traceUUID: string): void => this.doHandleContextMenuEvent(e, traceUUID);
-    protected handleClickEvent = (e: React.MouseEvent<HTMLDivElement>, traceUUID: string): void => this.dohandleClickEvent(e, traceUUID);
-    protected handleOnExperimentDeleted = (e: React.MouseEvent<HTMLButtonElement>, traceUUID: string): void => this.doHandleOnExperimentDeleted(e, traceUUID);
+    protected handleOnExperimentSelected = (e: React.MouseEvent<HTMLDivElement>): void =>
+        this.doHandleOnExperimentSelected(e);
+    protected handleContextMenuEvent = (e: React.MouseEvent<HTMLDivElement>, traceUUID: string): void =>
+        this.doHandleContextMenuEvent(e, traceUUID);
+    protected handleClickEvent = (e: React.MouseEvent<HTMLDivElement>, traceUUID: string): void =>
+        this.dohandleClickEvent(e, traceUUID);
+    protected handleOnExperimentDeleted = (e: React.MouseEvent<HTMLButtonElement>, traceUUID: string): void =>
+        this.doHandleOnExperimentDeleted(e, traceUUID);
 
     protected doHandleOnExperimentSelected(e: React.MouseEvent<HTMLDivElement>): void {
         const index = Number(e.currentTarget.getAttribute('data-id'));
@@ -308,7 +352,11 @@ export class ReactOpenTracesWidget extends React.Component<ReactOpenTracesWidget
     }
 
     private updateSelectedExperiment(): void {
-        if (this.state.openedExperiments && this.state.selectedExperimentIndex >= 0 && this.state.selectedExperimentIndex < this.state.openedExperiments.length) {
+        if (
+            this.state.openedExperiments &&
+            this.state.selectedExperimentIndex >= 0 &&
+            this.state.selectedExperimentIndex < this.state.openedExperiments.length
+        ) {
             this._selectedExperiment = this.state.openedExperiments[this.state.selectedExperimentIndex];
             signalManager().fireExperimentSelectedSignal(this._selectedExperiment);
         }
@@ -317,7 +365,9 @@ export class ReactOpenTracesWidget extends React.Component<ReactOpenTracesWidget
     protected onWidgetActivated(experiment: Experiment): void {
         if (experiment) {
             this._selectedExperiment = experiment;
-            const selectedIndex = this.state.openedExperiments.findIndex(openedExperiment => openedExperiment.UUID === experiment.UUID);
+            const selectedIndex = this.state.openedExperiments.findIndex(
+                openedExperiment => openedExperiment.UUID === experiment.UUID
+            );
             this.selectExperiment(selectedIndex);
         }
     }
@@ -327,6 +377,8 @@ export class ReactOpenTracesWidget extends React.Component<ReactOpenTracesWidget
     protected doHandleShareModalClose(): void {
         this._showShareDialog = false;
         this._sharingLink = '';
-        signalManager().fireOpenedTracesChangedSignal(new OpenedTracesUpdatedSignalPayload(this.state.openedExperiments ? this.state.openedExperiments.length : 0));
+        signalManager().fireOpenedTracesChangedSignal(
+            new OpenedTracesUpdatedSignalPayload(this.state.openedExperiments ? this.state.openedExperiments.length : 0)
+        );
     }
 }

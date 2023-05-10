@@ -16,7 +16,7 @@ export class TableCell extends React.Component<TableCellProps> {
         const content = node.labels[index];
 
         return (
-            <td key={this.props.index+'-td-'+this.props.node.id}>
+            <td key={this.props.index + '-td-' + this.props.node.id}>
                 <span>
                     {this.props.children}
                     {content}

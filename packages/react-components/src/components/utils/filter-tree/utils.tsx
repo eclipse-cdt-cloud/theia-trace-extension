@@ -4,18 +4,18 @@ import ColumnHeader from './column-header';
 
 const entryToTreeNode = (entry: Entry, headers: ColumnHeader[]) => {
     // TODO Instead of padding the labels, ColumnHeader should use a getter function  instead of just assuming strings, this will allow to get the legend for XY charts
-    const labels = ((entry.labels) && (entry.labels.length > 0)) ? entry.labels : [''];
+    const labels = entry.labels && entry.labels.length > 0 ? entry.labels : [''];
     // Pad the labels to match the header count
     for (let i = labels.length; i <= headers.length - 1; i++) {
         labels[i] = '';
     }
-    return ({
+    return {
         labels: labels,
         isRoot: false,
         id: entry.id,
         parentId: entry.parentId,
         children: []
-    } as TreeNode);
+    } as TreeNode;
 };
 
 export const listToTree = (list: Entry[], headers: ColumnHeader[]): TreeNode[] => {
@@ -28,7 +28,7 @@ export const listToTree = (list: Entry[], headers: ColumnHeader[]): TreeNode[] =
     // Create the tree in the order it has been received
     list.forEach(entry => {
         const node = lookup[entry.id];
-        if ((entry.parentId !== undefined) && (entry.parentId !== -1)) {
+        if (entry.parentId !== undefined && entry.parentId !== -1) {
             const parent: TreeNode = lookup[entry.parentId];
             if (parent) {
                 if (parent.id !== node.id) {
@@ -47,7 +47,7 @@ export const listToTree = (list: Entry[], headers: ColumnHeader[]): TreeNode[] =
     return rootNodes;
 };
 
-export const getAllExpandedNodeIds = (nodes: TreeNode[],collapsedNodes: number[]): number[] => {
+export const getAllExpandedNodeIds = (nodes: TreeNode[], collapsedNodes: number[]): number[] => {
     const visibleIds: number[] = [];
     nodes.forEach((node: TreeNode) => {
         visibleIds.push(node.id);
@@ -66,9 +66,7 @@ export const getIndexOfNode = (id: number, nodes: TreeNode[], collapsedNodes: nu
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const validateNumArray = (arr: any | undefined): boolean => {
     if (arr && Array.isArray(arr)) {
-        return (arr.length > 0 &&
-            arr.every( value => typeof value === 'number')
-        );
+        return arr.length > 0 && arr.every(value => typeof value === 'number');
     }
     return false;
 };

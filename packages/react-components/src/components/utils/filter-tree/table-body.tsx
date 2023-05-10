@@ -21,23 +21,17 @@ export class TableBody extends React.Component<TableBodyProps> {
         super(props);
     }
 
-    createRow = (node: TreeNode): React.ReactNode =>
-        <TableRow
-            {...this.props}
-            key={'row-' + node.id}
-            node={node}
-            level={0}
-        />;
+    createRow = (node: TreeNode): React.ReactNode => (
+        <TableRow {...this.props} key={'row-' + node.id} node={node} level={0} />
+    );
 
     renderRows = (): React.ReactNode => this.props.nodes.map((node: TreeNode) => this.createRow(node));
 
     render(): React.ReactNode | undefined {
-        if (!this.props.nodes) { return undefined; }
+        if (!this.props.nodes) {
+            return undefined;
+        }
 
-        return (
-            <tbody>
-                {this.renderRows()}
-            </tbody>
-        );
+        return <tbody>{this.renderRows()}</tbody>;
     }
 }

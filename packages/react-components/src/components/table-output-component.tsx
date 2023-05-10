@@ -3,7 +3,16 @@ import { AbstractOutputComponent, AbstractOutputProps, AbstractOutputState } fro
 import * as React from 'react';
 import { flushSync } from 'react-dom';
 import { AgGridReact } from 'ag-grid-react';
-import { ColDef, IDatasource, GridReadyEvent, CellClickedEvent, GridApi, ColumnApi, Column, RowNode } from 'ag-grid-community';
+import {
+    ColDef,
+    IDatasource,
+    GridReadyEvent,
+    CellClickedEvent,
+    GridApi,
+    ColumnApi,
+    Column,
+    RowNode
+} from 'ag-grid-community';
 import { QueryHelper } from 'tsp-typescript-client/lib/models/query/query-helper';
 import { cloneDeep } from 'lodash';
 import { signalManager } from 'traceviewer-base/lib/signals/signal-manager';
@@ -77,7 +86,7 @@ export class TableOutputComponent extends AbstractOutputComponent<TableOutputPro
         this.state = {
             outputStatus: ResponseStatus.RUNNING,
             tableColumns: [],
-            showToggleColumns: false,
+            showToggleColumns: false
         };
 
         this.frameworkComponents = {
@@ -113,44 +122,47 @@ export class TableOutputComponent extends AbstractOutputComponent<TableOutputPro
     }
 
     renderMainArea(): React.ReactNode {
-        return <div id={this.props.traceId + this.props.outputDescriptor.id + 'focusContainer'}
-            tabIndex={-1}
-            onFocus={event => this.checkFocus(event)}
-            className={this.props.backgroundTheme === 'light' ? 'ag-theme-balham' : 'ag-theme-balham-dark'}
-            style={{
-                height: this.props.style.height,
-                width: this.props.outputWidth,
-                display: 'flex',
-                flexDirection: 'column'
-            }}>
-            <AgGridReact
-                columnDefs={this.columnArray}
-                rowModelType='infinite'
-                cacheBlockSize={this.props.cacheBlockSize}
-                maxBlocksInCache={this.props.maxBlocksInCache}
-                blockLoadDebounceMillis={this.props.blockLoadDebounce}
-                pagination={true}
-                paginationPageSize={this.paginationPageSize}
-                suppressPaginationPanel={true}
-                debug={this.debugMode}
-                onGridReady={this.onGridReady}
-                onCellClicked={this.onEventClick}
-                rowSelection='multiple'
-                onModelUpdated={this.onModelUpdated}
-                onCellKeyDown={this.onKeyDown}
-                components={this.frameworkComponents}
-                enableBrowserTooltips={true}
+        return (
+            <div
+                id={this.props.traceId + this.props.outputDescriptor.id + 'focusContainer'}
+                tabIndex={-1}
+                onFocus={event => this.checkFocus(event)}
+                className={this.props.backgroundTheme === 'light' ? 'ag-theme-balham' : 'ag-theme-balham-dark'}
+                style={{
+                    height: this.props.style.height,
+                    width: this.props.outputWidth,
+                    display: 'flex',
+                    flexDirection: 'column'
+                }}
             >
-            </AgGridReact>
-            {this.pagination &&
-                <PaginationBarComponent
+                <AgGridReact
+                    columnDefs={this.columnArray}
+                    rowModelType="infinite"
+                    cacheBlockSize={this.props.cacheBlockSize}
+                    maxBlocksInCache={this.props.maxBlocksInCache}
+                    blockLoadDebounceMillis={this.props.blockLoadDebounce}
+                    pagination={true}
                     paginationPageSize={this.paginationPageSize}
-                    paginationTotalPages={this.paginationTotalPages}
-                    nbEvents={this.props.nbEvents}
-                    gridApi={this?.gridApi}
-                />
-            }
-        </div>;
+                    suppressPaginationPanel={true}
+                    debug={this.debugMode}
+                    onGridReady={this.onGridReady}
+                    onCellClicked={this.onEventClick}
+                    rowSelection="multiple"
+                    onModelUpdated={this.onModelUpdated}
+                    onCellKeyDown={this.onKeyDown}
+                    components={this.frameworkComponents}
+                    enableBrowserTooltips={true}
+                ></AgGridReact>
+                {this.pagination && (
+                    <PaginationBarComponent
+                        paginationPageSize={this.paginationPageSize}
+                        paginationTotalPages={this.paginationTotalPages}
+                        nbEvents={this.props.nbEvents}
+                        gridApi={this?.gridApi}
+                    />
+                )}
+            </div>
+        );
     }
 
     resultsAreEmpty(): boolean {
@@ -158,7 +170,9 @@ export class TableOutputComponent extends AbstractOutputComponent<TableOutputPro
     }
 
     componentDidMount(): void {
-        this.props.unitController.onSelectionRangeChange(range => { this.handleTimeSelectionChange(range); });
+        this.props.unitController.onSelectionRangeChange(range => {
+            this.handleTimeSelectionChange(range);
+        });
     }
 
     private checkFocus(event: React.FocusEvent<HTMLDivElement, Element>): void {
@@ -202,7 +216,7 @@ export class TableOutputComponent extends AbstractOutputComponent<TableOutputPro
         const rowIndex = event.rowIndex ?? 0;
         const itemPropsObj: { [key: string]: string } | undefined = this.fetchItemProperties(columns, data);
 
-        const currTimestamp = (this.timestampCol && data) ? data[this.timestampCol] : undefined;
+        const currTimestamp = this.timestampCol && data ? data[this.timestampCol] : undefined;
         this.enableIndexSelection = true;
         if (mouseEvent.shiftKey) {
             if (this.selectStartIndex === -1) {
@@ -252,7 +266,7 @@ export class TableOutputComponent extends AbstractOutputComponent<TableOutputPro
         const keyEvent = event.event as KeyboardEvent;
         const rowIndex = event.rowIndex ?? 0;
         this.enableIndexSelection = true;
-        const currTimestamp = (this.timestampCol && event.data) ? event.data[this.timestampCol] : undefined;
+        const currTimestamp = this.timestampCol && event.data ? event.data[this.timestampCol] : undefined;
 
         if (gridApi) {
             let nextRow;
@@ -275,7 +289,11 @@ export class TableOutputComponent extends AbstractOutputComponent<TableOutputPro
                             this.selectStartIndex = this.selectEndIndex = nextRow.rowIndex;
                         }
                     } else {
-                        if (this.selectStartIndex && this.selectEndIndex && this.selectEndIndex < this.selectStartIndex) {
+                        if (
+                            this.selectStartIndex &&
+                            this.selectEndIndex &&
+                            this.selectEndIndex < this.selectStartIndex
+                        ) {
                             if (currentRow && currentRow.id) {
                                 currentRow.setSelected(false);
                             }
@@ -318,7 +336,6 @@ export class TableOutputComponent extends AbstractOutputComponent<TableOutputPro
                             this.endTimestamp = BigInt(nextRow.data[this.timestampCol]);
                         }
                     }
-
                 } else if (keyEvent.code === 'Space') {
                     this.selectEndIndex = rowIndex;
                     if (currTimestamp) {
@@ -477,7 +494,7 @@ export class TableOutputComponent extends AbstractOutputComponent<TableOutputPro
         }
     }
 
-    private handleSelectionRangeUpdate(payload: { [key: string]: string; }) {
+    private handleSelectionRangeUpdate(payload: { [key: string]: string }) {
         const offset = this.props.viewRange.getOffset() || BigInt(0);
         const startTimestamp = payload['startTimestamp'];
         const endTimestamp = payload['endTimestamp'];
@@ -512,11 +529,14 @@ export class TableOutputComponent extends AbstractOutputComponent<TableOutputPro
                 this.selectStartIndex = this.selectEndIndex = -1;
                 this.gridApi.deselectAll();
 
-                const index = await this.fetchTableIndex(this.startTimestamp > this.endTimestamp ? this.startTimestamp + BigInt(1) : this.startTimestamp);
+                const index = await this.fetchTableIndex(
+                    this.startTimestamp > this.endTimestamp ? this.startTimestamp + BigInt(1) : this.startTimestamp
+                );
                 if (index) {
                     const startIndex = this.startTimestamp > this.endTimestamp ? index - 1 : index;
                     this.selectStartIndex = this.selectStartIndex === -1 ? startIndex : this.selectStartIndex;
-                    this.selectEndIndex = (this.enableIndexSelection && this.selectEndIndex === -1) ? startIndex : this.selectEndIndex;
+                    this.selectEndIndex =
+                        this.enableIndexSelection && this.selectEndIndex === -1 ? startIndex : this.selectEndIndex;
                     this.updatePageIndex(index);
                     this.selectRows();
                 }
@@ -530,8 +550,11 @@ export class TableOutputComponent extends AbstractOutputComponent<TableOutputPro
         const traceUUID = this.props.traceId;
         const tspClient = this.props.tspClient;
         const outputId = this.props.outputDescriptor.id;
-        const tspClientResponse = await tspClient.fetchTableLines(traceUUID, outputId,
-            QueryHelper.timeQuery([timestamp], { [QueryHelper.REQUESTED_TABLE_COUNT_KEY]: 1 }));
+        const tspClientResponse = await tspClient.fetchTableLines(
+            traceUUID,
+            outputId,
+            QueryHelper.timeQuery([timestamp], { [QueryHelper.REQUESTED_TABLE_COUNT_KEY]: 1 })
+        );
         const lineResponse = tspClientResponse.getModel();
         if (!tspClientResponse.isOk() || !lineResponse) {
             return undefined;
@@ -544,7 +567,7 @@ export class TableOutputComponent extends AbstractOutputComponent<TableOutputPro
         return lines[0].index;
     }
 
-    private fetchAdditionalParams(direction?: Direction): ({ [key: string]: any }) {
+    private fetchAdditionalParams(direction?: Direction): { [key: string]: any } {
         let additionalParams: { [key: string]: any } = {};
         const filterObj: { [key: number]: string } = {};
         if (this.filterModel) {
@@ -553,7 +576,7 @@ export class TableOutputComponent extends AbstractOutputComponent<TableOutputPro
                 filterObj[k] = value;
             });
             additionalParams = {
-                ['table_search_expressions']: filterObj,
+                ['table_search_expressions']: filterObj
             };
             if (direction !== undefined) {
                 additionalParams['table_search_direction'] = Direction[direction];
@@ -568,7 +591,11 @@ export class TableOutputComponent extends AbstractOutputComponent<TableOutputPro
         const outputId = this.props.outputDescriptor.id;
 
         const additionalParams = this.fetchAdditionalParams();
-        const tspClientResponse = await tspClient.fetchTableLines(traceUUID, outputId, QueryHelper.tableQuery(this.columnIds, fetchIndex, linesToFetch, additionalParams));
+        const tspClientResponse = await tspClient.fetchTableLines(
+            traceUUID,
+            outputId,
+            QueryHelper.tableQuery(this.columnIds, fetchIndex, linesToFetch, additionalParams)
+        );
         const lineResponse = tspClientResponse.getModel();
         if (!tspClientResponse.isOk() || !lineResponse) {
             return new Array<any>();
@@ -594,7 +621,7 @@ export class TableOutputComponent extends AbstractOutputComponent<TableOutputPro
                 obj[id] = cell.content;
             });
 
-            obj['isMatched'] = (line.tags !== undefined && line.tags > 0);
+            obj['isMatched'] = line.tags !== undefined && line.tags > 0;
             linesArray.push(obj);
         });
         return linesArray;
@@ -629,7 +656,7 @@ export class TableOutputComponent extends AbstractOutputComponent<TableOutputPro
                 }
                 let isMatched = true;
                 this.filterModel.forEach((value, key) => {
-                    if ((rowNode.data[key].search(new RegExp(value)) === -1)) {
+                    if (rowNode.data[key].search(new RegExp(value)) === -1) {
                         isMatched = false;
                     }
                 });
@@ -646,7 +673,11 @@ export class TableOutputComponent extends AbstractOutputComponent<TableOutputPro
         const tspClient = this.props.tspClient;
         const outputId = this.props.outputDescriptor.id;
         const additionalParams = this.fetchAdditionalParams(direction);
-        const tspClientResponse = await tspClient.fetchTableLines(traceUUID, outputId, QueryHelper.tableQuery(this.columnIds, currRowIndex, 1, additionalParams));
+        const tspClientResponse = await tspClient.fetchTableLines(
+            traceUUID,
+            outputId,
+            QueryHelper.tableQuery(this.columnIds, currRowIndex, 1, additionalParams)
+        );
         const lineResponse = tspClientResponse.getModel();
         if (!tspClientResponse.isOk() || !lineResponse) {
             return undefined;
@@ -730,7 +761,13 @@ export class TableOutputComponent extends AbstractOutputComponent<TableOutputPro
                     currRowIndexFound = false;
                 }
                 // only checking 'rowNode.rowIndex' below makes its '=== 0' case false:
-                if (currRowIndexFound && !isFound && (rowNode.rowIndex || rowNode.rowIndex === 0) && rowNode.data && rowNode.data['isMatched']) {
+                if (
+                    currRowIndexFound &&
+                    !isFound &&
+                    (rowNode.rowIndex || rowNode.rowIndex === 0) &&
+                    rowNode.data &&
+                    rowNode.data['isMatched']
+                ) {
                     this.gridApi?.ensureIndexVisible(rowNode.rowIndex);
                     this.updatePageIndex(rowNode.rowIndex);
 
@@ -788,11 +825,20 @@ export class TableOutputComponent extends AbstractOutputComponent<TableOutputPro
     }
 
     private isValidRowSelection(rowNode: RowNode): boolean {
-        if ((this.enableIndexSelection && this.selectStartIndex !== -1 && this.selectEndIndex !== -1
-            && rowNode.rowIndex && rowNode.rowIndex >= Math.min(this.selectStartIndex, this.selectEndIndex)
-            && rowNode.rowIndex <= Math.max(this.selectStartIndex, this.selectEndIndex)) || (!this.enableIndexSelection
-                && this.timestampCol && BigInt(rowNode.data[this.timestampCol]) >= (this.startTimestamp <= this.endTimestamp ? this.startTimestamp : this.endTimestamp)
-                && BigInt(rowNode.data[this.timestampCol]) <= (this.startTimestamp <= this.endTimestamp ? this.endTimestamp : this.startTimestamp))) {
+        if (
+            (this.enableIndexSelection &&
+                this.selectStartIndex !== -1 &&
+                this.selectEndIndex !== -1 &&
+                rowNode.rowIndex &&
+                rowNode.rowIndex >= Math.min(this.selectStartIndex, this.selectEndIndex) &&
+                rowNode.rowIndex <= Math.max(this.selectStartIndex, this.selectEndIndex)) ||
+            (!this.enableIndexSelection &&
+                this.timestampCol &&
+                BigInt(rowNode.data[this.timestampCol]) >=
+                    (this.startTimestamp <= this.endTimestamp ? this.startTimestamp : this.endTimestamp) &&
+                BigInt(rowNode.data[this.timestampCol]) <=
+                    (this.startTimestamp <= this.endTimestamp ? this.endTimestamp : this.startTimestamp))
+        ) {
             return true;
         }
         return false;
@@ -834,24 +880,28 @@ export class TableOutputComponent extends AbstractOutputComponent<TableOutputPro
         }
         const columns = this.columnApi.getAllGridColumns();
 
-        return <React.Fragment>
-            <table style={{ width: '100%' }}>
-                <tbody>
-                    {columns.map((column, key) =>
-                        <tr key={key}>
-                            <td>
-                                <input
-                                    type='checkbox'
-                                    checked={this.columnApi!.getColumn(column)?.isVisible()}
-                                    onChange={() => this.toggleColumnVisibility(this.columnApi!, column.getColDef())}
-                                />
-                            </td>
-                            <td>{column.getColDef().headerName}</td>
-                        </tr>
-                    )}
-                </tbody>
-            </table>
-        </React.Fragment>;
+        return (
+            <React.Fragment>
+                <table style={{ width: '100%' }}>
+                    <tbody>
+                        {columns.map((column, key) => (
+                            <tr key={key}>
+                                <td>
+                                    <input
+                                        type="checkbox"
+                                        checked={this.columnApi!.getColumn(column)?.isVisible()}
+                                        onChange={() =>
+                                            this.toggleColumnVisibility(this.columnApi!, column.getColDef())
+                                        }
+                                    />
+                                </td>
+                                <td>{column.getColDef().headerName}</td>
+                            </tr>
+                        ))}
+                    </tbody>
+                </table>
+            </React.Fragment>
+        );
     }
 
     protected closeOptionsDropDown(): void {
@@ -861,16 +911,23 @@ export class TableOutputComponent extends AbstractOutputComponent<TableOutputPro
     }
 
     protected showAdditionalOptions(): React.ReactNode {
-        return <React.Fragment>
-            <ul>
-                <li className='drop-down-list-item' onClick={() => {
-                    this.setState({showToggleColumns: !this.state.showToggleColumns});
-                }}>
-                    <div className='drop-down-list-item-text'>Toggle Columns</div>
-                </li>
-            </ul>
-            {this.state.showToggleColumns && <div className='toggle-columns-table'>{this.renderToggleColumnsTable()}</div>}
-        </React.Fragment>;
+        return (
+            <React.Fragment>
+                <ul>
+                    <li
+                        className="drop-down-list-item"
+                        onClick={() => {
+                            this.setState({ showToggleColumns: !this.state.showToggleColumns });
+                        }}
+                    >
+                        <div className="drop-down-list-item-text">Toggle Columns</div>
+                    </li>
+                </ul>
+                {this.state.showToggleColumns && (
+                    <div className="toggle-columns-table">{this.renderToggleColumnsTable()}</div>
+                )}
+            </React.Fragment>
+        );
     }
 
     private updatePageIndex(rowIndex: number): void {

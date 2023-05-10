@@ -5,29 +5,35 @@ import { Experiment } from 'tsp-typescript-client/lib/models/experiment';
 import { signalManager, Signals } from 'traceviewer-base/lib/signals/signal-manager';
 
 export interface AvailableViewsComponentProps {
-    traceID: string | undefined,
-    outputDescriptors: OutputDescriptor[],
-    onContextMenuEvent?: (event: React.MouseEvent<HTMLDivElement, MouseEvent>, output: OutputDescriptor | undefined) => void,
-    onOutputClicked: (selectedOutput: OutputDescriptor) => void,
-    listRowWidth?: string,
-    listRowPadding?: string,
-    highlightAfterSelection?: boolean
+    traceID: string | undefined;
+    outputDescriptors: OutputDescriptor[];
+    onContextMenuEvent?: (
+        event: React.MouseEvent<HTMLDivElement, MouseEvent>,
+        output: OutputDescriptor | undefined
+    ) => void;
+    onOutputClicked: (selectedOutput: OutputDescriptor) => void;
+    listRowWidth?: string;
+    listRowPadding?: string;
+    highlightAfterSelection?: boolean;
 }
 
 export interface AvailableViewsComponentState {
     lastSelectedOutputIndex: number;
 }
 
-export class AvailableViewsComponent  extends React.Component<AvailableViewsComponentProps, AvailableViewsComponentState>{
+export class AvailableViewsComponent extends React.Component<
+    AvailableViewsComponentProps,
+    AvailableViewsComponentState
+> {
     static LIST_MARGIN = 2;
     static LINE_HEIGHT = 16;
-    static ROW_HEIGHT = (2 * AvailableViewsComponent.LINE_HEIGHT) + AvailableViewsComponent.LIST_MARGIN;
+    static ROW_HEIGHT = 2 * AvailableViewsComponent.LINE_HEIGHT + AvailableViewsComponent.LIST_MARGIN;
 
     private _forceUpdateKey = false;
     protected handleOutputClicked = (e: React.MouseEvent<HTMLDivElement>): void => this.doHandleOutputClicked(e);
     private _onExperimentSelected = (experiment: Experiment): void => this.doHandleExperimentSelectedSignal(experiment);
 
-    constructor(props: AvailableViewsComponentProps){
+    constructor(props: AvailableViewsComponentProps) {
         super(props);
         signalManager().on(Signals.EXPERIMENT_SELECTED, this._onExperimentSelected);
         this.state = { lastSelectedOutputIndex: -1 };
@@ -47,9 +53,9 @@ export class AvailableViewsComponent  extends React.Component<AvailableViewsComp
         }
         const totalHeight = this.getTotalHeight();
         return (
-            <div className='trace-explorer-panel-content disable-select' style={{height: totalHeight}}>
+            <div className="trace-explorer-panel-content disable-select" style={{ height: totalHeight }}>
                 <AutoSizer>
-                    {({ width }) =>
+                    {({ width }) => (
                         <List
                             key={key}
                             height={totalHeight}
@@ -58,7 +64,7 @@ export class AvailableViewsComponent  extends React.Component<AvailableViewsComp
                             rowHeight={AvailableViewsComponent.ROW_HEIGHT}
                             rowRenderer={this.renderRowOutputs}
                         />
-                    }
+                    )}
                 </AutoSizer>
             </div>
         );
@@ -90,40 +96,45 @@ export class AvailableViewsComponent  extends React.Component<AvailableViewsComp
             props.style.paddingRight = this.props.listRowPadding;
         }
 
-        return <div className={traceContainerClassName}
-            title={outputName + ':\n' + outputDescription}
-            id={`${traceContainerClassName}-${props.index}`}
-            key={props.key}
-            style={props.style}
-            onClick={this.handleOutputClicked}
-            onContextMenu={event => { this.doHandleContextMenuEvent(event, output); }}
-            data-id={`${props.index}`}
-        >
-            <div style={{width: '100%'}}>
-                <h4 className='outputs-element-name'>
-                    {outputName}
-                </h4>
-                <div className='outputs-element-description child-element'>
-                    {outputDescription}
+        return (
+            <div
+                className={traceContainerClassName}
+                title={outputName + ':\n' + outputDescription}
+                id={`${traceContainerClassName}-${props.index}`}
+                key={props.key}
+                style={props.style}
+                onClick={this.handleOutputClicked}
+                onContextMenu={event => {
+                    this.doHandleContextMenuEvent(event, output);
+                }}
+                data-id={`${props.index}`}
+            >
+                <div style={{ width: '100%' }}>
+                    <h4 className="outputs-element-name">{outputName}</h4>
+                    <div className="outputs-element-description child-element">{outputDescription}</div>
                 </div>
             </div>
-        </div>;
+        );
     }
 
-    private doHandleContextMenuEvent(event: React.MouseEvent<HTMLDivElement, MouseEvent>, output: OutputDescriptor | undefined) {
-        if (this.props.onContextMenuEvent)
-            {this.props.onContextMenuEvent(event, output);}
+    private doHandleContextMenuEvent(
+        event: React.MouseEvent<HTMLDivElement, MouseEvent>,
+        output: OutputDescriptor | undefined
+    ) {
+        if (this.props.onContextMenuEvent) {
+            this.props.onContextMenuEvent(event, output);
+        }
     }
 
     protected doHandleExperimentSelectedSignal(experiment: Experiment | undefined): void {
-        if ((this.props.traceID !== experiment?.UUID) || this.props.outputDescriptors.length === 0) {
+        if (this.props.traceID !== experiment?.UUID || this.props.outputDescriptors.length === 0) {
             this.setState({ lastSelectedOutputIndex: -1 });
         }
     }
 
     private doHandleOutputClicked(e: React.MouseEvent<HTMLDivElement>) {
         const index = Number(e.currentTarget.getAttribute('data-id'));
-        this.setState({lastSelectedOutputIndex: index});
+        this.setState({ lastSelectedOutputIndex: index });
         const selectedOutput = this.props.outputDescriptors[index];
 
         this.props.onOutputClicked(selectedOutput);
@@ -132,7 +143,7 @@ export class AvailableViewsComponent  extends React.Component<AvailableViewsComp
     protected getTotalHeight(): number {
         let totalHeight = 0;
         const outputDescriptors = this.props.outputDescriptors;
-        outputDescriptors?.forEach(() => totalHeight += AvailableViewsComponent.ROW_HEIGHT);
+        outputDescriptors?.forEach(() => (totalHeight += AvailableViewsComponent.ROW_HEIGHT));
         return totalHeight;
     }
 }

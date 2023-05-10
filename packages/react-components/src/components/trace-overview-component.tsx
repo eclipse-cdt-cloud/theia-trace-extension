@@ -8,11 +8,13 @@ type XYoutputOverviewProps = AbstractOutputProps & {
 };
 
 export class TraceOverviewComponent extends React.Component<XYoutputOverviewProps> {
-    constructor(props: XYoutputOverviewProps){
+    constructor(props: XYoutputOverviewProps) {
         super(props);
     }
 
     render(): JSX.Element {
-        return <XYOutputOverviewComponent key={this.props.outputDescriptor.id} {...this.props}></XYOutputOverviewComponent>;
+        return (
+            <XYOutputOverviewComponent key={this.props.outputDescriptor.id} {...this.props}></XYOutputOverviewComponent>
+        );
     }
 }

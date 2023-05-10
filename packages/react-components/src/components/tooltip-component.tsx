@@ -6,12 +6,11 @@ type MaybePromise<T> = T | Promise<T>;
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export interface TooltipComponentState<T = any> {
     element?: T;
-    func?: ((element: T) => MaybePromise<{ [key: string]: string } | undefined>);
+    func?: (element: T) => MaybePromise<{ [key: string]: string } | undefined>;
     content?: string;
 }
 
 export class TooltipComponent extends React.Component<unknown, TooltipComponentState> {
-
     private static readonly HOURGLASS_NOT_DONE = '&#x23f3;';
 
     timerId?: NodeJS.Timeout;
@@ -26,50 +25,53 @@ export class TooltipComponent extends React.Component<unknown, TooltipComponentS
     }
 
     render(): React.ReactNode {
-        return <div role={ 'tooltip-component-role' }
-            onMouseEnter={() => {
-                if (this.timerId) {
-                    clearTimeout(this.timerId);
-                    this.timerId = undefined;
-                }
-            }}
-            onMouseLeave={() => {
-                ReactTooltip.hide();
-                this.setState({ content: undefined });
-            }}
-            >
-            <ReactTooltip
-                className="react-tooltip"
-                id="tooltip-component"
-                effect='float'
-                type='info'
-                place='bottom'
-                html={true}
-                delayShow={500}
-                delayUpdate={500}
-                afterShow={() => {
+        return (
+            <div
+                role={'tooltip-component-role'}
+                onMouseEnter={() => {
                     if (this.timerId) {
                         clearTimeout(this.timerId);
                         this.timerId = undefined;
                     }
-                    if (this.state.content === undefined) {
-                        this.fetchContent(this.state.element);
-                    }
                 }}
-                clickable={true}
-                scrollHide={true}
-                arrowColor='transparent'
-                overridePosition={({ left, top }, currentEvent, currentTarget, refNode, place) => {
-                    left += (place === 'left') ? -10 : (place === 'right') ? 10 : 0;
-                    top += (place === 'top') ? -10 : 0;
-                    return { left, top };
+                onMouseLeave={() => {
+                    ReactTooltip.hide();
+                    this.setState({ content: undefined });
                 }}
-                getContent={() => this.getContent()}
-            />
-        </div>;
+            >
+                <ReactTooltip
+                    className="react-tooltip"
+                    id="tooltip-component"
+                    effect="float"
+                    type="info"
+                    place="bottom"
+                    html={true}
+                    delayShow={500}
+                    delayUpdate={500}
+                    afterShow={() => {
+                        if (this.timerId) {
+                            clearTimeout(this.timerId);
+                            this.timerId = undefined;
+                        }
+                        if (this.state.content === undefined) {
+                            this.fetchContent(this.state.element);
+                        }
+                    }}
+                    clickable={true}
+                    scrollHide={true}
+                    arrowColor="transparent"
+                    overridePosition={({ left, top }, currentEvent, currentTarget, refNode, place) => {
+                        left += place === 'left' ? -10 : place === 'right' ? 10 : 0;
+                        top += place === 'top' ? -10 : 0;
+                        return { left, top };
+                    }}
+                    getContent={() => this.getContent()}
+                />
+            </div>
+        );
     }
 
-    setElement<T>(element: T, func?: ((element: T) => MaybePromise<{ [key: string]: string } | undefined>)): void {
+    setElement<T>(element: T, func?: (element: T) => MaybePromise<{ [key: string]: string } | undefined>): void {
         if (element !== this.state.element && this.state.element) {
             if (this.state.content) {
                 if (this.timerId === undefined) {
@@ -104,7 +106,7 @@ export class TooltipComponent extends React.Component<unknown, TooltipComponentS
             const tooltipInfo = await this.state.func(element);
             let content = '<table>';
             if (tooltipInfo) {
-                Object.entries(tooltipInfo).forEach(([k, v]) => content += this.tooltipRow(k, v));
+                Object.entries(tooltipInfo).forEach(([k, v]) => (content += this.tooltipRow(k, v)));
             }
             content += '</table>';
             if (this.state.element === element) {

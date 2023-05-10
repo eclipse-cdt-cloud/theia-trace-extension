@@ -8,7 +8,6 @@ import { LazyTspClientFactory } from 'traceviewer-base/lib/lazy-tsp-client';
 
 @injectable()
 export class TspClientProvider implements ITspClientProvider {
-
     private _tspClient: TspClient;
     private _traceManager: TraceManager;
     private _experimentManager: ExperimentManager;
@@ -16,7 +15,7 @@ export class TspClientProvider implements ITspClientProvider {
 
     constructor(
         @inject(TraceServerUrlProvider) private tspUrlProvider: TraceServerUrlProvider,
-        @inject(LazyTspClientFactory) private lazyTspClientFactory: LazyTspClientFactory,
+        @inject(LazyTspClientFactory) private lazyTspClientFactory: LazyTspClientFactory
     ) {
         const traceServerUrlPromise = this.tspUrlProvider.getTraceServerUrlPromise();
         this._tspClient = this.lazyTspClientFactory(traceServerUrlPromise);

@@ -14,8 +14,10 @@ export class Message extends React.Component<MessageProps> {
     };
 
     render(): JSX.Element {
-        return <React.Fragment>
-            <span>{this.props.error}</span>
-        </React.Fragment>;
+        return (
+            <React.Fragment>
+                <span>{this.props.error}</span>
+            </React.Fragment>
+        );
     }
 }

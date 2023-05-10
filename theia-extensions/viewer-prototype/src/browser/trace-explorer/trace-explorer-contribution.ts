@@ -1,12 +1,15 @@
 import { injectable } from 'inversify';
 import { AbstractViewContribution } from '@theia/core/lib/browser/shell/view-contribution';
-import { TraceExplorerWidget, } from './trace-explorer-widget';
+import { TraceExplorerWidget } from './trace-explorer-widget';
 import { FrontendApplicationContribution, FrontendApplication } from '@theia/core/lib/browser';
 import { MenuModelRegistry, CommandRegistry } from '@theia/core';
 import { TraceExplorerCommands, TraceExplorerMenus } from './trace-explorer-commands';
 
 @injectable()
-export class TraceExplorerContribution extends AbstractViewContribution<TraceExplorerWidget> implements FrontendApplicationContribution {
+export class TraceExplorerContribution
+    extends AbstractViewContribution<TraceExplorerWidget>
+    implements FrontendApplicationContribution
+{
     constructor() {
         super({
             widgetId: TraceExplorerWidget.ID,

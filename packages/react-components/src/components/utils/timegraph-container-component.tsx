@@ -6,13 +6,13 @@ import { debounce } from 'lodash';
 
 export namespace ReactTimeGraphContainer {
     export interface Props {
-        id: string,
-        options: TimeGraphContainerOptions,
-        unitController: TimeGraphUnitController,
-        layers: TimeGraphLayer[],
-        children?: never[],
-        addWidgetResizeHandler: (handler: () => void) => void
-        removeWidgetResizeHandler: (handler: () => void) => void
+        id: string;
+        options: TimeGraphContainerOptions;
+        unitController: TimeGraphUnitController;
+        layers: TimeGraphLayer[];
+        children?: never[];
+        addWidgetResizeHandler: (handler: () => void) => void;
+        removeWidgetResizeHandler: (handler: () => void) => void;
     }
 }
 
@@ -20,7 +20,7 @@ export class ReactTimeGraphContainer extends React.Component<ReactTimeGraphConta
     protected ref: HTMLCanvasElement | undefined;
     protected container?: TimeGraphContainer;
 
-    private _resizeHandler: { (): void; (): void; (): void; } | undefined;
+    private _resizeHandler: { (): void; (): void; (): void } | undefined;
 
     componentDidMount(): void {
         const { options, unitController, layers } = this.props;
@@ -42,26 +42,42 @@ export class ReactTimeGraphContainer extends React.Component<ReactTimeGraphConta
     }
 
     shouldComponentUpdate(nextProps: ReactTimeGraphContainer.Props): boolean {
-        return nextProps.options.height !== this.props.options.height
-            || nextProps.options.width !== this.props.options.width
-            || nextProps.options.backgroundColor !== this.props.options.backgroundColor;
+        return (
+            nextProps.options.height !== this.props.options.height ||
+            nextProps.options.width !== this.props.options.width ||
+            nextProps.options.backgroundColor !== this.props.options.backgroundColor
+        );
     }
 
     componentDidUpdate(prevProps: ReactTimeGraphContainer.Props): void {
-        if ((prevProps.options.height !== this.props.options.height
-            || prevProps.options.backgroundColor !== this.props.options.backgroundColor)
-            && this.container) {
-            this.container.updateCanvas(this.props.options.width, this.props.options.height, this.props.options.backgroundColor, this.props.options.lineColor);
+        if (
+            (prevProps.options.height !== this.props.options.height ||
+                prevProps.options.backgroundColor !== this.props.options.backgroundColor) &&
+            this.container
+        ) {
+            this.container.updateCanvas(
+                this.props.options.width,
+                this.props.options.height,
+                this.props.options.backgroundColor,
+                this.props.options.lineColor
+            );
         }
     }
 
     render(): JSX.Element {
-        return <canvas ref={ ref => this.ref = ref || undefined } onWheel={ e => e.preventDefault() } tabIndex={ 0 }></canvas>;
+        return (
+            <canvas ref={ref => (this.ref = ref || undefined)} onWheel={e => e.preventDefault()} tabIndex={0}></canvas>
+        );
     }
 
     private resize(): void {
         if (this.container) {
-            this.container.updateCanvas(this.props.options.width, this.props.options.height, this.props.options.backgroundColor, this.props.options.lineColor);
+            this.container.updateCanvas(
+                this.props.options.width,
+                this.props.options.height,
+                this.props.options.backgroundColor,
+                this.props.options.lineColor
+            );
         }
     }
 }

@@ -15,7 +15,12 @@ import * as React from 'react';
 import { flushSync } from 'react-dom';
 import { TimeRange } from 'traceviewer-base/src/utils/time-range';
 import { BIMath } from 'timeline-chart/lib/bigint-utils';
-import { XYChartFactoryParams, xyChartFactory, GetClosestPointParam, getClosestPointForScatterPlot } from './utils/xy-output-component-utils';
+import {
+    XYChartFactoryParams,
+    xyChartFactory,
+    GetClosestPointParam,
+    getClosestPointForScatterPlot
+} from './utils/xy-output-component-utils';
 import { ChartOptions } from 'chart.js';
 import { Line, Scatter } from 'react-chartjs-2';
 import { getAllExpandedNodeIds } from './utils/filter-tree/utils';
@@ -67,8 +72,10 @@ class xyPair {
     }
 }
 
-export abstract class AbstractXYOutputComponent<P extends AbstractOutputProps, S extends AbstractXYOutputState> extends AbstractTreeOutputComponent<P, S> {
-
+export abstract class AbstractXYOutputComponent<
+    P extends AbstractOutputProps,
+    S extends AbstractXYOutputState
+> extends AbstractTreeOutputComponent<P, S> {
     // References
     private yAxisRef: any;
     protected divRef: any;
@@ -100,7 +107,7 @@ export abstract class AbstractXYOutputComponent<P extends AbstractOutputProps, S
 
     protected endSelection = (event: MouseEvent): void => {
         if (this.clickedMouseButton === MouseButton.RIGHT) {
-           this.applySelectionZoom();
+            this.applySelectionZoom();
         }
 
         this.mouseIsDown = false;
@@ -122,7 +129,9 @@ export abstract class AbstractXYOutputComponent<P extends AbstractOutputProps, S
     };
 
     private plugin = {
-        afterDraw: (chartInstance: Chart, _easing: Chart.Easing, _options?: any) => { this.afterChartDraw(chartInstance.ctx, chartInstance.chartArea); }
+        afterDraw: (chartInstance: Chart, _easing: Chart.Easing, _options?: any) => {
+            this.afterChartDraw(chartInstance.ctx, chartInstance.chartArea);
+        }
     };
 
     private _debouncedUpdateXY = debounce(() => this.updateXY(), 500);
@@ -162,11 +171,11 @@ export abstract class AbstractXYOutputComponent<P extends AbstractOutputProps, S
             newList = newList.concat(id);
         }
         const orderedIds = getAllExpandedNodeIds(nodes, newList);
-        this.setState({collapsedNodes: newList, orderedNodes: orderedIds});
+        this.setState({ collapsedNodes: newList, orderedNodes: orderedIds });
     }
 
     protected onOrderChange(ids: number[]): void {
-        this.setState({orderedNodes: ids});
+        this.setState({ orderedNodes: ids });
     }
 
     protected onToggleCheck(ids: number[]): void {
@@ -195,14 +204,14 @@ export abstract class AbstractXYOutputComponent<P extends AbstractOutputProps, S
         };
     }
 
-    private applySelectionZoom(): void{
+    private applySelectionZoom(): void {
         const newStartRange = this.startPositionMouseRightClick;
         const newEndRange = this.getTimeForX(this.positionXMove);
         this.updateRange(newStartRange, newEndRange);
     }
 
     protected updateSelection(): void {
-        if (this.props.unitController.selectionRange){
+        if (this.props.unitController.selectionRange) {
             const xStartPos = this.props.unitController.selectionRange.start;
             this.props.unitController.selectionRange = {
                 start: xStartPos,
@@ -219,10 +228,17 @@ export abstract class AbstractXYOutputComponent<P extends AbstractOutputProps, S
         const viewRangeChanged = this.props.viewRange !== prevProps.viewRange;
         const checkedSeriesChanged = this.state.checkedSeries !== prevState.checkedSeries;
         const collapsedNodesChanged = this.state.collapsedNodes !== prevState.collapsedNodes;
-        const chartWidthChanged = this.props.style.width !== prevProps.style.width || this.props.style.chartOffset !== prevProps.style.chartOffset
-                                || this.props.style.componentLeft !== prevProps.style.componentLeft;
+        const chartWidthChanged =
+            this.props.style.width !== prevProps.style.width ||
+            this.props.style.chartOffset !== prevProps.style.chartOffset ||
+            this.props.style.componentLeft !== prevProps.style.componentLeft;
         const outputStatusChanged = this.state.outputStatus !== prevState.outputStatus;
-        const needToUpdate = viewRangeChanged || checkedSeriesChanged || collapsedNodesChanged || chartWidthChanged || outputStatusChanged;
+        const needToUpdate =
+            viewRangeChanged ||
+            checkedSeriesChanged ||
+            collapsedNodesChanged ||
+            chartWidthChanged ||
+            outputStatusChanged;
 
         if (needToUpdate) {
             this._debouncedUpdateXY();
@@ -253,7 +269,11 @@ export abstract class AbstractXYOutputComponent<P extends AbstractOutputProps, S
     async fetchTree(): Promise<ResponseStatus> {
         this.viewSpinner(true);
         const parameters = QueryHelper.timeRangeQuery(this.props.range.getStart(), this.props.range.getEnd());
-        const tspClientResponse = await this.props.tspClient.fetchXYTree(this.props.traceId, this.props.outputDescriptor.id, parameters);
+        const tspClientResponse = await this.props.tspClient.fetchXYTree(
+            this.props.traceId,
+            this.props.outputDescriptor.id,
+            parameters
+        );
         const treeResponse = tspClientResponse.getModel();
         if (tspClientResponse.isOk() && treeResponse) {
             if (treeResponse.model) {
@@ -261,20 +281,23 @@ export abstract class AbstractXYOutputComponent<P extends AbstractOutputProps, S
                 const columns = [];
                 if (headers && headers.length > 0) {
                     headers.forEach(header => {
-                        columns.push({title: header.name, sortable: true, resizable: true, tooltip: header.tooltip});
+                        columns.push({ title: header.name, sortable: true, resizable: true, tooltip: header.tooltip });
                     });
                 } else {
-                    columns.push({title: 'Name', sortable: true});
+                    columns.push({ title: 'Name', sortable: true });
                 }
                 const checkedSeries = this.getAllCheckedIds(treeResponse.model.entries);
-                this.setState({
-                    outputStatus: treeResponse.status,
-                    xyTree: treeResponse.model.entries,
-                    checkedSeries,
-                    columns
-                }, () => {
-                    this.updateXY();
-                });
+                this.setState(
+                    {
+                        outputStatus: treeResponse.status,
+                        xyTree: treeResponse.model.entries,
+                        checkedSeries,
+                        columns
+                    },
+                    () => {
+                        this.updateXY();
+                    }
+                );
             } else {
                 this.setState({
                     outputStatus: treeResponse.status
@@ -304,8 +327,8 @@ export abstract class AbstractXYOutputComponent<P extends AbstractOutputProps, S
         this.onToggleCheck = this.onToggleCheck.bind(this);
         this.onToggleCollapse = this.onToggleCollapse.bind(this);
         this.onOrderChange = this.onOrderChange.bind(this);
-        return this.state.xyTree.length ?
-            <div className='scrollable' style={{ height: this.props.style.height }}>
+        return this.state.xyTree.length ? (
+            <div className="scrollable" style={{ height: this.props.style.height }}>
                 <EntryTree
                     entries={this.state.xyTree}
                     showCheckboxes={true}
@@ -317,8 +340,7 @@ export abstract class AbstractXYOutputComponent<P extends AbstractOutputProps, S
                     headers={this.state.columns}
                 />
             </div>
-        : undefined
-        ;
+        ) : undefined;
     }
 
     renderYAxis(): React.ReactNode {
@@ -332,24 +354,34 @@ export abstract class AbstractXYOutputComponent<P extends AbstractOutputProps, S
         const yTransform = `translate(${this.margin.left}, 0)`;
 
         // Abbreviate large numbers
-        const scaleYLabel = (d: number) => (
-            d >= 1000000000000 ? Math.round(d / 100000000000) / 10 + 'G' :
-            d >= 1000000000 ? Math.round(d / 100000000) / 10 + 'B':
-            d >= 1000000 ? Math.round(d / 100000) / 10 + 'M' :
-            d >= 1000 ? Math.round(d / 100) / 10 + 'K':
-            Math.round(d * 10) / 10
-        );
+        const scaleYLabel = (d: number) =>
+            d >= 1000000000000
+                ? Math.round(d / 100000000000) / 10 + 'G'
+                : d >= 1000000000
+                ? Math.round(d / 100000000) / 10 + 'B'
+                : d >= 1000000
+                ? Math.round(d / 100000) / 10 + 'M'
+                : d >= 1000
+                ? Math.round(d / 100) / 10 + 'K'
+                : Math.round(d * 10) / 10;
 
         if (this.state.allMax > 0) {
-            select(this.yAxisRef.current).call(axisLeft(yScale).tickSizeOuter(0).ticks(4)).call(g => g.select('.domain').remove());
-            select(this.yAxisRef.current).selectAll('.tick text').style('font-size', '11px').text((d: any) => scaleYLabel(d));
+            select(this.yAxisRef.current)
+                .call(axisLeft(yScale).tickSizeOuter(0).ticks(4))
+                .call(g => g.select('.domain').remove());
+            select(this.yAxisRef.current)
+                .selectAll('.tick text')
+                .style('font-size', '11px')
+                .text((d: any) => scaleYLabel(d));
         }
 
-        return <React.Fragment>
-            <svg height={chartHeight} width={this.margin.left}>
-                <g className='y-axis' ref={this.yAxisRef} transform={yTransform} />
-            </svg>
-        </React.Fragment>;
+        return (
+            <React.Fragment>
+                <svg height={chartHeight} width={this.margin.left}>
+                    <g className="y-axis" ref={this.yAxisRef} transform={yTransform} />
+                </svg>
+            </React.Fragment>
+        );
     }
 
     resultsAreEmpty(): boolean {
@@ -406,9 +438,18 @@ export abstract class AbstractXYOutputComponent<P extends AbstractOutputProps, S
             end = viewRange.getEnd();
         }
 
-        const xyDataParameters = QueryHelper.selectionTimeRangeQuery(start, end, this.getChartWidth(), this.state.checkedSeries);
+        const xyDataParameters = QueryHelper.selectionTimeRangeQuery(
+            start,
+            end,
+            this.getChartWidth(),
+            this.state.checkedSeries
+        );
 
-        const tspClientResponse = await this.props.tspClient.fetchXY(this.props.traceId, this.props.outputDescriptor.id, xyDataParameters);
+        const tspClientResponse = await this.props.tspClient.fetchXY(
+            this.props.traceId,
+            this.props.outputDescriptor.id,
+            xyDataParameters
+        );
         const xyDataResponse = tspClientResponse.getModel();
         if (tspClientResponse.isOk() && xyDataResponse?.model?.series) {
             const series = xyDataResponse.model.series;
@@ -428,7 +469,9 @@ export abstract class AbstractXYOutputComponent<P extends AbstractOutputProps, S
     private viewSpinner(status: boolean): void {
         if (document.getElementById(this.getOutputComponentDomId() + 'handleSpinner')) {
             // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-            document.getElementById(this.getOutputComponentDomId() + 'handleSpinner')!.style.visibility = status ? 'visible' : 'hidden';
+            document.getElementById(this.getOutputComponentDomId() + 'handleSpinner')!.style.visibility = status
+                ? 'visible'
+                : 'hidden';
         }
     }
 
@@ -467,7 +510,7 @@ export abstract class AbstractXYOutputComponent<P extends AbstractOutputProps, S
 
         // flushSync: force immediate state update instead of waiting for React 18's automatic batching
         flushSync(() => {
-            this.setState({ xyData: scatterData});
+            this.setState({ xyData: scatterData });
         });
 
         this.calculateYRange();
@@ -502,8 +545,18 @@ export abstract class AbstractXYOutputComponent<P extends AbstractOutputProps, S
     }
 
     private getSeriesColor(key: string): string {
-        const colors = ['rgba(191, 33, 30, 1)', 'rgba(30, 56, 136, 1)', 'rgba(71, 168, 189, 1)', 'rgba(245, 230, 99, 1)', 'rgba(255, 173, 105, 1)',
-            'rgba(216, 219, 226, 1)', 'rgba(212, 81, 19, 1)', 'rgba(187, 155, 176  , 1)', 'rgba(6, 214, 160, 1)', 'rgba(239, 71, 111, 1)'];
+        const colors = [
+            'rgba(191, 33, 30, 1)',
+            'rgba(30, 56, 136, 1)',
+            'rgba(71, 168, 189, 1)',
+            'rgba(245, 230, 99, 1)',
+            'rgba(255, 173, 105, 1)',
+            'rgba(216, 219, 226, 1)',
+            'rgba(212, 81, 19, 1)',
+            'rgba(187, 155, 176  , 1)',
+            'rgba(6, 214, 160, 1)',
+            'rgba(239, 71, 111, 1)'
+        ];
         let colorIndex = this.colorMap.get(key);
         if (colorIndex === undefined) {
             colorIndex = this.currentColorIndex % colors.length;
@@ -544,8 +597,7 @@ export abstract class AbstractXYOutputComponent<P extends AbstractOutputProps, S
         const offset = range.getOffset() ?? BigInt(0);
         const duration = range.getDuration();
         const chartWidth = this.getChartWidth() === 0 ? 1 : this.getChartWidth();
-        const time = range.getStart() - offset +
-            BIMath.round(x / chartWidth * Number(duration));
+        const time = range.getStart() - offset + BIMath.round((x / chartWidth) * Number(duration));
         return time;
     }
 
@@ -554,7 +606,7 @@ export abstract class AbstractXYOutputComponent<P extends AbstractOutputProps, S
         const start = range.getStart();
         const duration = range.getDuration();
         const chartWidth = this.getChartWidth() === 0 ? 1 : this.getChartWidth();
-        const x = Number(time - start) / Number(duration) * chartWidth;
+        const x = (Number(time - start) / Number(duration)) * chartWidth;
         return x;
     }
 
@@ -563,8 +615,11 @@ export abstract class AbstractXYOutputComponent<P extends AbstractOutputProps, S
             const zoomCenterTime = this.getZoomTime();
             const startDistance = zoomCenterTime - this.props.unitController.viewRange.start;
             const zoomFactor = isZoomIn ? ZOOM_IN_RATE : ZOOM_OUT_RATE;
-            const newDuration = BIMath.clamp(Number(this.props.unitController.viewRangeLength) * zoomFactor,
-                BigInt(2), this.props.unitController.absoluteRange);
+            const newDuration = BIMath.clamp(
+                Number(this.props.unitController.viewRangeLength) * zoomFactor,
+                BigInt(2),
+                this.props.unitController.absoluteRange
+            );
             const newStartRange = BIMath.max(0, zoomCenterTime - BIMath.round(Number(startDistance) * zoomFactor));
             const newEndRange = newStartRange + newDuration;
             this.updateRange(newStartRange, newEndRange);
@@ -575,8 +630,8 @@ export abstract class AbstractXYOutputComponent<P extends AbstractOutputProps, S
         const panFactor = 0.1;
         const percentRange = BIMath.round(Number(this.props.unitController.viewRangeLength) * panFactor);
         const panNumber = panLeft ? BigInt(-1) : BigInt(1);
-        const startRange = this.props.unitController.viewRange.start + (panNumber * percentRange);
-        const endRange = this.props.unitController.viewRange.end + (panNumber * percentRange);
+        const startRange = this.props.unitController.viewRange.start + panNumber * percentRange;
+        const endRange = this.props.unitController.viewRange.end + panNumber * percentRange;
         if (startRange < 0) {
             this.props.unitController.viewRange = {
                 start: BigInt(0),
@@ -603,7 +658,9 @@ export abstract class AbstractXYOutputComponent<P extends AbstractOutputProps, S
             timeLabel = this.props.unitController.numberTranslator(timeForX);
         }
         const chartWidth = this.isBarPlot ? this.getChartWidth() : this.chartRef.current.chartInstance.width;
-        const chartHeight = this.isBarPlot ? parseInt(this.props.style.height.toString()) : this.chartRef.current.chartInstance.height;
+        const chartHeight = this.isBarPlot
+            ? parseInt(this.props.style.height.toString())
+            : this.chartRef.current.chartInstance.height;
         const arraySize = this.state.xyData.labels.length;
         const index = Math.max(Math.round((xPos / chartWidth) * (arraySize - 1)), 0);
         const points: any = [];
@@ -626,7 +683,7 @@ export abstract class AbstractXYOutputComponent<P extends AbstractOutputProps, S
                         range: this.getDisplayedRange(),
                         margin: this.margin,
                         allMax: this.state.allMax,
-                        allMin: this.state.allMin,
+                        allMin: this.state.allMin
                     };
 
                     // Find the data point that is the closest to the mouse position
@@ -646,7 +703,7 @@ export abstract class AbstractXYOutputComponent<P extends AbstractOutputProps, S
                 // calculate nearest value.
                 yValue = d.data[index];
             }
-            const rounded: number = isNaN(yValue) ? 0 : (Math.round(Number(yValue) * 100) / 100);
+            const rounded: number = isNaN(yValue) ? 0 : Math.round(Number(yValue) * 100) / 100;
             let formatted: string = new Intl.NumberFormat().format(rounded);
 
             if (this.isScatterPlot && this.props.unitController.numberTranslator) {

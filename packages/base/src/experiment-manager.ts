@@ -8,18 +8,16 @@ import { TspClientResponse } from 'tsp-typescript-client/lib/protocol/tsp-client
 import { signalManager, Signals } from './signals/signal-manager';
 
 export class ExperimentManager {
-
     private fOpenExperiments: Map<string, Experiment> = new Map();
     private fTspClient: TspClient;
     private fTraceManager: TraceManager;
 
-    constructor(
-        tspClient: TspClient,
-        traceManager: TraceManager
-    ) {
+    constructor(tspClient: TspClient, traceManager: TraceManager) {
         this.fTspClient = tspClient;
         this.fTraceManager = traceManager;
-        signalManager().on(Signals.EXPERIMENT_DELETED, (experiment: Experiment) => this.onExperimentDeleted(experiment));
+        signalManager().on(Signals.EXPERIMENT_DELETED, (experiment: Experiment) =>
+            this.onExperimentDeleted(experiment)
+        );
     }
 
     /**
@@ -82,10 +80,12 @@ export class ExperimentManager {
         }
 
         const tryCreate = async function (tspClient: TspClient, retry: number): Promise<TspClientResponse<Experiment>> {
-            return tspClient.createExperiment(new Query({
-                'name': retry === 0 ? name : name + '(' + retry + ')',
-                'traces': traceURIs
-            }));
+            return tspClient.createExperiment(
+                new Query({
+                    name: retry === 0 ? name : name + '(' + retry + ')',
+                    traces: traceURIs
+                })
+            );
         };
         let tryNb = 0;
         let experimentResponse: TspClientResponse<Experiment> | undefined;
