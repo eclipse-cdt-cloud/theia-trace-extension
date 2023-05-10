@@ -125,6 +125,15 @@ more may be necessary depending on the case. Here is an example used to uplift f
 1. Align `node-version` in `.github/workflows` yaml files with Theia's.
    * Referring also to Theia's `"node"` and `@types/node` versions in its root `package.json` file.
 
+## Ignoring linting/formatting commits
+
+Should one be needing to use `git blame` to view the changes that were made recently to a file, it might be necessary to
+ignore the changes that were made in linting/formatting commits. In the root of the repo, there is a `.git-blame-ignore-revs`
+file. Adding the SHA-1 of a commit to this file will make `git-blame` ignore that commit. To use this file:
+
+* For GitHub, this file is automatically detected and will ignore all the commits that are included in the file.
+* With Git CLI, run `git blame --ignore-revs-file=.git-blame-ignore-revs <pathToSomeFile>` to ignore the commits.
+
 ## Contact
 
 For issues related to the Trace Viewer, please open a GitHub tracker for the [Theia Trace Extension][trace-viewer].
