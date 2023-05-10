@@ -125,6 +125,16 @@ more may be necessary depending on the case. Here is an example used to uplift f
 1. Align `node-version` in `.github/workflows` yaml files with Theia's.
    * Referring also to Theia's `"node"` and `@types/node` versions in its root `package.json` file.
 
+## Formatting code with Prettier
+
+If a commit fails to pass CI checks because of its format, contributors can use Prettier, which is already conveniently set up in the project,
+to quickly format their commit.
+
+* To format a single file, simply run `yarn prettier --write <path-to-file>`.
+* To run Prettier on all source code files, run `yarn format:write`. Prettier will only format files that are not formatted correctly.
+* To check if new changes comply with Prettier rules, run `yarn prettier --check <path-to-file>` or `yarn format:check` to perform the check on a single file
+  or all source code file, respectively.
+
 ## Ignoring linting/formatting commits
 
 Should one be needing to use `git blame` to view the changes that were made recently to a file, it might be necessary to
