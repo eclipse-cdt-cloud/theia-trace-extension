@@ -26,7 +26,6 @@ interface TableProps {
 }
 
 export class Table extends React.Component<TableProps> {
-
     private sortableColumns: string[];
 
     constructor(props: TableProps) {
@@ -58,20 +57,22 @@ export class Table extends React.Component<TableProps> {
     };
 
     render(): JSX.Element {
-        const gridTemplateColumns = this.props.headers.map(() => 'max-content').join(' ').concat(' minmax(0px, 1fr)');
+        const gridTemplateColumns = this.props.headers
+            .map(() => 'max-content')
+            .join(' ')
+            .concat(' minmax(0px, 1fr)');
         return (
             <div>
                 <table style={{ gridTemplateColumns: gridTemplateColumns }} className={this.props.className}>
-                    {this.props.showHeader && <TableHeader
-                        columns={this.props.headers}
-                        sortableColumns={this.sortableColumns}
-                        onSort={this.onSortChange}
-                        sortConfig={this.props.sortConfig}
-                    />}
-                    <TableBody
-                        {...this.props}
-                        nodes={sortNodes(this.props.nodes, this.props.sortConfig)}
-                    />
+                    {this.props.showHeader && (
+                        <TableHeader
+                            columns={this.props.headers}
+                            sortableColumns={this.sortableColumns}
+                            onSort={this.onSortChange}
+                            sortConfig={this.props.sortConfig}
+                        />
+                    )}
+                    <TableBody {...this.props} nodes={sortNodes(this.props.nodes, this.props.sortConfig)} />
                 </table>
             </div>
         );

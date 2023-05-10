@@ -5,7 +5,7 @@ export namespace TraceExplorerMenus {
 }
 export namespace TraceExplorerCommands {
     export const OPEN_TRACE: Command = {
-        id: 'trace-explorer:open-trace',
+        id: 'trace-explorer:open-trace'
     };
 
     export const CLOSE_TRACE: Command = {

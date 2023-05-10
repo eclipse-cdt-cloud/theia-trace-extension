@@ -18,12 +18,11 @@ export class TraceExplorerTimeRangeDataWidget extends ReactWidget {
     }
 
     render(): React.ReactNode {
-        return <div>
-            <ReactTimeRangeDataWidget
-                id={this.id}
-                title={this.title.label}
-            />
-        </div>;
+        return (
+            <div>
+                <ReactTimeRangeDataWidget id={this.id} title={this.title.label} />
+            </div>
+        );
     }
 
     protected onResize(msg: Widget.ResizeMessage): void {

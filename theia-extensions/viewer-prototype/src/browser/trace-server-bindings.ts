@@ -3,12 +3,13 @@ import { PreferenceService, createPreferenceProxy, PreferenceContribution } from
 import { TracePreferences, ServerSchema } from './trace-server-preference';
 
 export function bindTraceServerPreferences(bind: interfaces.Bind): void {
-    bind(TracePreferences).toDynamicValue(ctx => {
-        const preferences = ctx.container.get<PreferenceService>(PreferenceService);
-        return createPreferenceProxy(preferences, ServerSchema);
-    }).inSingletonScope();
+    bind(TracePreferences)
+        .toDynamicValue(ctx => {
+            const preferences = ctx.container.get<PreferenceService>(PreferenceService);
+            return createPreferenceProxy(preferences, ServerSchema);
+        })
+        .inSingletonScope();
     bind(PreferenceContribution).toConstantValue({
-        schema: ServerSchema,
+        schema: ServerSchema
     });
-
 }

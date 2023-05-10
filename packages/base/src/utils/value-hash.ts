@@ -14,7 +14,7 @@ const hash = (str: string): number => {
     let hashCode = 0;
     for (let i = 0; i < str.length; i++) {
         const chr = str.charCodeAt(i);
-        hashCode = ((hashCode << 5) - hashCode) + chr;
+        hashCode = (hashCode << 5) - hashCode + chr;
         hashCode |= 0; // Convert to 32bit integer
     }
     return hashCode;

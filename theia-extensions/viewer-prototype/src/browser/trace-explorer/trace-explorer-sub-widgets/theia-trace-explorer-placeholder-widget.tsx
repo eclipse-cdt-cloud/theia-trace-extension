@@ -3,7 +3,7 @@ import { ReactWidget } from '@theia/core/lib/browser';
 import * as React from 'react';
 import { CommandService } from '@theia/core';
 import { OpenTraceCommand } from '../../trace-viewer/trace-viewer-commands';
-import {ReactExplorerPlaceholderWidget} from 'traceviewer-react-components/lib/trace-explorer/trace-explorer-placeholder-widget';
+import { ReactExplorerPlaceholderWidget } from 'traceviewer-react-components/lib/trace-explorer/trace-explorer-placeholder-widget';
 
 @injectable()
 export class TraceExplorerPlaceholderWidget extends ReactWidget {

@@ -10,12 +10,11 @@ import treeKill = require('tree-kill');
 const SUCCESS = 'success';
 
 export interface ChildProcessWithPid extends ChildProcess {
-    pid: number
+    pid: number;
 }
 
 @injectable()
 export class TraceServerServiceImpl implements TraceServerConfigService {
-
     protected server?: ChildProcess;
     private cliArgs?: string;
 
@@ -29,10 +28,10 @@ export class TraceServerServiceImpl implements TraceServerConfigService {
                 throw new Error('the Trace Server is already running on a different port');
             }
         }
-        path = path?.trim() || await this.findTraceServerPath();
+        path = path?.trim() || (await this.findTraceServerPath());
         if (!path) {
             throw new Error('no Trace Server path found');
-        } else if (!await this.validateTraceServerPath(path)) {
+        } else if (!(await this.validateTraceServerPath(path))) {
             throw new Error(`could not find the Trace Server file at the specified path: ${path}`);
         }
         const argsArray: Array<string> | undefined = args?.split(' ');
@@ -94,7 +93,9 @@ export class TraceServerServiceImpl implements TraceServerConfigService {
 
     protected async findTraceServerPath(): Promise<string | undefined> {
         const traceServerPath = process.env.TRACE_SERVER_PATH?.trim();
-        if (traceServerPath) { return traceServerPath; }
+        if (traceServerPath) {
+            return traceServerPath;
+        }
     }
 
     protected async validateTraceServerPath(traceServerPath: string): Promise<boolean> {

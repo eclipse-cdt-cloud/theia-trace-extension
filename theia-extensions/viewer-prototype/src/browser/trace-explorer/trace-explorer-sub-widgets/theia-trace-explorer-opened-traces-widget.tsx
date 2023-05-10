@@ -5,11 +5,11 @@ import { Experiment } from 'tsp-typescript-client/lib/models/experiment';
 import { ExperimentManager } from 'traceviewer-base/lib/experiment-manager';
 import { CommandService } from '@theia/core';
 import { TspClientProvider } from '../../tsp-client-provider-impl';
-import { signalManager} from 'traceviewer-base/lib/signals/signal-manager';
+import { signalManager } from 'traceviewer-base/lib/signals/signal-manager';
 import { TraceExplorerItemPropertiesWidget } from './theia-trace-explorer-properties-widget';
 import { ContextMenuRenderer } from '@theia/core/lib/browser';
 import { TraceViewerCommand } from '../../trace-viewer/trace-viewer-commands';
-import { ReactOpenTracesWidget} from 'traceviewer-react-components/lib/trace-explorer/trace-explorer-opened-traces-widget';
+import { ReactOpenTracesWidget } from 'traceviewer-react-components/lib/trace-explorer/trace-explorer-opened-traces-widget';
 import { TraceExplorerMenus } from '../trace-explorer-commands';
 import { TraceViewerWidget } from '../../trace-viewer/trace-viewer';
 
@@ -21,7 +21,8 @@ export class TraceExplorerOpenedTracesWidget extends ReactWidget {
     static LINE_HEIGHT = 16;
 
     @inject(TspClientProvider) protected readonly tspClientProvider!: TspClientProvider;
-    @inject(TraceExplorerItemPropertiesWidget) protected readonly itemPropertiesWidget!: TraceExplorerItemPropertiesWidget;
+    @inject(TraceExplorerItemPropertiesWidget)
+    protected readonly itemPropertiesWidget!: TraceExplorerItemPropertiesWidget;
     @inject(ContextMenuRenderer) protected readonly contextMenuRenderer!: ContextMenuRenderer;
     @inject(CommandService) protected readonly commandService!: CommandService;
     @inject(WidgetManager) protected readonly widgetManager!: WidgetManager;
@@ -70,15 +71,17 @@ export class TraceExplorerOpenedTracesWidget extends ReactWidget {
     }
 
     render(): React.ReactNode {
-        return <div>
-            <ReactOpenTracesWidget
-                id={this.id}
-                title={this.title.label}
-                tspClientProvider={this.tspClientProvider}
-                contextMenuRenderer={(event, experiment) => this.doHandleContextMenuEvent(event, experiment) }
-                onClick={(event, experiment) => this.doHandleClickEvent(event, experiment) }
-            ></ReactOpenTracesWidget>
-        </div>;
+        return (
+            <div>
+                <ReactOpenTracesWidget
+                    id={this.id}
+                    title={this.title.label}
+                    tspClientProvider={this.tspClientProvider}
+                    contextMenuRenderer={(event, experiment) => this.doHandleContextMenuEvent(event, experiment)}
+                    onClick={(event, experiment) => this.doHandleClickEvent(event, experiment)}
+                ></ReactOpenTracesWidget>
+            </div>
+        );
     }
 
     protected onResize(msg: Widget.ResizeMessage): void {

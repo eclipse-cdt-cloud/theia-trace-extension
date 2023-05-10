@@ -12,11 +12,11 @@ interface FilterTreeProps {
     nodes: TreeNode[];
     showCheckboxes: boolean;
     showCloseIcons: boolean;
-    showFilter: boolean;                    // Optional
-    checkedSeries: number[];                // Optional
+    showFilter: boolean; // Optional
+    checkedSeries: number[]; // Optional
     collapsedNodes: number[];
     selectedRow?: number;
-    onToggleCheck: (ids: number[]) => void;     // Optional
+    onToggleCheck: (ids: number[]) => void; // Optional
     onClose: (id: number) => void;
     onRowClick: (id: number) => void;
     onContextMenu: (event: React.MouseEvent<HTMLDivElement>, id: number) => void;
@@ -36,8 +36,12 @@ export class FilterTree extends React.Component<FilterTreeProps, FilterTreeState
     static defaultProps: Partial<FilterTreeProps> = {
         checkedSeries: [],
         showFilter: true,
-        onToggleCheck: () => { /* Nothing to do */ },
-        onOrderChange: () => { /* Nothing to do */ },
+        onToggleCheck: () => {
+            /* Nothing to do */
+        },
+        onOrderChange: () => {
+            /* Nothing to do */
+        }
     };
 
     constructor(props: FilterTreeProps) {
@@ -133,7 +137,9 @@ export class FilterTree extends React.Component<FilterTreeProps, FilterTreeState
         const checkedNode = this.getNode(this.props.nodes, id);
         if (checkedNode) {
             const childrenIds = this.getAllChildrenIds(checkedNode, []);
-            const visibleChildrenIds = childrenIds.filter((childId: number) => this.getNode(this.state.filteredNodes, childId) !== undefined);
+            const visibleChildrenIds = childrenIds.filter(
+                (childId: number) => this.getNode(this.state.filteredNodes, childId) !== undefined
+            );
             if (!this.isNodeChecked(id)) {
                 if (checkedNode.children.length) {
                     const childIdsToCheck = visibleChildrenIds.filter(childId => !this.isNodeChecked(childId));
@@ -179,7 +185,9 @@ export class FilterTree extends React.Component<FilterTreeProps, FilterTreeState
     };
 
     isEveryChildChecked = (node: TreeNode): boolean => {
-        const visibleNodes = node.children.filter((child: TreeNode) => this.getNode(this.state.filteredNodes, child.id) !== undefined);
+        const visibleNodes = node.children.filter(
+            (child: TreeNode) => this.getNode(this.state.filteredNodes, child.id) !== undefined
+        );
         let allChildrenChecked = false;
         if (visibleNodes.length) {
             allChildrenChecked = visibleNodes.every((child: TreeNode) => {
@@ -206,13 +214,14 @@ export class FilterTree extends React.Component<FilterTreeProps, FilterTreeState
         return ids;
     };
 
-    isSomeChildChecked = (node: TreeNode): boolean => node.children.some((child: TreeNode) => {
-        let isChecked = this.isNodeChecked(child.id);
-        if (child.children.length) {
-            isChecked = isChecked || this.isSomeChildChecked(child);
-        }
-        return isChecked;
-    });
+    isSomeChildChecked = (node: TreeNode): boolean =>
+        node.children.some((child: TreeNode) => {
+            let isChecked = this.isNodeChecked(child.id);
+            if (child.children.length) {
+                isChecked = isChecked || this.isSomeChildChecked(child);
+            }
+            return isChecked;
+        });
 
     isCollapsed = (id: number): boolean => this.props.collapsedNodes.includes(id);
 
@@ -242,18 +251,21 @@ export class FilterTree extends React.Component<FilterTreeProps, FilterTreeState
     };
 
     filterTree = (nodes: TreeNode[], matchedIds: number[]): TreeNode[] =>
-        nodes.filter((node: TreeNode) => matchedIds.indexOf(node.id) > -1)
+        nodes
+            .filter((node: TreeNode) => matchedIds.indexOf(node.id) > -1)
             .map((node: TreeNode) => ({
                 ...node,
                 children: node.children ? this.filterTree(node.children, matchedIds) : []
             }));
 
-    renderFilterTree = (): JSX.Element => <React.Fragment>
-        <Filter onChange={(e: React.ChangeEvent<HTMLInputElement>) => this.handleFilterChanged(e.target.value)} />
-        {this.renderTable(this.state.filteredNodes)}
-    </React.Fragment>;
+    renderFilterTree = (): JSX.Element => (
+        <React.Fragment>
+            <Filter onChange={(e: React.ChangeEvent<HTMLInputElement>) => this.handleFilterChanged(e.target.value)} />
+            {this.renderTable(this.state.filteredNodes)}
+        </React.Fragment>
+    );
 
-    renderTable = (nodes: TreeNode[]): JSX.Element =>
+    renderTable = (nodes: TreeNode[]): JSX.Element => (
         <Table
             nodes={nodes}
             selectedRow={this.props.selectedRow}
@@ -272,18 +284,20 @@ export class FilterTree extends React.Component<FilterTreeProps, FilterTreeState
             showHeader={this.props.showHeader}
             headers={this.props.headers}
             className={this.props.className}
-        />;
+        />
+    );
 
     render(): JSX.Element | undefined {
-        if (!this.props.nodes) { return undefined; }
+        if (!this.props.nodes) {
+            return undefined;
+        }
         const rootNodes = this.getRootNodes();
         if (rootNodes && rootNodes.length) {
-            return <React.Fragment>
-                {this.props.showFilter
-                    ? this.renderFilterTree()
-                    : this.renderTable(rootNodes)
-                }
-            </React.Fragment>;
+            return (
+                <React.Fragment>
+                    {this.props.showFilter ? this.renderFilterTree() : this.renderTable(rootNodes)}
+                </React.Fragment>
+            );
         } else {
             return <Message></Message>;
         }

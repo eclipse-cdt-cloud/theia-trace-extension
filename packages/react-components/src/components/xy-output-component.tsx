@@ -5,7 +5,15 @@ import { ResponseStatus } from 'tsp-typescript-client/lib/models/response/respon
 import Chart = require('chart.js');
 import { BIMath } from 'timeline-chart/lib/bigint-utils';
 import { scaleLinear } from 'd3-scale';
-import { AbstractXYOutputComponent, AbstractXYOutputState, FLAG_PAN_LEFT, FLAG_PAN_RIGHT, FLAG_ZOOM_IN, FLAG_ZOOM_OUT, MouseButton } from './abstract-xy-output-component';
+import {
+    AbstractXYOutputComponent,
+    AbstractXYOutputState,
+    FLAG_PAN_LEFT,
+    FLAG_PAN_RIGHT,
+    FLAG_ZOOM_IN,
+    FLAG_ZOOM_OUT,
+    MouseButton
+} from './abstract-xy-output-component';
 import { TimeRange } from 'traceviewer-base/src/utils/time-range';
 import { validateNumArray } from './utils/filter-tree/utils';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -22,8 +30,12 @@ export class XYOutputComponent extends AbstractXYOutputComponent<AbstractOutputP
             outputStatus: ResponseStatus.RUNNING,
             selectedSeriesId: [],
             xyTree: [],
-            checkedSeries: validateNumArray(this.props.persistChartState?.checkedSeries) ? this.props.persistChartState.checkedSeries as number[] : [],
-            collapsedNodes: validateNumArray(this.props.persistChartState?.collapsedNodes) ? this.props.persistChartState.collapsedNodes as number[] : [],
+            checkedSeries: validateNumArray(this.props.persistChartState?.checkedSeries)
+                ? (this.props.persistChartState.checkedSeries as number[])
+                : [],
+            collapsedNodes: validateNumArray(this.props.persistChartState?.collapsedNodes)
+                ? (this.props.persistChartState.collapsedNodes as number[])
+                : [],
             orderedNodes: [],
             xyData: {},
             columns: [{ title: 'Name', sortable: true }],
@@ -34,53 +46,51 @@ export class XYOutputComponent extends AbstractXYOutputComponent<AbstractOutputP
         };
         this.addPinViewOptions(() => ({
             checkedSeries: this.state.checkedSeries,
-            collapsedNodes: this.state.collapsedNodes,
+            collapsedNodes: this.state.collapsedNodes
         }));
         this.addOptions('Export table to CSV...', () => this.exportOutput());
     }
 
     renderChart(): React.ReactNode {
         if (this.state.outputStatus === ResponseStatus.COMPLETED && this.state.xyData?.datasets?.length === 0) {
-            return <React.Fragment>
-                <div className='chart-message'>
-                    Select a checkbox to see analysis results
-                </div>
-            </React.Fragment>;
+            return (
+                <React.Fragment>
+                    <div className="chart-message">Select a checkbox to see analysis results</div>
+                </React.Fragment>
+            );
         }
-        return <React.Fragment>
-            <div
-                id={this.props.traceId + this.props.outputDescriptor.id + 'focusContainer'}
-                className='xy-main'
-                tabIndex={0}
-                onKeyDown={event => this.onKeyDown(event)}
-                onKeyUp={event => this.onKeyUp(event)}
-                onWheel={event => this.onWheel(event)}
-                onMouseMove={event => this.onMouseMove(event)}
-                onContextMenu={event => event.preventDefault()}
-                onMouseLeave={event => this.onMouseLeave(event)}
-                onMouseDown={event => this.onMouseDown(event)}
-                style={{ height: this.props.style.height, position: 'relative', cursor: this.state.cursor }}
-                ref={this.divRef}
-            >
-                {this.isBarPlot ? this.drawD3Chart() : this.chooseChart()}
-            </div>
-            {(this.state.outputStatus === ResponseStatus.RUNNING) &&
+        return (
+            <React.Fragment>
                 <div
                     id={this.props.traceId + this.props.outputDescriptor.id + 'focusContainer'}
-                    className='analysis-running-overflow'
-                    style={{ width: this.getChartWidth() }}
+                    className="xy-main"
+                    tabIndex={0}
+                    onKeyDown={event => this.onKeyDown(event)}
+                    onKeyUp={event => this.onKeyUp(event)}
+                    onWheel={event => this.onWheel(event)}
+                    onMouseMove={event => this.onMouseMove(event)}
+                    onContextMenu={event => event.preventDefault()}
+                    onMouseLeave={event => this.onMouseLeave(event)}
+                    onMouseDown={event => this.onMouseDown(event)}
+                    style={{ height: this.props.style.height, position: 'relative', cursor: this.state.cursor }}
+                    ref={this.divRef}
                 >
-                    <div>
-                        <FontAwesomeIcon
-                            icon={faSpinner}
-                            spin
-                            style={{ marginRight: '5px' }}
-                        />
-                        <span>Analysis running</span>
-                    </div>
+                    {this.isBarPlot ? this.drawD3Chart() : this.chooseChart()}
                 </div>
-            }
-        </React.Fragment>;
+                {this.state.outputStatus === ResponseStatus.RUNNING && (
+                    <div
+                        id={this.props.traceId + this.props.outputDescriptor.id + 'focusContainer'}
+                        className="analysis-running-overflow"
+                        style={{ width: this.getChartWidth() }}
+                    >
+                        <div>
+                            <FontAwesomeIcon icon={faSpinner} spin style={{ marginRight: '5px' }} />
+                            <span>Analysis running</span>
+                        </div>
+                    </div>
+                )}
+            </React.Fragment>
+        );
     }
 
     private drawD3Chart(): JSX.Element {
@@ -112,9 +122,7 @@ export class XYOutputComponent extends AbstractXYOutputComponent<AbstractOutputP
             const start = this.getXForTime(this.state.xyData.labels[0]);
             const end = this.getXForTime(this.state.xyData.labels[xDomain]);
 
-            const xScale = scaleLinear()
-                .domain([start, end].map(Number))
-                .range([0, chartWidth]);
+            const xScale = scaleLinear().domain([start, end].map(Number)).range([0, chartWidth]);
 
             if (this.chartRef.current) {
                 const ctx = this.chartRef.current.getContext('2d');
@@ -136,7 +144,7 @@ export class XYOutputComponent extends AbstractXYOutputComponent<AbstractOutputP
                         row.forEach((tupple: any) => {
                             ctx.beginPath();
                             const xPos = this.getXForTime(tupple.xValue);
-                            ctx.fillRect(xScale(xPos), chartHeight, 2, - chartHeight + yScale(+tupple.yValue));
+                            ctx.fillRect(xScale(xPos), chartHeight, 2, -chartHeight + yScale(+tupple.yValue));
                             ctx.closePath();
                         });
                     });
@@ -146,13 +154,7 @@ export class XYOutputComponent extends AbstractXYOutputComponent<AbstractOutputP
             }
         }
 
-        return (
-            <canvas
-                ref={this.chartRef}
-                height={chartHeight}
-                width={chartWidth}
-            />
-        );
+        return <canvas ref={this.chartRef} height={chartHeight} width={chartWidth} />;
     }
 
     protected afterChartDraw(ctx: CanvasRenderingContext2D | null, chartArea?: Chart.ChartArea | null): void {
@@ -175,7 +177,12 @@ export class XYOutputComponent extends AbstractXYOutputComponent<AbstractOutputP
         }
     }
 
-    private drawSelection(ctx: CanvasRenderingContext2D | null, chartArea: Chart.ChartArea | undefined | null, startPixel: number, endPixel: number) {
+    private drawSelection(
+        ctx: CanvasRenderingContext2D | null,
+        chartArea: Chart.ChartArea | undefined | null,
+        startPixel: number,
+        endPixel: number
+    ) {
         const minPixel = Math.min(startPixel, endPixel);
         const maxPixel = Math.max(startPixel, endPixel);
         const initialPoint = this.isBarPlot ? 0 : chartArea?.left ?? 0;
@@ -224,9 +231,13 @@ export class XYOutputComponent extends AbstractXYOutputComponent<AbstractOutputP
                     start: this.props.unitController.selectionRange.start,
                     end: startTime
                 };
-            } else if ((event.ctrlKey && !event.shiftKey) || (!(event.shiftKey && event.ctrlKey) && this.clickedMouseButton === MouseButton.MID)) {
+            } else if (
+                (event.ctrlKey && !event.shiftKey) ||
+                (!(event.shiftKey && event.ctrlKey) && this.clickedMouseButton === MouseButton.MID)
+            ) {
                 this.resolution = this.getChartWidth() / Number(this.props.unitController.viewRangeLength);
-                this.mousePanningStart = this.props.unitController.viewRange.start + BIMath.round(event.nativeEvent.x / this.resolution);
+                this.mousePanningStart =
+                    this.props.unitController.viewRange.start + BIMath.round(event.nativeEvent.x / this.resolution);
                 this.isPanning = true;
                 this.setState({ cursor: 'grabbing' });
             } else if (!(event.shiftKey && event.ctrlKey)) {
@@ -244,7 +255,7 @@ export class XYOutputComponent extends AbstractXYOutputComponent<AbstractOutputP
 
     private panHorizontally(event: React.MouseEvent) {
         const delta = event.nativeEvent.x;
-        const change = Number(this.mousePanningStart) - (delta / this.resolution);
+        const change = Number(this.mousePanningStart) - delta / this.resolution;
         const min = BigInt(0);
         const max = this.props.unitController.absoluteRange - this.props.unitController.viewRangeLength;
         const start = BIMath.clamp(change, min, max);
@@ -362,7 +373,7 @@ export class XYOutputComponent extends AbstractXYOutputComponent<AbstractOutputP
 
     private onKeyUp(key: React.KeyboardEvent): void {
         if (!this.isSelecting && !this.isPanning) {
-            let keyCursor: (string | undefined) = this.state.cursor ?? 'default';
+            let keyCursor: string | undefined = this.state.cursor ?? 'default';
             if (key.key === 'Shift') {
                 if (key.ctrlKey) {
                     keyCursor = 'grabbing';

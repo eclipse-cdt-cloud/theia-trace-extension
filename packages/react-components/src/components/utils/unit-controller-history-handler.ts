@@ -73,7 +73,7 @@ export class UnitControllerHistoryHandler {
         const { selectionRange, viewRange } = this.history[this.index];
         this.unitController.selectionRange = selectionRange;
         this.unitController.viewRange = viewRange;
-        setTimeout(() => this.restoring = false, 500);
+        setTimeout(() => (this.restoring = false), 500);
     }
 
     private isEntryDuplicate(item: HistoryItem): boolean {
@@ -88,7 +88,7 @@ export class UnitControllerHistoryHandler {
             if (oneIsDifferent) {
                 return;
             }
-            oneIsDifferent = (value1 !== value2);
+            oneIsDifferent = value1 !== value2;
         };
         check(itemSR?.start, prevSR?.start);
         check(itemSR?.end, prevSR?.end);
@@ -104,5 +104,4 @@ export class UnitControllerHistoryHandler {
     private get canUndo(): boolean {
         return this.index > 1;
     }
-
 }

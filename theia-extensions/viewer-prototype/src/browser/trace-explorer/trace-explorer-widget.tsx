@@ -18,12 +18,14 @@ export class TraceExplorerWidget extends BaseWidget {
     private _numberOfOpenedTraces = 0;
     @inject(TraceExplorerViewsWidget) protected readonly viewsWidget!: TraceExplorerViewsWidget;
     @inject(TraceExplorerOpenedTracesWidget) protected readonly openedTracesWidget!: TraceExplorerOpenedTracesWidget;
-    @inject(TraceExplorerItemPropertiesWidget) protected readonly itemPropertiesWidget!: TraceExplorerItemPropertiesWidget;
+    @inject(TraceExplorerItemPropertiesWidget)
+    protected readonly itemPropertiesWidget!: TraceExplorerItemPropertiesWidget;
     @inject(TraceExplorerPlaceholderWidget) protected readonly placeholderWidget!: TraceExplorerPlaceholderWidget;
     @inject(TraceExplorerServerStatusWidget) protected readonly serverStatusWidget!: TraceExplorerServerStatusWidget;
     @inject(TraceExplorerTimeRangeDataWidget) protected readonly timeRangeDataWidget!: TraceExplorerTimeRangeDataWidget;
     @inject(ViewContainer.Factory) protected readonly viewContainerFactory!: ViewContainer.Factory;
-    @inject(TraceServerConnectionStatusService) protected readonly connectionStatusService: TraceServerConnectionStatusService;
+    @inject(TraceServerConnectionStatusService)
+    protected readonly connectionStatusService: TraceServerConnectionStatusService;
 
     openExperiment(traceUUID: string): void {
         return this.openedTracesWidget.openExperiment(traceUUID);
@@ -69,7 +71,7 @@ export class TraceExplorerWidget extends BaseWidget {
         this.traceViewsContainer.addWidget(this.itemPropertiesWidget);
         this.traceViewsContainer.addWidget(this.timeRangeDataWidget);
         this.toDispose.push(this.traceViewsContainer);
-        const layout = this.layout = new PanelLayout();
+        const layout = (this.layout = new PanelLayout());
         layout.addWidget(this.serverStatusWidget);
         layout.addWidget(this.placeholderWidget);
         layout.addWidget(this.traceViewsContainer);
@@ -83,7 +85,8 @@ export class TraceExplorerWidget extends BaseWidget {
         signalManager().off(Signals.OPENED_TRACES_UPDATED, this.onUpdateSignal);
     }
 
-    protected onUpdateSignal = (payload: OpenedTracesUpdatedSignalPayload): void => this.doHandleOpenedTracesChanged(payload);
+    protected onUpdateSignal = (payload: OpenedTracesUpdatedSignalPayload): void =>
+        this.doHandleOpenedTracesChanged(payload);
     protected doHandleOpenedTracesChanged(payload: OpenedTracesUpdatedSignalPayload): void {
         this._numberOfOpenedTraces = payload.getNumberOfOpenedTraces();
         this.update();
@@ -112,5 +115,4 @@ export class TraceExplorerWidget extends BaseWidget {
     protected onAfterHide(): void {
         this.connectionStatusService.removeConnectionStatusListener();
     }
-
 }

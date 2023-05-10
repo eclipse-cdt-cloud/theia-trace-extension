@@ -27,10 +27,12 @@ interface EntryTreeProps {
 export class EntryTree extends React.Component<EntryTreeProps> {
     static defaultProps: Partial<EntryTreeProps> = {
         showFilter: true,
-        onOrderChange: () => { /* Nothing to do */ },
+        onOrderChange: () => {
+            /* Nothing to do */
+        },
         showHeader: true,
         className: 'table-tree',
-        headers: [{title: 'Name', sortable: true}]
+        headers: [{ title: 'Name', sortable: true }]
     };
 
     constructor(props: EntryTreeProps) {
@@ -38,13 +40,12 @@ export class EntryTree extends React.Component<EntryTreeProps> {
     }
 
     shouldComponentUpdate = (nextProps: EntryTreeProps): boolean =>
-        (this.props.checkedSeries !== nextProps.checkedSeries || this.props.entries !== nextProps.entries
-            || this.props.collapsedNodes !== nextProps.collapsedNodes || this.props.selectedRow !== nextProps.selectedRow);
+        this.props.checkedSeries !== nextProps.checkedSeries ||
+        this.props.entries !== nextProps.entries ||
+        this.props.collapsedNodes !== nextProps.collapsedNodes ||
+        this.props.selectedRow !== nextProps.selectedRow;
 
     render(): JSX.Element {
-        return <FilterTree
-            nodes={listToTree(this.props.entries, this.props.headers)}
-            {...this.props}
-        />;
+        return <FilterTree nodes={listToTree(this.props.entries, this.props.headers)} {...this.props} />;
     }
 }

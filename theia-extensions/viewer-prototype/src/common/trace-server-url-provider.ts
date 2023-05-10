@@ -3,7 +3,6 @@ export const TRACE_VIEWER_DEFAULT_PORT = 8080;
 
 export const TraceServerUrlProvider = Symbol('TraceServerUrlProvider');
 export interface TraceServerUrlProvider {
-
     /**
      * Get a promise that resolves once the Trace Server URL is initialized.
      * @returns a new promise each time `.onDidChangeTraceServerUrl` fires.

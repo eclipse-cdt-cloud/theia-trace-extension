@@ -2,46 +2,46 @@ import { TimeRange } from 'traceviewer-base/src/utils/time-range';
 import { AbstractOutputProps } from '../abstract-output-component';
 
 export interface XYChartFactoryParams {
-    viewRange: TimeRange,
-    allMax: number,
-    allMin: number,
-    isScatterPlot: boolean
+    viewRange: TimeRange;
+    allMax: number;
+    allMin: number;
+    isScatterPlot: boolean;
 }
 
 export interface XYOutputMargin {
-    top: number,
-    right: number,
-    bottom: number,
-    left: number
+    top: number;
+    right: number;
+    bottom: number;
+    left: number;
 }
 
 export interface GetClosestPointParam {
-    dataPoints: XYPoint[],
-    mousePosition: XYPoint,
-    chartWidth: number,
-    chartHeight: number,
-    range: TimeRange,
-    margin: XYOutputMargin,
-    allMax: number,
-    allMin: number,
+    dataPoints: XYPoint[];
+    mousePosition: XYPoint;
+    chartWidth: number;
+    chartHeight: number;
+    range: TimeRange;
+    margin: XYOutputMargin;
+    allMax: number;
+    allMin: number;
 }
 
 export interface DrawSelectionParams {
-    ctx: CanvasRenderingContext2D | null,
-    chartArea: Chart.ChartArea | undefined | null,
-    startPixel: number,
-    endPixel: number,
-    isBarPlot: boolean,
-    props: AbstractOutputProps,
-    invertSelection: boolean
+    ctx: CanvasRenderingContext2D | null;
+    chartArea: Chart.ChartArea | undefined | null;
+    startPixel: number;
+    endPixel: number;
+    isBarPlot: boolean;
+    props: AbstractOutputProps;
+    invertSelection: boolean;
 }
 
 export interface XYPoint {
-    x: number,
-    y: number
+    x: number;
+    y: number;
 }
 
-export function xyChartFactory(params: XYChartFactoryParams):  Chart.ChartOptions {
+export function xyChartFactory(params: XYChartFactoryParams): Chart.ChartOptions {
     const baseOptions: Chart.ChartOptions = getDefaultChartOptions(params);
 
     // If the chart is a line chart
@@ -52,7 +52,7 @@ export function xyChartFactory(params: XYChartFactoryParams):  Chart.ChartOption
     return getScatterChartOptions(baseOptions);
 }
 
-function getLineChartOptions(lineOptions: Chart.ChartOptions): Chart.ChartOptions{
+function getLineChartOptions(lineOptions: Chart.ChartOptions): Chart.ChartOptions {
     if (lineOptions.elements && lineOptions.elements.point && lineOptions.elements.line && lineOptions.scales) {
         lineOptions.elements.point.radius = 0;
         lineOptions.elements.line.borderWidth = 0;
@@ -62,7 +62,7 @@ function getLineChartOptions(lineOptions: Chart.ChartOptions): Chart.ChartOption
     return lineOptions;
 }
 
-function getScatterChartOptions(scatterOptions: Chart.ChartOptions): Chart.ChartOptions{
+function getScatterChartOptions(scatterOptions: Chart.ChartOptions): Chart.ChartOptions {
     if (scatterOptions.elements && scatterOptions.elements.point) {
         scatterOptions.elements.point.radius = 2;
     }
@@ -87,7 +87,7 @@ function getDefaultChartOptions(params: XYChartFactoryParams): Chart.ChartOption
         tooltips: {
             intersect: false,
             mode: 'index',
-            enabled: false,
+            enabled: false
         },
         layout: {
             padding: {
@@ -98,32 +98,36 @@ function getDefaultChartOptions(params: XYChartFactoryParams): Chart.ChartOption
             }
         },
         scales: {
-            xAxes: [{
-                id: 'time-axis',
-                display: false,
-                ticks: {
-                    min: Number(params.viewRange?.getStart() - offset),
-                    max: Number(params.viewRange?.getEnd() - offset)
+            xAxes: [
+                {
+                    id: 'time-axis',
+                    display: false,
+                    ticks: {
+                        min: Number(params.viewRange?.getStart() - offset),
+                        max: Number(params.viewRange?.getEnd() - offset)
+                    }
                 }
-            }],
-            yAxes: [{
-                display: false,
-                stacked: false,
-                ticks: {
-                    max: params.allMax > 0 ? params.allMax : 100,
-                    min: params.allMin
+            ],
+            yAxes: [
+                {
+                    display: false,
+                    stacked: false,
+                    ticks: {
+                        max: params.allMax > 0 ? params.allMax : 100,
+                        min: params.allMin
+                    }
                 }
-            }]
+            ]
         },
         animation: { duration: 0 },
-        events: ['mousedown'],
+        events: ['mousedown']
     };
 
     return lineOptions;
 }
 
 export function drawSelection(params: DrawSelectionParams): void {
-    const { startPixel, endPixel, isBarPlot, chartArea, props, ctx, invertSelection} = params;
+    const { startPixel, endPixel, isBarPlot, chartArea, props, ctx, invertSelection } = params;
     const minPixel = Math.min(startPixel, endPixel);
     const maxPixel = Math.max(startPixel, endPixel);
     const initialPoint = isBarPlot ? 0 : chartArea?.left ?? 0;
@@ -152,9 +156,8 @@ export function drawSelection(params: DrawSelectionParams): void {
         ctx.globalAlpha = 0.2;
         if (!invertSelection) {
             ctx.fillRect(minPixel, 0, maxPixel - minPixel, finalPoint);
-        }
-        else {
-            const leftSideWidth = - minPixel;
+        } else {
+            const leftSideWidth = -minPixel;
             const rightSideWidth = (chartArea?.right ? chartArea.right : 0) - maxPixel;
 
             ctx.fillRect(minPixel, 0, leftSideWidth, finalPoint);
@@ -181,7 +184,7 @@ export function getClosestPointForScatterPlot(params: GetClosestPointParam): XYP
         const distY = params.chartHeight - params.mousePosition.y - y;
         const hypotenuse = distX * distX + distY * distY;
 
-        if (min_hypotenuse > hypotenuse){
+        if (min_hypotenuse > hypotenuse) {
             closestPoint = point;
             min_hypotenuse = hypotenuse;
         }
@@ -195,6 +198,6 @@ export function getClosestPointForScatterPlot(params: GetClosestPointParam): XYP
     return undefined;
 }
 
-export function numberFormat(rawNumber: number): string{
+export function numberFormat(rawNumber: number): string {
     return new Intl.NumberFormat().format(rawNumber);
 }

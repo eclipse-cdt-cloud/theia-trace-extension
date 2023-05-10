@@ -2,8 +2,8 @@ import icons from './icons';
 import { TreeNode } from './tree-node';
 
 interface SortState {
-    asc: React.ReactNode,
-    desc: React.ReactNode,
+    asc: React.ReactNode;
+    desc: React.ReactNode;
     default: React.ReactNode;
 }
 
@@ -59,7 +59,7 @@ export const sortNodes = (nodes: TreeNode[], sortConfig: SortConfig[]): TreeNode
                     comp = value1.localeCompare(value2);
                 }
             }
-            return (orderToSort.sortState === sortState.asc) ? comp : -comp;
+            return orderToSort.sortState === sortState.asc ? comp : -comp;
         });
         sortedNodes.forEach((node: TreeNode) => {
             if (node.children.length) {
@@ -82,7 +82,7 @@ const parseValue = (valueString: string): number | undefined => {
         const unit = valueArray[1];
         if (unit === 'ns' || unit === '%') {
             factor = 1;
-        } else if (unit === 'us' || unit === ('\u00B5' + 's')) {
+        } else if (unit === 'us' || unit === '\u00B5' + 's') {
             factor = 1000;
         } else if (unit === 'ms') {
             factor = 1000 * 1000;
@@ -98,4 +98,3 @@ const parseValue = (valueString: string): number | undefined => {
     }
     return undefined;
 };
-

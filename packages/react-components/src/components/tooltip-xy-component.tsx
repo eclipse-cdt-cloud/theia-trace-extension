@@ -4,21 +4,21 @@ type MaybePromise<T> = T | Promise<T>;
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export interface TooltipXYComponentState<T = any> {
-    tooltipData?: TooltipData,
-    onDisplay: boolean,
-    inTooltip: boolean
+    tooltipData?: TooltipData;
+    onDisplay: boolean;
+    inTooltip: boolean;
 }
 
 interface TooltipData {
-    title?: string,
+    title?: string;
     dataPoints?: [];
-    top?: number,
-    bottom?: number,
-    right?: number,
-    left?: number,
-    opacity?: number,
-    transition?: string,
-    zeros?: number
+    top?: number;
+    bottom?: number;
+    right?: number;
+    left?: number;
+    opacity?: number;
+    transition?: string;
+    zeros?: number;
 }
 
 export class TooltipXYComponent extends React.Component<unknown, TooltipXYComponentState> {
@@ -32,14 +32,16 @@ export class TooltipXYComponent extends React.Component<unknown, TooltipXYCompon
         this.state = {
             tooltipData: undefined,
             onDisplay: false,
-            inTooltip: false,
+            inTooltip: false
         };
         this.divRef = React.createRef();
     }
 
     render(): React.ReactNode {
         const leftPos = this.state.tooltipData?.left ? this.state.tooltipData.left + this.horizontalSpace : undefined;
-        const rightPos = this.state.tooltipData?.right ? this.state.tooltipData.right + this.horizontalSpace : undefined;
+        const rightPos = this.state.tooltipData?.right
+            ? this.state.tooltipData.right + this.horizontalSpace
+            : undefined;
         let zeros = 0;
         let allZeros = false;
         if (this.state.tooltipData?.zeros && this.state.tooltipData.zeros > 0) {
@@ -79,33 +81,43 @@ export class TooltipXYComponent extends React.Component<unknown, TooltipXYCompon
                     right: rightPos,
                     left: leftPos,
                     opacity: this.state.tooltipData?.opacity ? this.state.tooltipData.opacity : 0,
-                    transition: this.state.tooltipData?.transition ? 'opacity ' + this.state.tooltipData.transition : 'opacity 0.3s',
+                    transition: this.state.tooltipData?.transition
+                        ? 'opacity ' + this.state.tooltipData.transition
+                        : 'opacity 0.3s',
                     zIndex: 999
                 }}
             >
-                <p style={{margin: '0 0 5px 0'}}>{this.state.tooltipData?.title}</p>
-                <ul style={{padding: '0'}}>
-                    {this.state.tooltipData?.dataPoints?.map((point: { color: string, background: string, label: string, value: string }, i: number) =>
-                        <li key={i} style={{listStyle: 'none', display: 'flex', marginBottom: 5}}>
-                            <div style={{
-                                height: '10px',
-                                width: '10px',
-                                margin: 'auto 0',
-                                border: 'solid thin',
-                                borderColor: point.color,
-                                backgroundColor: point.background
-                                }}
-                            ></div>
-                            <span style={{marginLeft: '5px'}}>{point.label} {point.value}</span>
-                        </li>
+                <p style={{ margin: '0 0 5px 0' }}>{this.state.tooltipData?.title}</p>
+                <ul style={{ padding: '0' }}>
+                    {this.state.tooltipData?.dataPoints?.map(
+                        (point: { color: string; background: string; label: string; value: string }, i: number) => (
+                            <li key={i} style={{ listStyle: 'none', display: 'flex', marginBottom: 5 }}>
+                                <div
+                                    style={{
+                                        height: '10px',
+                                        width: '10px',
+                                        margin: 'auto 0',
+                                        border: 'solid thin',
+                                        borderColor: point.color,
+                                        backgroundColor: point.background
+                                    }}
+                                ></div>
+                                <span style={{ marginLeft: '5px' }}>
+                                    {point.label} {point.value}
+                                </span>
+                            </li>
+                        )
                     )}
                 </ul>
-                {allZeros ?
-                    <p style={{marginBottom: 0}}>All values: 0</p>
-                    :
-                    zeros > 0 &&
-                    <p style={{marginBottom: 0}}>{this.state.tooltipData?.zeros} other{zeros > 1 ? 's' : ''}: 0</p>
-                }
+                {allZeros ? (
+                    <p style={{ marginBottom: 0 }}>All values: 0</p>
+                ) : (
+                    zeros > 0 && (
+                        <p style={{ marginBottom: 0 }}>
+                            {this.state.tooltipData?.zeros} other{zeros > 1 ? 's' : ''}: 0
+                        </p>
+                    )
+                )}
             </div>
         );
     }
@@ -122,7 +134,7 @@ export class TooltipXYComponent extends React.Component<unknown, TooltipXYCompon
             this.setState({ onDisplay: false });
             setTimeout(() => {
                 if (!this.state.inTooltip) {
-                    this.setState({tooltipData: { opacity: 0, transition: '0s' }, inTooltip: false });
+                    this.setState({ tooltipData: { opacity: 0, transition: '0s' }, inTooltip: false });
                 }
             }, 500);
         }

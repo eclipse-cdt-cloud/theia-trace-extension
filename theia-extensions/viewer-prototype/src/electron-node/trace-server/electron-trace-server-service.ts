@@ -4,11 +4,13 @@ import { TraceServerServiceImpl } from '../../node/trace-server/trace-server-ser
 
 const APPLICATION_ROOT = resolve(dirname(process.argv0));
 
-export const BUNDLED_TRACE_SERVER_PATH = resolve(APPLICATION_ROOT, 'resources/trace-compass-server/tracecompass-server');
+export const BUNDLED_TRACE_SERVER_PATH = resolve(
+    APPLICATION_ROOT,
+    'resources/trace-compass-server/tracecompass-server'
+);
 
 @injectable()
 export class ElectronTraceServerServiceImpl extends TraceServerServiceImpl {
-
     protected async findTraceServerPath(): Promise<string | undefined> {
         return (await super.findTraceServerPath()) ?? this.getBundledTraceServerPath();
     }

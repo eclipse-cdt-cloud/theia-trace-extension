@@ -2,11 +2,9 @@ import * as React from 'react';
 import { ResponseStatus } from 'tsp-typescript-client';
 import { AbstractOutputComponent, AbstractOutputProps, AbstractOutputState } from './abstract-output-component';
 
-type NullOutputState = AbstractOutputState & {
-};
+type NullOutputState = AbstractOutputState & {};
 
-type NullOutputProps = AbstractOutputProps & {
-};
+type NullOutputProps = AbstractOutputProps & {};
 
 export class NullOutputComponent extends AbstractOutputComponent<NullOutputProps, NullOutputState> {
     constructor(props: NullOutputProps) {
@@ -17,12 +15,14 @@ export class NullOutputComponent extends AbstractOutputComponent<NullOutputProps
     }
 
     renderMainArea(): React.ReactNode {
-        return <React.Fragment>
-            <div className='message-main-area'>
-                Not implemented yet!
-                <br />
-            </div>
-        </React.Fragment>;
+        return (
+            <React.Fragment>
+                <div className="message-main-area">
+                    Not implemented yet!
+                    <br />
+                </div>
+            </React.Fragment>
+        );
     }
 
     resultsAreEmpty(): boolean {
@@ -32,4 +32,4 @@ export class NullOutputComponent extends AbstractOutputComponent<NullOutputProps
     setFocus(): void {
         return;
     }
-  }
+}

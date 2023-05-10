@@ -1,19 +1,15 @@
-
 import { Trace } from 'tsp-typescript-client/lib/models/trace';
 import { TspClient } from 'tsp-typescript-client/lib/protocol/tsp-client';
 import { Query } from 'tsp-typescript-client/lib/models/query/query';
 import { OutputDescriptor } from 'tsp-typescript-client/lib/models/output-descriptor';
 import { TspClientResponse } from 'tsp-typescript-client/lib/protocol/tsp-client-response';
-import { signalManager} from './signals/signal-manager';
+import { signalManager } from './signals/signal-manager';
 
 export class TraceManager {
-
     private fOpenTraces: Map<string, Trace> = new Map();
     private fTspClient: TspClient;
 
-    constructor(
-        tspClient: TspClient
-    ) {
+    constructor(tspClient: TspClient) {
         this.fTspClient = tspClient;
     }
 
@@ -74,10 +70,12 @@ export class TraceManager {
         const name = traceName ? traceName : traceURI.replace(/\/$/, '').replace(/(.*\/)?/, '');
 
         const tryOpen = async function (tspClient: TspClient, retry: number): Promise<TspClientResponse<Trace>> {
-            return tspClient.openTrace(new Query({
-                'name': retry === 0 ? name : name + '(' + retry + ')',
-                'uri': traceURI
-            }));
+            return tspClient.openTrace(
+                new Query({
+                    name: retry === 0 ? name : name + '(' + retry + ')',
+                    uri: traceURI
+                })
+            );
         };
         let tryNb = 0;
         let traceResponse: TspClientResponse<Trace> | undefined;

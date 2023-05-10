@@ -3,7 +3,7 @@ import { Message, ReactWidget, Widget } from '@theia/core/lib/browser';
 import * as React from 'react';
 import { EditorOpenerOptions, EditorManager } from '@theia/editor/lib/browser';
 import URI from '@theia/core/lib/common/uri';
-import { ReactItemPropertiesWidget} from 'traceviewer-react-components/lib/trace-explorer/trace-explorer-properties-widget';
+import { ReactItemPropertiesWidget } from 'traceviewer-react-components/lib/trace-explorer/trace-explorer-properties-widget';
 
 @injectable()
 export class TraceExplorerItemPropertiesWidget extends ReactWidget {
@@ -26,11 +26,11 @@ export class TraceExplorerItemPropertiesWidget extends ReactWidget {
     render(): React.ReactNode {
         return (
             <div>
-               <ReactItemPropertiesWidget
-               id={this.id}
-               title={this.title.label}
-               handleSourcecodeLookup={this.handleSourcecodeLookup}
-               ></ReactItemPropertiesWidget>
+                <ReactItemPropertiesWidget
+                    id={this.id}
+                    title={this.title.label}
+                    handleSourcecodeLookup={this.handleSourcecodeLookup}
+                ></ReactItemPropertiesWidget>
             </div>
         );
     }
@@ -45,10 +45,13 @@ export class TraceExplorerItemPropertiesWidget extends ReactWidget {
         this.update();
     }
 
-    protected handleSourcecodeLookup = (e: React.MouseEvent<HTMLParagraphElement>): void => this.doHandleSourcecodeLookup(e);
+    protected handleSourcecodeLookup = (e: React.MouseEvent<HTMLParagraphElement>): void =>
+        this.doHandleSourcecodeLookup(e);
 
     private doHandleSourcecodeLookup(e: React.MouseEvent<HTMLParagraphElement>) {
-        const { fileLocation, line }: { fileLocation: string, line: string } = JSON.parse(`${e.currentTarget.getAttribute('data-id')}`);
+        const { fileLocation, line }: { fileLocation: string; line: string } = JSON.parse(
+            `${e.currentTarget.getAttribute('data-id')}`
+        );
         if (fileLocation) {
             const modeOpt: EditorOpenerOptions = {
                 mode: 'open'

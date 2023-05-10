@@ -8,9 +8,9 @@ import { TspClient } from 'tsp-typescript-client';
  * Only keep methods, discard properties.
  */
 export type LazyTspClient = {
-    [K in keyof TspClient]: TspClient[K] extends (...args: infer A) => (infer R | Promise<infer R>)
+    [K in keyof TspClient]: TspClient[K] extends (...args: infer A) => infer R | Promise<infer R>
         ? (...args: A) => Promise<R>
-        : never // Discard property.
+        : never; // Discard property.
 };
 
 export type LazyTspClientFactory = typeof LazyTspClientFactory;
@@ -25,7 +25,7 @@ export function LazyTspClientFactory(url: Promise<string>): TspClient {
             let method = target[property];
             if (!method) {
                 target[property] = method = async (...args: any[]) => {
-                    const tspClient = await tspClientPromise as any;
+                    const tspClient = (await tspClientPromise) as any;
                     return tspClient[property](...args);
                 };
             }

@@ -8,14 +8,14 @@ import { ExperimentManager } from 'traceviewer-base/lib/experiment-manager';
 import { AvailableViewsComponent } from '../components/utils/available-views-component';
 
 export interface ReactAvailableViewsProps {
-    id: string,
-    title: string,
-    tspClientProvider: ITspClientProvider,
-    contextMenuRenderer?: (event: React.MouseEvent<HTMLDivElement>, output: OutputDescriptor) => void,
+    id: string;
+    title: string;
+    tspClientProvider: ITspClientProvider;
+    contextMenuRenderer?: (event: React.MouseEvent<HTMLDivElement>, output: OutputDescriptor) => void;
 }
 
 export interface ReactAvailableViewsState {
-    availableOutputDescriptors: OutputDescriptor[]
+    availableOutputDescriptors: OutputDescriptor[];
 }
 
 export class ReactAvailableViewsWidget extends React.Component<ReactAvailableViewsProps, ReactAvailableViewsState> {
@@ -33,7 +33,7 @@ export class ReactAvailableViewsWidget extends React.Component<ReactAvailableVie
         });
         signalManager().on(Signals.EXPERIMENT_SELECTED, this._onExperimentSelected);
         signalManager().on(Signals.EXPERIMENT_CLOSED, this._onExperimentClosed);
-        this.state = { availableOutputDescriptors: []};
+        this.state = { availableOutputDescriptors: [] };
     }
 
     componentWillUnmount(): void {
@@ -43,7 +43,7 @@ export class ReactAvailableViewsWidget extends React.Component<ReactAvailableVie
 
     render(): React.ReactNode {
         return (
-            <div className='trace-explorer-views'>
+            <div className="trace-explorer-views">
                 <AvailableViewsComponent
                     traceID={this._selectedExperiment?.UUID}
                     outputDescriptors={this.state.availableOutputDescriptors}
@@ -55,16 +55,25 @@ export class ReactAvailableViewsWidget extends React.Component<ReactAvailableVie
         );
     }
 
-    protected handleOutputClicked = (outputDescriptor: OutputDescriptor): void => this.doHandleOutputClicked(outputDescriptor);
-    protected handleContextMenuEvent = (e: React.MouseEvent<HTMLDivElement>, output: OutputDescriptor | undefined): void => this.doHandleContextMenuEvent(e, output);
+    protected handleOutputClicked = (outputDescriptor: OutputDescriptor): void =>
+        this.doHandleOutputClicked(outputDescriptor);
+    protected handleContextMenuEvent = (
+        e: React.MouseEvent<HTMLDivElement>,
+        output: OutputDescriptor | undefined
+    ): void => this.doHandleContextMenuEvent(e, output);
 
     private doHandleOutputClicked(selectedOutput: OutputDescriptor) {
         if (selectedOutput && this._selectedExperiment) {
-            signalManager().fireOutputAddedSignal(new OutputAddedSignalPayload(selectedOutput, this._selectedExperiment));
+            signalManager().fireOutputAddedSignal(
+                new OutputAddedSignalPayload(selectedOutput, this._selectedExperiment)
+            );
         }
     }
 
-    protected doHandleContextMenuEvent(event: React.MouseEvent<HTMLDivElement>, output: OutputDescriptor | undefined): void {
+    protected doHandleContextMenuEvent(
+        event: React.MouseEvent<HTMLDivElement>,
+        output: OutputDescriptor | undefined
+    ): void {
         if (this.props.contextMenuRenderer && output) {
             this.props.contextMenuRenderer(event, output);
         }
@@ -73,16 +82,16 @@ export class ReactAvailableViewsWidget extends React.Component<ReactAvailableVie
     }
 
     protected doHandleExperimentSelectedSignal(experiment: Experiment | undefined): void {
-        if ((this._selectedExperiment?.UUID !== experiment?.UUID) || this.state.availableOutputDescriptors.length === 0) {
+        if (this._selectedExperiment?.UUID !== experiment?.UUID || this.state.availableOutputDescriptors.length === 0) {
             this._selectedExperiment = experiment;
-            this.setState({ availableOutputDescriptors: []});
+            this.setState({ availableOutputDescriptors: [] });
             this.updateAvailableViews();
         }
     }
 
     protected doHandleExperimentClosedSignal(experiment: Experiment | undefined): void {
         if (this._selectedExperiment?.UUID === experiment?.UUID) {
-            this.setState({availableOutputDescriptors: []});
+            this.setState({ availableOutputDescriptors: [] });
         }
     }
 

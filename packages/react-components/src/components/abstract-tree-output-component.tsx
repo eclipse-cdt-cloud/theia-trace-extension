@@ -3,11 +3,13 @@ import * as React from 'react';
 import { ResponseStatus } from 'tsp-typescript-client/lib/models/response/responses';
 
 export type AbstractTreeOutputState = AbstractOutputState & {
-    showTree: boolean
+    showTree: boolean;
 };
 
-export abstract class AbstractTreeOutputComponent<P extends AbstractOutputProps, S extends AbstractTreeOutputState> extends AbstractOutputComponent<P, S> {
-
+export abstract class AbstractTreeOutputComponent<
+    P extends AbstractOutputProps,
+    S extends AbstractTreeOutputState
+> extends AbstractOutputComponent<P, S> {
     private readonly DEFAULT_Y_AXIS_WIDTH = 40;
     private readonly DEFAULT_SASH_WIDTH = 4;
 
@@ -22,28 +24,46 @@ export abstract class AbstractTreeOutputComponent<P extends AbstractOutputProps,
     }
 
     renderMainArea(): React.ReactNode {
-        return <React.Fragment>
-            {this.state.showTree && <div ref={this.treeRef} className='output-component-tree disable-select'
-                style={{ width: this.getTreeWidth(), height: this.props.style.height }}
-            >
-                {this.renderTree()}
-            </div>}
-            <div className='output-component-y-axis' style={{
-                height: this.props.style.height,
-                backgroundColor: '#' + this.props.style.chartBackgroundColor.toString(16)
-            }}>
-                {this.renderYAxis()}
-            </div>
-            <div className='output-component-sash' onMouseDown={event => this.onSashDown(event)} style={{
-                width: this.getSashWidth(), height: this.props.style.height
-            }}/>
-            <div className='output-component-chart' style={{
-                width: this.getChartWidth(), height: this.props.style.height,
-                backgroundColor: '#' + this.props.style.chartBackgroundColor.toString(16)
-            }}>
-                {this.renderChart()}
-            </div>
-        </React.Fragment>;
+        return (
+            <React.Fragment>
+                {this.state.showTree && (
+                    <div
+                        ref={this.treeRef}
+                        className="output-component-tree disable-select"
+                        style={{ width: this.getTreeWidth(), height: this.props.style.height }}
+                    >
+                        {this.renderTree()}
+                    </div>
+                )}
+                <div
+                    className="output-component-y-axis"
+                    style={{
+                        height: this.props.style.height,
+                        backgroundColor: '#' + this.props.style.chartBackgroundColor.toString(16)
+                    }}
+                >
+                    {this.renderYAxis()}
+                </div>
+                <div
+                    className="output-component-sash"
+                    onMouseDown={event => this.onSashDown(event)}
+                    style={{
+                        width: this.getSashWidth(),
+                        height: this.props.style.height
+                    }}
+                />
+                <div
+                    className="output-component-chart"
+                    style={{
+                        width: this.getChartWidth(),
+                        height: this.props.style.height,
+                        backgroundColor: '#' + this.props.style.chartBackgroundColor.toString(16)
+                    }}
+                >
+                    {this.renderChart()}
+                </div>
+            </React.Fragment>
+        );
     }
 
     private onSashDown(event: React.MouseEvent<HTMLDivElement, MouseEvent>): void {
@@ -55,8 +75,10 @@ export abstract class AbstractTreeOutputComponent<P extends AbstractOutputProps,
 
     private onSashMove(ev: MouseEvent): void {
         if (this.sashDownX !== -1 && this.props?.setChartOffset) {
-            const chartOffset = Math.max(this.sashDownOffset + (ev.clientX - this.sashDownX),
-                this.getHandleWidth() + this.getYAxisWidth() + this.getSashWidth());
+            const chartOffset = Math.max(
+                this.sashDownOffset + (ev.clientX - this.sashDownX),
+                this.getHandleWidth() + this.getYAxisWidth() + this.getSashWidth()
+            );
             this.props.setChartOffset(chartOffset);
             ev.preventDefault();
         }
@@ -89,14 +111,13 @@ export abstract class AbstractTreeOutputComponent<P extends AbstractOutputProps,
             outputStatus = await this.fetchTree();
             const timeout = 500 * factor;
             await new Promise(resolve => setTimeout(resolve, timeout));
-            factor = factor > maxFactor ? factor: factor + 1;
+            factor = factor > maxFactor ? factor : factor + 1;
         }
     }
 
     componentWillUnmount(): void {
         // fix Warning: Can't perform a React state update on an unmounted component
         this.setState = (_state, _callback) => undefined;
-
     }
 
     protected getYAxisWidth(): number {
@@ -109,7 +130,7 @@ export abstract class AbstractTreeOutputComponent<P extends AbstractOutputProps,
 
     public getTreeWidth(): number {
         // Make tree thinner when chart has a y-axis
-        const yAxisWidth = this.props.outputDescriptor.type === 'TREE_TIME_XY' ? this.getYAxisWidth(): 0;
+        const yAxisWidth = this.props.outputDescriptor.type === 'TREE_TIME_XY' ? this.getYAxisWidth() : 0;
         return Math.max(0, this.props.style.chartOffset - this.getHandleWidth() - yAxisWidth - this.getSashWidth());
     }
 

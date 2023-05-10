@@ -5,17 +5,17 @@ import { Experiment } from 'tsp-typescript-client';
 import { TimeRange } from 'traceviewer-base/lib/utils/time-range';
 
 export interface ReactTimeRangeDataWidgetProps {
-    id: string,
-    title: string,
+    id: string;
+    title: string;
 }
 
 export interface ReactTimeRangeDataWidgetState {
-    activeData?: ExperimentTimeRangeData,
-    userInputSelectionStartIsValid: boolean,
-    userInputSelectionEndIsValid: boolean,
-    userInputSelectionStart?: bigint,
-    userInputSelectionEnd?: bigint,
-    inputting: boolean,
+    activeData?: ExperimentTimeRangeData;
+    userInputSelectionStartIsValid: boolean;
+    userInputSelectionEndIsValid: boolean;
+    userInputSelectionStart?: bigint;
+    userInputSelectionEnd?: bigint;
+    inputting: boolean;
 }
 
 export interface ExperimentTimeRangeData {
@@ -23,13 +23,15 @@ export interface ExperimentTimeRangeData {
     // We need to make below values possibly undefined because
     // they come in at different times from different signals
     // when an experiment is selected.
-    absoluteRange?: { start: bigint, end: bigint };
-    viewRange?: { start: bigint, end: bigint };
-    selectionRange?: { start: bigint, end: bigint };
+    absoluteRange?: { start: bigint; end: bigint };
+    viewRange?: { start: bigint; end: bigint };
+    selectionRange?: { start: bigint; end: bigint };
 }
 
-export class ReactTimeRangeDataWidget extends React.Component<ReactTimeRangeDataWidgetProps, ReactTimeRangeDataWidgetState> {
-
+export class ReactTimeRangeDataWidget extends React.Component<
+    ReactTimeRangeDataWidgetProps,
+    ReactTimeRangeDataWidgetState
+> {
     private experimentDataMap: Map<string, ExperimentTimeRangeData>;
 
     constructor(props: ReactTimeRangeDataWidgetProps) {
@@ -38,7 +40,7 @@ export class ReactTimeRangeDataWidget extends React.Component<ReactTimeRangeData
         this.state = {
             inputting: false,
             userInputSelectionStartIsValid: true,
-            userInputSelectionEndIsValid: true,
+            userInputSelectionEndIsValid: true
         };
         this.subscribeToEvents();
     }
@@ -64,7 +66,7 @@ export class ReactTimeRangeDataWidget extends React.Component<ReactTimeRangeData
 
         const update = {
             UUID,
-            viewRange: timeRange,
+            viewRange: timeRange
         } as ExperimentTimeRangeData;
 
         this.updateExperimentTimeRangeData(update);
@@ -172,7 +174,6 @@ export class ReactTimeRangeDataWidget extends React.Component<ReactTimeRangeData
             default:
                 throw Error('Input index is invalid!');
         }
-
     };
 
     private onSubmit = (event: React.FormEvent): void => {
@@ -188,8 +189,10 @@ export class ReactTimeRangeDataWidget extends React.Component<ReactTimeRangeData
      * @param value2
      * @returns { start: string, end: string }
      */
-    private getStartAndEnd = (v1: bigint | string | undefined, v2: bigint | string | undefined): { start: string, end: string } => {
-
+    private getStartAndEnd = (
+        v1: bigint | string | undefined,
+        v2: bigint | string | undefined
+    ): { start: string; end: string } => {
         if (v1 === undefined || v2 === undefined) {
             return { start: '', end: '' };
         }
@@ -211,12 +214,12 @@ export class ReactTimeRangeDataWidget extends React.Component<ReactTimeRangeData
     };
 
     private verifyUserInput = (): void => {
-
         let { activeData, userInputSelectionStart, userInputSelectionEnd } = this.state;
 
         // We need at least one value to change: start or end.
-        const noUserInput = typeof userInputSelectionStart === 'undefined' && typeof userInputSelectionEnd === 'undefined';
-        if (!activeData || noUserInput ) {
+        const noUserInput =
+            typeof userInputSelectionStart === 'undefined' && typeof userInputSelectionEnd === 'undefined';
+        if (!activeData || noUserInput) {
             this.reset();
             return;
         }
@@ -235,40 +238,43 @@ export class ReactTimeRangeDataWidget extends React.Component<ReactTimeRangeData
         }
 
         // If there is no user input for start or end, set that value to the current selectionRange value.
-        const { start: currentStart, end: currentEnd } = this.getStartAndEnd(selectionRange?.start, selectionRange?.end);
-        userInputSelectionStart = typeof userInputSelectionStart === 'bigint' ? userInputSelectionStart : BigInt(currentStart);
+        const { start: currentStart, end: currentEnd } = this.getStartAndEnd(
+            selectionRange?.start,
+            selectionRange?.end
+        );
+        userInputSelectionStart =
+            typeof userInputSelectionStart === 'bigint' ? userInputSelectionStart : BigInt(currentStart);
         userInputSelectionEnd = typeof userInputSelectionEnd === 'bigint' ? userInputSelectionEnd : BigInt(currentEnd);
 
         // Now we can validate
-        const isValid = (n: bigint): boolean => (n >= offset) && (n <= traceEndTime);
+        const isValid = (n: bigint): boolean => n >= offset && n <= traceEndTime;
         const startValid = isValid(userInputSelectionStart);
         const endValid = isValid(userInputSelectionEnd);
 
         if (startValid && endValid) {
             this.reset();
-            const  start = userInputSelectionStart - offset;
+            const start = userInputSelectionStart - offset;
             const end = userInputSelectionEnd - offset;
             signalManager().fireRequestSelectionRangeChange({
                 experimentUUID: activeData.UUID,
-                timeRange: new TimeRange(start, end),
+                timeRange: new TimeRange(start, end)
             });
         } else {
             this.setState({
                 userInputSelectionStartIsValid: startValid,
-                userInputSelectionEndIsValid: endValid,
+                userInputSelectionEndIsValid: endValid
             });
         }
     };
 
     public render(): React.ReactNode {
-
         const {
             activeData,
             inputting,
             userInputSelectionStartIsValid,
             userInputSelectionEndIsValid,
             userInputSelectionStart,
-            userInputSelectionEnd,
+            userInputSelectionEnd
         } = this.state;
 
         const viewRange = activeData?.viewRange;
@@ -278,37 +284,46 @@ export class ReactTimeRangeDataWidget extends React.Component<ReactTimeRangeData
         const errorClassName = `${sectionClassName} invalid-input`;
 
         const { start: viewRangeStart, end: viewRangeEnd } = this.getStartAndEnd(viewRange?.start, viewRange?.end);
-        const { start: selectionRangeStart, end: selectionRangeEnd } = this.getStartAndEnd(selectionRange?.start, selectionRange?.end);
+        const { start: selectionRangeStart, end: selectionRangeEnd } = this.getStartAndEnd(
+            selectionRange?.start,
+            selectionRange?.end
+        );
 
         const startValid = inputting ? userInputSelectionStartIsValid : true;
         const endValid = inputting ? userInputSelectionEndIsValid : true;
 
         return (
-            <div className='trace-explorer-item-properties'>
-                <div className='trace-explorer-panel-content'>
+            <div className="trace-explorer-item-properties">
+                <div className="trace-explorer-panel-content">
                     <form onSubmit={this.onSubmit}>
                         {(!startValid || !endValid) && (
                             <div className={errorClassName}>
                                 <label htmlFor="errorMessage">
-                                    <h4 className='outputs-element-name'><i>Invalid Values</i></h4>
+                                    <h4 className="outputs-element-name">
+                                        <i>Invalid Values</i>
+                                    </h4>
                                 </label>
                             </div>
                         )}
                         <div className={sectionClassName}>
                             <label htmlFor="viewRangeStart">
-                                <h4 className='outputs-element-name'>View Range Start:</h4>
+                                <h4 className="outputs-element-name">View Range Start:</h4>
                                 {viewRangeStart}
                             </label>
                         </div>
                         <div className={sectionClassName}>
                             <label htmlFor="viewRangeEnd">
-                                <h4 className='outputs-element-name'>View Range End:</h4>
+                                <h4 className="outputs-element-name">View Range End:</h4>
                                 {viewRangeEnd}
                             </label>
                         </div>
                         <div className={startValid ? sectionClassName : errorClassName}>
                             <label htmlFor="selectionRangeStart">
-                                <h4 className='outputs-element-name'>{userInputSelectionStartIsValid ? 'Selection Range Start:' : '* Selection Range Start:'}</h4>
+                                <h4 className="outputs-element-name">
+                                    {userInputSelectionStartIsValid
+                                        ? 'Selection Range Start:'
+                                        : '* Selection Range Start:'}
+                                </h4>
                             </label>
                             <input
                                 type="number"
@@ -318,7 +333,9 @@ export class ReactTimeRangeDataWidget extends React.Component<ReactTimeRangeData
                         </div>
                         <div className={endValid ? sectionClassName : errorClassName}>
                             <label htmlFor="selectionRangeEnd">
-                                <h4 className='outputs-element-name'>{endValid ? 'Selection Range End:' : '* Selection Range End:'}</h4>
+                                <h4 className="outputs-element-name">
+                                    {endValid ? 'Selection Range End:' : '* Selection Range End:'}
+                                </h4>
                             </label>
                             <input
                                 type="number"
@@ -326,10 +343,12 @@ export class ReactTimeRangeDataWidget extends React.Component<ReactTimeRangeData
                                 onChange={e => this.onChange(e, 1)}
                             />
                         </div>
-                        {inputting && (<div className={sectionClassName}>
-                            <input className="input-button" type="submit" value="Submit"/>
-                            <input className="input-button" type="button" onClick={this.reset} value="Cancel"/>
-                        </div>)}
+                        {inputting && (
+                            <div className={sectionClassName}>
+                                <input className="input-button" type="submit" value="Submit" />
+                                <input className="input-button" type="button" onClick={this.reset} value="Cancel" />
+                            </div>
+                        )}
                     </form>
                 </div>
             </div>

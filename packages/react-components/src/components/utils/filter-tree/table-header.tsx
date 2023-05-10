@@ -75,42 +75,46 @@ export class TableHeader extends React.Component<TableHeaderProps> {
     };
 
     /* Capitalize first character and add non-breaking spaces to make room for icons in default width calcluation */
-    toHeaderTitle = (name: string): string => (name.charAt(0).toUpperCase() + name.slice(1) + '\xa0\xa0\xa0\xa0\xa0');
+    toHeaderTitle = (name: string): string => name.charAt(0).toUpperCase() + name.slice(1) + '\xa0\xa0\xa0\xa0\xa0';
 
     renderSortIcon = (column: string): React.ReactNode | undefined => {
         if (this.props.sortableColumns.includes(column)) {
             const state = this.props.sortConfig.find((config: SortConfig) => config.column === column);
-            return state
-                ? <span className='sort-icon'>{state.sortState}</span>
-                : undefined;
+            return state ? <span className="sort-icon">{state.sortState}</span> : undefined;
         }
         return undefined;
     };
 
     renderResizeIcon = (index: number): React.ReactNode =>
-        (this.props.columns[index].resizable)
-            ? <span className='resize-handle' onMouseDown={ev => this.handleResizeMouseDown(ev, index)} onDoubleClick={ev => this.handleResizeDoubleClick(ev, index)}>|</span>
-            : undefined;
+        this.props.columns[index].resizable ? (
+            <span
+                className="resize-handle"
+                onMouseDown={ev => this.handleResizeMouseDown(ev, index)}
+                onDoubleClick={ev => this.handleResizeDoubleClick(ev, index)}
+            >
+                |
+            </span>
+        ) : undefined;
 
     renderHeader = (): React.ReactNode => {
-        const header = this.props.columns.map((column: ColumnHeader, index) =>
-            <th key={'th-'+index} onClick={ev => this.handleSortChange(column.title, ev)}>
+        const header = this.props.columns.map((column: ColumnHeader, index) => (
+            <th key={'th-' + index} onClick={ev => this.handleSortChange(column.title, ev)}>
                 <span>
                     {this.toHeaderTitle(column.title)}
                     {this.renderResizeIcon(index)}
                     {this.renderSortIcon(column.title)}
                 </span>
             </th>
-        );
-        header.push(<th key={'th-filler'} className='filler'/>);
+        ));
+        header.push(<th key={'th-filler'} className="filler" />);
         return header;
     };
 
     render(): React.ReactNode {
-        return <thead>
-            <tr>
-                {this.renderHeader()}
-            </tr>
-        </thead>;
+        return (
+            <thead>
+                <tr>{this.renderHeader()}</tr>
+            </thead>
+        );
     }
 }

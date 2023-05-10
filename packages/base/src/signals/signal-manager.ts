@@ -26,7 +26,7 @@ export declare interface SignalManager {
     fireResetZoomSignal(): void;
     fireMarkerCategoriesFetchedSignal(): void;
     fireMarkerSetsFetchedSignal(): void;
-    fireMarkerCategoryClosedSignal(payload: { traceViewerId: string, markerCategory: string }): void;
+    fireMarkerCategoryClosedSignal(payload: { traceViewerId: string; markerCategory: string }): void;
     fireTraceServerStartedSignal(): void;
     fireUndoSignal(): void;
     fireRedoSignal(): void;
@@ -35,8 +35,8 @@ export declare interface SignalManager {
     firePinView(output: OutputDescriptor, payload?: any): void;
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     fireUnPinView(output: OutputDescriptor, payload?: any): void;
-    fireOverviewOutputSelectedSignal(payload: { traceId: string, outputDescriptor: OutputDescriptor}): void;
-    fireSaveAsCsv(payload: {traceId: string, data: string}): void;
+    fireOverviewOutputSelectedSignal(payload: { traceId: string; outputDescriptor: OutputDescriptor }): void;
+    fireSaveAsCsv(payload: { traceId: string; data: string }): void;
     fireSelectionRangeUpdated(payload: TimeRangeUpdatePayload): void;
     fireViewRangeUpdated(payload: TimeRangeUpdatePayload): void;
     fireRequestSelectionRangeChange(payload: TimeRangeUpdatePayload): void;
@@ -73,7 +73,7 @@ export const Signals = {
     SAVE_AS_CSV: 'save as csv',
     VIEW_RANGE_UPDATED: 'view range updated',
     SELECTION_RANGE_UPDATED: 'selection range updated',
-    REQUEST_SELECTION_RANGE_CHANGE: 'change selection range',
+    REQUEST_SELECTION_RANGE_CHANGE: 'change selection range'
 };
 
 export class SignalManager extends EventEmitter implements SignalManager {
@@ -104,13 +104,13 @@ export class SignalManager extends EventEmitter implements SignalManager {
     fireOutputAddedSignal(payload: OutputAddedSignalPayload): void {
         this.emit(Signals.OUTPUT_ADDED, payload);
     }
-    fireItemPropertiesSignalUpdated(properties?: { [key: string]: string; }): void {
+    fireItemPropertiesSignalUpdated(properties?: { [key: string]: string }): void {
         this.emit(Signals.ITEM_PROPERTIES_UPDATED, properties);
     }
     fireThemeChangedSignal(theme: string): void {
         this.emit(Signals.THEME_CHANGED, theme);
     }
-    fireSelectionChangedSignal(payload: { [key: string]: string; }): void {
+    fireSelectionChangedSignal(payload: { [key: string]: string }): void {
         this.emit(Signals.SELECTION_CHANGED, payload);
     }
     fireCloseTraceViewerTabSignal(traceUUID: string): void {
@@ -131,7 +131,7 @@ export class SignalManager extends EventEmitter implements SignalManager {
     fireMarkerSetsFetchedSignal(): void {
         this.emit(Signals.MARKERSETS_FETCHED);
     }
-    fireMarkerCategoryClosedSignal(payload: { traceViewerId: string, markerCategory: string }): void {
+    fireMarkerCategoryClosedSignal(payload: { traceViewerId: string; markerCategory: string }): void {
         this.emit(Signals.MARKER_CATEGORY_CLOSED, payload);
     }
     fireTraceServerStartedSignal(): void {
@@ -154,10 +154,10 @@ export class SignalManager extends EventEmitter implements SignalManager {
     fireOpenOverviewOutputSignal(traceId: string): void {
         this.emit(Signals.OPEN_OVERVIEW_OUTPUT, traceId);
     }
-    fireOverviewOutputSelectedSignal(payload: { traceId: string, outputDescriptor: OutputDescriptor}): void {
+    fireOverviewOutputSelectedSignal(payload: { traceId: string; outputDescriptor: OutputDescriptor }): void {
         this.emit(Signals.OVERVIEW_OUTPUT_SELECTED, payload);
     }
-    fireSaveAsCsv(payload: {traceId: string, data: string}): void {
+    fireSaveAsCsv(payload: { traceId: string; data: string }): void {
         this.emit(Signals.SAVE_AS_CSV, payload);
     }
     fireViewRangeUpdated(payload: TimeRangeUpdatePayload): void {
@@ -169,7 +169,6 @@ export class SignalManager extends EventEmitter implements SignalManager {
     fireRequestSelectionRangeChange(payload: TimeRangeUpdatePayload): void {
         this.emit(Signals.REQUEST_SELECTION_RANGE_CHANGE, payload);
     }
-
 }
 
 let instance: SignalManager = new SignalManager();

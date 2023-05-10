@@ -11,26 +11,28 @@ export const ServerSchema: PreferenceSchema = {
     properties: {
         [TRACE_PATH]: {
             type: 'string',
-            description: 'The path to trace-server executable, e.g.: /usr/bin/tracecompass-server',
+            description: 'The path to trace-server executable, e.g.: /usr/bin/tracecompass-server'
         },
         [TRACE_PORT]: {
             type: 'integer',
             default: TRACE_VIEWER_DEFAULT_PORT,
-            description: 'Specify the port the Trace Viewer would use to connect to the trace server',
+            description: 'Specify the port the Trace Viewer would use to connect to the trace server'
         },
         [TRACE_ARGS]: {
             type: 'string',
             default: '',
-            description: 'Specify trace-server command line arguments. This change will take effect the next time the trace server starts.'+'\n'+
-            'E.g. for Trace Compass server: -data /home/user/server-workspace -vmargs -Dtraceserver.port=8080',
+            description:
+                'Specify trace-server command line arguments. This change will take effect the next time the trace server starts.' +
+                '\n' +
+                'E.g. for Trace Compass server: -data /home/user/server-workspace -vmargs -Dtraceserver.port=8080'
         }
-    },
+    }
 };
 
 interface TracePreferenceContribution {
-    [TRACE_PATH]?: string
-    [TRACE_PORT]: number
-    [TRACE_ARGS]: string
+    [TRACE_PATH]?: string;
+    [TRACE_PORT]: number;
+    [TRACE_ARGS]: string;
 }
 
 export const TracePreferences = Symbol('TracePreferences');

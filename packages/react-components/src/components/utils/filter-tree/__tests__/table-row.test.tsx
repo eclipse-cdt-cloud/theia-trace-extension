@@ -2,8 +2,8 @@ import * as React from 'react';
 import { TreeNode } from '../tree-node';
 import { TableRow } from '../table-row';
 import { create } from 'react-test-renderer';
-import { render, fireEvent } from "@testing-library/react";
-import { within } from "@testing-library/dom";
+import { render, fireEvent } from '@testing-library/react';
+import { within } from '@testing-library/dom';
 
 const mockOnChecked = jest.fn();
 const mockOnCollapse = jest.fn();
@@ -11,7 +11,7 @@ const mockOnClose = jest.fn();
 const mockOnClick = jest.fn();
 const mockOnContext = jest.fn();
 
-const cell1Text = "cell1 - text";
+const cell1Text = 'cell1 - text';
 const testTreeNode = {
     id: 5,
     parentId: -1,
@@ -21,104 +21,133 @@ const testTreeNode = {
 } as TreeNode;
 
 test('Checked status', () => {
-    const treeNodeUnchecked = create(<TableRow
-        node={testTreeNode}
-        getCheckedStatus={id => 0}
-        level={0}
-        isCheckable={true}
-        collapsedNodes={[]}
-        onToggleCollapse={mockOnCollapse}
-        onRowClick={mockOnClick}
-        onContextMenu={mockOnContext}
-        onToggleCheck={mockOnChecked} isClosable={false} onClose={mockOnClose}    />)
-        .toJSON();
+    const treeNodeUnchecked = create(
+        <TableRow
+            node={testTreeNode}
+            getCheckedStatus={id => 0}
+            level={0}
+            isCheckable={true}
+            collapsedNodes={[]}
+            onToggleCollapse={mockOnCollapse}
+            onRowClick={mockOnClick}
+            onContextMenu={mockOnContext}
+            onToggleCheck={mockOnChecked}
+            isClosable={false}
+            onClose={mockOnClose}
+        />
+    ).toJSON();
     expect(treeNodeUnchecked).toMatchSnapshot();
 
-    const treeNodeChecked = create(<TableRow
-        node={testTreeNode}
-        getCheckedStatus={id => 1}
-        level={0}
-        isCheckable={true}
-        collapsedNodes={[]}
-        onToggleCollapse={mockOnCollapse}
-        onRowClick={mockOnClick}
-        onContextMenu={mockOnContext}
-        onToggleCheck={mockOnChecked} isClosable={false} onClose={mockOnClose}    />)
-        .toJSON();
+    const treeNodeChecked = create(
+        <TableRow
+            node={testTreeNode}
+            getCheckedStatus={id => 1}
+            level={0}
+            isCheckable={true}
+            collapsedNodes={[]}
+            onToggleCollapse={mockOnCollapse}
+            onRowClick={mockOnClick}
+            onContextMenu={mockOnContext}
+            onToggleCheck={mockOnChecked}
+            isClosable={false}
+            onClose={mockOnClose}
+        />
+    ).toJSON();
     expect(treeNodeChecked).toMatchSnapshot();
 
-    const treeNodePartialCheck = create(<TableRow
-        node={testTreeNode}
-        getCheckedStatus={id => 2}
-        level={0}
-        isCheckable={true}
-        collapsedNodes={[]}
-        onToggleCollapse={mockOnCollapse}
-        onRowClick={mockOnClick}
-        onContextMenu={mockOnContext}
-        onToggleCheck={mockOnChecked} isClosable={false} onClose={mockOnClose}    />)
-        .toJSON();
+    const treeNodePartialCheck = create(
+        <TableRow
+            node={testTreeNode}
+            getCheckedStatus={id => 2}
+            level={0}
+            isCheckable={true}
+            collapsedNodes={[]}
+            onToggleCollapse={mockOnCollapse}
+            onRowClick={mockOnClick}
+            onContextMenu={mockOnContext}
+            onToggleCheck={mockOnChecked}
+            isClosable={false}
+            onClose={mockOnClose}
+        />
+    ).toJSON();
     expect(treeNodePartialCheck).toMatchSnapshot();
 });
 
 test('Uncheckable', () => {
-    const uncheckableTree = create(<TableRow
-        node={testTreeNode}
-        level={0}
-        isCheckable={false}
-        getCheckedStatus={id => 0}
-        collapsedNodes={[]}
-        onToggleCollapse={mockOnCollapse}
-        onRowClick={mockOnClick}
-        onContextMenu={mockOnContext}
-        onToggleCheck={mockOnChecked} isClosable={false} onClose={mockOnClose}    />)
-        .toJSON();
+    const uncheckableTree = create(
+        <TableRow
+            node={testTreeNode}
+            level={0}
+            isCheckable={false}
+            getCheckedStatus={id => 0}
+            collapsedNodes={[]}
+            onToggleCollapse={mockOnCollapse}
+            onRowClick={mockOnClick}
+            onContextMenu={mockOnContext}
+            onToggleCheck={mockOnChecked}
+            isClosable={false}
+            onClose={mockOnClose}
+        />
+    ).toJSON();
     expect(uncheckableTree).toMatchSnapshot();
 });
 
 test('Levels', () => {
-    const lessPadding = create(<TableRow
-        node={testTreeNode}
-        getCheckedStatus={id => 0}
-        level={1}
-        isCheckable={true}
-        collapsedNodes={[]}
-        onToggleCollapse={mockOnCollapse}
-        onRowClick={mockOnClick}
-        onContextMenu={mockOnContext}
-        onToggleCheck={mockOnChecked} isClosable={false} onClose={mockOnClose}    />)
-        .toJSON();
+    const lessPadding = create(
+        <TableRow
+            node={testTreeNode}
+            getCheckedStatus={id => 0}
+            level={1}
+            isCheckable={true}
+            collapsedNodes={[]}
+            onToggleCollapse={mockOnCollapse}
+            onRowClick={mockOnClick}
+            onContextMenu={mockOnContext}
+            onToggleCheck={mockOnChecked}
+            isClosable={false}
+            onClose={mockOnClose}
+        />
+    ).toJSON();
     expect(lessPadding).toMatchSnapshot();
 
-    const morePadding = create(<TableRow
-        node={testTreeNode}
-        getCheckedStatus={id => 0}
-        level={10}
-        isCheckable={true}
-        collapsedNodes={[]}
-        onToggleCollapse={mockOnCollapse}
-        onRowClick={mockOnClick}
-        onContextMenu={mockOnContext}
-        onToggleCheck={mockOnChecked} isClosable={false} onClose={mockOnClose}    />)
-        .toJSON();
+    const morePadding = create(
+        <TableRow
+            node={testTreeNode}
+            getCheckedStatus={id => 0}
+            level={10}
+            isCheckable={true}
+            collapsedNodes={[]}
+            onToggleCollapse={mockOnCollapse}
+            onRowClick={mockOnClick}
+            onContextMenu={mockOnContext}
+            onToggleCheck={mockOnChecked}
+            isClosable={false}
+            onClose={mockOnClose}
+        />
+    ).toJSON();
     expect(morePadding).toMatchSnapshot();
 });
 
 test('Toggle check', async () => {
     mockOnChecked.mockClear();
-    let { getByText } = render(<TableRow
-        node={testTreeNode}
-        getCheckedStatus={id => 0}
-        level={0}
-        isCheckable={true}
-        collapsedNodes={[]}
-        onToggleCollapse={mockOnCollapse}
-        onRowClick={mockOnClick}
-        onContextMenu={mockOnContext}
-        onToggleCheck={mockOnChecked} isClosable={false} onClose={mockOnClose}    />)
+    let { getByText } = render(
+        <TableRow
+            node={testTreeNode}
+            getCheckedStatus={id => 0}
+            level={0}
+            isCheckable={true}
+            collapsedNodes={[]}
+            onToggleCollapse={mockOnCollapse}
+            onRowClick={mockOnClick}
+            onContextMenu={mockOnContext}
+            onToggleCheck={mockOnChecked}
+            isClosable={false}
+            onClose={mockOnClose}
+        />
+    );
     const element = getByText(cell1Text);
-    let {getByRole} = within(element);
-    const image = getByRole("img",  {hidden: true});
+    let { getByRole } = within(element);
+    const image = getByRole('img', { hidden: true });
     fireEvent.click(image as HTMLElement);
     expect(mockOnChecked).toHaveBeenCalledTimes(1);
     expect(mockOnChecked).toHaveBeenCalledWith(testTreeNode.id);
@@ -129,8 +158,7 @@ test('Toggle check', async () => {
 });
 
 describe('with children', () => {
-    
-    const parentText = "parent text";
+    const parentText = 'parent text';
     const child1 = {
         id: 2,
         parentId: 1,
@@ -152,65 +180,74 @@ describe('with children', () => {
         children: [child1, child2],
         isRoot: true
     } as TreeNode;
-    
+
     test('With children', () => {
-        
-        let nodeWithChildren = create(<TableRow
-            node={parentNode}
-            getCheckedStatus={id => 0}
-            level={0}
-            isCheckable={true}
-            collapsedNodes={[]}
-            onToggleCollapse={mockOnCollapse}
-            onRowClick={mockOnClick}
-            onContextMenu={mockOnContext}
-            onToggleCheck={mockOnChecked} isClosable={false} onClose={mockOnClose}        />)
-            .toJSON();
+        let nodeWithChildren = create(
+            <TableRow
+                node={parentNode}
+                getCheckedStatus={id => 0}
+                level={0}
+                isCheckable={true}
+                collapsedNodes={[]}
+                onToggleCollapse={mockOnCollapse}
+                onRowClick={mockOnClick}
+                onContextMenu={mockOnContext}
+                onToggleCheck={mockOnChecked}
+                isClosable={false}
+                onClose={mockOnClose}
+            />
+        ).toJSON();
         expect(nodeWithChildren).toMatchSnapshot();
-    })
+    });
 
     test('With children collapsed', () => {
-        
-        let nodeWithChildren = create(<TableRow
-            node={parentNode}
-            getCheckedStatus={id => 0}
-            level={0}
-            isCheckable={true}
-            collapsedNodes={[parentNode.id]}
-            onToggleCollapse={mockOnCollapse}
-            onRowClick={mockOnClick}
-            onContextMenu={mockOnContext}
-            onToggleCheck={mockOnChecked} isClosable={false} onClose={mockOnClose}        />)
-            .toJSON();
+        let nodeWithChildren = create(
+            <TableRow
+                node={parentNode}
+                getCheckedStatus={id => 0}
+                level={0}
+                isCheckable={true}
+                collapsedNodes={[parentNode.id]}
+                onToggleCollapse={mockOnCollapse}
+                onRowClick={mockOnClick}
+                onContextMenu={mockOnContext}
+                onToggleCheck={mockOnChecked}
+                isClosable={false}
+                onClose={mockOnClose}
+            />
+        ).toJSON();
         expect(nodeWithChildren).toMatchSnapshot();
-    })
+    });
 
     test('Toggle collapse', () => {
         mockOnCollapse.mockClear();
-       
-        let { getByText } = render(<TableRow
-            node={parentNode}
-            getCheckedStatus={id => 0}
-            level={0}
-            isCheckable={true}
-            collapsedNodes={[]}
-            onToggleCollapse={mockOnCollapse}
-            onRowClick={mockOnClick}
-            onContextMenu={mockOnContext}
-            onToggleCheck={mockOnChecked} isClosable={false} onClose={mockOnClose}        />)
-        const element = getByText(parentText);
-        const collapsedEl = within(element).getAllByRole("img", {hidden: true})[0];
-        fireEvent.click(collapsedEl as HTMLElement);
-        expect(mockOnCollapse).toHaveBeenCalledTimes(1)
-        expect(mockOnCollapse).toHaveBeenCalledWith(parentNode.id)  
-    });
 
+        let { getByText } = render(
+            <TableRow
+                node={parentNode}
+                getCheckedStatus={id => 0}
+                level={0}
+                isCheckable={true}
+                collapsedNodes={[]}
+                onToggleCollapse={mockOnCollapse}
+                onRowClick={mockOnClick}
+                onContextMenu={mockOnContext}
+                onToggleCheck={mockOnChecked}
+                isClosable={false}
+                onClose={mockOnClose}
+            />
+        );
+        const element = getByText(parentText);
+        const collapsedEl = within(element).getAllByRole('img', { hidden: true })[0];
+        fireEvent.click(collapsedEl as HTMLElement);
+        expect(mockOnCollapse).toHaveBeenCalledTimes(1);
+        expect(mockOnCollapse).toHaveBeenCalledWith(parentNode.id);
+    });
 });
 
 describe('Multiple labels', () => {
-    
-    const parentText = "parent 1 text";
-    const parentText2 = "parent 2 text";
+    const parentText = 'parent 1 text';
+    const parentText2 = 'parent 2 text';
     const child1 = {
         id: 2,
         parentId: 1,
@@ -232,21 +269,23 @@ describe('Multiple labels', () => {
         children: [child1, child2],
         isRoot: true
     } as TreeNode;
-    
-    test('With children and labels', () => {
-        
-        let nodeWithChildren = create(<TableRow
-            node={parentNode}
-            getCheckedStatus={id => 0}
-            level={0}
-            isCheckable={true}
-            collapsedNodes={[]}
-            onToggleCollapse={mockOnCollapse}
-            onRowClick={mockOnClick}
-            onContextMenu={mockOnContext}
-            onToggleCheck={mockOnChecked} isClosable={false} onClose={mockOnClose}        />)
-            .toJSON();
-        expect(nodeWithChildren).toMatchSnapshot();
-    })
 
+    test('With children and labels', () => {
+        let nodeWithChildren = create(
+            <TableRow
+                node={parentNode}
+                getCheckedStatus={id => 0}
+                level={0}
+                isCheckable={true}
+                collapsedNodes={[]}
+                onToggleCollapse={mockOnCollapse}
+                onRowClick={mockOnClick}
+                onContextMenu={mockOnContext}
+                onToggleCheck={mockOnChecked}
+                isClosable={false}
+                onClose={mockOnClose}
+            />
+        ).toJSON();
+        expect(nodeWithChildren).toMatchSnapshot();
+    });
 });

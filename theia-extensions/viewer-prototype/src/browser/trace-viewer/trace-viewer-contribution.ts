@@ -1,18 +1,23 @@
 import { injectable, inject } from 'inversify';
 import { CommandRegistry, CommandContribution, MessageService } from '@theia/core';
-import { WidgetOpenerOptions, WidgetOpenHandler, KeybindingContribution, KeybindingRegistry } from '@theia/core/lib/browser';
+import {
+    WidgetOpenerOptions,
+    WidgetOpenHandler,
+    KeybindingContribution,
+    KeybindingRegistry
+} from '@theia/core/lib/browser';
 import URI from '@theia/core/lib/common/uri';
 import { TraceViewerWidget, TraceViewerWidgetOptions } from './trace-viewer';
 import { FileDialogService, OpenFileDialogProps } from '@theia/filesystem/lib/browser';
 import { WorkspaceService } from '@theia/workspace/lib/browser/workspace-service';
 import {
-  OpenTraceCommand,
-  StartServerCommand,
-  StopServerCommand,
-  TraceViewerCommand,
-  KeyboardShortcutsCommand,
-  OpenTraceWithRootPathCommand,
-  OpenTraceWithPathCommand,
+    OpenTraceCommand,
+    StartServerCommand,
+    StopServerCommand,
+    TraceViewerCommand,
+    KeyboardShortcutsCommand,
+    OpenTraceWithRootPathCommand,
+    OpenTraceWithPathCommand
 } from './trace-viewer-commands';
 import { PortBusy, TraceServerConfigService } from '../../common/trace-server-config';
 import { TracePreferences, TRACE_PATH, TRACE_ARGS } from '../trace-server-preference';
@@ -28,16 +33,16 @@ interface TraceViewerWidgetOpenerOptions extends WidgetOpenerOptions {
 }
 
 @injectable()
-export class TraceViewerContribution extends WidgetOpenHandler<TraceViewerWidget> implements CommandContribution, KeybindingContribution {
-
+export class TraceViewerContribution
+    extends WidgetOpenHandler<TraceViewerWidget>
+    implements CommandContribution, KeybindingContribution
+{
     private tspClient: TspClient;
 
-    private constructor(
-        @inject(TspClientProvider) private tspClientProvider: TspClientProvider
-    ) {
+    private constructor(@inject(TspClientProvider) private tspClientProvider: TspClientProvider) {
         super();
         this.tspClient = this.tspClientProvider.getTspClient();
-        this.tspClientProvider.addTspClientChangeListener(tspClient => this.tspClient = tspClient);
+        this.tspClientProvider.addTspClientChangeListener(tspClient => (this.tspClient = tspClient));
     }
 
     @inject(FileDialogService) protected readonly fileDialogService: FileDialogService;
@@ -81,7 +86,10 @@ export class TraceViewerContribution extends WidgetOpenHandler<TraceViewerWidget
                 const resolve = await this.traceServerConfigService.startTraceServer({ path, args });
                 if (resolve === 'success') {
                     if (this.args && this.args.length > 0) {
-                        progress.report({ message: `Trace server started using the following arguments:  ${this.args}.`, work: { done: 100, total: 100 } });
+                        progress.report({
+                            message: `Trace server started using the following arguments:  ${this.args}.`,
+                            work: { done: 100, total: 100 }
+                        });
                     } else {
                         progress.report({ message: 'Trace server started.', work: { done: 100, total: 100 } });
                     }
@@ -93,7 +101,8 @@ export class TraceViewerContribution extends WidgetOpenHandler<TraceViewerWidget
                 if (PortBusy.is(err as any)) {
                     if (this.args && this.args.length > 0) {
                         this.messageService.error(
-                            `Error starting the server (port busy) using the following arguments: ${this.args}`);
+                            `Error starting the server (port busy) using the following arguments: ${this.args}`
+                        );
                     } else {
                         this.messageService.error('Error starting the server (port busy)');
                     }
@@ -145,7 +154,10 @@ export class TraceViewerContribution extends WidgetOpenHandler<TraceViewerWidget
                     if (resolve === 'success') {
                         await this.waitForTraceServer(10_000);
                         if (this.args && this.args.length > 0) {
-                            progress.report({ message: `Trace server started using the following arguments:  ${args}.`, work: { done: 100, total: 100 } });
+                            progress.report({
+                                message: `Trace server started using the following arguments:  ${args}.`,
+                                work: { done: 100, total: 100 }
+                            });
                         } else {
                             progress.report({ message: 'Trace server started.', work: { done: 100, total: 100 } });
                         }
@@ -157,7 +169,8 @@ export class TraceViewerContribution extends WidgetOpenHandler<TraceViewerWidget
                     if (PortBusy.is(err as any)) {
                         if (this.args && this.args.length > 0) {
                             this.messageService.error(
-                                `Error starting the server (port busy) using the following arguments: ${this.args}`);
+                                `Error starting the server (port busy) using the following arguments: ${this.args}`
+                            );
                         } else {
                             this.messageService.error('Error starting the server (port busy)');
                         }
@@ -177,7 +190,7 @@ export class TraceViewerContribution extends WidgetOpenHandler<TraceViewerWidget
     registerKeybindings(keybindings: KeybindingRegistry): void {
         keybindings.registerKeybinding({
             keybinding: 'ctrlcmd+f1',
-            command: KeyboardShortcutsCommand.id,
+            command: KeyboardShortcutsCommand.id
         });
     }
 
@@ -187,7 +200,7 @@ export class TraceViewerContribution extends WidgetOpenHandler<TraceViewerWidget
         });
         registry.registerCommand(OpenTraceWithPathCommand, {
             isVisible: () => false,
-            execute: (path: string) => path && this.open(new URI(path)),
+            execute: (path: string) => path && this.open(new URI(path))
         });
         registry.registerCommand(OpenTraceWithRootPathCommand, {
             isVisible: () => false,
@@ -206,7 +219,10 @@ export class TraceViewerContribution extends WidgetOpenHandler<TraceViewerWidget
                     if (resolve === 'success') {
                         await this.waitForTraceServer(10000);
                         if (this.args && this.args.length > 0) {
-                            progress.report({ message: `Trace server started using the following arguments:  ${args}.`, work: { done: 100, total: 100 } });
+                            progress.report({
+                                message: `Trace server started using the following arguments:  ${args}.`,
+                                work: { done: 100, total: 100 }
+                            });
                         } else {
                             progress.report({ message: 'Trace server started.', work: { done: 100, total: 100 } });
                         }
@@ -220,7 +236,8 @@ export class TraceViewerContribution extends WidgetOpenHandler<TraceViewerWidget
                     if (PortBusy.is(error as any)) {
                         if (this.args && this.args.length > 0) {
                             this.messageService.error(
-                                `Error starting the server (port busy) using the following arguments: ${this.args}`);
+                                `Error starting the server (port busy) using the following arguments: ${this.args}`
+                            );
                         } else {
                             this.messageService.error('Error starting the server (port busy)');
                         }
@@ -248,7 +265,7 @@ export class TraceViewerContribution extends WidgetOpenHandler<TraceViewerWidget
         });
         registry.registerCommand(KeyboardShortcutsCommand, {
             execute: async () => {
-                await new ChartShortcutsDialog({title: 'Trace Viewer Keyboard and Mouse Shortcuts'}).open();
+                await new ChartShortcutsDialog({ title: 'Trace Viewer Keyboard and Mouse Shortcuts' }).open();
             }
         });
     }
@@ -259,7 +276,7 @@ export class TraceViewerContribution extends WidgetOpenHandler<TraceViewerWidget
 
     protected async waitForTraceServer(timeoutMs: number): Promise<void> {
         let timeout = false;
-        const timeoutHandle = setTimeout(() => timeout = true, timeoutMs);
+        const timeoutHandle = setTimeout(() => (timeout = true), timeoutMs);
         // Try fetching the Trace Server health, repeat on error only.
         // If we get a response of some sort, it means the HTTP server is up somehow.
         while (true) {
@@ -270,7 +287,12 @@ export class TraceViewerContribution extends WidgetOpenHandler<TraceViewerWidget
                     clearTimeout(timeoutHandle);
                     return;
                 }
-                error = new Error('Unsuccessful health check: ' + healthResponse.getStatusMessage() + ' status: ' + healthResponse.getModel()?.status);
+                error = new Error(
+                    'Unsuccessful health check: ' +
+                        healthResponse.getStatusMessage() +
+                        ' status: ' +
+                        healthResponse.getModel()?.status
+                );
             } catch (err) {
                 error = err;
             }

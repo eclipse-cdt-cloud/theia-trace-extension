@@ -8,7 +8,6 @@ import { TracePreferences, TRACE_PORT } from './trace-server-preference';
 
 @injectable()
 export class TraceServerUrlProviderImpl implements TraceServerUrlProvider, FrontendApplicationContribution {
-
     /**
      * The Trace Server URL resolved from a URL template and a port number.
      * Updated each time the port is changed from the preferences.
@@ -50,7 +49,7 @@ export class TraceServerUrlProviderImpl implements TraceServerUrlProvider, Front
         @inject(EnvVariablesServer) protected environment: EnvVariablesServer,
         @inject(TracePreferences) protected tracePreferences: TracePreferences,
         @inject(TraceServerConfigService) protected traceServerConfigService: TraceServerConfigService,
-        @inject(MessageService) protected messageService: MessageService,
+        @inject(MessageService) protected messageService: MessageService
     ) {
         this._traceServerUrlPromise = new Promise(resolve => {
             const self = this.onDidChangeTraceServerUrl(url => {
@@ -61,9 +60,7 @@ export class TraceServerUrlProviderImpl implements TraceServerUrlProvider, Front
         // Get the URL template from the remote environment.
         this.environment.getValue('TRACE_SERVER_URL').then(variable => {
             const url = variable?.value;
-            this._traceServerUrlTemplate = url
-                ? this.normalizeUrl(url)
-                : TRACE_SERVER_DEFAULT_URL;
+            this._traceServerUrlTemplate = url ? this.normalizeUrl(url) : TRACE_SERVER_DEFAULT_URL;
             this.updateTraceServerUrl();
         });
         // Get the configurable port from Theia's preferences.

@@ -36,58 +36,55 @@ export class TableRow extends React.Component<TableRowProps> {
 
     renderToggleCollapse = (): React.ReactNode => {
         const width = (this.props.level + 1) * 12;
-        return (
-            (this.props.node.children.length === 0)
-                ? <div style={{ width, paddingRight: 5, display: 'inline-block' }} />
-                : <div style={{ width, paddingRight: 5, textAlign: 'right', display: 'inline-block' }} onClick={this.handleCollapse}>
-                    {(this.isCollapsed() ? icons.expand : icons.collapse)}</div>
+        return this.props.node.children.length === 0 ? (
+            <div style={{ width, paddingRight: 5, display: 'inline-block' }} />
+        ) : (
+            <div
+                style={{ width, paddingRight: 5, textAlign: 'right', display: 'inline-block' }}
+                onClick={this.handleCollapse}
+            >
+                {this.isCollapsed() ? icons.expand : icons.collapse}
+            </div>
         );
     };
 
     renderCheckbox = (): React.ReactNode => {
         const checkedStatus = this.props.getCheckedStatus(this.props.node.id);
-        return this.props.isCheckable
-            ? <CheckboxComponent
+        return this.props.isCheckable ? (
+            <CheckboxComponent
                 key={this.props.node.id}
                 id={this.props.node.id}
                 checkedStatus={checkedStatus}
                 onToggleCheck={this.props.onToggleCheck}
             />
-            : undefined;
+        ) : undefined;
     };
 
     renderCloseButton = (): React.ReactNode =>
-        (this.props.isClosable && this.props.node.id)
-            ? <div style={{ paddingRight: 5, display: 'inline' }} onClick={this.handleClose}>{icons.close}</div>
-            : undefined;
+        this.props.isClosable && this.props.node.id ? (
+            <div style={{ paddingRight: 5, display: 'inline' }} onClick={this.handleClose}>
+                {icons.close}
+            </div>
+        ) : undefined;
 
     renderRow = (): React.ReactNode => {
-        const { node} = this.props;
-        const row = node.labels.map((_label: string, index) =>
-            <TableCell
-                key={node.id + '-' + index}
-                index={index}
-                node={node}
-            >
-                { (index === 0) ? this.renderToggleCollapse() : undefined }
-                { (index === 0) ? this.renderCheckbox() : undefined }
-                { (index === 0) ? this.renderCloseButton() : undefined }
+        const { node } = this.props;
+        const row = node.labels.map((_label: string, index) => (
+            <TableCell key={node.id + '-' + index} index={index} node={node}>
+                {index === 0 ? this.renderToggleCollapse() : undefined}
+                {index === 0 ? this.renderCheckbox() : undefined}
+                {index === 0 ? this.renderCloseButton() : undefined}
             </TableCell>
-        );
-        row.push(<td key={node.id + '-filler'} className='filler'/>);
+        ));
+        row.push(<td key={node.id + '-filler'} className="filler" />);
         return row;
     };
 
     renderChildren = (): React.ReactNode | undefined => {
         if (this.props.node.children.length && !this.isCollapsed()) {
-            return this.props.node.children.map((child: TreeNode) =>
-                <TableRow
-                    {...this.props}
-                    key={child.id}
-                    node={child}
-                    level={this.props.level + 1}
-                />
-            );
+            return this.props.node.children.map((child: TreeNode) => (
+                <TableRow {...this.props} key={child.id} node={child} level={this.props.level + 1} />
+            ));
         }
         return undefined;
     };
@@ -107,18 +104,18 @@ export class TableRow extends React.Component<TableRowProps> {
     };
 
     render(): React.ReactNode | undefined {
-        if (!this.props.node) { return undefined; }
+        if (!this.props.node) {
+            return undefined;
+        }
         const children = this.renderChildren();
         const { node, selectedRow } = this.props;
         const className = selectedRow === node.id ? 'selected' : '';
 
         return (
             <React.Fragment>
-                <tr
-                    className={className}
-                    onClick={this.onClick}
-                    onContextMenu={this.onContextMenu}
-                >{this.renderRow()}</tr>
+                <tr className={className} onClick={this.onClick} onContextMenu={this.onContextMenu}>
+                    {this.renderRow()}
+                </tr>
                 {children}
             </React.Fragment>
         );

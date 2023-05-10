@@ -7,11 +7,11 @@ import { TimeGraphUnitController } from 'timeline-chart/lib/time-graph-unit-cont
 interface TimeAxisProps {
     unitController: TimeGraphUnitController;
     style: {
-        width: number,
-        chartBackgroundColor: number,
-        cursorColor: number,
-        lineColor: number,
-        verticalAlign: string
+        width: number;
+        chartBackgroundColor: number;
+        cursorColor: number;
+        lineColor: number;
+        verticalAlign: string;
     };
     addWidgetResizeHandler: (handler: () => void) => void;
     removeWidgetResizeHandler: (handler: () => void) => void;
@@ -19,20 +19,23 @@ interface TimeAxisProps {
 
 export class TimeAxisComponent extends React.Component<TimeAxisProps> {
     render(): JSX.Element {
-        return <ReactTimeGraphContainer
-            id='timegraph-axis'
-            options={{
-                id: 'timegraph-axis',
-                width: this.props.style.width,
-                height: 30,
-                backgroundColor: this.props.style.chartBackgroundColor,
-                lineColor: this.props.style.lineColor,
-                classNames: 'horizontal-canvas'
-            }}
-            addWidgetResizeHandler={this.props.addWidgetResizeHandler}
-            removeWidgetResizeHandler={this.props.removeWidgetResizeHandler}
-            unitController={this.props.unitController}
-            layers={[this.getAxisLayer(), this.getAxisCursors()]} />;
+        return (
+            <ReactTimeGraphContainer
+                id="timegraph-axis"
+                options={{
+                    id: 'timegraph-axis',
+                    width: this.props.style.width,
+                    height: 30,
+                    backgroundColor: this.props.style.chartBackgroundColor,
+                    lineColor: this.props.style.lineColor,
+                    classNames: 'horizontal-canvas'
+                }}
+                addWidgetResizeHandler={this.props.addWidgetResizeHandler}
+                removeWidgetResizeHandler={this.props.removeWidgetResizeHandler}
+                unitController={this.props.unitController}
+                layers={[this.getAxisLayer(), this.getAxisCursors()]}
+            />
+        );
     }
 
     protected getAxisLayer(): TimeGraphAxis {

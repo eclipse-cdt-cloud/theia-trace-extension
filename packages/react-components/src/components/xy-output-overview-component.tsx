@@ -4,7 +4,14 @@ import * as React from 'react';
 import { drawSelection } from './utils/xy-output-component-utils';
 import { TimeRange } from 'traceviewer-base/src/utils/time-range';
 import { AbstractXYOutputState, MouseButton } from './abstract-xy-output-component';
-import { AbstractXYOutputComponent, FLAG_PAN_LEFT, FLAG_PAN_RIGHT, FLAG_ZOOM_IN, FLAG_ZOOM_OUT, XY_OUTPUT_KEY_ACTIONS } from './abstract-xy-output-component';
+import {
+    AbstractXYOutputComponent,
+    FLAG_PAN_LEFT,
+    FLAG_PAN_RIGHT,
+    FLAG_ZOOM_IN,
+    FLAG_ZOOM_OUT,
+    XY_OUTPUT_KEY_ACTIONS
+} from './abstract-xy-output-component';
 import { Experiment } from 'tsp-typescript-client';
 import { TraceOverviewSelectionDialogComponent } from './trace-overview-selection-dialog-component';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -16,8 +23,8 @@ const COLOR = {
 };
 
 type XYOutputOverviewState = AbstractXYOutputState & {
-    shiftKey: boolean,
-    showModal: boolean
+    shiftKey: boolean;
+    showModal: boolean;
 };
 
 type XYOutputOverviewProps = AbstractOutputProps & {
@@ -45,7 +52,7 @@ export class XYOutputOverviewComponent extends AbstractXYOutputComponent<XYOutpu
             collapsedNodes: [],
             orderedNodes: [],
             xyData: {},
-            columns: [{title: 'Name', sortable: true}],
+            columns: [{ title: 'Name', sortable: true }],
             allMax: 0,
             allMin: 0,
             cursor: 'default',
@@ -64,54 +71,49 @@ export class XYOutputOverviewComponent extends AbstractXYOutputComponent<XYOutpu
         const selectionDialog = (
             <TraceOverviewSelectionDialogComponent
                 isOpen={this.state.showModal}
-                title='Select overview output source'
+                title="Select overview output source"
                 tspClient={this.props.tspClient}
                 traceID={this.props.traceId}
                 onCloseDialog={this.closeOverviewOutputSelector}
             ></TraceOverviewSelectionDialogComponent>
         );
         if (this.state.outputStatus === ResponseStatus.COMPLETED && this.state.xyData?.datasets?.length === 0) {
-            return <React.Fragment>
-                {selectionDialog}
-                <div className='chart-message'>
-                    Select a checkbox to see analysis results
-                </div>
-            </React.Fragment>;
+            return (
+                <React.Fragment>
+                    {selectionDialog}
+                    <div className="chart-message">Select a checkbox to see analysis results</div>
+                </React.Fragment>
+            );
         }
-        return <React.Fragment>
-            {selectionDialog}
-            <div
-                id={this.getOutputComponentDomId() + 'focusContainer'}
-                className='xy-main'
-                tabIndex={0}
-                onKeyDown={event => this.onKeyDown(event)}
-                onKeyUp={event => this.onKeyUp(event)}
-                onWheel={event => this.onWheel(event)}
-                onMouseMove={event => this.onMouseMove(event)}
-                onContextMenu={event => event.preventDefault()}
-                onMouseLeave={event => this.onMouseLeave(event)}
-                onMouseDown={event => this.onMouseDown(event)}
-                style={{ height: this.props.style.height, position: 'relative', cursor: this.state.cursor }}
-                ref={this.divRef}
-            >
-                {this.chooseChart()}
-            </div>
-            {(this.state.outputStatus === ResponseStatus.RUNNING) &&
+        return (
+            <React.Fragment>
+                {selectionDialog}
                 <div
-                    className='analysis-running-overflow'
-                    style={{ width: this.getChartWidth() }}
+                    id={this.getOutputComponentDomId() + 'focusContainer'}
+                    className="xy-main"
+                    tabIndex={0}
+                    onKeyDown={event => this.onKeyDown(event)}
+                    onKeyUp={event => this.onKeyUp(event)}
+                    onWheel={event => this.onWheel(event)}
+                    onMouseMove={event => this.onMouseMove(event)}
+                    onContextMenu={event => event.preventDefault()}
+                    onMouseLeave={event => this.onMouseLeave(event)}
+                    onMouseDown={event => this.onMouseDown(event)}
+                    style={{ height: this.props.style.height, position: 'relative', cursor: this.state.cursor }}
+                    ref={this.divRef}
                 >
-                    <div>
-                        <FontAwesomeIcon
-                            icon={faSpinner}
-                            spin
-                            style={{ marginRight: '5px' }}
-                        />
-                        <span> Analysis running </span>
-                    </div>
+                    {this.chooseChart()}
                 </div>
-            }
-        </React.Fragment>;
+                {this.state.outputStatus === ResponseStatus.RUNNING && (
+                    <div className="analysis-running-overflow" style={{ width: this.getChartWidth() }}>
+                        <div>
+                            <FontAwesomeIcon icon={faSpinner} spin style={{ marginRight: '5px' }} />
+                            <span> Analysis running </span>
+                        </div>
+                    </div>
+                )}
+            </React.Fragment>
+        );
     }
 
     protected getDisplayedRange(): TimeRange {
@@ -156,7 +158,7 @@ export class XYOutputOverviewComponent extends AbstractXYOutputComponent<XYOutpu
 
             if (this.clickedMouseButton === MouseButton.RIGHT) {
                 const offset = this.props.viewRange.getOffset() ?? BigInt(0);
-                const startPixel = this.getXForTime((this.startPositionMouseRightClick + offset));
+                const startPixel = this.getXForTime(this.startPositionMouseRightClick + offset);
                 const endPixel = this.positionXMove;
                 ctx.strokeStyle = COLOR.VIEW_RANGE;
                 ctx.fillStyle = COLOR.VIEW_RANGE;
@@ -242,7 +244,7 @@ export class XYOutputOverviewComponent extends AbstractXYOutputComponent<XYOutpu
 
     private onKeyUp(key: React.KeyboardEvent): void {
         if (key.key === 'Shift') {
-            const change: { cursor?: string, shiftKey: boolean } = { shiftKey: false };
+            const change: { cursor?: string; shiftKey: boolean } = { shiftKey: false };
             if (!this.mouseIsDown) {
                 change.cursor = 'default';
             }
@@ -255,9 +257,9 @@ export class XYOutputOverviewComponent extends AbstractXYOutputComponent<XYOutpu
         this.mouseIsDown = true;
         this.clickedMouseButton = event.button;
 
-        if ( this.clickedMouseButton === MouseButton.RIGHT) {
+        if (this.clickedMouseButton === MouseButton.RIGHT) {
             this.onRightButtonClick(event);
-        } else if ( this.clickedMouseButton === MouseButton.MID) {
+        } else if (this.clickedMouseButton === MouseButton.MID) {
             this.onMidButtonClick(event);
         } else {
             this.onLeftButtonClick(event);
@@ -338,7 +340,7 @@ export class XYOutputOverviewComponent extends AbstractXYOutputComponent<XYOutpu
         // The user moved out-of-graph on the left side
         if (startPixel < leftLimit) {
             startPixel = leftLimit;
-            endPixel =  this.initialViewRangeEndPosition - this.initialViewRangeStartPosition;
+            endPixel = this.initialViewRangeEndPosition - this.initialViewRangeStartPosition;
         }
         // The user moved out-of-graph on the right side
         else if (endPixel > rightLimit) {
@@ -346,7 +348,7 @@ export class XYOutputOverviewComponent extends AbstractXYOutputComponent<XYOutpu
             endPixel = rightLimit;
         }
 
-        if (this.props.unitController.viewRange){
+        if (this.props.unitController.viewRange) {
             this.props.unitController.viewRange = {
                 start: this.getTimeForX(startPixel),
                 end: this.getTimeForX(endPixel)
@@ -390,16 +392,21 @@ export class XYOutputOverviewComponent extends AbstractXYOutputComponent<XYOutpu
     }
 
     private closeOverviewOutputSelector(): void {
-        this.setState({showModal: false});
+        this.setState({ showModal: false });
     }
 
     private openOverviewOutputSelector() {
-        this.setState({showModal: true});
+        this.setState({ showModal: true });
     }
 
     private toggleTree() {
-        this.setState({
-            showTree: !this.state.showTree,
-        }, () => {this.closeDropDown();});
+        this.setState(
+            {
+                showTree: !this.state.showTree
+            },
+            () => {
+                this.closeDropDown();
+            }
+        );
     }
 }

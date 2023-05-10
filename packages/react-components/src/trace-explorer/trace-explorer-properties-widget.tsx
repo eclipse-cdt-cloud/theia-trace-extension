@@ -2,8 +2,8 @@ import * as React from 'react';
 import { signalManager, Signals } from 'traceviewer-base/lib/signals/signal-manager';
 
 export interface ReactPropertiesWidgetProps {
-    id: string,
-    title: string,
+    id: string;
+    title: string;
     handleSourcecodeLookup: (e: React.MouseEvent<HTMLParagraphElement>) => void;
 }
 
@@ -12,7 +12,6 @@ export interface ReactPropertiesWidgetState {
 }
 
 export class ReactItemPropertiesWidget extends React.Component<ReactPropertiesWidgetProps, ReactPropertiesWidgetState> {
-
     constructor(props: ReactPropertiesWidgetProps) {
         super(props);
         this.state = {
@@ -27,10 +26,8 @@ export class ReactItemPropertiesWidget extends React.Component<ReactPropertiesWi
 
     render(): React.ReactNode {
         return (
-            <div className='trace-explorer-item-properties'>
-                <div className='trace-explorer-panel-content'>
-                    {this.renderTooltip()}
-                </div>
+            <div className="trace-explorer-item-properties">
+                <div className="trace-explorer-panel-content">{this.renderTooltip()}</div>
             </div>
         );
     }
@@ -48,30 +45,36 @@ export class ReactItemPropertiesWidget extends React.Component<ReactPropertiesWi
                         fileLocation = matches[1];
                         line = matches[2];
                     }
-                    tooltipArray.push(<p className='source-code-tooltip'
-                        key={key}
-                        onClick={this.props.handleSourcecodeLookup}
-                        data-id={JSON.stringify({ fileLocation, line })}
-                    >{key + ': ' + sourceCodeInfo}</p>);
+                    tooltipArray.push(
+                        <p
+                            className="source-code-tooltip"
+                            key={key}
+                            onClick={this.props.handleSourcecodeLookup}
+                            data-id={JSON.stringify({ fileLocation, line })}
+                        >
+                            {key + ': ' + sourceCodeInfo}
+                        </p>
+                    );
                 } else {
                     tooltipArray.push(<p key={key}>{key + ': ' + value}</p>);
                 }
             });
         } else {
-            tooltipArray.push(<p key="-1"><i>Select item to view properties</i></p>);
+            tooltipArray.push(
+                <p key="-1">
+                    <i>Select item to view properties</i>
+                </p>
+            );
         }
 
-        return (
-            <React.Fragment>
-                {tooltipArray.map(element => element)}
-            </React.Fragment>);
+        return <React.Fragment>{tooltipArray.map(element => element)}</React.Fragment>;
     }
 
     /** Tooltip Signal and Signal Handlers */
-    protected _onItemProperties = (tooltip: { [key: string]: string }): void => this.doHandleItemPropertiesSignal(tooltip);
+    protected _onItemProperties = (tooltip: { [key: string]: string }): void =>
+        this.doHandleItemPropertiesSignal(tooltip);
 
     private doHandleItemPropertiesSignal(tooltipProps: { [key: string]: string }): void {
-        this.setState({itemProperties: tooltipProps});
+        this.setState({ itemProperties: tooltipProps });
     }
 }
-

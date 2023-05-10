@@ -1,4 +1,4 @@
-import { listToTree } from "../utils";
+import { listToTree } from '../utils';
 
 describe('listToTree', () => {
     const parent = {
@@ -28,39 +28,44 @@ describe('listToTree', () => {
     };
 
     test('Basic case, empty headers', () => {
-        const expectedTree = ({
+        const expectedTree = {
             labels: parent.labels,
             isRoot: true,
             id: parent.id,
             parentId: parent.parentId,
-            children: [{
-                labels: child1.labels,
-                isRoot: false,
-                id: child1.id,
-                parentId: child1.parentId,
-                children: []
-            }, {
-                labels: child2.labels,
-                isRoot: false,
-                id: child2.id,
-                parentId: child2.parentId,
-                children: [{
-                    labels: grandchild1.labels,
+            children: [
+                {
+                    labels: child1.labels,
                     isRoot: false,
-                    id: grandchild1.id,
-                    parentId: grandchild1.parentId,
+                    id: child1.id,
+                    parentId: child1.parentId,
                     children: []
-                }, {
-                    labels: grandchild2.labels,
+                },
+                {
+                    labels: child2.labels,
                     isRoot: false,
-                    id: grandchild2.id,
-                    parentId: grandchild2.parentId,
-                    children: []
-                }]
-            }]
-        });
+                    id: child2.id,
+                    parentId: child2.parentId,
+                    children: [
+                        {
+                            labels: grandchild1.labels,
+                            isRoot: false,
+                            id: grandchild1.id,
+                            parentId: grandchild1.parentId,
+                            children: []
+                        },
+                        {
+                            labels: grandchild2.labels,
+                            isRoot: false,
+                            id: grandchild2.id,
+                            parentId: grandchild2.parentId,
+                            children: []
+                        }
+                    ]
+                }
+            ]
+        };
         const tree = listToTree([child1, parent, child2, grandchild1, grandchild2], []);
-        expect(tree).toMatchObject([expectedTree]);  
+        expect(tree).toMatchObject([expectedTree]);
     });
-
 });

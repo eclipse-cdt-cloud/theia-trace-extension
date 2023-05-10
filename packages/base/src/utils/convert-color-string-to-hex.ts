@@ -12,10 +12,14 @@ export function convertColorStringToHexNumber(rgb: string): number {
         // Working with RGB String
         const match = rgb.match(/\d+/g);
         if (match) {
-            string = '0x' + match.map(x => {
-                    x = parseInt(x).toString(16);
-                    return (x.length === 1) ? '0' + x : x;
-                }).join('');
+            string =
+                '0x' +
+                match
+                    .map(x => {
+                        x = parseInt(x).toString(16);
+                        return x.length === 1 ? '0' + x : x;
+                    })
+                    .join('');
             string = string.slice(0, 8);
         }
     }

@@ -1,5 +1,12 @@
 import { ContainerModule, Container } from 'inversify';
-import { WidgetFactory, OpenHandler, FrontendApplicationContribution, bindViewContribution, WebSocketConnectionProvider, KeybindingContribution } from '@theia/core/lib/browser';
+import {
+    WidgetFactory,
+    OpenHandler,
+    FrontendApplicationContribution,
+    bindViewContribution,
+    WebSocketConnectionProvider,
+    KeybindingContribution
+} from '@theia/core/lib/browser';
 import { TraceViewerWidget, TraceViewerWidgetOptions } from './trace-viewer';
 import { TraceViewerContribution } from './trace-viewer-contribution';
 import { TraceServerUrlProvider } from '../../common/trace-server-url-provider';
@@ -39,38 +46,46 @@ export default new ContainerModule(bind => {
     bind(FrontendApplicationContribution).toService(TraceServerConnectionStatusService);
 
     bind(TraceViewerWidget).toSelf();
-    bind<WidgetFactory>(WidgetFactory).toDynamicValue(context => ({
-        id: TraceViewerWidget.ID,
-        async createWidget(options: TraceViewerWidgetOptions): Promise<TraceViewerWidget> {
-            const child = new Container({ defaultScope: 'Singleton' });
-            child.parent = context.container;
-            child.bind(TraceViewerWidgetOptions).toConstantValue(options);
-            return child.get(TraceViewerWidget);
-        }
-    })).inSingletonScope();
+    bind<WidgetFactory>(WidgetFactory)
+        .toDynamicValue(context => ({
+            id: TraceViewerWidget.ID,
+            async createWidget(options: TraceViewerWidgetOptions): Promise<TraceViewerWidget> {
+                const child = new Container({ defaultScope: 'Singleton' });
+                child.parent = context.container;
+                child.bind(TraceViewerWidgetOptions).toConstantValue(options);
+                return child.get(TraceViewerWidget);
+            }
+        }))
+        .inSingletonScope();
 
     bind(TraceViewerContribution).toSelf().inSingletonScope();
-    [CommandContribution, OpenHandler, FrontendApplicationContribution, KeybindingContribution].forEach(serviceIdentifier =>
-        bind(serviceIdentifier).toService(TraceViewerContribution)
+    [CommandContribution, OpenHandler, FrontendApplicationContribution, KeybindingContribution].forEach(
+        serviceIdentifier => bind(serviceIdentifier).toService(TraceViewerContribution)
     );
 
     bindViewContribution(bind, TraceExplorerContribution);
     bind(FrontendApplicationContribution).toService(TraceExplorerContribution);
-    bind(WidgetFactory).toDynamicValue(context => ({
-        id: TraceExplorerWidget.ID,
-        createWidget: () => TraceExplorerWidget.createWidget(context.container)
-    })).inSingletonScope();
+    bind(WidgetFactory)
+        .toDynamicValue(context => ({
+            id: TraceExplorerWidget.ID,
+            createWidget: () => TraceExplorerWidget.createWidget(context.container)
+        }))
+        .inSingletonScope();
 
-    bind(TraceServerConfigService).toDynamicValue(ctx => {
-        const connection = ctx.container.get(WebSocketConnectionProvider);
-        return connection.createProxy<TraceServerConfigService>(traceServerPath);
-    }).inSingletonScope();
+    bind(TraceServerConfigService)
+        .toDynamicValue(ctx => {
+            const connection = ctx.container.get(WebSocketConnectionProvider);
+            return connection.createProxy<TraceServerConfigService>(traceServerPath);
+        })
+        .inSingletonScope();
     bindTraceServerPreferences(bind);
 
     bindTraceOverviewPreferences(bind);
 
-    bind(BackendFileService).toDynamicValue(ctx => {
-        const connection = ctx.container.get(WebSocketConnectionProvider);
-        return connection.createProxy<BackendFileService>(backendFileServicePath);
-    }).inSingletonScope();
+    bind(BackendFileService)
+        .toDynamicValue(ctx => {
+            const connection = ctx.container.get(WebSocketConnectionProvider);
+            return connection.createProxy<BackendFileService>(backendFileServicePath);
+        })
+        .inSingletonScope();
 });

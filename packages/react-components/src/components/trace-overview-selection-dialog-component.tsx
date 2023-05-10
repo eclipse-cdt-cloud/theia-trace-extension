@@ -5,17 +5,21 @@ import { signalManager } from 'traceviewer-base/lib/signals/signal-manager';
 import { AvailableViewsComponent } from './utils/available-views-component';
 
 export interface TraceOverviewSelectionComponentProps extends DialogComponentProps {
-    tspClient: TspClient,
-    traceID: string
+    tspClient: TspClient;
+    traceID: string;
 }
 
 export interface TraceOverviewSelectionComponentState {
-    outputDescriptors: OutputDescriptor[]
+    outputDescriptors: OutputDescriptor[];
 }
 
-export class TraceOverviewSelectionDialogComponent extends AbstractDialogComponent<TraceOverviewSelectionComponentProps, TraceOverviewSelectionComponentState> {
+export class TraceOverviewSelectionDialogComponent extends AbstractDialogComponent<
+    TraceOverviewSelectionComponentProps,
+    TraceOverviewSelectionComponentState
+> {
     private selectedOutput: OutputDescriptor | undefined;
-    protected handleOutputClicked = (selectedOutput: OutputDescriptor): void => this.doHandleOutputClicked(selectedOutput);
+    protected handleOutputClicked = (selectedOutput: OutputDescriptor): void =>
+        this.doHandleOutputClicked(selectedOutput);
 
     constructor(props: TraceOverviewSelectionComponentProps) {
         super(props);
@@ -28,18 +32,18 @@ export class TraceOverviewSelectionDialogComponent extends AbstractDialogCompone
 
     protected renderDialogBody(): React.ReactElement {
         if (!this.state.outputDescriptors) {
-            return (<div>
-                Loading available outputs...
-            </div>);
+            return <div>Loading available outputs...</div>;
         }
         return (
             <div id="trace-overview-selection-dialog-content-container">
                 <AvailableViewsComponent
                     traceID={this.props.traceID}
-                    onOutputClicked={e => {this.doHandleOutputClicked(e);}}
+                    onOutputClicked={e => {
+                        this.doHandleOutputClicked(e);
+                    }}
                     outputDescriptors={this.state.outputDescriptors}
-                    listRowWidth='95%'
-                    listRowPadding='10px'
+                    listRowWidth="95%"
+                    listRowPadding="10px"
                 ></AvailableViewsComponent>
             </div>
         );
@@ -47,12 +51,14 @@ export class TraceOverviewSelectionDialogComponent extends AbstractDialogCompone
 
     protected renderFooter(): React.ReactElement {
         return (
-           <button className="theia-button secondary" onClick={this.props.onCloseDialog}>Close</button>
+            <button className="theia-button secondary" onClick={this.props.onCloseDialog}>
+                Close
+            </button>
         );
     }
 
     private async getAvailableOutputDescriptors() {
-        if (this.props.traceID){
+        if (this.props.traceID) {
             const result = await this.props.tspClient.experimentOutputs(this.props.traceID);
             const descriptors = result.getModel();
             const overviewOutputDescriptors = descriptors?.filter(output => output.type === 'TREE_TIME_XY');

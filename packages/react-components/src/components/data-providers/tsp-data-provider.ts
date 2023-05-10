@@ -1,6 +1,11 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { TspClient } from 'tsp-typescript-client/lib/protocol/tsp-client';
-import { TimeGraphArrow, TimeGraphEntry, TimeGraphRow, TimeGraphState } from 'tsp-typescript-client/lib/models/timegraph';
+import {
+    TimeGraphArrow,
+    TimeGraphEntry,
+    TimeGraphRow,
+    TimeGraphState
+} from 'tsp-typescript-client/lib/models/timegraph';
 import { TimeGraphStateComponent } from 'timeline-chart/lib/components/time-graph-state';
 import { TimeGraphAnnotationComponent } from 'timeline-chart/lib/components/time-graph-annotation';
 import { TimelineChart } from 'timeline-chart/lib/time-graph-model';
@@ -42,8 +47,15 @@ export class TspDataProvider {
      * @param annotationMarkers requested annotation categories
      * @returns time graph model
      */
-    async getData(ids: number[], entries: TimeGraphEntry[], totalTimeRange: TimeRange, worldRange?: TimelineChart.TimeGraphRange,
-        nbTimes?: number, annotationMarkers?: string[], markerSetId?: string): Promise<TimelineChart.TimeGraphModel> {
+    async getData(
+        ids: number[],
+        entries: TimeGraphEntry[],
+        totalTimeRange: TimeRange,
+        worldRange?: TimelineChart.TimeGraphRange,
+        nbTimes?: number,
+        annotationMarkers?: string[],
+        markerSetId?: string
+    ): Promise<TimelineChart.TimeGraphModel> {
         this.timeGraphEntries = [...entries];
         if (!this.timeGraphEntries.length || !worldRange || !nbTimes) {
             return {
@@ -80,7 +92,11 @@ export class TspDataProvider {
         const arrowsPromise = this.client.fetchTimeGraphArrows(this.traceUUID, this.outputId, fetchParameters);
 
         // Wait for responses
-        const [tspClientAnnotationsResponse, tspClientStatesResponse, tspClientArrowsResponse] = await Promise.all([annotationsPromise, statesPromise, arrowsPromise]);
+        const [tspClientAnnotationsResponse, tspClientStatesResponse, tspClientArrowsResponse] = await Promise.all([
+            annotationsPromise,
+            statesPromise,
+            arrowsPromise
+        ]);
 
         // the start time which is normalized to logical 0 in timeline chart.
         const chartStart = totalTimeRange.getStart();
@@ -145,9 +161,11 @@ export class TspDataProvider {
         };
     }
 
-    private getArrows(tspClientArrowsResponse: TspClientResponse<GenericResponse<TimeGraphArrow[]>>,
-        viewRange?: TimelineChart.TimeGraphRange, nbTimes?: number): TimelineChart.TimeGraphArrow[] {
-
+    private getArrows(
+        tspClientArrowsResponse: TspClientResponse<GenericResponse<TimeGraphArrow[]>>,
+        viewRange?: TimelineChart.TimeGraphRange,
+        nbTimes?: number
+    ): TimelineChart.TimeGraphArrow[] {
         let timeGraphArrows: TimeGraphArrow[] = [];
         if (viewRange && nbTimes) {
             const stateResponseArrows = tspClientArrowsResponse.getModel();
@@ -156,15 +174,17 @@ export class TspDataProvider {
             }
         }
         const offset = this.timeGraphEntries[0].start;
-        const arrows = timeGraphArrows.map(arrow => ({
-                sourceId: arrow.sourceId,
-                destinationId: arrow.targetId,
-                range: {
-                    start: arrow.start - offset,
-                    end: arrow.end - offset
-                } as TimelineChart.TimeGraphRange
-            } as TimelineChart.TimeGraphArrow
-        ));
+        const arrows = timeGraphArrows.map(
+            arrow =>
+                ({
+                    sourceId: arrow.sourceId,
+                    destinationId: arrow.targetId,
+                    range: {
+                        start: arrow.start - offset,
+                        end: arrow.end - offset
+                    } as TimelineChart.TimeGraphRange
+                } as TimelineChart.TimeGraphArrow)
+        );
         return arrows;
     }
 
@@ -175,7 +195,10 @@ export class TspDataProvider {
             if (timeGraphRow) {
                 newTimeGraphRows.push(timeGraphRow);
             } else {
-                const emptyRow: TimeGraphRow = { states: [{ start: BigInt(0), end: BigInt(0), label: '', tags: 0 }], entryId: id };
+                const emptyRow: TimeGraphRow = {
+                    states: [{ start: BigInt(0), end: BigInt(0), label: '', tags: 0 }],
+                    entryId: id
+                };
                 newTimeGraphRows.push(emptyRow);
             }
         });
@@ -256,7 +279,10 @@ export class TspDataProvider {
         };
     }
 
-    async fetchStateTooltip(element: TimeGraphStateComponent, viewRange: TimeRange): Promise<{ [key: string]: string } | undefined> {
+    async fetchStateTooltip(
+        element: TimeGraphStateComponent,
+        viewRange: TimeRange
+    ): Promise<{ [key: string]: string } | undefined> {
         const offset = viewRange.getOffset() ? viewRange.getOffset() : BigInt(0);
         // use start of state for fetching tooltip since hover time is not available
         const time = element.model.range.start + (offset ? offset : BigInt(0));
@@ -266,12 +292,17 @@ export class TspDataProvider {
             duration: element.model.range.end - element.model.range.start
         };
         const entryId = [element.row.model.id];
-        const parameters = QueryHelper.selectionTimeQuery([time], entryId, { [QueryHelper.REQUESTED_ELEMENT_KEY]: requestedElement });
+        const parameters = QueryHelper.selectionTimeQuery([time], entryId, {
+            [QueryHelper.REQUESTED_ELEMENT_KEY]: requestedElement
+        });
         const tooltipResponse = await this.client.fetchTimeGraphTooltip(this.traceUUID, this.outputId, parameters);
         return tooltipResponse.getModel()?.model;
     }
 
-    async fetchAnnotationTooltip(element: TimeGraphAnnotationComponent, viewRange: TimeRange): Promise<{ [key: string]: string } | undefined> {
+    async fetchAnnotationTooltip(
+        element: TimeGraphAnnotationComponent,
+        viewRange: TimeRange
+    ): Promise<{ [key: string]: string } | undefined> {
         const elementRange = element.model.range;
         const offset = viewRange.getOffset() ? viewRange.getOffset() : BigInt(0);
         const time = elementRange.start + (offset ? offset : BigInt(0));
@@ -282,7 +313,9 @@ export class TspDataProvider {
             entryId: element.row.model.id
         };
         const entryId = [element.row.model.id];
-        const parameters = QueryHelper.selectionTimeQuery([time], entryId, { [QueryHelper.REQUESTED_ELEMENT_KEY]: requestedElement });
+        const parameters = QueryHelper.selectionTimeQuery([time], entryId, {
+            [QueryHelper.REQUESTED_ELEMENT_KEY]: requestedElement
+        });
         const tooltipResponse = await this.client.fetchTimeGraphTooltip(this.traceUUID, this.outputId, parameters);
         return tooltipResponse.getModel()?.model;
     }
