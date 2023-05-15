@@ -5,6 +5,7 @@
  */
 export function convertColorStringToHexNumber(rgb: string): number {
     let string = '0';
+    rgb.trim();
     if (rgb[0] === '#') {
         // We are working with hex string.
         string = '0x' + rgb.slice(1);
