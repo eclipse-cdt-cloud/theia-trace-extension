@@ -1,37 +1,39 @@
+import { faSpinner } from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { isEqual } from 'lodash';
 import * as React from 'react';
+import { TimeGraphAnnotationComponent } from 'timeline-chart/lib/components/time-graph-annotation';
 import { TimeGraphComponent } from 'timeline-chart/lib/components/time-graph-component';
 import { TimeGraphStateComponent, TimeGraphStateStyle } from 'timeline-chart/lib/components/time-graph-state';
 import { TimeGraphChart, TimeGraphChartProviders } from 'timeline-chart/lib/layer/time-graph-chart';
 import { TimeGraphChartArrows } from 'timeline-chart/lib/layer/time-graph-chart-arrows';
-import { TimeGraphRangeEventsLayer } from 'timeline-chart/lib/layer/time-graph-range-events-layer';
 import { TimeGraphChartCursors } from 'timeline-chart/lib/layer/time-graph-chart-cursors';
-import { TimeGraphMarkersChartCursors } from 'timeline-chart/lib/layer/time-graph-markers-chart-cursors';
 import { TimeGraphChartGrid } from 'timeline-chart/lib/layer/time-graph-chart-grid';
 import { TimeGraphChartSelectionRange } from 'timeline-chart/lib/layer/time-graph-chart-selection-range';
+import { TimeGraphMarkersChartCursors } from 'timeline-chart/lib/layer/time-graph-markers-chart-cursors';
+import { TimeGraphRangeEventsLayer } from 'timeline-chart/lib/layer/time-graph-range-events-layer';
 import { TimeGraphVerticalScrollbar } from 'timeline-chart/lib/layer/time-graph-vertical-scrollbar';
 import { TimelineChart } from 'timeline-chart/lib/time-graph-model';
 import { TimeGraphRowController } from 'timeline-chart/lib/time-graph-row-controller';
+import { Signals, signalManager } from 'traceviewer-base/lib/signals/signal-manager';
+import { convertColorStringToHexNumber } from 'traceviewer-base/lib/utils/convert-color-string-to-hex';
+import hash from 'traceviewer-base/lib/utils/value-hash';
+import { Entry } from 'tsp-typescript-client';
 import { QueryHelper } from 'tsp-typescript-client/lib/models/query/query-helper';
 import { ResponseStatus } from 'tsp-typescript-client/lib/models/response/responses';
+import { OutputElementStyle } from 'tsp-typescript-client/lib/models/styles';
 import { TimeGraphEntry } from 'tsp-typescript-client/lib/models/timegraph';
-import { signalManager, Signals } from 'traceviewer-base/lib/signals/signal-manager';
 import { AbstractOutputProps } from './abstract-output-component';
 import { AbstractTreeOutputComponent, AbstractTreeOutputState } from './abstract-tree-output-component';
 import { StyleProperties } from './data-providers/style-properties';
 import { StyleProvider } from './data-providers/style-provider';
 import { TspDataProvider } from './data-providers/tsp-data-provider';
-import { ReactTimeGraphContainer } from './utils/timegraph-container-component';
-import { OutputElementStyle } from 'tsp-typescript-client/lib/models/styles';
-import { EntryTree } from './utils/filter-tree/entry-tree';
-import { listToTree, getAllExpandedNodeIds, getIndexOfNode, validateNumArray } from './utils/filter-tree/utils';
-import hash from 'traceviewer-base/lib/utils/value-hash';
 import ColumnHeader from './utils/filter-tree/column-header';
-import { TimeGraphAnnotationComponent } from 'timeline-chart/lib/components/time-graph-annotation';
-import { Entry } from 'tsp-typescript-client';
-import { isEqual } from 'lodash';
-import { convertColorStringToHexNumber } from 'traceviewer-base/lib/utils/convert-color-string-to-hex';
-import { faSpinner } from '@fortawesome/free-solid-svg-icons';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { EntryTree } from './utils/filter-tree/entry-tree';
+import { getAllExpandedNodeIds, getIndexOfNode, listToTree, validateNumArray } from './utils/filter-tree/utils';
+import { ReactTimeGraphContainer } from './utils/timegraph-container-component';
+import { Item, ItemParams, Menu, useContextMenu } from 'react-contexify';
+import { DataType } from 'tsp-typescript-client/lib/models/data-type';
 
 type TimegraphOutputProps = AbstractOutputProps & {
     addWidgetResizeHandler: (handler: () => void) => void;
@@ -53,6 +55,8 @@ type TimegraphOutputState = AbstractTreeOutputState & {
 };
 
 const COARSE_RESOLUTION_FACTOR = 8; // resolution factor to use for first (coarse) update
+
+const MENU_ID = 'datatree.context.menuId ';
 
 export class TimegraphOutputComponent extends AbstractTreeOutputComponent<TimegraphOutputProps, TimegraphOutputState> {
     private totalHeight = 0;
@@ -252,7 +256,13 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
                 const columns = [];
                 if (headers && headers.length > 0) {
                     headers.forEach(header => {
-                        columns.push({ title: header.name, sortable: true, resizable: true, tooltip: header.tooltip });
+                        columns.push({
+                            title: header.name,
+                            sortable: true,
+                            resizable: true,
+                            tooltip: header.tooltip,
+                            dataType: header.dataType
+                        });
                     });
                 } else {
                     columns.push({ title: 'Name', sortable: true });
@@ -435,6 +445,7 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
         // TODO Show header, when we can have entries in-line with timeline-chart
         return (
             <>
+                {this.renderContextMenu()}
                 <div
                     ref={this.timeGraphTreeRef}
                     className="scrollable"
@@ -452,6 +463,7 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
                         selectedRow={this.state.selectedRow}
                         showHeader={false}
                         className="table-tree timegraph-tree"
+                        onContextMenu={this.onContextMenu}
                     />
                 </div>
                 <div ref={this.markerTreeRef} className="scrollable" style={{ height: this.getMarkersLayerHeight() }}>
@@ -471,6 +483,111 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
                 </div>
             </>
         );
+    }
+
+    renderContextMenu(): React.ReactNode {
+        const timeRanges: string[] = [];
+        const cols = this.state.columns;
+        cols.forEach(col => {
+            if (col.dataType === DataType.TIME_RANGE) {
+                timeRanges.push(col.title);
+            }
+        });
+        return (
+            <React.Fragment>
+                {' '}
+                {
+                    <Menu
+                        id={MENU_ID + this.props.outputDescriptor.id}
+                        theme={this.props.backgroundTheme}
+                        animation={'fade'}
+                    >
+                        {timeRanges && timeRanges.length > 0 ? (
+                            timeRanges.map(key => (
+                                <Item key={key} id={key} onClick={this.handleItemClick}>
+                                    Select {key}
+                                </Item>
+                            ))
+                        ) : (
+                            <></>
+                        )}
+                    </Menu>
+                }
+            </React.Fragment>
+        );
+    }
+
+    protected handleItemClick = (args: ItemParams): void => {
+        const tooltip: { [key: string]: string } = args.props.data;
+        const min = tooltip[args.event.currentTarget.id];
+        if (min !== undefined) {
+            let rx = /\[(\d*),.*/g;
+            let arr = rx.exec(min);
+            let start: bigint | undefined = undefined;
+            if (arr) {
+                start = BigInt(arr[1]) - this.props.unitController.offset;
+            }
+            rx = /.*,(\d*)\]/g;
+            arr = rx.exec(min);
+            let end: bigint | undefined = undefined;
+            if (arr) {
+                end = BigInt(arr[1]) - this.props.unitController.offset;
+            }
+            if (start !== undefined && end !== undefined) {
+                this.props.unitController.selectionRange = {
+                    start,
+                    end
+                };
+            }
+        }
+    };
+
+    private onContextMenu = (event: React.MouseEvent<HTMLDivElement>, id: number): void => {
+        event.preventDefault();
+        event.stopPropagation();
+        this.doContextMenu(event, id);
+    };
+
+    private async doContextMenu(event: React.MouseEvent<HTMLDivElement>, id: number): Promise<void> {
+        if (this.state.timegraphTree) {
+            const timeProperties: { [key: string]: string } = {};
+            const entry = this.state.timegraphTree.find(e => e.id === id);
+            if (entry && this.state.columns && this.state.columns.length > 0) {
+                const cols = this.state.columns;
+                for (let i = 0; i < cols.length; i++) {
+                    if (cols[i].dataType === DataType.TIME_RANGE) {
+                        timeProperties[cols[i].title] = entry.labels[i];
+                    }
+                }
+            }
+
+            if (Object.keys(timeProperties).length > 0) {
+                const { show } = useContextMenu({
+                    id: MENU_ID + this.props.outputDescriptor.id
+                });
+                show(event, {
+                    props: {
+                        data: timeProperties
+                    },
+                    position: this.getMenuPosition(event)
+                });
+            }
+        }
+    }
+
+    private getMenuPosition(event: React.MouseEvent<HTMLDivElement>): { x: number; y: number } {
+        const refNode = this.treeRef.current;
+        if (refNode) {
+            return {
+                // Compute position relative to treeRef
+                x: event.clientX - refNode.getBoundingClientRect().left,
+                y: event.clientY - refNode.getBoundingClientRect().top
+            };
+        }
+        return {
+            x: 0,
+            y: 0
+        };
     }
 
     renderYAxis(): React.ReactNode {
