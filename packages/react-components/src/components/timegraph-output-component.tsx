@@ -83,6 +83,8 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
     private onSelectionChanged = (payload: { [key: string]: string }) => this.doHandleSelectionChangedSignal(payload);
     private pendingSelection: TimeGraphEntry | undefined;
 
+    private customRowMenus: string[] = [];
+
     constructor(props: TimegraphOutputProps) {
         super(props);
         this.state = {
@@ -211,6 +213,8 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
             collapsedNodes: this.state.collapsedNodes,
             collapsedMarkerNodes: this.state.collapsedMarkerNodes
         }));
+
+        this.customRowMenus.push('Follow Thread');
     }
 
     synchronizeTreeScroll(): void {
@@ -511,6 +515,15 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
                         ) : (
                             <></>
                         )}
+                        {this.customRowMenus && this.customRowMenus.length > 0 ? (
+                            this.customRowMenus.map(key => (
+                                <Item key={key} id={key} onClick={this.handleCustomItemClick}>
+                                    {key}
+                                </Item>
+                            ))
+                        ) : (
+                            <></>
+                        )}
                     </Menu>
                 }
             </React.Fragment>
@@ -518,26 +531,40 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
     }
 
     protected handleItemClick = (args: ItemParams): void => {
-        const tooltip: { [key: string]: string } = args.props.data;
-        const min = tooltip[args.event.currentTarget.id];
-        if (min !== undefined) {
-            let rx = /\[(\d*),.*/g;
-            let arr = rx.exec(min);
-            let start: bigint | undefined = undefined;
-            if (arr) {
-                start = BigInt(arr[1]) - this.props.unitController.offset;
+        const data: { [key: string]: unknown } = args.props.data;
+        if (data['ranges']) {
+            const tooltip: { [key: string]: string } = data['ranges'] as { [key: string]: string };
+            const min = tooltip[args.event.currentTarget.id];
+            if (min !== undefined) {
+                let rx = /\[(\d*),.*/g;
+                let arr = rx.exec(min);
+                let start: bigint | undefined = undefined;
+                if (arr) {
+                    start = BigInt(arr[1]) - this.props.unitController.offset;
+                }
+                rx = /.*,(\d*)\]/g;
+                arr = rx.exec(min);
+                let end: bigint | undefined = undefined;
+                if (arr) {
+                    end = BigInt(arr[1]) - this.props.unitController.offset;
+                }
+                if (start !== undefined && end !== undefined) {
+                    this.props.unitController.selectionRange = {
+                        start,
+                        end
+                    };
+                }
             }
-            rx = /.*,(\d*)\]/g;
-            arr = rx.exec(min);
-            let end: bigint | undefined = undefined;
-            if (arr) {
-                end = BigInt(arr[1]) - this.props.unitController.offset;
-            }
-            if (start !== undefined && end !== undefined) {
-                this.props.unitController.selectionRange = {
-                    start,
-                    end
-                };
+        }
+    };
+
+    protected handleCustomItemClick = (args: ItemParams): void => {
+        const data: { [key: string]: unknown } = args.props.data;
+        if (data['custom']) {
+            const tooltip: { [key: string]: string } = data['custom'] as { [key: string]: string };
+            const min = tooltip[args.event.currentTarget.id];
+            if (min !== undefined) {
+                console.log('Clicked on ' + min);
             }
         }
     };
@@ -550,6 +577,8 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
 
     private async doContextMenu(event: React.MouseEvent<HTMLDivElement>, id: number): Promise<void> {
         if (this.state.timegraphTree) {
+            const data: { [key: string]: unknown } = {};
+
             const timeProperties: { [key: string]: string } = {};
             const entry = this.state.timegraphTree.find(e => e.id === id);
             if (entry && this.state.columns && this.state.columns.length > 0) {
@@ -562,12 +591,22 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
             }
 
             if (Object.keys(timeProperties).length > 0) {
+                data['ranges'] = timeProperties;
+            }
+
+            if (this.customRowMenus.length > 0) {
+                const menuProperties: { [key: string]: string } = {};
+                this.customRowMenus.forEach(menu => (menuProperties[menu] = menu));
+                data['custom'] = menuProperties;
+            }
+
+            if (Object.keys(data).length > 0) {
                 const { show } = useContextMenu({
                     id: MENU_ID + this.props.outputDescriptor.id
                 });
                 show(event, {
                     props: {
-                        data: timeProperties
+                        data: data
                     },
                     position: this.getMenuPosition(event)
                 });
