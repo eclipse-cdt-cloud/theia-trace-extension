@@ -3,7 +3,7 @@
 .output-container {
     display: flex;
     position: relative;
-    color: var(--theia-ui-font-color0)
+    color: var(--trace-viewer-ui-font-color0)
 }
 
 .output-container:focus {
@@ -11,19 +11,19 @@
 }
 
 .widget-handle {
-    background: var(--theia-editor-background);
+    background: var(--trace-viewer-editor-background);
     display: grid;
     grid-template-rows: 25px 1fr;
     position: relative;
 }
 .widget-handle-with-options {
-    background: var(--theia-editor-background);
+    background: var(--trace-viewer-editor-background);
     display: grid;
     grid-template-rows: 25px 25px 1fr;
     position: relative;
 }
 .pinned-view-shadow {
-    box-shadow: 0px 4px 6px 0px var(--theia-widget-shadow);
+    box-shadow: 0px 4px 6px 0px var(--trace-viewer-widget-shadow);
 }
 .title-bar-label {
     text-align: center;
@@ -50,7 +50,7 @@
     display: none;
 }
 .title-bar-label:hover {
-    background-color: var(--theia-list-hoverBackground); 
+    background-color: var(--trace-viewer-list-hoverBackground); 
 }
 .remove-component-button {
     background: none;
@@ -58,14 +58,14 @@
     padding: 2px 8px;
     align-self: center;
     justify-self: center;
-    color: var(--theia-ui-font-color0)
+    color: var(--trace-viewer-ui-font-color0)
 }
 .title-bar-label:hover {
-    background-color: var(--theia-list-hoverBackground); 
+    background-color: var(--trace-viewer-list-hoverBackground); 
 }
 .remove-component-button:hover {
     cursor: pointer;
-    background-color: var(--theia-list-hoverBackground); 
+    background-color: var(--trace-viewer-list-hoverBackground); 
 }
 
 .options-menu-container {
@@ -77,11 +77,11 @@
 .options-menu-button {
     background: none;
     border: none;
-    color: var(--theia-ui-font-color0)
+    color: var(--trace-viewer-ui-font-color0)
 }
 .options-menu-button:hover {
     cursor: pointer;
-    background-color: var(--theia-list-hoverBackground); 
+    background-color: var(--trace-viewer-list-hoverBackground); 
 }
 
 .main-output-container {
@@ -89,7 +89,7 @@
     overflow: hidden;
     position: relative;
     z-index: -1;
-    background: var(--theia-editor-background);
+    background: var(--trace-viewer-editor-background);
 }
 
 .disable-select {
@@ -104,7 +104,7 @@
 }
 
 .output-component-sash {
-    background-color: var(--theia-list-hoverBackground);
+    background-color: var(--trace-viewer-list-hoverBackground);
     cursor: col-resize;
 }
 
@@ -195,7 +195,7 @@ canvas {
 .table-tree {
     display: grid;
     border-collapse: collapse;
-    border-left: 1px solid var(--theia-tree-inactiveIndentGuidesStroke);
+    border-left: 1px solid var(--trace-viewer-tree-inactiveIndentGuidesStroke);
 }
 
 .table-tree thead, .table-tree tbody, .table-tree tr {
@@ -205,20 +205,20 @@ canvas {
 .table-tree th {
     position: relative;
     padding: 3px 0px 3px 5px;
-    background-color: var(--theia-list-hoverBackground) !important;
-    border-top: 1px solid var(--theia-tree-inactiveIndentGuidesStroke);
-    border-bottom: 1px solid var(--theia-tree-inactiveIndentGuidesStroke);
+    background-color: var(--trace-viewer-list-hoverBackground) !important;
+    border-top: 1px solid var(--trace-viewer-tree-inactiveIndentGuidesStroke);
+    border-bottom: 1px solid var(--trace-viewer-tree-inactiveIndentGuidesStroke);
     text-align: left;
 }
 
 .table-tree tr:hover td {
-    background-color: var(--theia-list-hoverBackground);
+    background-color: var(--trace-viewer-list-hoverBackground);
 }
 
 .table-tree td {
     padding: 3px 5px;
-    border-bottom: 1px solid var(--theia-tree-inactiveIndentGuidesStroke);
-    border-right: 1px solid var(--theia-tree-inactiveIndentGuidesStroke);
+    border-bottom: 1px solid var(--trace-viewer-tree-inactiveIndentGuidesStroke);
+    border-right: 1px solid var(--trace-viewer-tree-inactiveIndentGuidesStroke);
     text-align: left;
 }
 
@@ -236,7 +236,7 @@ canvas {
 }
 
 .table-tree tr.selected td {
-    background-color: var(--theia-selection-background) !important;
+    background-color: var(--trace-viewer-selection-background) !important;
 }
 
 .resize-handle {
@@ -244,8 +244,8 @@ canvas {
     position: absolute;
     top: 1px;
     right: 0px;
-    color: var(--theia-tree-inactiveIndentGuidesStroke);
-    background-color: var(--theia-list-hoverBackground);
+    color: var(--trace-viewer-tree-inactiveIndentGuidesStroke);
+    background-color: var(--trace-viewer-list-hoverBackground);
     cursor: col-resize;
 }
 
@@ -254,12 +254,12 @@ canvas {
     top: 3px;
     right: 3px;
     padding: 0px 3px;
-    background-color: var(--theia-list-hoverBackground) !important;
+    background-color: var(--trace-viewer-list-hoverBackground) !important;
 }
 
 .filler {
     padding: 0px !important;
-    border-right: 1px solid var(--theia-tree-inactiveIndentGuidesStroke);
+    border-right: 1px solid var(--trace-viewer-tree-inactiveIndentGuidesStroke);
 }
 
 .timegraph-tree {
@@ -287,28 +287,28 @@ canvas {
 }
 
 #input-filter-tree {
-    background-color: var(--theia-input-background);
+    background-color: var(--trace-viewer-input-background);
     border-style: solid;
-    border-color: var(--theia-tree-inactiveIndentGuidesStroke);
+    border-color: var(--trace-viewer-tree-inactiveIndentGuidesStroke);
     border-radius: 15px;
     padding: 3px;
     margin-bottom: 5px;
     text-indent: 23px;
-    color: var(--theia-input-placeholder-foreground);
+    color: var(--trace-viewer-input-placeholder-foreground);
 }
 
 .ag-theme-balham{
-    font-family: var(--theia-ui-font-family) !important;
-    font-size: var(--theia-content-font-size) !important;
+    font-family: var(--trace-viewer-ui-font-family) !important;
+    font-size: var(--trace-viewer-content-font-size) !important;
 }
 
 .ag-theme-balham-dark{
-    font-family: var(--theia-ui-font-family) !important;
-    font-size: var(--theia-content-font-size) !important;
+    font-family: var(--trace-viewer-ui-font-family) !important;
+    font-size: var(--trace-viewer-content-font-size) !important;
 }
 
 .ag-theme-balham-dark .ag-row-selected {
-    background-color: var(--theia-selection-background) !important;
+    background-color: var(--trace-viewer-selection-background) !important;
 }
 
 .ag-header-row:nth-child(2) > .ag-header-cell {
@@ -317,7 +317,7 @@ canvas {
 }
 
 .ag-floating-filter-full-body:hover {
-    background-color: var(--theia-list-hoverBackground) !important;
+    background-color: var(--trace-viewer-list-hoverBackground) !important;
     cursor: pointer !important;
 }
 
@@ -332,11 +332,11 @@ canvas {
     padding: 4px 0px;
     z-index: 2;
     min-width: 170px;
-    background: var(--theia-menu-background);
-    color: var(--theia-menu-foreground);
-    font-size: var(--theia-ui-font-size1);
-    box-shadow: 0px 0px 12px var(--theia-widget-shadow);
-    border: 1px solid var(--theia-menu-border);
+    background: var(--trace-viewer-menu-background);
+    color: var(--trace-viewer-foreground);
+    font-size: var(--trace-viewer-ui-font-size1);
+    box-shadow: 0px 0px 12px var(--trace-viewer-widget-shadow);
+    border: 1px solid var(--trace-viewer-menu-border);
     outline: none;
     user-select: none;
 }
@@ -348,16 +348,16 @@ canvas {
     width: 100%;
 }
 .drop-down-list-item {
-    min-height: var(--theia-private-menu-item-height);
-    max-height: var(--theia-private-menu-item-height);
+    min-height: var(--trace-viewer-private-menu-item-height);
+    max-height: var(--trace-viewer-private-menu-item-height);
     padding: 0px;
-    line-height: var(--theia-private-menu-item-height);
+    line-height: var(--trace-viewer-private-menu-item-height);
     display: table-row;
 }
 .drop-down-list-item:hover {
-    background: var(--theia-menu-selectionBackground);
-    color: var(--theia-menu-selectionForeground);
-    border: thin solid var(--theia-menu-selectionBorder);
+    background: var(--trace-viewer-menu-selectionBackground);
+    color: var(--trace-viewer-menu-selectionForeground);
+    border: thin solid var(--trace-viewer-menu-selectionBorder);
     opacity: 1;
 }
 .drop-down-list-item-text {
@@ -367,11 +367,11 @@ canvas {
     height: 150px;
     overflow: scroll;
     z-index: 999 !important;
-    background: var(--theia-menu-background);
-    color: var(--theia-menu-foreground);
-    font-size: var(--theia-ui-font-size1);
-    box-shadow: 0px 0px 15px var(--theia-widget-shadow);
-    border: 1px solid var(--theia-menu-border);
+    background: var(--trace-viewer-menu-background);
+    color: var(--trace-viewer-foreground);
+    font-size: var(--trace-viewer-ui-font-size1);
+    box-shadow: 0px 0px 15px var(--trace-viewer-widget-shadow);
+    border: 1px solid var(--trace-viewer-menu-border);
 }
 
 .react-grid-item:hover {
@@ -387,13 +387,13 @@ canvas {
     width: calc(100% - 2px);
     height: 30px;
     display: flex;
-    color: var(--theia-descriptionForeground);
-    border: thin solid var(--theia-disabledForeground);
+    color: var(--trace-viewer-descriptionForeground);
+    border: thin solid var(--trace-viewer-disabledForeground);
     border-top: none;
   }
 
 .pagination-button {
     border: none;
     background: transparent;
-    color: var(--theia-foreground);
+    color: var(--trace-viewer-foreground);
 }

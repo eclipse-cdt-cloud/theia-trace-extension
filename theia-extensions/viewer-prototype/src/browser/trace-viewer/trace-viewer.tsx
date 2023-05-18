@@ -25,6 +25,8 @@ import { CancellationTokenSource } from '@theia/core';
 import { FileDialogService, SaveFileDialogProps } from '@theia/filesystem/lib/browser';
 import * as React from 'react';
 import 'animate.css';
+import '../../../style/trace-viewer.css';
+
 import {
     DEFAULT_OVERVIEW_OUTPUT_NAME,
     TRACE_OVERVIEW_DEFAULT_VIEW_KEY,

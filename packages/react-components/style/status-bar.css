@@ -6,17 +6,17 @@
 
 
 .traceserver-mod-offline #theia-statusBar {
-    background-color: var(--theia-statusBar-offlineBackground) !important;
+    background-color: var(--trace-viewer-statusBar-offlineBackground) !important;
 }
 
 .traceserver-mod-offline #theia-statusBar .area .element {
-    color: var(--theia-statusBar-offlineForeground) !important;
+    color: var(--trace-viewer-statusBar-offlineForeground) !important;
 }
 
 .traceserver-mod-offline #theia-statusBar .area .element.hasCommand:hover {
-    background-color: var(--theia-statusBarItem-offlineHoverBackground) !important;
+    background-color: var(--trace-viewer-statusBarItem-offlineHoverBackground) !important;
 }
 
 .traceserver-mod-offline #theia-statusBar .area .element.hasCommand:active {
-    background-color: var(--theia-statusBarItem-offlineActiveBackground) !important;
+    background-color: var(--trace-viewer-statusBarItem-offlineActiveBackground) !important;
 }
