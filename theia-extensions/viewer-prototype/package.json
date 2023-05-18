@@ -12,7 +12,8 @@
   },
   "files": [
     "lib",
-    "src"
+    "src",
+    "style"
   ],
   "dependencies": {
     "@theia/core": "1.34.2",

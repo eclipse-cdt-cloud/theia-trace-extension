@@ -14,8 +14,8 @@
     z-index: 100;
   }
   .react-contexify__submenu--is-open, .react-contexify__submenu--is-open > .react-contexify__item__content {
-    color: var(--theia-menu-selectionForeground);
-    background-color: var(--theia-menu-selectionBackground);
+    color: var(--trace-viewer-menu-selectionForeground);
+    background-color: var(--trace-viewer-menu-selectionBackground);
   }
   .react-contexify__submenu--is-open > .react-contexify__submenu {
     pointer-events: initial;
@@ -50,8 +50,8 @@
     outline: 0;
   }
   .react-contexify__item:not(.react-contexify__item--disabled):hover > .react-contexify__item__content, .react-contexify__item:not(.react-contexify__item--disabled):focus > .react-contexify__item__content {
-    color: var(--theia-menu-selectionForeground);
-    background-color: var(--theia-menu-selectionBackground);
+    color: var(--trace-viewer-menu-selectionForeground);
+    background-color: var(--trace-viewer-menu-selectionBackground);
   }
   .react-contexify__item:not(.react-contexify__item--disabled):hover > .react-contexify__submenu {
     pointer-events: initial;
@@ -68,40 +68,40 @@
     -ms-flex-align: center;
         align-items: center;
     white-space: nowrap;
-    color: var(--theia-menu-foreground);
+    color: var(--trace-viewer-foreground);
     position: relative;
   }
   
   .react-contexify__theme--dark {
-    background-color: var(--theia-menu-background);
+    background-color: var(--trace-viewer-menu-background);
   }
   .react-contexify__theme--dark .react-contexify__submenu {
-    background-color: var(--theia-menu-background);
+    background-color: var(--trace-viewer-menu-background);
   }
   .react-contexify__theme--dark .react-contexify__separator {
-    background-color: var(--theia-menu-background);
+    background-color: var(--trace-viewer-menu-background);
   }
   .react-contexify__theme--dark .react-contexify__item__content {
-    color: var(--theia-menu-foreground);
+    color: var(--trace-viewer-foreground);
   }
   
   .react-contexify__theme--light {
-    background-color: var(--theia-menu-background);
+    background-color: var(--trace-viewer-menu-background);
   }
   .react-contexify__theme--light .react-contexify__separator {
-    background-color: var(--theia-menu-foreground);
+    background-color: var(--trace-viewer-foreground);
   }
   .react-contexify__theme--light .react-contexify__submenu--is-open,
   .react-contexify__theme--light .react-contexify__submenu--is-open > .react-contexify__item__content {
-    color: var(--theia-menu-foreground);
-    background-color: var(--theia-menu-background);;
+    color: var(--trace-viewer-foreground);
+    background-color: var(--trace-viewer-menu-background);;
   }
   .react-contexify__theme--light .react-contexify__item:not(.react-contexify__item--disabled):hover > .react-contexify__item__content, .react-contexify__theme--light .react-contexify__item:not(.react-contexify__item--disabled):focus > .react-contexify__item__content {
-    color: var(--theia-menu-selectionForeground);
-    background-color: var(--theia-menu-selectionBackground);
+    color: var(--trace-viewer-menu-selectionForeground);
+    background-color: var(--trace-viewer-menu-selectionBackground);
   }
   .react-contexify__theme--light .react-contexify__item__content {
-    color: var(--theia-menu-foreground);
+    color: var(--trace-viewer-foreground);
   }
   
   @keyframes react-contexify__scaleIn {

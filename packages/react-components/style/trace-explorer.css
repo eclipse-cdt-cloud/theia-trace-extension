@@ -20,7 +20,7 @@
 
 .trace-explorer-panel-title {
     grid-row-start: 1;
-    background-color: var(--theia-layout-color4);
+    background-color: var(--trace-viewer-layout-color4);
     /* background-color: rgba(97, 97, 97, 0.5); */
     /* color: white; */
     text-align: center;
@@ -29,7 +29,7 @@
 
 .trace-explorer-panel-content {
     grid-row-start: 2;
-    border: 1px solid var(--theia-layout-color4);
+    border: 1px solid var(--trace-viewer-layout-color4);
     /* color: white; */
     white-space: nowrap;
 }
@@ -59,12 +59,12 @@
 
 .trace-explorer-panel-content > form > .view-range-widget-section > input[type=number] {
     -moz-appearance: textfield; /* Remove arrows from input in Firefox */
-    background: var(--theia-input-background);
-    color: var(--theia-input-foreground);
-    border: var(--theia-border-width) solid var(--theia-input-border);
-    font-family: var(--theia-ui-font-family);
-    font-size: var(--theia-ui-font-size1);
-    line-height: var(--theia-content-line-height);
+    background: var(--trace-viewer-input-background);
+    color: var(--trace-viewer-input-foreground);
+    border: var(--trace-viewer-border-width) solid var(--trace-viewer-input-border);
+    font-family: var(--trace-viewer-ui-font-family);
+    font-size: var(--trace-viewer-ui-font-size1);
+    line-height: var(--trace-viewer-content-line-height);
     padding-left: 5px;
 }
 
@@ -77,8 +77,8 @@
 
 .trace-explorer-panel-content > form > .view-range-widget-section > .input-button {
     border: none;
-    color: var(--theia-button-foreground);
-    background-color: var(--theia-button-background);
+    color: var(--trace-viewer-button-foreground);
+    background-color: var(--trace-viewer-button-background);
     min-width: 65px;
     outline: none;
     cursor: pointer;
@@ -88,14 +88,14 @@
 
 .trace-list-container:hover,
 .outputs-list-container:hover {
-    background-color: var(--theia-list-hoverBackground);
-    color: var(--theia-list-hoverForeground);
+    background-color: var(--trace-viewer-list-hoverBackground);
+    color: var(--trace-viewer-list-hoverForeground);
     cursor: pointer;
 }
 
 .trace-list-container.theia-mod-selected,
 .outputs-list-container.theia-mod-selected {
-    background-color: var(--theia-selection-background);
+    background-color: var(--trace-viewer-selection-background);
 }
 
 /* Share options have been commented out, grid is disabled to optimize horizontal space */
@@ -113,11 +113,11 @@
 }
 
 .remove-trace-button-container.theia-mod-selected {
-    background-color: var(--theia-selection-background);
+    background-color: var(--trace-viewer-selection-background);
 }
 
 .remove-trace-button-container :hover {
-    background-color: var(--theia-scrollbarSlider-background);
+    background-color: var(--trace-viewer-scrollbarSlider-background);
     cursor: pointer; 
 }
 
@@ -126,7 +126,7 @@
     border: none;
     visibility: hidden;
     margin-top: 2px;
-    color: var(--theia-ui-font-color0)
+    color: var(--trace-viewer-ui-font-color0)
 }
 
 .remove-trace-button :hover {
@@ -165,7 +165,7 @@
     overflow: hidden;
     text-overflow: ellipsis;
     margin: unset;
-    color: var(--theia-ui-font-color2);
+    color: var(--trace-viewer-ui-font-color2);
     /* color: rgb(160, 160, 160); */
     white-space: pre;
     font-size: .95em;
@@ -226,7 +226,7 @@
 .sharing-link>textarea {
     color: white;
     background-color: rgb(50, 50, 50);
-    border-color: var(--theia-ui-button-color);
+    border-color: var(--trace-viewer-ui-button-color);
     min-width: 100%;
     min-height: 100%;
     resize: none;
@@ -281,7 +281,7 @@
 .shortcuts-table table {
     border-spacing: 0;
     border-collapse: separate;
-    background-color: var(--theia-editor-background);
+    background-color: var(--trace-viewer-editor-background);
     width: 100%;
 }
 
@@ -311,14 +311,14 @@
     padding-left: 5px;
     text-align: left;
     vertical-align: middle;
-    background-color: var(--theia-editorWidget-background);
-    font-size: var(--theia-ui-font-size1);
+    background-color: var(--trace-viewer-editorWidget-background);
+    font-size: var(--trace-viewer-ui-font-size1);
     min-height: 23px;
     white-space: nowrap;
 }
 
 .shortcuts-table i {
-    color: var(--theia-button-background);
+    color: var(--trace-viewer-button-background);
 }
 
 .shortcuts-table-keybinding {
@@ -329,10 +329,10 @@
 }
 
 .server-status-header {
-    background: var(--theia-sideBarSectionHeader-background);
-    line-height: var(--theia-view-container-title-height);
+    background: var(--trace-viewer-sideBarSectionHeader-background);
+    line-height: var(--trace-viewer-view-container-title-height);
     z-index: 10;
-    color: var(--theia-sideBarSectionHeader-foreground);
+    color: var(--trace-viewer-sideBarSectionHeader-foreground);
     margin-bottom: 2px;
     padding-left: 23px;
     overflow: hidden;
@@ -346,7 +346,7 @@
 }
 
 .placeholder-container {
-    font-size: var(--theia-ui-font-size1);
+    font-size: var(--trace-viewer-ui-font-size1);
     padding: 5px;
     position: relative;
 }
@@ -366,13 +366,13 @@
 .plcaeholder-open-workspace-button {
     padding: 4px 12px;
     margin-left: 0;
-    width: calc(100% - var(--theia-ui-padding)*4);
-    background: var(--theia-button-background);
+    width: calc(100% - var(--trace-viewer-ui-padding)*4);
+    background: var(--trace-viewer-button-background);
     border: none;
-    color: var(--theia-button-foreground);
+    color: var(--trace-viewer-button-foreground);
     min-width: 65px;
     outline: none;
     cursor: pointer;
     padding: 4px 9px;
-    margin-left: calc(var(--theia-ui-padding)*2);
+    margin-left: calc(var(--trace-viewer-ui-padding)*2);
 }

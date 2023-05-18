@@ -1,5 +1,5 @@
 .no-output-placeholder {
-    color: var(--theia-ui-font-color3);
+    color: var(--trace-viewer-ui-font-color3);
     font-size: 24px;
     text-align: center;
     position: relative;
@@ -10,7 +10,7 @@
 }
 
 .react-grid-item.react-grid-placeholder {
-    background: var(--theia-badge-background) !important;
+    background: var(--trace-viewer-badge-background) !important;
 }
 
 .trace-context-container {
@@ -33,8 +33,8 @@
 }
 
 .react-grid-item > .react-resizable-handle::after {
-    border-right-color: var(--theia-ui-font-color0) !important;
-    border-bottom-color: var(--theia-ui-font-color0) !important;
+    border-right-color: var(--trace-viewer-ui-font-color0) !important;
+    border-bottom-color: var(--trace-viewer-ui-font-color0) !important;
 }
 
 .sticky-div {

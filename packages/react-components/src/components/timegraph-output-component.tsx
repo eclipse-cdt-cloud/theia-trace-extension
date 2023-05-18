@@ -844,7 +844,7 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
         let backgroundColor = 0x979797;
 
         if (row?.selected) {
-            const colorString = getComputedStyle(document.body).getPropertyValue('--theia-selection-background');
+            const colorString = getComputedStyle(document.body).getPropertyValue('--trace-viewer-selection-background');
             const colorNumber = convertColorStringToHexNumber(colorString);
             backgroundColor = colorNumber > 0 ? colorNumber : backgroundColor;
         }
