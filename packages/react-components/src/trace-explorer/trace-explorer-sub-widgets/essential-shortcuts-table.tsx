@@ -1,3 +1,5 @@
+import { faQuestionCircle } from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import * as React from 'react';
 
 export class EssentialShortcutsTable extends React.Component {
@@ -11,11 +13,12 @@ export class EssentialShortcutsTable extends React.Component {
                             <tbody>
                                 <tr>
                                     <td>
-                                        <i className="fa fa-question-circle fa-lg" /> Display This Menu
+                                        <FontAwesomeIcon icon={faQuestionCircle} size="lg" className="shortcuts-icon" />{' '}
+                                        Display This Menu
                                     </td>
-                                    <td className="monaco-keybinding shortcuts-table-keybinding">
-                                        <span className="monaco-keybinding-key">CTRL / command</span>
-                                        <span className="monaco-keybinding-key">F1</span>
+                                    <td className="shortcuts-table-keybinding">
+                                        <span className="shortcuts-table-keybinding-key">CTRL / command</span>
+                                        <span className="shortcuts-table-keybinding-key">F1</span>
                                     </td>
                                 </tr>
                             </tbody>
