@@ -1,3 +1,5 @@
+import { faArrowDown, faArrowLeft, faArrowRight, faArrowUp } from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import * as React from 'react';
 
 export class TimeGraphShortcutsTable extends React.Component {
@@ -11,30 +13,30 @@ export class TimeGraphShortcutsTable extends React.Component {
                             <tbody>
                                 <tr>
                                     <td>Next state</td>
-                                    <td className="monaco-keybinding shortcuts-table-keybinding">
-                                        <span className="monaco-keybinding-key">
-                                            <i className="fa fa-arrow-right" />
+                                    <td className="shortcuts-table-keybinding">
+                                        <span className="shortcuts-table-keybinding-key">
+                                            <FontAwesomeIcon icon={faArrowRight} className="shortcuts-icon" />
                                         </span>
                                     </td>
                                 </tr>
                                 <tr>
                                     <td>Previous state</td>
-                                    <td className="monaco-keybinding shortcuts-table-keybinding">
-                                        <span className="monaco-keybinding-key">
-                                            <i className="fa fa-arrow-left" />
+                                    <td className="shortcuts-table-keybinding">
+                                        <span className="shortcuts-table-keybinding-key">
+                                            <FontAwesomeIcon icon={faArrowLeft} className="shortcuts-icon" />
                                         </span>
                                     </td>
                                 </tr>
                                 <tr>
                                     <td>Next Marker</td>
-                                    <td className="monaco-keybinding shortcuts-table-keybinding">
-                                        <span className="monaco-keybinding-key">.</span>
+                                    <td className="shortcuts-table-keybinding">
+                                        <span className="shortcuts-table-keybinding-key">.</span>
                                     </td>
                                 </tr>
                                 <tr>
                                     <td>Previous Marker</td>
-                                    <td className="monaco-keybinding shortcuts-table-keybinding">
-                                        <span className="monaco-keybinding-key">,</span>
+                                    <td className="shortcuts-table-keybinding">
+                                        <span className="shortcuts-table-keybinding-key">,</span>
                                     </td>
                                 </tr>
                             </tbody>
@@ -45,29 +47,29 @@ export class TimeGraphShortcutsTable extends React.Component {
                             <tbody>
                                 <tr>
                                     <td>Move up a row</td>
-                                    <td className="monaco-keybinding shortcuts-table-keybinding">
-                                        <span className="monaco-keybinding-key">
-                                            <i className="fa fa-arrow-up" />
+                                    <td className="shortcuts-table-keybinding">
+                                        <span className="shortcuts-table-keybinding-key">
+                                            <FontAwesomeIcon icon={faArrowUp} className="shortcuts-icon" />
                                         </span>
                                     </td>
                                 </tr>
                                 <tr>
                                     <td>Move down a row</td>
-                                    <td className="monaco-keybinding shortcuts-table-keybinding">
-                                        <span className="monaco-keybinding-key">
-                                            <i className="fa fa-arrow-down" />
+                                    <td className="shortcuts-table-keybinding">
+                                        <span className="shortcuts-table-keybinding-key">
+                                            <FontAwesomeIcon icon={faArrowDown} className="shortcuts-icon" />
                                         </span>
                                     </td>
                                 </tr>
                                 <tr>
                                     <td>Zoom to selected</td>
-                                    <td className="monaco-keybinding shortcuts-table-keybinding">
-                                        <span className="monaco-keybinding-key">Z</span>
+                                    <td className="shortcuts-table-keybinding">
+                                        <span className="shortcuts-table-keybinding-key">Z</span>
                                     </td>
                                 </tr>
                                 <tr>
                                     <td>Zoom to state&apos;s range</td>
-                                    <td className="monaco-keybinding shortcuts-table-keybinding">
+                                    <td className="shortcuts-table-keybinding">
                                         <span>Double-click state</span>
                                     </td>
                                 </tr>

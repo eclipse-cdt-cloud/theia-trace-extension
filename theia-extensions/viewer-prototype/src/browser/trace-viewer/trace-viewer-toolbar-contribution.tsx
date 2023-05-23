@@ -5,7 +5,7 @@ import { inject, injectable, postConstruct } from 'inversify';
 import * as React from 'react';
 import { signalManager, Signals } from 'traceviewer-base/lib/signals/signal-manager';
 import { TraceExplorerOpenedTracesWidget } from '../trace-explorer/trace-explorer-sub-widgets/theia-trace-explorer-opened-traces-widget';
-import { ChartShortcutsDialog } from '../trace-explorer/trace-explorer-sub-widgets/trace-explorer-keyboard-shortcuts/charts-cheatsheet-component';
+import { ChartShortcutsDialog } from '../trace-explorer/trace-explorer-sub-widgets/charts-cheatsheet-component';
 import { TspClientProvider } from '../tsp-client-provider-impl';
 import { TraceViewerWidget } from './trace-viewer';
 import { TraceViewerToolbarCommands, TraceViewerToolbarMenus } from './trace-viewer-toolbar-commands';

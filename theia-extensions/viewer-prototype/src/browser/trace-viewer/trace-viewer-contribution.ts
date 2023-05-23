@@ -23,7 +23,7 @@ import { PortBusy, TraceServerConfigService } from '../../common/trace-server-co
 import { TracePreferences, TRACE_PATH, TRACE_ARGS } from '../trace-server-preference';
 import { TspClient } from 'tsp-typescript-client/lib/protocol/tsp-client';
 import { TspClientProvider } from '../tsp-client-provider-impl';
-import { ChartShortcutsDialog } from './../trace-explorer/trace-explorer-sub-widgets/trace-explorer-keyboard-shortcuts/charts-cheatsheet-component';
+import { ChartShortcutsDialog } from '../trace-explorer/trace-explorer-sub-widgets/charts-cheatsheet-component';
 import { signalManager } from 'traceviewer-base/lib/signals/signal-manager';
 import { TraceServerConnectionStatusService } from '../trace-server-status';
 import { FileStat } from '@theia/filesystem/lib/common/files';

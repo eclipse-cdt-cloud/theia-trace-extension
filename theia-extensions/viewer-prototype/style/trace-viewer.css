@@ -45,4 +45,8 @@
     --trace-viewer-view-container-title-height: var(--theia-view-container-title-height);
     --trace-viewer-sideBarSectionHeader-foreground: var(--theia-sideBarSectionHeader-foreground);
     --trace-viewer-trace-extension-list-line-height: 16px;
+    --trace-viewer-keybindingLabel-background: var(--theia-keybindingLabel-background);
+    --trace-viewer-keybindingLabel-border: var(--theia-keybindingLabel-border);
+    --trace-viewer-keybindingLabel-bottomBorder: var(--theia-keybindingLabel-bottomBorder);
+    --trace-viewer-keybindingLabel-foreground: var(--theia-keybindingLabel-foreground);
 }

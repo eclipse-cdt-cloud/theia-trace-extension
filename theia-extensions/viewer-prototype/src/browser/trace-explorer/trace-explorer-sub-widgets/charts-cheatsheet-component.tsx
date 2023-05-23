@@ -3,11 +3,7 @@ import { inject, injectable } from 'inversify';
 import { DialogProps } from '@theia/core/lib/browser/dialogs';
 import { ReactDialog } from '@theia/core/lib/browser/dialogs/react-dialog';
 import { Message } from '@theia/core/lib/browser/widgets/widget';
-import { EssentialShortcutsTable } from './essential-shortcuts-table';
-import { ZoomPanShortcutsTable } from './zoom-pan-shortcuts-table';
-import { TimeGraphShortcutsTable } from './time-graph-navigation-shortcuts-table';
-import { EventsTableShortcutsTable } from './events-table-shortcuts-table';
-import { SelectShortcutsTable } from './select-shortcuts-table';
+import { KeyboardShortcutsComponent } from 'traceviewer-react-components/lib/trace-explorer/trace-explorer-sub-widgets/keyboard-shortcuts-component';
 
 @injectable()
 export class ChartShortcutsDialogProps extends DialogProps {}
@@ -20,15 +16,7 @@ export class ChartShortcutsDialog extends ReactDialog<undefined> {
     }
 
     protected render(): React.ReactNode {
-        return (
-            <div className="shortcuts-table">
-                <EssentialShortcutsTable />
-                <ZoomPanShortcutsTable />
-                <TimeGraphShortcutsTable />
-                <EventsTableShortcutsTable />
-                <SelectShortcutsTable />
-            </div>
-        );
+        return <KeyboardShortcutsComponent />;
     }
 
     protected onAfterAttach(msg: Message): void {
