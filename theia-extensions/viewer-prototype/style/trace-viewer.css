@@ -15,7 +15,7 @@
     --trace-viewer-ui-font-family: var(--theia-ui-font-family);
     --trace-viewer-content-font-size: var(--theia-content-font-size);
     --trace-viewer-menu-background: var(--theia-menu-background);
-    --trace-viewer-foreground: var(--theia-menu-foreground);
+    --trace-viewer-menu-foreground: var(--theia-menu-foreground);
     --trace-viewer-menu-border: var(--theia-menu-border);
     --trace-viewer-private-menu-item-height: var(--theia-private-menu-item-height);
     --trace-viewer-menu-selectionBackground: var(--theia-menu-selectionBackground);
