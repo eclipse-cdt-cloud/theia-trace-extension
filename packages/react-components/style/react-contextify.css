@@ -68,7 +68,7 @@
     -ms-flex-align: center;
         align-items: center;
     white-space: nowrap;
-    color: var(--trace-viewer-foreground);
+    color: var(--trace-viewer-menu-foreground);
     position: relative;
   }
   
@@ -82,18 +82,18 @@
     background-color: var(--trace-viewer-menu-background);
   }
   .react-contexify__theme--dark .react-contexify__item__content {
-    color: var(--trace-viewer-foreground);
+    color: var(--trace-viewer-menu-foreground);
   }
   
   .react-contexify__theme--light {
     background-color: var(--trace-viewer-menu-background);
   }
   .react-contexify__theme--light .react-contexify__separator {
-    background-color: var(--trace-viewer-foreground);
+    background-color: var(--trace-viewer-menu-foreground);
   }
   .react-contexify__theme--light .react-contexify__submenu--is-open,
   .react-contexify__theme--light .react-contexify__submenu--is-open > .react-contexify__item__content {
-    color: var(--trace-viewer-foreground);
+    color: var(--trace-viewer-menu-foreground);
     background-color: var(--trace-viewer-menu-background);;
   }
   .react-contexify__theme--light .react-contexify__item:not(.react-contexify__item--disabled):hover > .react-contexify__item__content, .react-contexify__theme--light .react-contexify__item:not(.react-contexify__item--disabled):focus > .react-contexify__item__content {
@@ -101,7 +101,7 @@
     background-color: var(--trace-viewer-menu-selectionBackground);
   }
   .react-contexify__theme--light .react-contexify__item__content {
-    color: var(--trace-viewer-foreground);
+    color: var(--trace-viewer-menu-foreground);
   }
   
   @keyframes react-contexify__scaleIn {

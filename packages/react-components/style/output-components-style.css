@@ -333,7 +333,7 @@ canvas {
     z-index: 2;
     min-width: 170px;
     background: var(--trace-viewer-menu-background);
-    color: var(--trace-viewer-foreground);
+    color: var(--trace-viewer-menu-foreground);
     font-size: var(--trace-viewer-ui-font-size1);
     box-shadow: 0px 0px 12px var(--trace-viewer-widget-shadow);
     border: 1px solid var(--trace-viewer-menu-border);
@@ -368,7 +368,7 @@ canvas {
     overflow: scroll;
     z-index: 999 !important;
     background: var(--trace-viewer-menu-background);
-    color: var(--trace-viewer-foreground);
+    color: var(--trace-viewer-menu-foreground);
     font-size: var(--trace-viewer-ui-font-size1);
     box-shadow: 0px 0px 15px var(--trace-viewer-widget-shadow);
     border: 1px solid var(--trace-viewer-menu-border);
