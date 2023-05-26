@@ -1,5 +1,5 @@
 :root {
-    --trace-extension-list-line-height: 16px;
+    --trace-extension-list-line-height: var(--trace-viewer-trace-extension-list-line-height);
 }
 
 #trace-explorer-views-widget,
