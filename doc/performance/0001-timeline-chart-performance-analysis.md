@@ -447,3 +447,87 @@ For test 2, which has a much larger number of states:
 
 - With GZIP added, the transfer time of states data decreases `78.59%`, or around `5860ms=5s`. This is a huge improvement. Similar to the results of test 1, the network transfer time of annotations and arrows has a slight increase in time, but also minimal.
 - The resource loading time also decrease significantly for all three types of network transfer, `43.01%` for states data and `27.00%` for the two remaining data.
+
+### Replacing re-rendering with scaling
+
+#### The issue
+
+When zooming, before new data is received from the trace server, states are re-rendered to create zoom animations. More on this issue [here](#rescaling-and-repositioning-of-the-states).
+
+#### The solution
+
+Instead of re-rendering all the states, `PIXI.Container.scale` property can be used to create the zoom animations. See [this PR](https://github.com/eclipse-cdt-cloud/timeline-chart/pull/246) for more details.
+
+#### Results
+
+Before (unit tests):
+
+|Test|Without labels(ms)|With labels(ms)|
+|---|---|---|
+|Attempt 1|589.93|25.90|
+|Attempt 2|705.59|34.76|
+|Attempt 3|2768.89|65.49|
+|Average|1354.8|42.05|
+
+After (unit tests):
+
+|Test|Without labels(ms)|With labels(ms)|
+|---|---|---|
+|Attempt 1|8.49|30.19|
+|Attempt 2|7.45|52.31|
+|Attempt 3|6.97|40.07|
+|Average|7.64|40.85|
+
+Using the performance profiler in Chrome, the time to scale the states in the timeline chart after the improvement are:
+
+```text
+Test 1 (with labels): 38.32ms
+Test 2 (without labels): 10.3ms
+```
+
+For the test descriptions, see [here](#rescaling-and-repositioning-of-the-states).
+
+### State label rendering
+
+#### The issue
+
+After new data is received from the trace server, all rows are updated: current states are removed, and then all states are re-rendered. Initially, for each state, the trace extension creates a new `PIXI.BitMapText` to determine whether the label text would fit inside the state (if the width of the state is larger than the minimum display width). Thus, every `TimeGraphStateComponent` will contains a `PIXI.BitMapText` object, even if the label text is not displayed. This means that when we have a huge amount of states, then we would have a huge amount of `PIXI.BitMapText` objects, that need to be disposed by the garbage collector when the states are removed. This consumes a lot of time as described [here](#updating-the-states-after-fetching-new-data) (look at the state removal time).
+
+#### The solution
+
+To improve the performance of the timeline chart, use `PIXI.TextMetrics.measureText()` to calculate the width of the label text instead. Since this is a static method, there is no need to create an object every time the method is call. See [this PR](https://github.com/eclipse-cdt-cloud/timeline-chart/pull/242) for more details.
+
+#### Results
+
+The patch made a significant difference in cases where the user zooms in when the before and after view range have a significant different amount of states (the long removal column).
+
+Before (unit tests):
+
+|Test|Without labels(ms)|With labels(ms)|Long removal(ms)|
+|---|---|---|---|
+|Attempt 1|1678.87|247.41|63456.54|
+|Attempt 2|2623.54|255.92|56458.29|
+|Attempt 3|3082.13|138.45|66287.67|
+|Average|2461.51|213.93|62067.5|
+
+After (unit tests):
+
+|Test|Without labels(ms)|With labels(ms)|Long removal(ms)|
+|---|---|---|---|
+|Attempt 1|4111.77|174.97|455.56|
+|Attempt 2|2965.95|174.49|582.48|
+|Attempt 3|2738.03|369.81|378.77|
+|Average|3271.91(*)|239.76(**)|472.27|
+
+Using the performance profiler in Chrome, the time for removing existing states and rendering new states (after the improvement) are:
+
+```text
+Test 1 (with labels): 96.61ms
+Test 2 (without labels): ~1910ms
+```
+
+For the test description, see [here](#updating-the-states-after-fetching-new-data).
+
+(*) In the case of without labels, since the state width is less than the minimum width to display labels for all the states, there is no usage of `PIXI.BitMapText` to measure the width of the label text. Thus, the performance stays the same.
+
+(**) For this test case, if we run the tests multiple times, the running time falls between the range of 100ms-400ms for both the Chrome profile and the unit tests.
