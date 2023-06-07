@@ -141,6 +141,7 @@ TRACE_SERVER_URL=https://my.trace.server:port/tsp/api yarn start:browser
 It is possible to package the repository's example application with `electron-builder`. After running `yarn` in the repo root, run:
 
 ```bash
+yarn rebuild:electron
 cd examples/electron
 yarn package
 ```

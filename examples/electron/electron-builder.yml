@@ -1,17 +1,20 @@
-electronVersion: 15.5.7
+electronVersion: 23.3.6
 electronDist: ../../node_modules/electron/dist
 productName: Theia Trace Example Application
 appId: theia-trace-example
 
 asar: false
+nodeGypRebuild: false
+npmRebuild: false
+
 directories:
   buildResources: resources
 files:
-  - node_modules
   - src-gen
   - lib
   - scripts
   - package.json
+  - "!**node_modules/electron/**"
 extraResources:
   - from: plugins
     to: app/plugins

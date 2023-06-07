@@ -8,7 +8,7 @@
     "clean": "lerna run clean",
     "prepare:packages": "lerna run --ignore=\"*-example-app\" prepare",
     "prepare:examples": "lerna run --scope=\"*-example-app\" --parallel prepare",
-    "rebuild:browser": "theia rebuild:browser",
+    "rebuild:browser": "yarn --cwd examples/browser theia rebuild:browser --cacheRoot ../..",
     "rebuild:electron": "yarn --cwd examples/electron theia rebuild:electron --cacheRoot ../..",
     "start:browser": "yarn rebuild:browser && yarn --cwd examples/browser start",
     "start:electron": "yarn rebuild:electron && yarn --cwd examples/electron start",
@@ -47,7 +47,7 @@
     "@types/react-dom": "^18.0.6"
   },
   "devDependencies": {
-    "@theia/cli": "1.34.2",
+    "@theia/cli": "1.37.2",
     "jsonc-parser": "^3.0.0",
     "lerna": "^4.0.0",
     "prettier": "2.8.8",
