@@ -16,9 +16,9 @@
     "style"
   ],
   "dependencies": {
-    "@theia/core": "1.34.2",
-    "@theia/editor": "1.34.2",
-    "@theia/filesystem": "1.34.2",
+    "@theia/core": "1.37.2",
+    "@theia/editor": "1.37.2",
+    "@theia/filesystem": "1.37.2",
     "traceviewer-base": "0.1.0",
     "traceviewer-react-components": "0.1.0",
     "tree-kill": "latest",
