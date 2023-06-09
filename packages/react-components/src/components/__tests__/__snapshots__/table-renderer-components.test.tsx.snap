@@ -27,6 +27,7 @@ exports[`<TableOutputComponent /> Empty search filter renderer 1`] = `
   onClick={[Function]}
   onMouseEnter={[Function]}
   onMouseLeave={[Function]}
+  title="Enter a regular expression"
 >
   <svg
     aria-hidden="true"

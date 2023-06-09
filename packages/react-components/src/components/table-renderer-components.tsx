@@ -110,6 +110,7 @@ export class SearchFilterRenderer extends React.Component<SearchFilterRendererPr
                 onMouseEnter={this.onMouseEnterHandler}
                 onMouseLeave={this.onMouseLeaveHandler}
                 onClick={this.onClickHandler}
+                title="Enter a regular expression"
             >
                 {!this.state.hasClicked && !this.state.hasHovered && (
                     <FontAwesomeIcon style={{ marginLeft: '10px' }} icon={faSearch} />
