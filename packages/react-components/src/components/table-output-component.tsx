@@ -770,7 +770,7 @@ export class TableOutputComponent extends AbstractOutputComponent<TableOutputPro
             } else if (direction === Direction.PREVIOUS) {
                 // no backward search if there is no selection
                 this.gridMatched = false;
-                return;
+                return false;
             }
 
             let rowNodes: RowNode[] = [];
@@ -829,7 +829,7 @@ export class TableOutputComponent extends AbstractOutputComponent<TableOutputPro
             if (isFound) {
                 // Match found in cache
                 this.gridMatched = false;
-                return;
+                return isFound;
             }
             // find match outside the cache
             let syncData = undefined;
@@ -843,6 +843,7 @@ export class TableOutputComponent extends AbstractOutputComponent<TableOutputPro
                         this.startTimestamp = this.endTimestamp = BigInt(data.row[this.timestampCol]);
                         syncData = data.row;
                     }
+                    isFound = true;
                 }
             }
 
@@ -860,6 +861,7 @@ export class TableOutputComponent extends AbstractOutputComponent<TableOutputPro
             }
             this.gridMatched = false;
         }
+        return isFound;
     }
 
     private isValidRowSelection(rowNode: RowNode): boolean {
