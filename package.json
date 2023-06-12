@@ -20,10 +20,13 @@
     "start-all:electron": "yarn start:server & yarn start:electron",
     "lint": "lerna run lint",
     "test": "lerna run test --",
-    "publish:latest": "lerna publish --registry=https://registry.npmjs.org/ --exact --no-git-tag-version --no-push",
+    "publish:latest": "lerna publish from-git --registry=https://registry.npmjs.org/ --exact --no-push --yes",
     "publish:next": "lerna publish --registry=https://registry.npmjs.org/ --exact --canary minor --preid=next.$(date -u '+%Y%m%d%H%M%S').$(git rev-parse --short HEAD) --dist-tag=next --no-git-tag-version --no-push --yes",
     "format:write": "lerna run format:write",
-    "format:check": "lerna run format:check"
+    "format:check": "lerna run format:check",
+    "version:major": "lerna version major --exact --no-push --yes -m \"[latest]: %s #major\n\nGitHub workflow shall publish and tag upon merge.\"",
+    "version:minor": "lerna version minor --exact --no-push --yes -m \"[latest]: %s #minor\n\nGitHub workflow shall publish and tag upon merge.\"",
+    "version:patch": "lerna version patch --exact --no-push --yes -m \"[latest]: %s #patch\n\nGitHub workflow shall publish and tag upon merge.\""
   },
   "keywords": [
     "theia-extension",

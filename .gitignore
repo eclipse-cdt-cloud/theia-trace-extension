@@ -1,8 +1,4 @@
 # LC_COLLATE=C sort .gitignore
-!examples/*/electron-builder.yml
-!examples/*/package.json
-!examples/*/resources/
-!examples/*/scripts/
 *.log
 *.tsbuildinfo
 .browser_modules/
@@ -12,7 +8,11 @@
 /packages/react-components/lib/
 TraceCompassTutorialTraces
 TraceCompassTutorialTraces.tgz
-examples/*
+examples/*/gen-webpack.config.js
+examples/*/lib/
+examples/*/src-gen/
+examples/electron/dist/
+examples/plugins/
 node_modules/
 theia-extensions/viewer-prototype/lib/
 trace-compass-server
