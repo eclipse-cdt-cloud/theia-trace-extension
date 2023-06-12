@@ -11,8 +11,8 @@ type CellRendererProps = ICellRendererParams & {
 
 type SearchFilterRendererProps = IFloatingFilterParams & {
     onFilterChange: (colName: string, filterValue: string) => void;
-    onclickNext: () => void;
-    onclickPrevious: () => void;
+    onclickNext: () => Promise<boolean>;
+    onclickPrevious: () => Promise<boolean>;
     colName: string;
     filterModel: Map<string, string>;
 };
@@ -20,6 +20,8 @@ type SearchFilterRendererProps = IFloatingFilterParams & {
 interface SearchFilterRendererState {
     hasHovered: boolean;
     hasClicked: boolean;
+    isSearchSuccessful: boolean;
+    isSearching: boolean;
 }
 
 export class LoadingRenderer extends React.Component<ICellRendererParams> {
@@ -86,11 +88,13 @@ export class SearchFilterRenderer extends React.Component<SearchFilterRendererPr
         super(props);
         this.state = {
             hasHovered: false,
-            hasClicked: this.props.filterModel.has(this.props.colName)
+            hasClicked: this.props.filterModel.has(this.props.colName),
+            isSearchSuccessful: true,
+            isSearching: false
         };
 
         this.debouncedChangeHandler = debounce((colName, inputVal) => {
-            this.props.onFilterChange(colName, inputVal);
+            this.onFilterChange(colName, inputVal);
         }, 10);
 
         this.onInputBoxChanged = this.onInputBoxChanged.bind(this);
@@ -101,6 +105,8 @@ export class SearchFilterRenderer extends React.Component<SearchFilterRendererPr
         this.onUpClickHandler = this.onUpClickHandler.bind(this);
         this.onCloseClickHandler = this.onCloseClickHandler.bind(this);
         this.onKeyDownEvent = this.onKeyDownEvent.bind(this);
+        this.onFilterChange = this.onFilterChange.bind(this);
+        this.runSearch = this.runSearch.bind(this);
     }
 
     render(): JSX.Element {
@@ -110,7 +116,6 @@ export class SearchFilterRenderer extends React.Component<SearchFilterRendererPr
                 onMouseEnter={this.onMouseEnterHandler}
                 onMouseLeave={this.onMouseLeaveHandler}
                 onClick={this.onClickHandler}
-                title="Enter a regular expression"
             >
                 {!this.state.hasClicked && !this.state.hasHovered && (
                     <FontAwesomeIcon style={{ marginLeft: '10px' }} icon={faSearch} />
@@ -139,26 +144,42 @@ export class SearchFilterRenderer extends React.Component<SearchFilterRendererPr
                             autoFocus={true}
                             onKeyDown={this.onKeyDownEvent}
                             onInput={this.onInputBoxChanged}
-                            style={{ width: '50%', margin: '10px' }}
+                            style={{
+                                width: '50%',
+                                margin: '10px',
+                                color: this.state.isSearchSuccessful ? '' : 'red'
+                            }}
                             defaultValue={this.props.filterModel.get(this.props.colName) ?? ''}
+                            title="Enter a regular expression, then press Enter"
                         />
+                        {this.state.isSearching && (
+                            <FontAwesomeIcon
+                                spin
+                                icon={faSpinner}
+                                style={{ marginRight: '10px', marginTop: '20px' }}
+                                title="Searching..."
+                            />
+                        )}
                         <FontAwesomeIcon
                             className="hoverClass"
                             icon={faTimes}
                             style={{ marginTop: '20px' }}
                             onClick={this.onCloseClickHandler}
+                            title="Clear search"
                         />
                         <FontAwesomeIcon
                             className="hoverClass"
                             icon={faAngleDown}
                             style={{ marginLeft: '10px', marginTop: '20px' }}
                             onClick={this.onDownClickHandler}
+                            title="Find next"
                         />
                         <FontAwesomeIcon
                             className="hoverClass"
                             icon={faAngleUp}
                             style={{ marginLeft: '10px', marginTop: '20px' }}
                             onClick={this.onUpClickHandler}
+                            title="Find previous"
                         />
                     </div>
                 )}
@@ -166,18 +187,47 @@ export class SearchFilterRenderer extends React.Component<SearchFilterRendererPr
         );
     }
 
+    private async onFilterChange(colName: string, inputVal: string) {
+        this.setState({ isSearchSuccessful: true, isSearching: false });
+        this.props.onFilterChange(colName, inputVal);
+    }
+
+    private runSearch(callback: () => Promise<boolean> | undefined): void {
+        this.setState({ isSearching: true, isSearchSuccessful: true }, () => {
+            this.forceUpdate(() => {
+                const result = callback();
+                if (result === undefined) {
+                    return;
+                }
+                result.then(isFound => {
+                    // need to trigger backend query
+                    this.setState({
+                        isSearching: false,
+                        isSearchSuccessful: isFound
+                    });
+                });
+                result.catch(() => {
+                    this.setState({
+                        isSearching: false,
+                        isSearchSuccessful: false
+                    });
+                });
+            });
+        });
+    }
+
     private onKeyDownEvent(event: React.KeyboardEvent) {
         if (event.key === 'Enter') {
             if (event.shiftKey) {
-                this.props.onclickPrevious();
+                this.runSearch(this.props.onclickPrevious);
             } else {
-                this.props.onclickNext();
+                this.runSearch(this.props.onclickNext);
             }
         } else if (event.key === 'Escape') {
             this.setState({
                 hasClicked: false
             });
-            this.props.onFilterChange(this.props.colName, '');
+            this.onFilterChange(this.props.colName, '');
         }
         return;
     }
@@ -209,12 +259,12 @@ export class SearchFilterRenderer extends React.Component<SearchFilterRendererPr
     }
 
     private onDownClickHandler() {
-        this.props.onclickNext();
+        this.runSearch(this.props.onclickNext);
         return;
     }
 
     private onUpClickHandler() {
-        this.props.onclickPrevious();
+        this.runSearch(this.props.onclickPrevious);
         return;
     }
 
@@ -222,7 +272,7 @@ export class SearchFilterRenderer extends React.Component<SearchFilterRendererPr
         this.setState({
             hasClicked: false
         });
-        this.props.onFilterChange(this.props.colName, '');
+        this.onFilterChange(this.props.colName, '');
         event.stopPropagation();
         return;
     }
