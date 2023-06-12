@@ -146,7 +146,12 @@ cd examples/electron
 yarn package
 ```
 
-The configured Linux package(s) will be generated in the folder `examples/electron/dist`
+The configured Linux package(s) will be generated in the `examples/electron/dist` folder:
+
+```bash
+cd dist
+./Theia\ Trace\ Example\ Application-0.1.0.AppImage
+```
 
 ## Using the trace extension
 
