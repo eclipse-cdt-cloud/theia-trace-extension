@@ -144,6 +144,54 @@ file. Adding the SHA-1 of a commit to this file will make `git-blame` ignore tha
 * For GitHub, this file is automatically detected and will ignore all the commits that are included in the file.
 * With Git CLI, run `git blame --ignore-revs-file=.git-blame-ignore-revs <pathToSomeFile>` to ignore the commits.
 
+## Releasing a new version
+
+* Run either one of the below repository root commands, depending on the case at hand.
+* Below, `Z` means `z+1`, and the same notation is used for `x` and `y`.
+
+For a release bumping the version from `x.y.z` to `x.y.Z`:
+
+```bash
+yarn version:patch
+```
+
+For a release bumping the version from `x.y.z` to `x.Y.z`:
+
+```bash
+yarn version:minor
+```
+
+For a release bumping the version from `x.y.z` to `X.y.z`:
+
+```bash
+yarn version:major
+```
+
+Currently, [automatically adding][auto-signoff] a [Signed-off-by:][sign-off] footer to the
+resulting commit message fails for this `lerna` use with `yarn`. Should one be necessary,
+the commit needs to be amended accordingly, using `git commit --amend -s` or the like.
+
+Once pushed, reviewed then merged, the resulting commit triggers the GitHub workflow that
+publishes this new release to [the npm Registry][npm-registry]. That action shall also push
+the corresponding git tag. The locally created tag (internally by `lerna version`) should
+then be overridable by that remote one.
+
+Should there be an issue with that automated workflow, the said local tag can be manually
+pushed, once the commit is merged and [published as latest release][npm-registry]. If need
+be, the latter step can also be done manually by running this repository root command:
+
+```bash
+yarn && yarn publish:latest`
+```
+
+If needed, this is a command template to push the tag after publishing per above:
+
+```bash
+git push origin vX.Y.Z
+```
+
+Where either one of `X`, `Y` or `Z` was bumped depending on the chosen case further above.
+
 ## Contact
 
 For issues related to the Trace Viewer, please open a GitHub tracker for the [Theia Trace Extension][trace-viewer].
@@ -151,6 +199,7 @@ For issues related to the Trace Viewer, please open a GitHub tracker for the [Th
 For issues concerning `eclipse-cdt-cloud`, please refer to the contact options listed on the [CDT.Cloud website][cdt-cloud-website].
 
 [architecture]: https://github.com/theia-ide/theia-trace-extension#architecture
+[auto-signoff]: https://github.com/lerna/lerna/blob/main/libs/commands/version/README.md#--signoff-git-commit
 [cdt-cloud-website]: https://cdt-cloud.io/contact/
 [code-of-conduct]: https://github.com/eclipse/.github/blob/master/CODE_OF_CONDUCT.md
 [commit-message-example]: https://github.com/theia-ide/theia-trace-extension/commit/bc18fcd110d7b8433293692421f2e4fb49f89bd6
@@ -171,6 +220,7 @@ For issues concerning `eclipse-cdt-cloud`, please refer to the contact options l
 [issue-369]: https://github.com/theia-ide/theia-trace-extension/pull/369/files
 [issue-402]: https://github.com/theia-ide/theia-trace-extension/pull/402
 [new-contributors]: #new-contributors
+[npm-registry]: https://www.npmjs.com/
 [pr-guide]: #pull-request-guidelines
 [pull-requests]: https://github.com/eclipse-cdt-cloud/theia-trace-extension/pulls
 [sign-off]: https://git-scm.com/docs/git-commit#Documentation/git-commit.txt---signoff

@@ -1,0 +1,30 @@
+name: NPM package (latest)
+on:
+  push:
+    branches: [ master ]
+jobs:
+  build:
+    if: github.ref == 'refs/heads/master' && github.event_name == 'push' && github.repository == 'eclipse-cdt-cloud/theia-trace-extension' && "contains(github.event.head_commit.message, '[latest]:')"
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      # For github-tag-action below
+    steps:
+    - uses: actions/checkout@v2
+    # Setup .npmrc file to publish to npm
+    - uses: actions/setup-node@v3
+      with:
+        node-version: '16.x'
+        registry-url: 'https://registry.npmjs.org'
+        # Defaults to the user or organization that owns the workflow file
+        scope: '@theia-ide'
+    - run: yarn
+    - run: yarn publish:latest
+      env:
+        NODE_AUTH_TOKEN: ${{ secrets.NPM_AUTH_TOKEN }}
+    - name: Push new (bumped) tag based on HEAD commit message
+      uses: anothrNick/github-tag-action@1.67.0
+      env:
+        DEFAULT_BUMP: none # commit message includes #major|minor|patch
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        WITH_V: true
