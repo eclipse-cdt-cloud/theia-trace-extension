@@ -85,7 +85,7 @@ export class DropDownOptionCheckBox extends AbstractDropDownOption<OptionCheckBo
                 {this.state.condition?.() && (
                     <li className="drop-down-list-item" onClick={() => this.state.onClick?.(this.state.arg?.())}>
                         <div className="drop-down-list-item-checkbox">
-                            <input type="checkbox" checked={this.state.checked()} />
+                            <input type="checkbox" checked={this.state.checked()} readOnly />
                         </div>
                         <div className="drop-down-list-item-checkbox-label">{this.state.label}</div>
                     </li>
@@ -113,20 +113,20 @@ export class DropDownComponent extends React.Component<DropDownProps> {
             <React.Fragment>
                 {this.props.dropDownOpen && (
                     <div className="options-menu-drop-down" ref={this.optionsMenuRef}>
-                        <ul>{this.props.dropDownOptions?.map((option, index) => this.renderSection(option, index))}</ul>
+                        <ul>{this.props.dropDownOptions?.map((option, index) => this.renderSection(option))}</ul>
                     </div>
                 )}
             </React.Fragment>
         );
     }
 
-    renderSection(option: OptionState, index: number): React.ReactNode {
+    renderSection(option: OptionState): React.ReactNode {
         if (option.subSection && option.subSection.options.length > 0) {
             return (
-                <React.Fragment>
+                <React.Fragment key={option.label + '_subsection'}>
                     {
                         // Rendering the upper level option label
-                        this.renderOption(option, index)
+                        this.renderOption(option)
                     }
                     {option.subSection.condition?.() && (
                         <ul
@@ -135,33 +135,23 @@ export class DropDownComponent extends React.Component<DropDownProps> {
                         >
                             {
                                 // Rendering the sub section
-                                option.subSection.options.map((subOption, subOptionIndex) =>
-                                    this.renderOption(subOption, subOptionIndex)
-                                )
+                                option.subSection.options.map(subOption => this.renderOption(subOption))
                             }
                         </ul>
                     )}
                 </React.Fragment>
             );
         } else {
-            return this.renderOption(option, index);
+            return this.renderOption(option);
         }
     }
 
-    renderOption(option: OptionState, index: number): React.ReactNode {
+    renderOption(option: OptionState): React.ReactNode {
         if (option.type === OptionType.CHECKBOX) {
             const checkboxOptions = option as OptionCheckBoxState;
-            return (
-                <React.Fragment>
-                    <DropDownOptionCheckBox {...this.props} key={index} {...checkboxOptions} />
-                </React.Fragment>
-            );
+            return <DropDownOptionCheckBox {...this.props} key={option.label} {...checkboxOptions} />;
         } else {
-            return (
-                <React.Fragment>
-                    <DropDownOption {...this.props} key={index} {...option} />
-                </React.Fragment>
-            );
+            return <DropDownOption {...this.props} key={option.label} {...option} />;
         }
     }
 }
