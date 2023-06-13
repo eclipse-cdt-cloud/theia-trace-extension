@@ -11,7 +11,13 @@ import { TooltipComponent } from './tooltip-component';
 import { TooltipXYComponent } from './tooltip-xy-component';
 import { ResponseStatus } from 'tsp-typescript-client/lib/models/response/responses';
 import { signalManager } from 'traceviewer-base/lib/signals/signal-manager';
-import { DropDownComponent, OptionState } from './drop-down-component';
+import {
+    DropDownComponent,
+    DropDownSubSection,
+    OptionCheckBoxState,
+    OptionState,
+    OptionType
+} from './drop-down-component';
 
 export interface AbstractOutputProps {
     tspClient: TspClient;
@@ -70,6 +76,8 @@ export abstract class AbstractOutputComponent<
     public readonly PIN_VIEW_LABEL = 'Pin View';
 
     public readonly UNPIN_VIEW_LABEL = 'Unpin View';
+
+    public readonly TOGGLE_COLUMN_LABEL = 'Toggle Columns';
 
     private dropDownOptions: OptionState[] = [];
 
@@ -251,13 +259,15 @@ export abstract class AbstractOutputComponent<
         label: string,
         onClick?: (arg?: unknown) => void,
         arg?: unknown,
-        condition?: () => boolean
+        condition?: () => boolean,
+        subSection?: DropDownSubSection
     ): void {
         const newOption = {
             label: label,
             onClick: onClick,
             arg: arg,
-            condition: condition
+            condition: condition,
+            subSection: subSection
         } as OptionState;
         if (this.dropDownOptions.includes(newOption)) {
             return;

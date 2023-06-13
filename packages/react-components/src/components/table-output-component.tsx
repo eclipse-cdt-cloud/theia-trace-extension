@@ -22,6 +22,7 @@ import { TableModel } from 'tsp-typescript-client/lib/models/table';
 import { SearchFilterRenderer, CellRenderer, LoadingRenderer } from './table-renderer-components';
 import { ResponseStatus } from 'tsp-typescript-client';
 import { PaginationBarComponent } from './utils/pagination-bar-component';
+import { OptionCheckBoxState, OptionState, OptionType } from './drop-down-component';
 
 type TableOuputState = AbstractOutputState & {
     tableColumns: ColDef[];
@@ -119,6 +120,41 @@ export class TableOutputComponent extends AbstractOutputComponent<TableOutputPro
         this.findMatchedEvent = this.findMatchedEvent.bind(this);
         this.checkFocus = this.checkFocus.bind(this);
         this.addPinViewOptions();
+    }
+
+    protected addToggleColumnsOption(arg?: () => unknown): void {
+        if (!this.columnApi) {
+            return;
+        }
+        const columns = this.columnApi.getAllGridColumns();
+        const subOptions: OptionState[] = [];
+        columns.forEach(column => {
+            const header = column.getColDef().headerName ?? '';
+            const newOption = {
+                type: OptionType.CHECKBOX,
+                label: header,
+                checked: (): boolean => column.isVisible(),
+                onClick: () => this.toggleColumnVisibility(this.columnApi!, column.getColDef()),
+                arg: arg,
+                condition: () => this.state.showToggleColumns
+            } as OptionCheckBoxState;
+
+            subOptions.push(newOption);
+        });
+
+        const subSection = {
+            options: subOptions,
+            condition: () => this.state.showToggleColumns,
+            height: 150
+        };
+
+        this.addOptions(this.TOGGLE_COLUMN_LABEL, () => this.toggleToggleColumns(), arg, undefined, subSection);
+    }
+
+    private toggleToggleColumns() {
+        this.setState({
+            showToggleColumns: !this.state.showToggleColumns
+        });
     }
 
     renderMainArea(): React.ReactNode {
@@ -475,6 +511,8 @@ export class TableOutputComponent extends AbstractOutputComponent<TableOutputPro
             if (timestampHeader) {
                 this.timestampCol = timestampHeader.getColDef().field;
             }
+
+            this.addToggleColumnsOption();
         }
 
         if (this.props.unitController.selectionRange) {
@@ -871,63 +909,6 @@ export class TableOutputComponent extends AbstractOutputComponent<TableOutputPro
         this.setState({
             tableColumns: allCols
         });
-    }
-
-    private renderToggleColumnsTable(): React.ReactNode {
-        /* eslint-disable @typescript-eslint/no-non-null-assertion */
-        if (!this.columnApi) {
-            return;
-        }
-        const columns = this.columnApi.getAllGridColumns();
-
-        return (
-            <React.Fragment>
-                <table style={{ width: '100%' }}>
-                    <tbody>
-                        {columns.map((column, key) => (
-                            <tr key={key}>
-                                <td>
-                                    <input
-                                        type="checkbox"
-                                        checked={this.columnApi!.getColumn(column)?.isVisible()}
-                                        onChange={() =>
-                                            this.toggleColumnVisibility(this.columnApi!, column.getColDef())
-                                        }
-                                    />
-                                </td>
-                                <td>{column.getColDef().headerName}</td>
-                            </tr>
-                        ))}
-                    </tbody>
-                </table>
-            </React.Fragment>
-        );
-    }
-
-    protected closeOptionsDropDown(): void {
-        this.setState({
-            showToggleColumns: false
-        });
-    }
-
-    protected showAdditionalOptions(): React.ReactNode {
-        return (
-            <React.Fragment>
-                <ul>
-                    <li
-                        className="drop-down-list-item"
-                        onClick={() => {
-                            this.setState({ showToggleColumns: !this.state.showToggleColumns });
-                        }}
-                    >
-                        <div className="drop-down-list-item-text">Toggle Columns</div>
-                    </li>
-                </ul>
-                {this.state.showToggleColumns && (
-                    <div className="toggle-columns-table">{this.renderToggleColumnsTable()}</div>
-                )}
-            </React.Fragment>
-        );
     }
 
     private updatePageIndex(rowIndex: number): void {

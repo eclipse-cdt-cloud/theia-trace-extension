@@ -352,7 +352,6 @@ canvas {
     max-height: var(--trace-viewer-private-menu-item-height);
     padding: 0px;
     line-height: var(--trace-viewer-private-menu-item-height);
-    display: table-row;
 }
 .drop-down-list-item:hover {
     background: var(--trace-viewer-menu-selectionBackground);
@@ -363,8 +362,20 @@ canvas {
 .drop-down-list-item-text {
     padding-left: 18%;
 }
-.toggle-columns-table {
-    height: 150px;
+
+.drop-down-list-item-checkbox {
+    display: inline-block;
+    padding-left: 3%;
+}
+
+.drop-down-list-item-checkbox-label {
+    display: inline-block;
+    padding-left: 3%;
+}
+
+.drop-down-sub-section {
+    list-style-type: none;
+    padding: 0px;
     overflow: scroll;
     z-index: 999 !important;
     background: var(--trace-viewer-menu-background);
