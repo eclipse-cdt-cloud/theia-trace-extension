@@ -51,8 +51,9 @@
     "prepare": "theia build --mode development",
     "start": "TRACE_SERVER_PATH=../../trace-compass-server/tracecompass-server theia start --plugins=local-dir:../plugins",
     "watch": "theia build --watch --mode development",
-    "package": "electron-builder",
-    "package:preview": "electron-builder --dir"
+    "package": "yarn package:rebuild && electron-builder",
+    "package:preview": "yarn package:rebuild && electron-builder --dir",
+    "package:rebuild": "theia rebuild:electron --cacheRoot ../.."
   },
   "engines": {
     "yarn": "1.0.x || >=1.2.1",
