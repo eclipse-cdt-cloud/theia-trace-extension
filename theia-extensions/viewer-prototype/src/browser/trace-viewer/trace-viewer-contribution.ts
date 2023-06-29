@@ -94,6 +94,8 @@ export class TraceViewerContribution
                         progress.report({ message: 'Trace server started.', work: { done: 100, total: 100 } });
                     }
                     progress.cancel();
+                    TraceServerConnectionStatusService.renderStatus(true);
+                    signalManager().fireTraceServerStartedSignal();
                     this.openDialog(rootPath);
                 }
             } catch (err) {
@@ -161,6 +163,8 @@ export class TraceViewerContribution
                         } else {
                             progress.report({ message: 'Trace server started.', work: { done: 100, total: 100 } });
                         }
+                        TraceServerConnectionStatusService.renderStatus(true);
+                        signalManager().fireTraceServerStartedSignal();
                         return super.open(traceURI, options);
                     }
                     throw new Error('Could not start trace server: ' + resolve);
