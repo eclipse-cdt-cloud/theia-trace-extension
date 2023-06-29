@@ -1,5 +1,6 @@
 import * as React from 'react';
 import { TimeRangeUpdatePayload } from 'traceviewer-base/lib/signals/time-range-data-signal-payloads';
+import { TimeRangeDataMap } from '../components/utils/time-range-data-map';
 import { signalManager, Signals } from 'traceviewer-base/lib/signals/signal-manager';
 import { Experiment } from 'tsp-typescript-client';
 import { TimeRange } from 'traceviewer-base/lib/utils/time-range';
@@ -13,8 +14,8 @@ export interface ReactTimeRangeDataWidgetState {
     activeData?: ExperimentTimeRangeData;
     userInputSelectionStartIsValid: boolean;
     userInputSelectionEndIsValid: boolean;
-    userInputSelectionStart?: bigint;
-    userInputSelectionEnd?: bigint;
+    userInputSelectionStart?: string;
+    userInputSelectionEnd?: string;
     inputting: boolean;
 }
 
@@ -32,11 +33,11 @@ export class ReactTimeRangeDataWidget extends React.Component<
     ReactTimeRangeDataWidgetProps,
     ReactTimeRangeDataWidgetState
 > {
-    private experimentDataMap: Map<string, ExperimentTimeRangeData>;
+    private experimentDataMap: TimeRangeDataMap;
 
     constructor(props: ReactTimeRangeDataWidgetProps) {
         super(props);
-        this.experimentDataMap = new Map<string, ExperimentTimeRangeData>();
+        this.experimentDataMap = new TimeRangeDataMap();
         this.state = {
             inputting: false,
             userInputSelectionStartIsValid: true,
@@ -51,6 +52,7 @@ export class ReactTimeRangeDataWidget extends React.Component<
         signalManager().on(Signals.EXPERIMENT_SELECTED, this.onExperimentSelected);
         signalManager().on(Signals.EXPERIMENT_UPDATED, this.onExperimentUpdated);
         signalManager().on(Signals.EXPERIMENT_CLOSED, this.onExperimentClosed);
+        signalManager().on(Signals.CLOSE_TRACEVIEWERTAB, this.onExperimentClosed);
     };
 
     public componentWillUnmount = (): void => {
@@ -59,90 +61,62 @@ export class ReactTimeRangeDataWidget extends React.Component<
         signalManager().off(Signals.EXPERIMENT_SELECTED, this.onExperimentSelected);
         signalManager().off(Signals.EXPERIMENT_UPDATED, this.onExperimentUpdated);
         signalManager().off(Signals.EXPERIMENT_CLOSED, this.onExperimentClosed);
+        signalManager().off(Signals.CLOSE_TRACEVIEWERTAB, this.onExperimentClosed);
     };
 
     private onViewRangeUpdated = (payload: TimeRangeUpdatePayload): void => {
-        const { experimentUUID: UUID, timeRange } = payload;
-
-        const update = {
-            UUID,
-            viewRange: timeRange
-        } as ExperimentTimeRangeData;
-
-        this.updateExperimentTimeRangeData(update);
+        this.experimentDataMap.updateViewRange(payload);
+        this.renderIfActive();
     };
 
     private onSelectionRangeUpdated = (payload: TimeRangeUpdatePayload): void => {
-        const { experimentUUID: UUID, timeRange } = payload;
-
-        const update = {
-            UUID,
-            selectionRange: timeRange
-        } as ExperimentTimeRangeData;
-
-        this.updateExperimentTimeRangeData(update);
+        this.experimentDataMap.updateSelectionRange(payload);
+        this.renderIfActive();
     };
 
     private onAbsoluteRangeUpdate = (experiment: Experiment): void => {
-        if (!experiment) {
-            return;
-        }
-
-        const { UUID, start, end } = experiment;
-
-        const update = {
-            UUID,
-            absoluteRange: {
-                start,
-                end
-            }
-        } as ExperimentTimeRangeData;
-
-        this.updateExperimentTimeRangeData(update);
+        this.experimentDataMap.updateAbsoluteRange(experiment);
+        this.renderIfActive();
     };
 
-    /**
-     * Updates the data stored in experimentDataMap.  Works similar to setState() where
-     * you only input the data to change and the existing values persist.
-     * @param data Partial data of Experiment Time Range Data.
-     */
-    private updateExperimentTimeRangeData = (data: ExperimentTimeRangeData): void => {
-        const map = this.experimentDataMap;
-        const id = data.UUID;
-        const existingData = map.get(id) || {};
-        const newData = {
-            ...existingData,
-            ...data
-        };
-        map.set(id, newData);
-
-        // If the experiment is currently displayed, we need to render it
-        if (id === this.state.activeData?.UUID) {
-            this.setState({ activeData: newData });
-        }
-    };
-
-    private onExperimentUpdated = (experiment: Experiment | undefined): void => {
-        if (experiment) {
-            this.onAbsoluteRangeUpdate(experiment);
-        }
+    private onExperimentUpdated = (experiment: Experiment): void => {
+        this.onAbsoluteRangeUpdate(experiment);
+        this.renderIfActive();
     };
 
     private onExperimentSelected = (experiment: Experiment | undefined): void => {
+        let newActiveData;
         if (experiment) {
+            // TODO - consider changing this logic?
             this.onAbsoluteRangeUpdate(experiment);
-            const newActiveData = this.experimentDataMap.get(experiment.UUID);
-            this.setState({ activeData: newActiveData });
+            newActiveData = this.experimentDataMap.get(experiment.UUID);
         }
+        this.setActiveExperiment(newActiveData);
     };
 
-    private onExperimentClosed = (experiment: Experiment): void => {
-        const id = experiment.UUID;
-        this.experimentDataMap.delete(id);
+    private onExperimentClosed = (experiment: Experiment | string): void => {
+        this.experimentDataMap.delete(experiment);
+    };
 
-        if (id === this.state.activeData?.UUID) {
-            this.setState({ activeData: undefined });
+    private setActiveExperiment = (timeData?: ExperimentTimeRangeData): void => {
+        this.experimentDataMap.setActiveExperiment(timeData);
+        this.setState({ activeData: timeData ? this.experimentDataMap.get(timeData.UUID) : undefined });
+    };
+
+    private renderIfActive(): void {
+        const { state, experimentDataMap } = this;
+        if (state.activeData?.UUID === experimentDataMap.activeData?.UUID) {
+            const activeData = state.activeData ? experimentDataMap.get(state.activeData.UUID) : undefined;
+            this.setState({ activeData });
         }
+    }
+
+    public restoreData = (mapArray: Array<ExperimentTimeRangeData>, activeData: ExperimentTimeRangeData): void => {
+        this.experimentDataMap.clear();
+        for (const experimentData of mapArray) {
+            this.experimentDataMap.set(experimentData);
+        }
+        this.setActiveExperiment(activeData);
     };
 
     private reset = (): void => {
@@ -161,15 +135,12 @@ export class ReactTimeRangeDataWidget extends React.Component<
             this.setState({ inputting: true });
         }
 
-        // BigInt("") => 0 but we want that to be undefined.
-        const value = event.currentTarget.value === '' ? undefined : BigInt(event.currentTarget.value);
-
         switch (inputIndex) {
             case 0:
-                this.setState({ userInputSelectionStart: value });
+                this.setState({ userInputSelectionStart: event.currentTarget.value });
                 return;
             case 1:
-                this.setState({ userInputSelectionEnd: value });
+                this.setState({ userInputSelectionEnd: event.currentTarget.value });
                 return;
             default:
                 throw Error('Input index is invalid!');
@@ -200,8 +171,7 @@ export class ReactTimeRangeDataWidget extends React.Component<
         v1 = BigInt(v1);
         v2 = BigInt(v2);
 
-        const offset = this.state.activeData?.absoluteRange?.start || BigInt(0);
-
+        const offset = BigInt(this.state.activeData?.absoluteRange?.start || 0);
         const reverse = v1 > v2;
         const start = reverse ? v2 : v1;
         const end = reverse ? v1 : v2;
@@ -215,6 +185,10 @@ export class ReactTimeRangeDataWidget extends React.Component<
 
     private verifyUserInput = (): void => {
         let { activeData, userInputSelectionStart, userInputSelectionEnd } = this.state;
+
+        // Set empty strings to undefined
+        userInputSelectionStart = userInputSelectionStart === '' ? undefined : userInputSelectionStart;
+        userInputSelectionEnd = userInputSelectionEnd === '' ? undefined : userInputSelectionEnd;
 
         // We need at least one value to change: start or end.
         const noUserInput =
@@ -230,31 +204,23 @@ export class ReactTimeRangeDataWidget extends React.Component<
         const offset = absoluteRange?.start || BigInt('0');
         const traceEndTime = absoluteRange?.end || BigInt('0');
 
-        // If there is no pre-existing selection range and the user only inputs one value
-        // That one value needs to be both the start and end value.
-        if (!selectionRange && (!userInputSelectionEnd || !userInputSelectionStart)) {
-            userInputSelectionStart = userInputSelectionStart || userInputSelectionEnd;
-            userInputSelectionEnd = userInputSelectionEnd || userInputSelectionStart;
-        }
-
         // If there is no user input for start or end, set that value to the current selectionRange value.
         const { start: currentStart, end: currentEnd } = this.getStartAndEnd(
             selectionRange?.start,
             selectionRange?.end
         );
-        userInputSelectionStart =
-            typeof userInputSelectionStart === 'bigint' ? userInputSelectionStart : BigInt(currentStart);
-        userInputSelectionEnd = typeof userInputSelectionEnd === 'bigint' ? userInputSelectionEnd : BigInt(currentEnd);
+        const selectionStart = BigInt(userInputSelectionStart || currentStart);
+        const selectionEnd = BigInt(userInputSelectionEnd || currentEnd);
 
         // Now we can validate
         const isValid = (n: bigint): boolean => n >= offset && n <= traceEndTime;
-        const startValid = isValid(userInputSelectionStart);
-        const endValid = isValid(userInputSelectionEnd);
+        const startValid = isValid(selectionStart);
+        const endValid = isValid(selectionEnd);
 
         if (startValid && endValid) {
             this.reset();
-            const start = userInputSelectionStart - offset;
-            const end = userInputSelectionEnd - offset;
+            const start = selectionStart - offset;
+            const end = selectionEnd - offset;
             signalManager().fireRequestSelectionRangeChange({
                 experimentUUID: activeData.UUID,
                 timeRange: new TimeRange(start, end)
@@ -317,7 +283,7 @@ export class ReactTimeRangeDataWidget extends React.Component<
                                 {viewRangeEnd}
                             </label>
                         </div>
-                        <div className={startValid ? sectionClassName : errorClassName}>
+                        <div className={userInputSelectionStartIsValid ? sectionClassName : errorClassName}>
                             <label htmlFor="selectionRangeStart">
                                 <h4 className="outputs-element-name">
                                     {userInputSelectionStartIsValid
@@ -327,19 +293,27 @@ export class ReactTimeRangeDataWidget extends React.Component<
                             </label>
                             <input
                                 type="number"
-                                value={userInputSelectionStart?.toString() || selectionRangeStart}
+                                value={
+                                    typeof userInputSelectionStart === 'string'
+                                        ? userInputSelectionStart
+                                        : selectionRangeStart
+                                }
                                 onChange={e => this.onChange(e, 0)}
                             />
                         </div>
-                        <div className={endValid ? sectionClassName : errorClassName}>
+                        <div className={userInputSelectionEndIsValid ? sectionClassName : errorClassName}>
                             <label htmlFor="selectionRangeEnd">
                                 <h4 className="outputs-element-name">
-                                    {endValid ? 'Selection Range End:' : '* Selection Range End:'}
+                                    {userInputSelectionEndIsValid ? 'Selection Range End:' : '* Selection Range End:'}
                                 </h4>
                             </label>
                             <input
                                 type="number"
-                                value={userInputSelectionEnd?.toString() || selectionRangeEnd}
+                                value={
+                                    typeof userInputSelectionEnd === 'string'
+                                        ? userInputSelectionEnd
+                                        : selectionRangeEnd
+                                }
                                 onChange={e => this.onChange(e, 1)}
                             />
                         </div>
