@@ -627,7 +627,7 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
                             startAdornment: (
                                 <InputAdornment
                                     sx={{
-                                        color: 'var(--theia-ui-font-color0)'
+                                        color: 'var(--trace-viewer-ui-font-color0)'
                                     }}
                                     position="start"
                                 >
@@ -638,7 +638,7 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
                             endAdornment: (
                                 <InputAdornment
                                     sx={{
-                                        color: 'var(--theia-ui-font-color0)'
+                                        color: 'var(--trace-viewer-ui-font-color0)'
                                     }}
                                     position="end"
                                 >
