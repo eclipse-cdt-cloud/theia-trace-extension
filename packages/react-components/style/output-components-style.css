@@ -410,7 +410,7 @@ canvas {
 }
 
 .timgraph-search-bar {
-    background: var(--theia-editor-background);
+    background: var(--trace-viewer-editor-background);
     padding-top: 5px;
     padding-bottom: 10px;
     display: flex;
@@ -422,24 +422,24 @@ canvas {
     height: 24px;
     margin-left: 2.5px;
     margin-right: 2.5px;
-    font-family: var(--theia-ui-font-family) !important;
-    font-size: var(--theia-ui-font-size1) !important;
-    color: var(--theia-input-placeholder-foreground) !important;
-    background-color: var(--theia-input-background) !important;
-    border-color: var(--theia-tree-inactiveIndentGuidesStroke) !important;
+    font-family: var(--trace-viewer-ui-font-family) !important;
+    font-size: var(--trace-viewer-ui-font-size1) !important;
+    color: var(--trace-viewer-input-placeholder-foreground) !important;
+    background-color: var(--trace-viewer-input-background) !important;
+    border-color: var(--trace-viewer-tree-inactiveIndentGuidesStroke) !important;
     border-style: solid;
     border-radius: 15px !important;
     border-width: 1px !important;
 }
 
 .timegraph-search-box fieldset {
-    border-color: var(--theia-tree-inactiveIndentGuidesStroke);
+    border-color: var(--trace-viewer-tree-inactiveIndentGuidesStroke);
 }
 
 .search-bar-label {
-    font-family: var(--theia-ui-font-family) !important;
-    font-size: var(--theia-ui-font-size1) !important;
-    color: var(--theia-ui-font-color0) !important;
+    font-family: var(--trace-viewer-ui-font-family) !important;
+    font-size: var(--trace-viewer-ui-font-size1) !important;
+    color: var(--trace-viewer-ui-font-color0) !important;
 }
 
 .remove-search-button {
@@ -448,7 +448,7 @@ canvas {
     margin-top: 3px;
     padding-left: 0px;
     padding-right: 0px;
-    color: var(--theia-ui-font-color0);
+    color: var(--trace-viewer-ui-font-color0);
 }
 .remove-search-button:hover {
     cursor: pointer;
