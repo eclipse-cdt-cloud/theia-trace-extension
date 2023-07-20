@@ -62,6 +62,7 @@
     "build": "tsc -b",
     "clean": "rimraf lib *.tsbuildinfo",
     "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
     "test": "jest  --config jest.config.json",
     "watch": "tsc -b -w",
     "format:write": "prettier --write ./src",
