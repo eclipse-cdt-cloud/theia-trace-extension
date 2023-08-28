@@ -30,6 +30,7 @@ export declare interface SignalManager {
     fireTraceServerStartedSignal(): void;
     fireUndoSignal(): void;
     fireRedoSignal(): void;
+    fireOutputDataChanged(outputs: OutputDescriptor[]): void;
     fireOpenOverviewOutputSignal(traceId: string): void;
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     firePinView(output: OutputDescriptor, payload?: any): void;
@@ -73,7 +74,8 @@ export const Signals = {
     SAVE_AS_CSV: 'save as csv',
     VIEW_RANGE_UPDATED: 'view range updated',
     SELECTION_RANGE_UPDATED: 'selection range updated',
-    REQUEST_SELECTION_RANGE_CHANGE: 'change selection range'
+    REQUEST_SELECTION_RANGE_CHANGE: 'change selection range',
+    OUTPUT_DATA_CHANGED: 'output data changed'
 };
 
 export class SignalManager extends EventEmitter implements SignalManager {
@@ -142,6 +144,9 @@ export class SignalManager extends EventEmitter implements SignalManager {
     }
     fireRedoSignal(): void {
         this.emit(Signals.REDO);
+    }
+    fireOutputDataChanged(outputs: OutputDescriptor[]): void {
+        this.emit(Signals.OUTPUT_DATA_CHANGED, outputs);
     }
     // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/explicit-module-boundary-types
     firePinView(output: OutputDescriptor, payload?: any): void {
