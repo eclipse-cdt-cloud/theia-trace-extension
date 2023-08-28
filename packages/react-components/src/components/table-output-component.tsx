@@ -15,18 +15,21 @@ import {
 } from 'ag-grid-community';
 import { QueryHelper } from 'tsp-typescript-client/lib/models/query/query-helper';
 import { cloneDeep } from 'lodash';
-import { signalManager } from 'traceviewer-base/lib/signals/signal-manager';
+import { Signals, signalManager } from 'traceviewer-base/lib/signals/signal-manager';
 import { TimelineChart } from 'timeline-chart/lib/time-graph-model';
 import { CellKeyDownEvent } from 'ag-grid-community/dist/lib/events';
 import { TableModel } from 'tsp-typescript-client/lib/models/table';
 import { SearchFilterRenderer, CellRenderer, LoadingRenderer } from './table-renderer-components';
-import { ResponseStatus } from 'tsp-typescript-client';
+import { OutputDescriptor, ResponseStatus } from 'tsp-typescript-client';
 import { PaginationBarComponent } from './utils/pagination-bar-component';
 import { OptionCheckBoxState, OptionState, OptionType } from './drop-down-component';
 
 type TableOuputState = AbstractOutputState & {
     tableColumns: ColDef[];
     showToggleColumns: boolean;
+    tableSize: number;
+    pagination: boolean;
+    paginationTotalPages: number;
 };
 
 type TableOutputProps = AbstractOutputProps & {
@@ -50,9 +53,7 @@ export class TableOutputComponent extends AbstractOutputComponent<TableOutputPro
     private columnIds: Array<number> = [];
     private fetchColumns = true;
     private columnArray = new Array<any>();
-    private pagination = true;
     private paginationPageSize = 250000;
-    private paginationTotalPages = 0;
     private showIndexColumn = false;
     private frameworkComponents: any;
     private gridApi: GridApi | undefined = undefined;
@@ -71,7 +72,7 @@ export class TableOutputComponent extends AbstractOutputComponent<TableOutputPro
     private selectEndIndex = -1;
     private filterModel: Map<string, string> = new Map<string, string>();
     private dataSource: IDatasource;
-    private tableSize = 0;
+    private onOutputDataChanged = (outputs: OutputDescriptor[]) => this.doHandleOutputDataChangedSignal(outputs);
 
     static defaultProps: Partial<TableOutputProps> = {
         cacheBlockSize: 200,
@@ -87,7 +88,10 @@ export class TableOutputComponent extends AbstractOutputComponent<TableOutputPro
         this.state = {
             outputStatus: ResponseStatus.RUNNING,
             tableColumns: [],
-            showToggleColumns: false
+            showToggleColumns: false,
+            tableSize: this.props.nbEvents,
+            pagination: this.props.nbEvents >= this.paginationPageSize,
+            paginationTotalPages: Math.floor(this.props.nbEvents / this.paginationPageSize)
         };
 
         this.frameworkComponents = {
@@ -108,11 +112,9 @@ export class TableOutputComponent extends AbstractOutputComponent<TableOutputPro
                     const itemCopy = cloneDeep(item);
                     rowsThisPage[i] = itemCopy;
                 }
-                params.successCallback(rowsThisPage, this.tableSize);
+                params.successCallback(rowsThisPage, this.state.tableSize);
             }
         };
-        this.pagination = this.props.nbEvents >= this.paginationPageSize;
-        this.paginationTotalPages = Math.floor(this.props.nbEvents / this.paginationPageSize);
         this.onEventClick = this.onEventClick.bind(this);
         this.onModelUpdated = this.onModelUpdated.bind(this);
         this.onKeyDown = this.onKeyDown.bind(this);
@@ -189,11 +191,11 @@ export class TableOutputComponent extends AbstractOutputComponent<TableOutputPro
                     components={this.frameworkComponents}
                     enableBrowserTooltips={true}
                 ></AgGridReact>
-                {this.pagination && (
+                {this.state.pagination && (
                     <PaginationBarComponent
                         paginationPageSize={this.paginationPageSize}
-                        paginationTotalPages={this.paginationTotalPages}
-                        nbEvents={this.props.nbEvents}
+                        paginationTotalPages={this.state.paginationTotalPages}
+                        nbEvents={this.state.tableSize}
                         gridApi={this?.gridApi}
                     />
                 )}
@@ -209,6 +211,22 @@ export class TableOutputComponent extends AbstractOutputComponent<TableOutputPro
         this.props.unitController.onSelectionRangeChange(range => {
             this.handleTimeSelectionChange(range);
         });
+        signalManager().on(Signals.OUTPUT_DATA_CHANGED, this.onOutputDataChanged);
+    }
+
+    componentWillUnmount(): void {
+        // TODO: replace with removing the handler from unit controller
+        // See timeline-chart issue #98
+        // In the meantime, replace the handler with a noop on unmount
+        this.handleTimeSelectionChange = () => Promise.resolve();
+        signalManager().off(Signals.OUTPUT_DATA_CHANGED, this.onOutputDataChanged);
+    }
+
+    doHandleOutputDataChangedSignal(outputs: OutputDescriptor[]): void {
+        const desc = outputs.find(descriptor => descriptor.id === this.props.outputDescriptor.id);
+        if (desc !== undefined) {
+            this.gridApi?.setDatasource(this.dataSource);
+        }
     }
 
     private checkFocus(event: React.FocusEvent<HTMLDivElement, Element>): void {
@@ -225,22 +243,23 @@ export class TableOutputComponent extends AbstractOutputComponent<TableOutputPro
         }
     }
 
-    componentWillUnmount(): void {
-        // TODO: replace with removing the handler from unit controller
-        // See timeline-chart issue #98
-        // In the meantime, replace the handler with a noop on unmount
-        this.handleTimeSelectionChange = () => Promise.resolve();
-    }
-
     async componentDidUpdate(prevProps: TableOutputProps, _prevState: TableOuputState): Promise<void> {
         if (this.props.nbEvents !== prevProps.nbEvents) {
             this.gridApi?.setRowCount(this.props.nbEvents);
             const newPagination = this.props.nbEvents >= this.paginationPageSize;
-            if (newPagination !== this.pagination) {
-                this.pagination = newPagination;
-            }
+            this.setState({
+                pagination: newPagination,
+                paginationTotalPages: Math.floor(this.props.nbEvents / this.paginationPageSize)
+            });
+        }
 
-            this.paginationTotalPages = Math.floor(this.props.nbEvents / this.paginationPageSize);
+        if (this.state.tableSize !== _prevState.tableSize) {
+            this.gridApi?.setRowCount(this.state.tableSize);
+            const newPagination = this.state.tableSize >= this.paginationPageSize;
+            this.setState({
+                pagination: newPagination,
+                paginationTotalPages: Math.floor(this.state.tableSize / this.paginationPageSize)
+            });
         }
     }
 
@@ -638,7 +657,7 @@ export class TableOutputComponent extends AbstractOutputComponent<TableOutputPro
         if (!tspClientResponse.isOk() || !lineResponse) {
             return new Array<any>();
         }
-        this.tableSize = lineResponse.model.size;
+        this.setState({ tableSize: lineResponse.model.size });
         return this.modelToRow(lineResponse.model);
     }
 

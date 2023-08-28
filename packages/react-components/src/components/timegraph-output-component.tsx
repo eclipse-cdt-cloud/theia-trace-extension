@@ -27,7 +27,7 @@ import { listToTree, getAllExpandedNodeIds, getIndexOfNode, validateNumArray } f
 import hash from 'traceviewer-base/lib/utils/value-hash';
 import ColumnHeader from './utils/filter-tree/column-header';
 import { TimeGraphAnnotationComponent } from 'timeline-chart/lib/components/time-graph-annotation';
-import { Entry } from 'tsp-typescript-client';
+import { Entry, OutputDescriptor } from 'tsp-typescript-client';
 import { isEqual } from 'lodash';
 import { convertColorStringToHexNumber } from 'traceviewer-base/lib/utils/convert-color-string-to-hex';
 import { faSpinner } from '@fortawesome/free-solid-svg-icons';
@@ -73,6 +73,7 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
     private horizontalContainer: React.RefObject<HTMLDivElement>;
     private timeGraphTreeRef: React.RefObject<HTMLDivElement>;
     private markerTreeRef: React.RefObject<HTMLDivElement>;
+    private containerRef: React.RefObject<ReactTimeGraphContainer>;
 
     private tspDataProvider: TspDataProvider;
     private styleProvider: StyleProvider;
@@ -81,9 +82,13 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
     private selectedElement: TimeGraphStateComponent | undefined;
     private selectedMarkerCategories: string[] | undefined = undefined;
     private onSelectionChanged = (payload: { [key: string]: string }) => this.doHandleSelectionChangedSignal(payload);
+    private onOutputDataChanged = (outputs: OutputDescriptor[]) => this.doHandleOutputDataChangedSignal(outputs);
     private pendingSelection: TimeGraphEntry | undefined;
 
     private _debouncedUpdateSearch = debounce(() => this.updateSearchFilter(), 500);
+    private _debouncedUpdateChart = debounce(() => {
+        this.chartLayer.updateChart();
+    }, 500);
 
     constructor(props: TimegraphOutputProps) {
         super(props);
@@ -124,6 +129,7 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
         this.horizontalContainer = React.createRef();
         this.timeGraphTreeRef = React.createRef();
         this.markerTreeRef = React.createRef();
+        this.containerRef = React.createRef();
         this.handleSearchChange = this.handleSearchChange.bind(this);
         this.clearSearchBox = this.clearSearchBox.bind(this);
 
@@ -242,14 +248,17 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
     componentWillUnmount(): void {
         super.componentWillUnmount();
         this.unsubscribeToEvents();
+        this.containerRef.current?.destroyContainer();
     }
 
     protected subscribeToEvents(): void {
+        signalManager().on(Signals.OUTPUT_DATA_CHANGED, this.onOutputDataChanged);
         signalManager().on(Signals.THEME_CHANGED, this.onThemeChange);
         signalManager().on(Signals.SELECTION_CHANGED, this.onSelectionChanged);
     }
 
     protected unsubscribeToEvents(): void {
+        signalManager().off(Signals.OUTPUT_DATA_CHANGED, this.onOutputDataChanged);
         signalManager().off(Signals.THEME_CHANGED, this.onThemeChange);
         signalManager().off(Signals.SELECTION_CHANGED, this.onSelectionChanged);
     }
@@ -700,6 +709,7 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
         });
         return (
             <ReactTimeGraphContainer
+                ref={this.containerRef}
                 options={{
                     id: this.props.traceId + this.props.outputDescriptor.id + 'focusContainer',
                     height:
@@ -958,6 +968,14 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
             lineThickness: 1
         };
     }
+
+    public doHandleOutputDataChangedSignal = async (outputs: OutputDescriptor[]): Promise<void> => {
+        const desc = outputs.find(descriptor => descriptor.id === this.props.outputDescriptor.id);
+        if (desc !== undefined) {
+            await this.fetchTree();
+            this._debouncedUpdateChart();
+        }
+    };
 
     public onThemeChange = (): void => {
         // Simulate a click on the selected row when theme changes.

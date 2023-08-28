@@ -33,11 +33,14 @@ export class ReactTimeGraphContainer extends React.Component<ReactTimeGraphConta
     }
 
     componentWillUnmount(): void {
-        if (this.container) {
-            this.container.destroy();
-        }
         if (this._resizeHandler) {
             this.props.removeWidgetResizeHandler(this._resizeHandler);
+        }
+    }
+
+    destroyContainer(): void {
+        if (this.container) {
+            this.container.destroy();
         }
     }
 
