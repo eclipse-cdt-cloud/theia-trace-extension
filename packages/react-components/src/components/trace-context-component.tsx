@@ -9,7 +9,7 @@ import { TimelineChart } from 'timeline-chart/lib/time-graph-model';
 import { TimeGraphUnitController } from 'timeline-chart/lib/time-graph-unit-controller';
 import { OutputDescriptor } from 'tsp-typescript-client/lib/models/output-descriptor';
 import { Experiment } from 'tsp-typescript-client/lib/models/experiment';
-import { TspClient } from 'tsp-typescript-client/lib/protocol/tsp-client';
+import { ITspClient } from 'tsp-typescript-client/lib/protocol/tsp-client';
 import { TimeRange, TimeRangeString } from 'traceviewer-base/lib/utils/time-range';
 import { TableOutputComponent } from './table-output-component';
 import { TimegraphOutputComponent } from './timegraph-output-component';
@@ -34,7 +34,7 @@ import { TimeRangeUpdatePayload } from 'traceviewer-base/lib/signals/time-range-
 const ResponsiveGridLayout = WidthProvider(Responsive);
 
 export interface TraceContextProps {
-    tspClient: TspClient;
+    tspClient: ITspClient;
     experiment: Experiment;
     outputs: OutputDescriptor[];
     overviewDescriptor?: OutputDescriptor; // The default output descriptor for the overview

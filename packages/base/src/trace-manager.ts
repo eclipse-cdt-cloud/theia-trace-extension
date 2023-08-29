@@ -1,5 +1,5 @@
 import { Trace } from 'tsp-typescript-client/lib/models/trace';
-import { TspClient } from 'tsp-typescript-client/lib/protocol/tsp-client';
+import { ITspClient } from 'tsp-typescript-client/lib/protocol/tsp-client';
 import { Query } from 'tsp-typescript-client/lib/models/query/query';
 import { OutputDescriptor } from 'tsp-typescript-client/lib/models/output-descriptor';
 import { TspClientResponse } from 'tsp-typescript-client/lib/protocol/tsp-client-response';
@@ -7,9 +7,9 @@ import { signalManager } from './signals/signal-manager';
 
 export class TraceManager {
     private fOpenTraces: Map<string, Trace> = new Map();
-    private fTspClient: TspClient;
+    private fTspClient: ITspClient;
 
-    constructor(tspClient: TspClient) {
+    constructor(tspClient: ITspClient) {
         this.fTspClient = tspClient;
     }
 
@@ -69,7 +69,7 @@ export class TraceManager {
     async openTrace(traceURI: string, traceName?: string): Promise<Trace | undefined> {
         const name = traceName ? traceName : traceURI.replace(/\/$/, '').replace(/(.*\/)?/, '');
 
-        const tryOpen = async function (tspClient: TspClient, retry: number): Promise<TspClientResponse<Trace>> {
+        const tryOpen = async function (tspClient: ITspClient, retry: number): Promise<TspClientResponse<Trace>> {
             return tspClient.openTrace(
                 new Query({
                     name: retry === 0 ? name : name + '(' + retry + ')',
@@ -103,7 +103,7 @@ export class TraceManager {
         if (currentTrace) {
             const traceResponse = await this.fTspClient.fetchTrace(currentTrace.UUID);
             const trace = traceResponse.getModel();
-            if (trace && traceResponse.isOk) {
+            if (trace && traceResponse.isOk()) {
                 this.fOpenTraces.set(traceUUID, trace);
                 return trace;
             }

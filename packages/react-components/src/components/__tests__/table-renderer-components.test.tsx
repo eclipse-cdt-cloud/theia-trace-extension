@@ -6,7 +6,7 @@ import { CellRenderer, LoadingRenderer, SearchFilterRenderer } from '../table-re
 import { AbstractOutputProps } from '../abstract-output-component';
 import { TimeGraphUnitController } from 'timeline-chart/lib/time-graph-unit-controller';
 import { TimeRange } from 'traceviewer-base/lib/utils/time-range';
-import { TspClient } from 'tsp-typescript-client/lib/protocol/tsp-client';
+import { HttpTspClient } from 'tsp-typescript-client/lib/protocol/http-tsp-client';
 import { ColDef, Column, ColumnApi, GridApi, IRowModel, RowNode } from 'ag-grid-community';
 
 describe('<TableOutputComponent />', () => {
@@ -38,7 +38,7 @@ describe('<TableOutputComponent />', () => {
                 componentLeft: 0,
                 chartOffset: 0
             },
-            tspClient: new TspClient('testURL'),
+            tspClient: new HttpTspClient('testURL'),
             traceId: '0',
             outputDescriptor: {
                 id: '0',
