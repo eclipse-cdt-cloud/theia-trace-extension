@@ -4,7 +4,6 @@ import { ReactWidget } from '@theia/core/lib/browser/widgets/react-widget';
 import { inject, injectable, postConstruct } from '@theia/core/shared/inversify';
 import { OutputDescriptor } from 'tsp-typescript-client/lib/models/output-descriptor';
 import { Trace } from 'tsp-typescript-client/lib/models/trace';
-import { TspClient } from 'tsp-typescript-client/lib/protocol/tsp-client';
 import { TspClientProvider } from '../tsp-client-provider-impl';
 import { TraceManager } from 'traceviewer-base/lib/trace-manager';
 import { ExperimentManager } from 'traceviewer-base/lib/experiment-manager';
@@ -34,6 +33,7 @@ import {
     getSwitchToDefaultViewErrorMessage,
     OverviewPreferences
 } from '../trace-overview-preference';
+import { ITspClient } from 'tsp-typescript-client';
 
 export const TraceViewerWidgetOptions = Symbol('TraceViewerWidgetOptions');
 export interface TraceViewerWidgetOptions {
@@ -49,7 +49,7 @@ export class TraceViewerWidget extends ReactWidget implements StatefulWidget {
     protected uri: Path;
     protected openedExperiment: Experiment | undefined;
     protected outputDescriptors: OutputDescriptor[] = [];
-    protected tspClient: TspClient;
+    protected tspClient: ITspClient;
     protected traceManager: TraceManager;
     protected experimentManager: ExperimentManager;
     protected backgroundTheme: string;

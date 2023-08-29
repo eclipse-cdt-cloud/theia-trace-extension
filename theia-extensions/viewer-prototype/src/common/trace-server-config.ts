@@ -1,6 +1,8 @@
 import { ApplicationError } from '@theia/core';
 
 export const traceServerPath = '/services/theia-trace-extension/trace-server-config';
+export const TRACE_SERVER_CLIENT = '/services/theia-trace-extension/trace-server-client';
+
 export const PortBusy = ApplicationError.declare(-32650, code => ({
     message: 'Port busy',
     data: { code }

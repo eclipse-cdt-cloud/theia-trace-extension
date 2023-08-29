@@ -9,7 +9,6 @@ import {
 } from '@theia/core/lib/browser';
 import { TraceViewerWidget, TraceViewerWidgetOptions } from './trace-viewer';
 import { TraceViewerContribution } from './trace-viewer-contribution';
-import { TraceServerUrlProvider } from '../../common/trace-server-url-provider';
 import { CommandContribution } from '@theia/core/lib/common';
 import 'ag-grid-community/dist/styles/ag-grid.css';
 import 'ag-grid-community/dist/styles/ag-theme-balham-dark.css';
@@ -20,21 +19,26 @@ import { TraceExplorerContribution } from '../trace-explorer/trace-explorer-cont
 import { TraceExplorerWidget } from '../trace-explorer/trace-explorer-widget';
 import { TspClientProvider } from '../tsp-client-provider-impl';
 import { TheiaMessageManager } from '../theia-message-manager';
-import { TraceServerUrlProviderImpl } from '../trace-server-url-provider-frontend-impl';
 import { bindTraceServerPreferences } from '../trace-server-bindings';
-import { TraceServerConfigService, traceServerPath } from '../../common/trace-server-config';
+import { TRACE_SERVER_CLIENT, TraceServerConfigService, traceServerPath } from '../../common/trace-server-config';
 import { TabBarToolbarContribution } from '@theia/core/lib/browser/shell/tab-bar-toolbar';
 import { TraceViewerToolbarContribution } from './trace-viewer-toolbar-contribution';
-import { LazyTspClientFactory } from 'traceviewer-base/lib/lazy-tsp-client';
 import { BackendFileService, backendFileServicePath } from '../../common/backend-file-service';
-import { TraceServerConnectionStatusService } from '../trace-server-status';
+import { TraceServerConnectionStatusClientImpl } from '../trace-server-connection-status-client-impl';
 import { bindTraceOverviewPreferences } from '../trace-overview-binding';
+import { ITspClient } from 'tsp-typescript-client/lib/protocol/tsp-client';
+import { PortPreferenceProxy, TRACE_SERVER_PORT } from '../../common/trace-server-url-provider';
+import { PreferencesFrontendContribution } from '../preferences-frontend-contribution';
+import {
+    TRACE_SERVER_CONNECTION_STATUS,
+    TraceServerConnectionStatusBackend,
+    TraceServerConnectionStatusClient
+} from '../../common/trace-server-connection-status';
+import { TheiaRpcTspProxy, TspClientProxy } from '../theia-rpc-tsp-proxy';
 
 export default new ContainerModule(bind => {
-    bind(TraceServerUrlProviderImpl).toSelf().inSingletonScope();
-    bind(FrontendApplicationContribution).toService(TraceServerUrlProviderImpl);
-    bind(TraceServerUrlProvider).toService(TraceServerUrlProviderImpl);
-    bind(LazyTspClientFactory).toFunction(LazyTspClientFactory);
+    bind(PreferencesFrontendContribution).toSelf().inSingletonScope();
+    bind(FrontendApplicationContribution).toService(PreferencesFrontendContribution);
     bind(TspClientProvider).toSelf().inSingletonScope();
     bind(TheiaMessageManager).toSelf().inSingletonScope();
 
@@ -42,8 +46,8 @@ export default new ContainerModule(bind => {
     bind(FrontendApplicationContribution).toService(TraceViewerToolbarContribution);
     bind(TabBarToolbarContribution).toService(TraceViewerToolbarContribution);
     bind(CommandContribution).toService(TraceViewerToolbarContribution);
-    bind(TraceServerConnectionStatusService).toSelf().inSingletonScope();
-    bind(FrontendApplicationContribution).toService(TraceServerConnectionStatusService);
+    bind(TraceServerConnectionStatusClient).to(TraceServerConnectionStatusClientImpl).inSingletonScope();
+    bind(FrontendApplicationContribution).toService(TraceServerConnectionStatusClient);
 
     bind(TraceViewerWidget).toSelf();
     bind<WidgetFactory>(WidgetFactory)
@@ -88,4 +92,27 @@ export default new ContainerModule(bind => {
             return connection.createProxy<BackendFileService>(backendFileServicePath);
         })
         .inSingletonScope();
+
+    bind(TspClientProxy)
+        .toDynamicValue(ctx => {
+            const connection = ctx.container.get(WebSocketConnectionProvider);
+            return connection.createProxy<ITspClient>(TRACE_SERVER_CLIENT);
+        })
+        .inSingletonScope();
+
+    bind(PortPreferenceProxy)
+        .toDynamicValue(ctx => {
+            const connection = ctx.container.get(WebSocketConnectionProvider);
+            return connection.createProxy<PortPreferenceProxy>(TRACE_SERVER_PORT);
+        })
+        .inSingletonScope();
+
+    bind(TraceServerConnectionStatusBackend)
+        .toDynamicValue(ctx => {
+            const connection = ctx.container.get(WebSocketConnectionProvider);
+            return connection.createProxy<TraceServerConnectionStatusBackend>(TRACE_SERVER_CONNECTION_STATUS);
+        })
+        .inSingletonScope();
+
+    bind(TheiaRpcTspProxy).toSelf().inSingletonScope();
 });
