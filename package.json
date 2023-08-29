@@ -1,7 +1,7 @@
 {
   "private": true,
   "scripts": {
-    "prepare": "yarn -s tsref && yarn -s tsbuild && yarn -s download:plugins && yarn -s prepare:examples",
+    "prepare": "yarn -s clean && yarn -s tsref && yarn -s tsbuild && yarn -s download:plugins && yarn -s prepare:examples",
     "tsref": "node scripts/typescript-references.js",
     "tsbuild": "tsc -b",
     "tswatch": "tsc -b -w",
