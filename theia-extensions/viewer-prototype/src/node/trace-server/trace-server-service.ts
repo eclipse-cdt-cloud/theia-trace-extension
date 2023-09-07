@@ -3,7 +3,7 @@
 /* eslint-disable no-null/no-null */
 import { ChildProcess, spawn } from 'child_process';
 import fs = require('fs');
-import { injectable } from 'inversify';
+import { injectable } from '@theia/core/shared/inversify';
 import { PortBusy, StartTraceServerOptions, TraceServerConfigService } from '../../common/trace-server-config';
 import treeKill = require('tree-kill');
 

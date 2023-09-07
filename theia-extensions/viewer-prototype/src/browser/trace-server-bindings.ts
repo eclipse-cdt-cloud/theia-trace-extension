@@ -1,4 +1,4 @@
-import { interfaces } from 'inversify';
+import { interfaces } from '@theia/core/shared/inversify';
 import { PreferenceService, createPreferenceProxy, PreferenceContribution } from '@theia/core/lib/browser';
 import { TracePreferences, ServerSchema } from './trace-server-preference';
 

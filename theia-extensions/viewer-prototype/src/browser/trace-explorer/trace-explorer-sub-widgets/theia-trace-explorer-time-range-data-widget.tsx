@@ -1,4 +1,4 @@
-import { inject, injectable, postConstruct } from 'inversify';
+import { inject, injectable, postConstruct } from '@theia/core/shared/inversify';
 import { ReactWidget, Widget, Message, WidgetManager } from '@theia/core/lib/browser';
 import * as React from 'react';
 import { ReactTimeRangeDataWidget } from 'traceviewer-react-components/lib/trace-explorer//trace-explorer-time-range-data-widget';
@@ -11,7 +11,7 @@ export class TraceExplorerTimeRangeDataWidget extends ReactWidget {
     @inject(WidgetManager) protected readonly widgetManager!: WidgetManager;
 
     @postConstruct()
-    init(): void {
+    protected init(): void {
         this.id = TraceExplorerTimeRangeDataWidget.ID;
         this.title.label = TraceExplorerTimeRangeDataWidget.LABEL;
         this.update();

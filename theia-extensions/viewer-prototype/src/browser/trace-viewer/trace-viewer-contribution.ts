@@ -1,4 +1,4 @@
-import { injectable, inject } from 'inversify';
+import { injectable, inject } from '@theia/core/shared/inversify';
 import { CommandRegistry, CommandContribution, MessageService } from '@theia/core';
 import {
     WidgetOpenerOptions,
@@ -39,7 +39,7 @@ export class TraceViewerContribution
 {
     private tspClient: TspClient;
 
-    private constructor(@inject(TspClientProvider) private tspClientProvider: TspClientProvider) {
+    constructor(@inject(TspClientProvider) private tspClientProvider: TspClientProvider) {
         super();
         this.tspClient = this.tspClientProvider.getTspClient();
         this.tspClientProvider.addTspClientChangeListener(tspClient => (this.tspClient = tspClient));

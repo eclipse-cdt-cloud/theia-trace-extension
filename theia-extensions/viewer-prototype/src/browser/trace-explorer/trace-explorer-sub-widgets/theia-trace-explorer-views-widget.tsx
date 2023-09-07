@@ -1,4 +1,4 @@
-import { inject, injectable, postConstruct } from 'inversify';
+import { inject, injectable, postConstruct } from '@theia/core/shared/inversify';
 import { ReactWidget, Widget, Message, WidgetManager } from '@theia/core/lib/browser';
 import { TspClientProvider } from '../../tsp-client-provider-impl';
 import * as React from 'react';
@@ -13,7 +13,7 @@ export class TraceExplorerViewsWidget extends ReactWidget {
     @inject(WidgetManager) protected readonly widgetManager!: WidgetManager;
 
     @postConstruct()
-    init(): void {
+    protected init(): void {
         this.id = TraceExplorerViewsWidget.ID;
         this.title.label = TraceExplorerViewsWidget.LABEL;
         this.update();

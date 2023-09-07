@@ -1,7 +1,7 @@
 import { Emitter, Event, MessageService } from '@theia/core';
 import { FrontendApplicationContribution } from '@theia/core/lib/browser';
 import { EnvVariablesServer } from '@theia/core/lib/common/env-variables/env-variables-protocol';
-import { inject, injectable } from 'inversify';
+import { inject, injectable } from '@theia/core/shared/inversify';
 import { TraceServerConfigService } from '../common/trace-server-config';
 import { TraceServerUrlProvider, TRACE_SERVER_DEFAULT_URL } from '../common/trace-server-url-provider';
 import { TracePreferences, TRACE_PORT } from './trace-server-preference';
