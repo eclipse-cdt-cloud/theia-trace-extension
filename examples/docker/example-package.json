@@ -15,24 +15,24 @@
     }
   },
   "dependencies": {
-    "@theia/core": "1.37.2",
-    "@theia/editor": "1.37.2",
-    "@theia/filesystem": "1.37.2",
-    "@theia/getting-started": "1.37.2",
-    "@theia/keymaps": "1.37.2",
-    "@theia/markers": "1.37.2",
-    "@theia/messages": "1.37.2",
-    "@theia/monaco": "1.37.2",
-    "@theia/navigator": "1.37.2",
-    "@theia/preferences": "1.37.2",
-    "@theia/process": "1.37.2",
-    "@theia/terminal": "1.37.2",
-    "@theia/vsx-registry": "1.37.2",
-    "@theia/workspace": "1.37.2",
+    "@theia/core": "1.40.1",
+    "@theia/editor": "1.40.1",
+    "@theia/filesystem": "1.40.1",
+    "@theia/getting-started": "1.40.1",
+    "@theia/keymaps": "1.40.1",
+    "@theia/markers": "1.40.1",
+    "@theia/messages": "1.40.1",
+    "@theia/monaco": "1.40.1",
+    "@theia/navigator": "1.40.1",
+    "@theia/preferences": "1.40.1",
+    "@theia/process": "1.40.1",
+    "@theia/terminal": "1.40.1",
+    "@theia/vsx-registry": "1.40.1",
+    "@theia/workspace": "1.40.1",
     "theia-traceviewer": "next"
   },
   "devDependencies": {
-    "@theia/cli": "1.37.2"
+    "@theia/cli": "1.40.1"
   },
   "scripts": {
     "prepare": "theia build",

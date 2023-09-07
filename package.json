@@ -48,7 +48,7 @@
     "@types/react-dom": "^18.0.6"
   },
   "devDependencies": {
-    "@theia/cli": "1.37.2",
+    "@theia/cli": "1.40.1",
     "jsonc-parser": "^3.0.0",
     "lerna": "^4.0.0",
     "prettier": "2.8.8",
@@ -127,6 +127,8 @@
   "dependencies": {
     "@emotion/react": "^11.10.5",
     "@emotion/styled": "^11.10.5",
-    "@mui/material": "^5.10.14"
+    "@mui/material": "^5.10.14",
+    "@types/react": "^18.0.15",
+    "@types/react-dom": "^18.0.6"
   }
 }

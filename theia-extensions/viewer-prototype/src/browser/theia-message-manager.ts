@@ -1,5 +1,5 @@
 import * as Messages from 'traceviewer-base/lib/message-manager';
-import { inject, injectable } from 'inversify';
+import { inject, injectable } from '@theia/core/shared/inversify';
 import { StatusBar, StatusBarAlignment } from '@theia/core/lib/browser';
 
 /* eslint-disable @typescript-eslint/no-unused-vars */

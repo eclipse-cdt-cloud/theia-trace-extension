@@ -1,4 +1,4 @@
-import { inject, injectable, postConstruct } from 'inversify';
+import { inject, injectable, postConstruct } from '@theia/core/shared/inversify';
 import { Message, ReactWidget, Widget } from '@theia/core/lib/browser';
 import * as React from 'react';
 import { EditorOpenerOptions, EditorManager } from '@theia/editor/lib/browser';
@@ -13,7 +13,7 @@ export class TraceExplorerItemPropertiesWidget extends ReactWidget {
     @inject(EditorManager) protected readonly editorManager!: EditorManager;
 
     @postConstruct()
-    init(): void {
+    protected init(): void {
         this.id = TraceExplorerItemPropertiesWidget.ID;
         this.title.label = TraceExplorerItemPropertiesWidget.LABEL;
         this.update();

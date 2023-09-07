@@ -1,4 +1,4 @@
-import { ContainerModule, Container } from 'inversify';
+import { ContainerModule, Container } from '@theia/core/shared/inversify';
 import {
     WidgetFactory,
     OpenHandler,

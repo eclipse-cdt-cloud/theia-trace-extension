@@ -1,4 +1,4 @@
-import { injectable, inject } from 'inversify';
+import { injectable, inject } from '@theia/core/shared/inversify';
 import { TraceServerUrlProvider } from '../common/trace-server-url-provider';
 import { TspClient } from 'tsp-typescript-client/lib/protocol/tsp-client';
 import { ExperimentManager } from 'traceviewer-base/lib/experiment-manager';

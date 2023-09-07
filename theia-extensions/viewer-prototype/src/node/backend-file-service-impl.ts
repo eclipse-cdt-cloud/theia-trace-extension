@@ -1,4 +1,4 @@
-import { injectable } from 'inversify';
+import { injectable } from '@theia/core/shared/inversify';
 import fs = require('fs');
 import { Dirent } from 'fs';
 import { Path } from '@theia/core/lib/common/path';

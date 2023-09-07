@@ -1,4 +1,4 @@
-import { injectable, inject, postConstruct, interfaces, Container } from 'inversify';
+import { injectable, inject, postConstruct, interfaces, Container } from '@theia/core/shared/inversify';
 import { TraceExplorerViewsWidget } from './trace-explorer-sub-widgets/theia-trace-explorer-views-widget';
 import { ViewContainer, BaseWidget, Message, PanelLayout } from '@theia/core/lib/browser';
 import { TraceExplorerItemPropertiesWidget } from './trace-explorer-sub-widgets/theia-trace-explorer-properties-widget';
@@ -57,7 +57,7 @@ export class TraceExplorerWidget extends BaseWidget {
     }
 
     @postConstruct()
-    init(): void {
+    protected init(): void {
         this.id = TraceExplorerWidget.ID;
         this.title.label = TraceExplorerWidget.LABEL;
         this.title.caption = TraceExplorerWidget.LABEL;

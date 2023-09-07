@@ -1,7 +1,7 @@
 import { Disposable, DisposableCollection, MessageService, Path, URI } from '@theia/core';
 import { ApplicationShell, Message, StatusBar, WidgetManager, StatefulWidget } from '@theia/core/lib/browser';
 import { ReactWidget } from '@theia/core/lib/browser/widgets/react-widget';
-import { inject, injectable, postConstruct } from 'inversify';
+import { inject, injectable, postConstruct } from '@theia/core/shared/inversify';
 import { OutputDescriptor } from 'tsp-typescript-client/lib/models/output-descriptor';
 import { Trace } from 'tsp-typescript-client/lib/models/trace';
 import { TspClient } from 'tsp-typescript-client/lib/protocol/tsp-client';
@@ -107,7 +107,11 @@ export class TraceViewerWidget extends ReactWidget implements StatefulWidget {
     @inject(FileDialogService) protected readonly fileDialogService: FileDialogService;
 
     @postConstruct()
-    async init(): Promise<void> {
+    protected init(): void {
+        this.doInit();
+    }
+
+    protected async doInit(): Promise<void> {
         this.uri = new Path(this.options.traceURI);
         this.id = 'theia-traceOpen';
         this.title.label = 'Trace: ' + this.uri.base;

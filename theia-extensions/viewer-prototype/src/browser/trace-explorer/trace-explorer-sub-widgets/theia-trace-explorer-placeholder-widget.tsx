@@ -1,4 +1,4 @@
-import { inject, injectable, postConstruct } from 'inversify';
+import { inject, injectable, postConstruct } from '@theia/core/shared/inversify';
 import { ReactWidget } from '@theia/core/lib/browser';
 import * as React from 'react';
 import { CommandService } from '@theia/core';
@@ -14,14 +14,10 @@ export class TraceExplorerPlaceholderWidget extends ReactWidget {
         loading: false
     };
 
-    private constructor() {
-        super();
-    }
-
     @inject(CommandService) protected readonly commandService!: CommandService;
 
     @postConstruct()
-    init(): void {
+    protected init(): void {
         this.id = TraceExplorerPlaceholderWidget.ID;
         this.title.label = TraceExplorerPlaceholderWidget.LABEL;
         this.update();

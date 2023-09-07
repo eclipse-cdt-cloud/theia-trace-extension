@@ -1,4 +1,4 @@
-import { ContainerModule } from 'inversify';
+import { ContainerModule } from '@theia/core/shared/inversify';
 import { ConnectionHandler, JsonRpcConnectionHandler } from '@theia/core/lib/common';
 import { traceServerPath } from '../common/trace-server-config';
 import { TraceServerConfigService } from '../common/trace-server-config';

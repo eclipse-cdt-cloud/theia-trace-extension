@@ -1,4 +1,4 @@
-import { inject, injectable, postConstruct } from 'inversify';
+import { inject, injectable, postConstruct } from '@theia/core/shared/inversify';
 import { ReactWidget, Widget, WidgetManager } from '@theia/core/lib/browser';
 import * as React from 'react';
 import { Experiment } from 'tsp-typescript-client/lib/models/experiment';
@@ -30,7 +30,11 @@ export class TraceExplorerOpenedTracesWidget extends ReactWidget {
     private _experimentManager!: ExperimentManager;
 
     @postConstruct()
-    async init(): Promise<void> {
+    protected init(): void {
+        this.doInit();
+    }
+
+    protected async doInit(): Promise<void> {
         this.id = TraceExplorerOpenedTracesWidget.ID;
         this.title.label = TraceExplorerOpenedTracesWidget.LABEL;
         this._experimentManager = this.tspClientProvider.getExperimentManager();
