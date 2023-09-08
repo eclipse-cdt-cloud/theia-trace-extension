@@ -2,7 +2,7 @@ import { AbstractOutputProps } from './abstract-output-component';
 import { ResponseStatus } from 'tsp-typescript-client/lib/models/response/responses';
 import * as React from 'react';
 import { drawSelection } from './utils/xy-output-component-utils';
-import { TimeRange } from 'traceviewer-base/src/utils/time-range';
+import { TimeRange } from 'traceviewer-base/lib/utils/time-range';
 import { AbstractXYOutputState, MouseButton } from './abstract-xy-output-component';
 import {
     AbstractXYOutputComponent,

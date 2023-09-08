@@ -13,7 +13,7 @@ import { EntryTree } from './utils/filter-tree/entry-tree';
 import { XyEntry, XYSeries } from 'tsp-typescript-client/lib/models/xy';
 import * as React from 'react';
 import { flushSync } from 'react-dom';
-import { TimeRange } from 'traceviewer-base/src/utils/time-range';
+import { TimeRange } from 'traceviewer-base/lib/utils/time-range';
 import { BIMath } from 'timeline-chart/lib/bigint-utils';
 import {
     XYChartFactoryParams,

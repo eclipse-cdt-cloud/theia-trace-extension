@@ -14,7 +14,7 @@ import {
     FLAG_ZOOM_OUT,
     MouseButton
 } from './abstract-xy-output-component';
-import { TimeRange } from 'traceviewer-base/src/utils/time-range';
+import { TimeRange } from 'traceviewer-base/lib/utils/time-range';
 import { validateNumArray } from './utils/filter-tree/utils';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSpinner } from '@fortawesome/free-solid-svg-icons';
