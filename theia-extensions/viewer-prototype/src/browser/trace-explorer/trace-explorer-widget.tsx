@@ -8,7 +8,10 @@ import { TraceExplorerServerStatusWidget } from './trace-explorer-sub-widgets/tr
 import { TraceExplorerTimeRangeDataWidget } from './trace-explorer-sub-widgets/theia-trace-explorer-time-range-data-widget';
 import { signalManager, Signals } from 'traceviewer-base/lib/signals/signal-manager';
 import { OpenedTracesUpdatedSignalPayload } from 'traceviewer-base/lib/signals/opened-traces-updated-signal-payload';
-import { TraceServerConnectionStatusClient } from '../../common/trace-server-connection-status';
+import {
+    TraceServerConnectionStatusBackend,
+    TraceServerConnectionStatusClient
+} from '../../common/trace-server-connection-status';
 
 @injectable()
 export class TraceExplorerWidget extends BaseWidget {
@@ -26,6 +29,9 @@ export class TraceExplorerWidget extends BaseWidget {
     @inject(ViewContainer.Factory) protected readonly viewContainerFactory!: ViewContainer.Factory;
     @inject(TraceServerConnectionStatusClient)
     protected readonly connectionStatusClient: TraceServerConnectionStatusClient;
+    // This is needed to initialize the backend service
+    @inject(TraceServerConnectionStatusBackend)
+    protected traceServerConnectionStatusProxy: TraceServerConnectionStatusBackend;
 
     openExperiment(traceUUID: string): void {
         return this.openedTracesWidget.openExperiment(traceUUID);
@@ -108,8 +114,10 @@ export class TraceExplorerWidget extends BaseWidget {
         this.node.focus();
     }
 
-    protected onAfterShow(): void {
+    protected async onAfterShow(): Promise<void> {
         this.connectionStatusClient.addConnectionStatusListener();
+        const status = await this.traceServerConnectionStatusProxy.getStatus();
+        this.connectionStatusClient.updateStatus(status);
     }
 
     protected onAfterHide(): void {

@@ -47,7 +47,6 @@ export default new ContainerModule(bind => {
     bind(TabBarToolbarContribution).toService(TraceViewerToolbarContribution);
     bind(CommandContribution).toService(TraceViewerToolbarContribution);
     bind(TraceServerConnectionStatusClient).to(TraceServerConnectionStatusClientImpl).inSingletonScope();
-    bind(FrontendApplicationContribution).toService(TraceServerConnectionStatusClient);
 
     bind(TraceViewerWidget).toSelf();
     bind<WidgetFactory>(WidgetFactory)
@@ -110,7 +109,8 @@ export default new ContainerModule(bind => {
     bind(TraceServerConnectionStatusBackend)
         .toDynamicValue(ctx => {
             const connection = ctx.container.get(WebSocketConnectionProvider);
-            return connection.createProxy<TraceServerConnectionStatusBackend>(TRACE_SERVER_CONNECTION_STATUS);
+            const client = ctx.container.get<TraceServerConnectionStatusClient>(TraceServerConnectionStatusClient);
+            return connection.createProxy<TraceServerConnectionStatusBackend>(TRACE_SERVER_CONNECTION_STATUS, client);
         })
         .inSingletonScope();
 

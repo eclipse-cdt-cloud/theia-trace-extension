@@ -8,15 +8,21 @@ import {
 @injectable()
 export class TraceServerConnectionStatusBackendImpl implements TraceServerConnectionStatusBackend {
     protected clients: TraceServerConnectionStatusClient[] = [];
+    protected lastStatus = false;
 
     constructor() {
         const listener = (status: boolean) => {
             this.clients.forEach(client => client.updateStatus(status));
+            this.lastStatus = status;
         };
         RestClient.addConnectionStatusListener(listener);
     }
 
-    setClient(client: TraceServerConnectionStatusClient): void {
+    getStatus(): Promise<boolean> {
+        return Promise.resolve(this.lastStatus);
+    }
+
+    addClient(client: TraceServerConnectionStatusClient): void {
         this.clients.push(client);
     }
 

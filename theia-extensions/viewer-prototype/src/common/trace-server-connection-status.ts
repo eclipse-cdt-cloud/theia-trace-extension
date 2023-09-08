@@ -4,15 +4,20 @@ export const TRACE_SERVER_CONNECTION_STATUS = '/services/theia-trace-extension/t
 
 export interface TraceServerConnectionStatusBackend {
     /**
-     * Set a new TraceServerConnectionStatusClient to be notified on status changes.
+     * Add a new TraceServerConnectionStatusClient to be notified on status changes.
      * @param client the client to be notified.
      */
-    setClient(client: TraceServerConnectionStatusClient): void;
+    addClient(client: TraceServerConnectionStatusClient): void;
     /**
      * Remove a new TraceServerConnectionStatusClient so it won't no longer be notified on status changes.
      * @param client the client to be removed.
      */
     removeClient(client: TraceServerConnectionStatusClient): void;
+
+    /**
+     * Get the current status of the trace server
+     */
+    getStatus(): Promise<boolean>;
 }
 
 export const TraceServerConnectionStatusClient = Symbol('TraceServerConnectionStatusClient');

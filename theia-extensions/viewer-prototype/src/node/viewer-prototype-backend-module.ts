@@ -11,7 +11,8 @@ import { LazyTspClientFactory } from 'traceviewer-base/lib/lazy-tsp-client';
 import { TraceServerConnectionStatusBackendImpl } from './trace-server-connection-status-backend-impl';
 import {
     TRACE_SERVER_CONNECTION_STATUS,
-    TraceServerConnectionStatusBackend
+    TraceServerConnectionStatusBackend,
+    TraceServerConnectionStatusClient
 } from '../common/trace-server-connection-status';
 
 export default new ContainerModule(bind => {
@@ -60,8 +61,18 @@ export default new ContainerModule(bind => {
     bind(ConnectionHandler)
         .toDynamicValue(
             ctx =>
-                new JsonRpcConnectionHandler(TRACE_SERVER_CONNECTION_STATUS, () =>
-                    ctx.container.get<TraceServerConnectionStatusBackend>(TraceServerConnectionStatusBackend)
+                new JsonRpcConnectionHandler<TraceServerConnectionStatusClient>(
+                    TRACE_SERVER_CONNECTION_STATUS,
+                    client => {
+                        const backend = ctx.container.get<TraceServerConnectionStatusBackend>(
+                            TraceServerConnectionStatusBackend
+                        );
+                        backend.addClient(client);
+                        client.onDidCloseConnection(() => {
+                            backend.removeClient(client);
+                        });
+                        return backend;
+                    }
                 )
         )
         .inSingletonScope();
