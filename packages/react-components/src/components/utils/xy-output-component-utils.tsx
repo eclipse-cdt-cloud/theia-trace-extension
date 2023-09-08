@@ -1,4 +1,4 @@
-import { TimeRange } from 'traceviewer-base/src/utils/time-range';
+import { TimeRange } from 'traceviewer-base/lib/utils/time-range';
 import { AbstractOutputProps } from '../abstract-output-component';
 
 export interface XYChartFactoryParams {
