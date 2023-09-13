@@ -15,19 +15,30 @@ export type LazyTspClient = {
 };
 
 export type LazyTspClientFactory = typeof LazyTspClientFactory;
-export function LazyTspClientFactory(url: Promise<string>): ITspClient {
+export function LazyTspClientFactory(provider: () => Promise<string>): ITspClient {
     // All methods from the `HttpTspClient` are asynchronous. The `LazyTspClient`
     // will just delay each call to its methods by first awaiting for the
     // asynchronous `baseUrl` resolution to then get a valid `HttpTspClient`.
-    const tspClientPromise = url.then(baseUrl => new HttpTspClient(baseUrl));
+
+    // Save the current HttpTspClient and the URL used for it.
+    let tspClient: HttpTspClient;
+    let lastUrl: string;
     // eslint-disable-next-line no-null/no-null
     return new Proxy(Object.create(null), {
         get(target, property, _receiver) {
             let method = target[property];
             if (!method) {
                 target[property] = method = async (...args: any[]) => {
-                    const tspClient = (await tspClientPromise) as any;
-                    return tspClient[property](...args);
+                    tspClient = await provider().then(baseUrl => {
+                        // If the url has not been updated keep the same client.
+                        if (lastUrl === baseUrl) {
+                            return tspClient;
+                        }
+                        // If the url has changed save it and create a new client.
+                        lastUrl = baseUrl;
+                        return new HttpTspClient(baseUrl);
+                    });
+                    return (tspClient as any)[property](...args);
                 };
             }
             return method;

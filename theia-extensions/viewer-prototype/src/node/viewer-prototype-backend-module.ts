@@ -45,8 +45,7 @@ export default new ContainerModule(bind => {
                 new JsonRpcConnectionHandler(TRACE_SERVER_CLIENT, () => {
                     const provider = ctx.container.get<TraceServerUrlProvider>(TraceServerUrlProvider);
                     const lazyTspClientFactory = ctx.container.get<LazyTspClientFactory>(LazyTspClientFactory);
-                    const traceServerUrlPromise = provider.getTraceServerUrlPromise();
-                    return lazyTspClientFactory(traceServerUrlPromise);
+                    return lazyTspClientFactory(() => provider.getTraceServerUrlPromise());
                 })
         )
         .inSingletonScope();

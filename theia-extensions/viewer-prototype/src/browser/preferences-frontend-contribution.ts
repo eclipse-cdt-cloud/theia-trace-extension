@@ -14,9 +14,11 @@ export class PreferencesFrontendContribution implements FrontendApplicationContr
         this.tracePreferences.ready.then(() => {
             this.portPreferenceProxy.onPortPreferenceChanged(this.tracePreferences[TRACE_PORT]);
             this.tracePreferences.onPreferenceChanged(async event => {
-                const newValue = typeof event.newValue === 'string' ? parseInt(event.newValue) : event.newValue;
-                const oldValue = typeof event.oldValue === 'string' ? parseInt(event.oldValue) : event.oldValue;
-                this.portPreferenceProxy.onPortPreferenceChanged(newValue, oldValue, true);
+                if (event.preferenceName === TRACE_PORT) {
+                    const newValue = typeof event.newValue === 'string' ? parseInt(event.newValue) : event.newValue;
+                    const oldValue = typeof event.oldValue === 'string' ? parseInt(event.oldValue) : event.oldValue;
+                    this.portPreferenceProxy.onPortPreferenceChanged(newValue, oldValue, true);
+                }
             });
         });
     }
