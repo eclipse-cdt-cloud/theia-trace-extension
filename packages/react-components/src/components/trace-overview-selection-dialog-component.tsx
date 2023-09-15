@@ -1,11 +1,11 @@
 import React from 'react';
-import { OutputDescriptor, TspClient } from 'tsp-typescript-client';
+import { OutputDescriptor, ITspClient } from 'tsp-typescript-client';
 import { AbstractDialogComponent, DialogComponentProps } from './abstract-dialog-component';
 import { signalManager } from 'traceviewer-base/lib/signals/signal-manager';
 import { AvailableViewsComponent } from './utils/available-views-component';
 
 export interface TraceOverviewSelectionComponentProps extends DialogComponentProps {
-    tspClient: TspClient;
+    tspClient: ITspClient;
     traceID: string;
 }
 

@@ -22,3 +22,16 @@ export interface TraceServerUrlProvider {
      */
     onDidChangeTraceServerUrl(listener: (url: string) => void): void;
 }
+
+export const TRACE_SERVER_PORT = '/services/theia-trace-extension/trace-server-port';
+
+export const PortPreferenceProxy = Symbol('PortPreferenceProxy');
+export interface PortPreferenceProxy {
+    /**
+     * Notify the backend about a change of the port preference.
+     * @param newPort the new value of the port preference.
+     * @param oldValue the old value of the port preference.
+     * @param preferenceChanged boolean that indicated whether the preference was changed or initialized.
+     */
+    onPortPreferenceChanged(newPort: number | undefined, oldValue?: number, preferenceChanged?: boolean): Promise<void>;
+}

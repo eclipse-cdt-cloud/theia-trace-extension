@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { TspClient } from 'tsp-typescript-client/lib/protocol/tsp-client';
+import { ITspClient } from 'tsp-typescript-client/lib/protocol/tsp-client';
 import {
     TimeGraphArrow,
     TimeGraphEntry,
@@ -21,7 +21,7 @@ enum ElementType {
 }
 
 export class TspDataProvider {
-    private client: TspClient;
+    private client: ITspClient;
     private outputId: string;
     private traceUUID: string;
     private timeGraphEntries: TimeGraphEntry[];
@@ -29,7 +29,7 @@ export class TspDataProvider {
 
     public totalRange: bigint;
 
-    constructor(client: TspClient, traceUUID: string, outputId: string) {
+    constructor(client: ITspClient, traceUUID: string, outputId: string) {
         this.timeGraphEntries = [];
         this.timeGraphRows = [];
         this.client = client;

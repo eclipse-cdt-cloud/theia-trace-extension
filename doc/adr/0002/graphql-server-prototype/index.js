@@ -2,7 +2,7 @@
 // [1] https://www.apollographql.com/docs/apollo-server/getting-started/#step-3-define-your-graphql-schema
 
 const { ApolloServer, gql } = require('apollo-server');
-const { TspClient } = require('tsp-typescript-client/lib/protocol/tsp-client');
+const { HttpTspClient } = require('tsp-typescript-client/lib/protocol/http-tsp-client');
 
 // A schema is a collection of type definitions (hence "typeDefs").
 const typeDefs = gql`
@@ -21,7 +21,7 @@ const baseUrl = "http://localhost:8080/tsp/api";
 const resolvers = {
   Query: {
     async status() {
-      const tspClient = new TspClient(baseUrl);
+      const tspClient = new HttpTspClient(baseUrl);
       try {
         const response = await tspClient.checkHealth();
         if (response.isOk()) {
@@ -37,7 +37,7 @@ const resolvers = {
     },
     async traces() {
       // Same simple approach as above. Returns how many traces only.
-      const tspClient = new TspClient(baseUrl);
+      const tspClient = new HttpTspClient(baseUrl);
       try {
         const response = await tspClient.fetchTraces();
         if (response.isOk()) {

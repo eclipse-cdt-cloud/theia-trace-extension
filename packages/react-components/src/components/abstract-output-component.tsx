@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { OutputDescriptor } from 'tsp-typescript-client/lib/models/output-descriptor';
-import { TspClient } from 'tsp-typescript-client/lib/protocol/tsp-client';
+import { ITspClient } from 'tsp-typescript-client/lib/protocol/tsp-client';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faBars, faSpinner, faThumbtack, faTimes } from '@fortawesome/free-solid-svg-icons';
 import { TimeGraphUnitController } from 'timeline-chart/lib/time-graph-unit-controller';
@@ -11,16 +11,10 @@ import { TooltipComponent } from './tooltip-component';
 import { TooltipXYComponent } from './tooltip-xy-component';
 import { ResponseStatus } from 'tsp-typescript-client/lib/models/response/responses';
 import { signalManager } from 'traceviewer-base/lib/signals/signal-manager';
-import {
-    DropDownComponent,
-    DropDownSubSection,
-    OptionCheckBoxState,
-    OptionState,
-    OptionType
-} from './drop-down-component';
+import { DropDownComponent, DropDownSubSection, OptionState } from './drop-down-component';
 
 export interface AbstractOutputProps {
-    tspClient: TspClient;
+    tspClient: ITspClient;
     tooltipComponent: TooltipComponent | null;
     tooltipXYComponent: TooltipXYComponent | null;
     traceId: string;

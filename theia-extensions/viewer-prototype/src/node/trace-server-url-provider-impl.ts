@@ -1,13 +1,17 @@
-import { Emitter, Event, MessageService } from '@theia/core';
-import { FrontendApplicationContribution } from '@theia/core/lib/browser';
-import { EnvVariablesServer } from '@theia/core/lib/common/env-variables/env-variables-protocol';
-import { inject, injectable } from '@theia/core/shared/inversify';
+import { inject, injectable } from 'inversify';
 import { TraceServerConfigService } from '../common/trace-server-config';
-import { TraceServerUrlProvider, TRACE_SERVER_DEFAULT_URL } from '../common/trace-server-url-provider';
-import { TracePreferences, TRACE_PORT } from './trace-server-preference';
+import {
+    TraceServerUrlProvider,
+    TRACE_SERVER_DEFAULT_URL,
+    PortPreferenceProxy
+} from '../common/trace-server-url-provider';
+import { Event, Emitter } from '@theia/core';
+import { BackendApplicationContribution } from '@theia/core/lib/node';
 
 @injectable()
-export class TraceServerUrlProviderImpl implements TraceServerUrlProvider, FrontendApplicationContribution {
+export class TraceServerUrlProviderImpl
+    implements TraceServerUrlProvider, BackendApplicationContribution, PortPreferenceProxy
+{
     /**
      * The Trace Server URL resolved from a URL template and a port number.
      * Updated each time the port is changed from the preferences.
@@ -45,12 +49,7 @@ export class TraceServerUrlProviderImpl implements TraceServerUrlProvider, Front
         return this._onDidChangeTraceServerUrlEmitter.event;
     }
 
-    constructor(
-        @inject(EnvVariablesServer) protected environment: EnvVariablesServer,
-        @inject(TracePreferences) protected tracePreferences: TracePreferences,
-        @inject(TraceServerConfigService) protected traceServerConfigService: TraceServerConfigService,
-        @inject(MessageService) protected messageService: MessageService
-    ) {
+    constructor(@inject(TraceServerConfigService) protected traceServerConfigService: TraceServerConfigService) {
         this._traceServerUrlPromise = new Promise(resolve => {
             const self = this.onDidChangeTraceServerUrl(url => {
                 self.dispose();
@@ -58,28 +57,28 @@ export class TraceServerUrlProviderImpl implements TraceServerUrlProvider, Front
             });
         });
         // Get the URL template from the remote environment.
-        this.environment.getValue('TRACE_SERVER_URL').then(variable => {
-            const url = variable?.value;
-            this._traceServerUrlTemplate = url ? this.normalizeUrl(url) : TRACE_SERVER_DEFAULT_URL;
-            this.updateTraceServerUrl();
-        });
-        // Get the configurable port from Theia's preferences.
-        this.tracePreferences.ready.then(() => {
-            this._traceServerPort = this.tracePreferences[TRACE_PORT];
-            this.updateTraceServerUrl();
-            this.tracePreferences.onPreferenceChanged(async event => {
-                if (event.preferenceName === TRACE_PORT) {
-                    this._traceServerPort = event.newValue;
-                    this.updateTraceServerUrl();
-                    try {
-                        await this.traceServerConfigService.stopTraceServer();
-                        this.messageService.info(`Trace server disconnected on port: ${event.oldValue}.`);
-                    } catch (_) {
-                        // Do not show the error incase the user tries to modify the port before starting a server
-                    }
+        const variable = process.env['TRACE_SERVER_URL'];
+        this._traceServerUrlTemplate = variable ? this.normalizeUrl(variable) : TRACE_SERVER_DEFAULT_URL;
+        this.updateTraceServerUrl();
+    }
+
+    async onPortPreferenceChanged(
+        newPort: number | undefined,
+        oldValue?: number,
+        preferenceChanged = false
+    ): Promise<void> {
+        this._traceServerPort = newPort;
+        this.updateTraceServerUrl();
+        if (preferenceChanged) {
+            try {
+                await this.traceServerConfigService.stopTraceServer();
+                if (oldValue) {
+                    console.info(`Trace server disconnected on port: ${oldValue}.`);
                 }
-            });
-        });
+            } catch (_) {
+                // Do not show the error incase the user tries to modify the port before starting a server
+            }
+        }
     }
 
     async initialize(): Promise<void> {

@@ -1,9 +1,9 @@
-import { TspClient } from 'tsp-typescript-client/lib/protocol/tsp-client';
+import { ITspClient } from 'tsp-typescript-client/lib/protocol/tsp-client';
 import { ExperimentManager } from './experiment-manager';
 import { TraceManager } from './trace-manager';
 
 export interface ITspClientProvider {
-    getTspClient(): TspClient;
+    getTspClient(): ITspClient;
     getTraceManager(): TraceManager;
     getExperimentManager(): ExperimentManager;
     /**
@@ -11,5 +11,5 @@ export interface ITspClientProvider {
      * @param listener The listener function to be called when the url is
      * changed
      */
-    addTspClientChangeListener(listener: (tspClient: TspClient) => void): void;
+    addTspClientChangeListener(listener: (tspClient: ITspClient) => void): void;
 }

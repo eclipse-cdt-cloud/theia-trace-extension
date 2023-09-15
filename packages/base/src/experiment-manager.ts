@@ -1,5 +1,5 @@
 import { Trace } from 'tsp-typescript-client/lib/models/trace';
-import { TspClient } from 'tsp-typescript-client/lib/protocol/tsp-client';
+import { ITspClient } from 'tsp-typescript-client/lib/protocol/tsp-client';
 import { Query } from 'tsp-typescript-client/lib/models/query/query';
 import { OutputDescriptor } from 'tsp-typescript-client/lib/models/output-descriptor';
 import { Experiment } from 'tsp-typescript-client/lib/models/experiment';
@@ -9,10 +9,10 @@ import { signalManager, Signals } from './signals/signal-manager';
 
 export class ExperimentManager {
     private fOpenExperiments: Map<string, Experiment> = new Map();
-    private fTspClient: TspClient;
+    private fTspClient: ITspClient;
     private fTraceManager: TraceManager;
 
-    constructor(tspClient: TspClient, traceManager: TraceManager) {
+    constructor(tspClient: ITspClient, traceManager: TraceManager) {
         this.fTspClient = tspClient;
         this.fTraceManager = traceManager;
         signalManager().on(Signals.EXPERIMENT_DELETED, (experiment: Experiment) =>
@@ -79,7 +79,10 @@ export class ExperimentManager {
             traceURIs.push(traces[i].UUID);
         }
 
-        const tryCreate = async function (tspClient: TspClient, retry: number): Promise<TspClientResponse<Experiment>> {
+        const tryCreate = async function (
+            tspClient: ITspClient,
+            retry: number
+        ): Promise<TspClientResponse<Experiment>> {
             return tspClient.createExperiment(
                 new Query({
                     name: retry === 0 ? name : name + '(' + retry + ')',

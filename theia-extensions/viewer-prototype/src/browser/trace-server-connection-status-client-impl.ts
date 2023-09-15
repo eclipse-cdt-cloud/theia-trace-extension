@@ -1,23 +1,23 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
-import { injectable } from '@theia/core/shared/inversify';
-import { RestClient, ConnectionStatusListener } from 'tsp-typescript-client/lib/protocol/rest-client';
+import { injectable } from 'inversify';
+import { TraceServerConnectionStatusClient } from '../common/trace-server-connection-status';
 
 @injectable()
-export class TraceServerConnectionStatusService {
-    private connectionStatusListener: ConnectionStatusListener;
+export class TraceServerConnectionStatusClientImpl implements TraceServerConnectionStatusClient {
+    protected active = false;
 
-    constructor() {
-        this.connectionStatusListener = (status: boolean) => {
-            TraceServerConnectionStatusService.renderStatus(status);
-        };
+    updateStatus(status: boolean): void {
+        if (this.active) {
+            TraceServerConnectionStatusClientImpl.renderStatus(status);
+        }
     }
 
-    public addConnectionStatusListener(): void {
-        RestClient.addConnectionStatusListener(this.connectionStatusListener);
+    addConnectionStatusListener(): void {
+        this.active = true;
     }
 
-    public removeConnectionStatusListener(): void {
-        RestClient.removeConnectionStatusListener(this.connectionStatusListener);
+    removeConnectionStatusListener(): void {
+        this.active = false;
     }
 
     static renderStatus(status: boolean): void {
