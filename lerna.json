@@ -1,12 +1,17 @@
 {
-  "lerna": "4.0.0",
+  "lerna": "7.3.0",
   "version": "0.1.0",
-  "useWorkspaces": true,
   "npmClient": "yarn",
   "command": {
     "run": {
       "stream": true
-    }
-  },
-  "verifyAccess": false
+    },
+    "publish": {
+      "forcePublish": true,
+      "graphType": "all",
+      "skipGit": true,
+      "registry": "https://registry.npmjs.org/"
+    },
+    "verifyAccess": false
+  }
 }

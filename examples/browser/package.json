@@ -35,7 +35,9 @@
     "@theia/cli": "1.40.1"
   },
   "scripts": {
-    "prepare": "theia build --mode development",
+    "prepare": "yarn build",
+    "build": "theia build --mode development",
+    "rebuild": "theia rebuild:browser --cacheRoot ../..",
     "start": "TRACE_SERVER_PATH=../../trace-compass-server/tracecompass-server theia start --plugins=local-dir:../plugins",
     "watch": "theia build --watch --mode development"
   },

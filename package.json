@@ -1,30 +1,30 @@
 {
   "private": true,
   "scripts": {
-    "prepare": "yarn -s clean && yarn -s tsref && yarn -s tsbuild && yarn -s download:plugins && yarn -s prepare:examples",
+    "prepare": "yarn build",
+    "build": "yarn -s clean && yarn -s tsref && yarn -s tsbuild && yarn -s build:examples && yarn -s download:plugins",
     "tsref": "node scripts/typescript-references.js",
     "tsbuild": "tsc -b",
     "tswatch": "tsc -b -w",
     "clean": "lerna run clean",
-    "prepare:packages": "lerna run --ignore=\"*-example-app\" prepare",
-    "prepare:examples": "lerna run --scope=\"*-example-app\" --parallel prepare",
-    "rebuild:browser": "yarn --cwd examples/browser theia rebuild:browser --cacheRoot ../..",
-    "rebuild:electron": "yarn --cwd examples/electron theia rebuild:electron --cacheRoot ../..",
-    "start:browser": "yarn rebuild:browser && yarn --cwd examples/browser start",
-    "start:electron": "yarn rebuild:electron && yarn --cwd examples/electron start",
+    "build:examples": "yarn browser build && yarn electron build",    
+    "start:browser": "yarn browser rebuild && yarn browser start",
+    "start:electron": "yarn electron rebuild && yarn electron start",
     "download:plugins": "theia download:plugins -p=true --parallel=false",
     "download:sample-traces": "curl -o TraceCompassTutorialTraces.tgz https://raw.githubusercontent.com/tuxology/tracevizlab/master/labs/TraceCompassTutorialTraces.tgz; tar -xf TraceCompassTutorialTraces.tgz",
     "download:server": "curl -o trace-compass-server.tar.gz https://download.eclipse.org/tracecompass.incubator/trace-server/rcp/trace-compass-server-latest-linux.gtk.x86_64.tar.gz; tar -xf trace-compass-server.tar.gz",
     "start:server": "./trace-compass-server/tracecompass-server",
-    "start-all:browser": "yarn start:server & yarn start:browser",
-    "start-all:electron": "yarn start:server & yarn start:electron",
+    "start-all:browser": "concurrently --kill-others -n trace-server,browser-app \"yarn start:server\" \"yarn start:browser\"",
+    "start-all:electron": "concurrently --kill-others -n trace-server,electron-app \"yarn start:server\" \"yarn start:electron\"",
     "lint": "lerna run lint",
     "lint:fix": "lerna run lint:fix",
     "test": "lerna run test --",
     "publish:latest": "lerna publish --registry=https://registry.npmjs.org/ --exact --no-git-tag-version --no-push",
     "publish:next": "lerna publish --registry=https://registry.npmjs.org/ --exact --canary minor --preid=next.$(date -u '+%Y%m%d%H%M%S').$(git rev-parse --short HEAD) --dist-tag=next --no-git-tag-version --no-push --yes",
     "format:write": "lerna run format:write",
-    "format:check": "lerna run format:check"
+    "format:check": "lerna run format:check",
+    "browser": "yarn -s --cwd examples/browser",
+    "electron": "yarn -s --cwd examples/electron"
   },
   "keywords": [
     "theia-extension",
@@ -49,13 +49,15 @@
   },
   "devDependencies": {
     "@theia/cli": "1.40.1",
+    "concurrently": "^8.2.1",
     "jsonc-parser": "^3.0.0",
-    "lerna": "^4.0.0",
+    "lerna": "^7.0.0",
     "prettier": "2.8.8",
     "typescript": "4.5.5"
   },
   "workspaces": [
-    "examples/*",
+    "examples/browser",
+    "examples/electron",
     "packages/*",
     "theia-extensions/*"
   ],
