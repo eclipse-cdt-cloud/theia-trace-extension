@@ -1,4 +1,4 @@
-electronVersion: 23.3.13
+electronVersion: 23.6.0
 electronDist: ../../node_modules/electron/dist
 productName: Theia Trace Example Application
 appId: theia-trace-example
@@ -16,7 +16,7 @@ files:
   - package.json
   - "!**node_modules/electron/**"
 extraResources:
-  - from: plugins
+  - from: ../plugins
     to: app/plugins
   - from: ../../trace-compass-server
     to: trace-compass-server
