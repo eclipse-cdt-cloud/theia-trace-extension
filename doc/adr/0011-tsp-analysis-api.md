@@ -8,124 +8,124 @@ Proposed
 
 ## Context
 
-The trace viewer currently is able to visualize trace data provided by a trace server over the trace server protocol (TSP). The Trace Compass server has some built-in analysis view for that. However, it is not possible to side-load analysis and visualization descriptions over the TSP so that end-user can provide some custom views. The Trace Compass supports loading of data-driven analysis and views, e.g. XML driven views or in-and-out anlysis of the Trace Compass incubator project. In the Eclispe-based Trace Compass application, there exists UI primitive to load e.g. XML files or configure custom analysis. While the Trace Compass server has the capablility to understand these defintions, there is no way to side-load this definition over the TSP. This ADR will propose an analysis service within the TSP to facilitate these custom analysis.
+The trace viewer currently is able to visualize trace data provided by a trace server over the trace server protocol (TSP). The Trace Compass server has some built-in analysis view for that. However, it is not possible to side-load analysis and visualization descriptions over the TSP so that end-user can provide some custom views. The Trace Compass supports loading of data-driven analysis and views, e.g. XML driven views or in-and-out anlysis of the Trace Compass incubator project. In the Eclispe-based Trace Compass application, there exists UI primitive to load e.g. XML files or configure custom analysis. While the Trace Compass server has the capablility to understand these defintions, there is no way to side-load this definition over the TSP. This ADR will propose a configuration service within the TSP to facilitate these custom analysis. The proposed configuration service can be use to configure other server specific customization, e.g. custom trace parsers.
 
-### Global analysis service
+### Global configuration service
 
-An analysis service for managing global analyses will be introduced. Global in this context means that the analysis definitions will be handled on the application level. 
+An analysis service for managing global configurations will be introduced. Global in this context means that the configuration definitions will be handled on the application level. 
 
-    GET /analysis/
-        returns a list of analysis type descriptors: typeId, name, description, expected input parameter list ("path" for file path)
-    GET /analysis/types
-        returns a map typeId -> list of analysis descriptor of existing analyses on server: analysisId, name, description, parameters
-    GET /analysis/types/{typeId}
-        returns a list of analysis descriptors for given typeId
-    POST /analysis/types/{typeId}
-        Upload an analysis definition for given typeId
-        Returns a new analysis descriptor with unique analysisID
-    PUT /analysis/types/{typeId}/{analysisId}
-        Update an analysis
-    GET /analysis/types/{typeId}/{analysisId}
-        Returns the analysis descriptor for given analysisId
-    DELETE /analysis/types/{typeId}/{analysisId}
-        Delete an analysis
+    GET /config/types
+            returns a list of configuration source types: typeId, name, description, scope, expected query parameter keys ("path" for file path)
+    GET /config/types/{typeId}
+            returns a single configuration source type for given typeId: typeId, name, description, scope, expected query parameter keys ("path" for file path)        
+    GET /config/types/{typeId}/configs
+        returns a list of configuration instances for a given typeId
+    POST /config/types/{typeId}/configs
+        Upload an configuration definition for given typeId
+        Returns a new configuration descriptor with unique configuration ID
+    PUT /config/types/{typeId}/configs/{configId}
+        Update a configuration
+    GET /config/types/{typeId}/configs/{configId}
+        Returns the configuration descriptor for given configId and typeId
+    DELETE /config/types/{typeId}/configs/{configId}
+        Delete a configuration instance
 
-#### Analysis type descriptor
+#### Configuration source type descriptor
 
-The analysis type descriptor describes the type of external analysis. Different types have different syntax and hence back-end implementation. This descriptor is used to distinquish the different external analysis. The trace server implementation will provide the list of type descriptors on client requests.
+The configuration source type descriptor describes the type of external configuration. Different types have different syntax and hence back-end implementation. This descriptor is used to distinquish the different external configurations. The trace server implementation will provide the list of type descriptors on client requests.
 ```javascript
-AnalysisTypeDescriptor {
+ConfigurationSourceType {
     name: string,
     description: string,
     id: string,
     scope: string,
-    inputParameter: string[]
+    queryParameterKeys: string[]
 }
 ```
 
 Where:
 
-- `name`: Name of the analysis type. Can be shown to the end-user.
-- `description`: The description of the analysis type. Can be shown to the end-user.
-- `id`: Unique id of the analysis type. Used in the application to distinquish analysis types
-- `scope:` `experiment` for analysis per experiment or `global` for all experiments
-- `inputParameter`: A list of input parameter that the front-end needs to provide. Use "path" for file path. Only path supported as the first iteration.
+- `name`: Name of the configuration source type. Can be shown to the end-user.
+- `description`: The description of the configuration source type. Can be shown to the end-user.
+- `id`: Unique id of the configuration source type. Used in the application to distinquish configuration source types
+- `scope:` `experiment` for configuration source types per experiment or `global` for all experiments
+- `queryParameterKeys`: A list of keys that the front-end needs to provide with correspondig values. Use "path" for file path. Only path supported as the first iteration.
 
-#### Analysis descriptor
+#### Configuration descriptor
 
-The analysis descriptor describes an instance of an external analysis for a given type. This descriptor is used to distinquish the different external analysis for a given type.
+The configuration descriptor describes an instance of an external configuration for a given source type. This descriptor is used to distinquish the different external configurations for a given type.
 
 ```javascript
-AnalysisDescriptor {
+Configuration {
     name: string,
     description: string,
     id: string,
-    typeId: string
+    sourceTypeId: string
     parameters: map<string, object>
 }
 ```
 
 Where:
-- `name`: Name of the analysis type. Can be shown to the end-user.
-- `description`: The description of the analysis type. Can be shown to the end-user.
-- `id`: Unique id of the analysis type. Used in the application to distinquish analysis types
-- `typeId`: ID of the analysis type.
-- `parameter`: A map of parameter corresponding to the `inputParameter` specified in the analysis type descriptor
+- `name`: Name of the configuration. Can be shown to the end-user.
+- `description`: The description of the configuration. Can be shown to the end-user.
+- `id`: Unique id of the configuration. Used in the application to distinquish the configurations
+- `sourceTypeId`: ID of the configuration source type.
+- `parameters`: An optional map of parameters to show to the users of the configuration
 
-#### Sequence: Create analysis instance
+#### Sequence: Create configuration instance
 
-The following illustrates the sequence of events and messages to create an instance of an external analysis for a given type (e.g. XML analysis).
+The following illustrates the sequence of events and messages to create an instance of an external configuration for a given type (e.g. XML analysis).
 
 ```mermaid
 sequenceDiagram
     participant user as User
     participant client as TSP Client
     participant server as Trace Server
-    user->>client: Select global analysis manager
-    client->>client: Open analysis manager UI
-    client->>server: GET /analysis/
-    server->>client: 200: List of AnalysisTypeDescriptor
+    user->>client: Select global configuration manager
+    client->>client: Open config manager UI
+    client->>server: GET /config/types
+    server->>client: 200: List of ConfigurationSourceType
     client->>client: Populate drop-down menu
     user->>client: Select "XML analysis" type
-    client->>server: GET /analysis/types/{typeId}
-    server->>client: 200: List of exiting AnalysisDescriptor
+    client->>server: GET /config/types/{typeId}/configs
+    server->>client: 200: List of exiting Configurations
     client->>client: Populate UI
     user->>client: Select browse button
     client->>client: Open file chooser dialog
     user->>client: Select new XML analysis file
-    client->>server: POST /analysis/types/{typeId}
-    server->>client: 200: New AnalysisDescriptor
-    client->>client: Update list of existing AnalysisDescriptors
+    client->>server: POST /config/types/{typeId}/configs
+    server->>client: 200: New Configuration instance
+    client->>client: Update list of existing Configuration instances
     user->>client: Open trace
     client->>server: GET /experiments/{expUUID}/outputs
     server->>client: 200: list of available outputs including XML outputs
     client->>client: Refresh UI
 ```
 
-#### Sequence: Update analysis instance
+#### Sequence: Update configuration instance
 
-The following illustrates the sequence of events and messages to update an existing instance of an external analysis for a given type (e.g. XML analysis).
+The following illustrates the sequence of events and messages to update an existing instance of an external configuration for a given type (e.g. XML analysis).
 
 ```mermaid
 sequenceDiagram
     participant user as User
     participant client as TSP Client
     participant server as Trace Server
-    user->>client: Select global analysis manager
-    client->>client: Open analysis manager UI
-    client->>server: GET /analysis/
-    server->>client: 200: List of AnalysisTypeDescriptor
+    user->>client: Select global configuration manager
+    client->>client: Open configuration manager UI
+    client->>server: GET /config/types
+    server->>client: 200: List of ConfigurationSourceType
     client->>client: Populate drop-down menu
     user->>client: Select "XML analysis" type
-    client->>server: GET /analysis/types/{typeId}
-    server->>client: 200: List of exiting AnalysisDescriptor
+    client->>server: GET /config/types/{typeId}/configs
+    server->>client: 200: List of exiting Configuration instances
     client->>client: Populate UI
     user->>client: Select browse button
     client->>client: Open file chooser dialog
     user->>client: Select updated XML analysis file
-    client->>server: PUT /analysis/types/{typeId}/{analysisId}
-    server->>client: 200: Updated AnalysisDescriptor
-    client->>client: Update list of existing AnalysisDescriptors
+    client->>server: PUT /config/types/{typeId}/configs/{configId}
+    server->>client: 200: Updated Configuration descriptor
+    client->>client: Update list of existing Configuration descriptors
     user->>client: Open trace
     client->>server: GET /experiments/{expUUID}/outputs
     server->>client: 200: list of available outputs including XML outputs
@@ -143,89 +143,89 @@ sequenceDiagram
     participant client as TSP Client
     participant server as Trace Server
     user->>client: Select global analysis manager
-    client->>client: Open analysis manager UI
-    client->>server: GET /analysis/
-    server->>client: 200: List of AnalysisTypeDescriptor
+    client->>client: Open configuration manager UI
+    client->>server: GET /config/types
+    server->>client: 200: List of ConfigurationSourceType
     client->>client: Populate drop-down menu
     user->>client: Select "XML analysis" type
-    client->>server: GET /analysis/types/{typeId}
-    server->>client: 200: List of exiting AnalysisDescriptor
+    client->>server: GET /config/types/{typeId}/configs
+    server->>client: 200: List of exiting Configuration
     client->>client: Populate UI
-    user->>client: Select existing analysis (XML analysis)
+    user->>client: Select existing Configuration (XML analysis)
     user->>client: CLick on Delete button
-    client->>server: DELETE /analysis/types/{typeId}/{analysisId}
+    client->>server: DELETE /config/types/{typeId}/configs/{configId}
     server->>client: 200
     client->>client: Refresh UI
 ```
 
-### Analysis service per experiment
+### Configuration service per experiment
 
-For this data provider service will be augmented for managing analyses per experiment.
+For this data provider service will be augmented for managing configurations per experiment.
 
-    GET experiments/{expUUID}/outputs/analysis
-        returns a map typeId -> list of analysis descriptor of existing analyses on server
-    POST experiments/{expUUID}/outputs/analysis
-        Assign analysis to an experiment using typeId and analysisId from above.
-        Returns analysis descriptor and list of data provider descriptors (if available)
-    DELETE experiments/{expUUID}/outputs/analysis/{analysisId}
-        Removes an analysis from an experiment
+    GET experiments/{expUUID}/outputs/config
+        returns a map typeId -> list of configuration descriptors of existing configurations on server
+    POST experiments/{expUUID}/outputs/config
+        Assign configuration to an experiment using typeId and configId from above.
+        Returns configuration descriptor and list of data provider descriptors (if available)
+    DELETE experiments/{expUUID}/outputs/config/{configId}
+        Removes a configuration from an experiment
 
-#### Sequence: Create analysis instance for an experiment
+#### Sequence: Create configuration instance for an experiment
 
-The following illustrates the sequence of events and messages to create an analysis instance for a given type and experiment. It uses the Trace Compass In-And-Out as example. Note, that the configuration is provided using a file.
+The following illustrates the sequence of events and messages to create an configuration instance for a given type and experiment. It uses the Trace Compass In-And-Out as example. Note, that the configuration is provided using a file.
 
-Pre-requisite: Analysis instance created as described in [Sequence: Create analysis instance](#sequence-create-analysis-instance).
+Pre-requisite: Configuration instance created as described in [Sequence: Create configuration instance](#sequence-create-configuration-instance).
 
 ```mermaid
 sequenceDiagram
     participant user as User
     participant client as TSP Client
     participant server as Trace Server
-    user->>client: Select global analysis manager
-    client->>client: Open analysis manager UI
-    client->>server: GET /analysis/
-    server->>client: 200: List of AnalysisTypeDescriptor
+    user->>client: Select global confiugration manager
+    client->>client: Open configuration manager UI
+    client->>server: GET /config/
+    server->>client: 200: List of ConfigurationSourceType
     client->>client: Populate drop-down menu
     user->>client: Select "In-And-Out" type
-    client->>server: GET /analysis/types/{typeId}
-    server->>client: 200: List of exiting AnalysisDescriptor
+    client->>server: GET /config/types/{typeId}
+    server->>client: 200: List of exiting Configuration descriptors
     client->>client: Populate UI
     user->>client: Select browse button
     client->>client: Open file chooser dialog
     user->>client: Select new "In-And-Out" analysis file
-    client->>server: POST /analysis/types/{typeId}
-    server->>client: 200: New AnalysisDescriptor
-    client->>client: Update list of existing AnalysisDescriptors
+    client->>server: POST /config/types/{typeId}
+    server->>client: 200: New Configuration
+    client->>client: Update list of existing Configuration
     user->>client: Select experiment
-    user->>client: Open Analysis Selector UI for experiments
-    client->>client: Select AnalysisDescriptor (typeId, analysisId)
-    Note over client,server: AnalysisDescriptor can be assigned for different experiments
+    user->>client: Open Configuration Selector UI for experiments
+    client->>client: Select Configuration (typeId, configId)
+    Note over client,server: Configuration can be assigned for different experiments
     user->>client: Open trace
     client->>server: GET /experiments/{expUUID}/outputs
-    server->>client: 200: list of available outputs including XML outputs
+    server->>client: 200: list of available outputs including In-And-Out outputs
     client->>client: Refresh UI
 ```
 
-#### Sequence: Delete analysis instance for an experiment
+#### Sequence: Delete configuration instance for an experiment
 
-The following illustrates the sequence of events and messages to delete an analysis instance for a given type and experiment.
+The following illustrates the sequence of events and messages to delete an configuration instance for a given type and experiment.
 
-Pre-requisite: Analysis instance created as described in [Sequence: Create analysis instance for an experiment](#sequence-create-analysis-instance-for-an-experiment).
+Pre-requisite: Analysis instance created as described in [Sequence: Create configuration instance for an experiment](#sequence-create-configuration-instance-for-an-experiment).
 
 ```mermaid
 sequenceDiagram
     participant user as User
     participant client as TSP Client
     participant server as Trace Server
-    user->>client: Open Analysis Selector UI for experiments
-    client->>server: GET /experiments/{expUUID}/outputs/analysis/
-    server->>client: 200: Map <typeId -> List of AnalysisDescriptor>
+    user->>client: Open Configuration Selector UI for experiments
+    client->>server: GET /experiments/{expUUID}/outputs/config/
+    server->>client: 200: Map <typeId -> List of Configuration>
     client->>client: Populate drop-down menu
     user->>client: Select "In-And-Out" type
     client->>client: Populate UI with "In-And-Out" type only
-    user->>client: Select analysis instance
+    user->>client: Select configuration instance
     user->>client: CLick on Delete button
-    client->>server: DELETE /analysis/types/{typeId}/{analysisId}
+    client->>server: DELETE /config/types/{typeId}/configs/{configId}
     server->>client: 200
     client->>client: Refresh UI
 ```
@@ -235,23 +235,23 @@ The proposal requires the input of the configuration be a file that needs to be 
 
 ### Implementation steps
 
- Use configuration using file by default for external analysis. This will allow to have a generic UI implementation in `theia-trace-extension` for that. 
+ Use configuration using file by default for external configuration. This will allow to have a generic UI implementation in `theia-trace-extension` for that. 
  The following list provides a break down in different implementation steps. This doesn't inlcude effort for the Python client.
 
-- Analysis Service
-    - TSP updates for analysis service
-    - Back-end: Analysis Service (TSP) skeleton
-    - Back-end: Trace Compass Server back-end API for analysis types
+- Configuration Service
+    - TSP updates for configuration service
+    - Back-end: Configuration Service (TSP) skeleton
+    - Back-end: Trace Compass Server back-end API for configuration source types
     - Back-end: Trace Compass Server back-end API for XML analysis
-    - Back-end: Use Trace Compass Server back-end API in Analysis Service
+    - Back-end: Use Trace Compass Server back-end API in Configuration Service
     - Front-end: tsp-typescript-client updates
     - Front-end: Implement simple manager UI for files per typeID (re-usable react component)
-- Data provider analysis service (InAndOut)
-    - TSP updates for data provider analysis service
-    - Back-end: Data provider analysis service (TSP) skeleton
-    - Back-end: Implement support for InAndOut analysis
+- Data provider configuration service (InAndOut)
+    - TSP updates for data provider configuration service
+    - Back-end: Data provider configuration service (TSP) skeleton
+    - Back-end: Implement support for InAndOut configuration
     - Front-end: tsp-typescript-client updates
-    - Front-end: Add UI to apply analysis to experiment (in react-component)
+    - Front-end: Add UI to apply configuration to experiment (in react-component)
 
 ## Decision
 
@@ -261,7 +261,7 @@ The change that we're proposing or have agreed to implement, will be implemented
 
 ### Easier to do
 
-This will introduce new TSP endpoints and it's a a completely new feature for trace viewers supporting supporting these endpoints in the front-end and server back-end. Once implemented, it will greatly enhance the feature capabilities of the whole application. It will help end-users to define their custom analysis and visualization defintions, and allow them to get such features faster than having to write code in the server application, compile and re-deploy the server afterwards. This will reduce troubleshooting times for the end-users.
+This will introduce new TSP endpoints and it's a completely new feature for trace viewers supporting supporting these endpoints in the front-end and server back-end. Once implemented, it will greatly enhance the feature capabilities of the whole application. It will help end-users to define their custom analysis and visualization definitions as well as other server side configurations, and allow them to get such features faster than having to write code in the server application, compile and re-deploy the server afterwards. This will reduce troubleshooting times for the end-users.
 
 ### More difficult
 
