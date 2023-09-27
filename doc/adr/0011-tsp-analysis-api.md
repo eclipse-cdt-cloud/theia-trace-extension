@@ -15,9 +15,9 @@ The trace viewer currently is able to visualize trace data provided by a trace s
 An analysis service for managing global configurations will be introduced. Global in this context means that the configuration definitions will be handled on the application level. 
 
     GET /config/types
-            returns a list of configuration source types: typeId, name, description, scope, expected query parameter keys ("path" for file path)
+            returns a list of configuration source types: typeId, name, description, scope, expected parameter descriptors (e.g. "path" for file path)
     GET /config/types/{typeId}
-            returns a single configuration source type for given typeId: typeId, name, description, scope, expected query parameter keys ("path" for file path)        
+            returns a single configuration source type for given typeId: typeId, name, description, scope, expected parameter descriptors (e.g. "path" for file path)
     GET /config/types/{typeId}/configs
         returns a list of configuration instances for a given typeId
     POST /config/types/{typeId}/configs
@@ -39,7 +39,7 @@ ConfigurationSourceType {
     description: string,
     id: string,
     scope: string,
-    queryParameterKeys: string[]
+    parameterDescriptors: ConfigurationParameterDescriptor[]
 }
 ```
 
@@ -49,7 +49,27 @@ Where:
 - `description`: The description of the configuration source type. Can be shown to the end-user.
 - `id`: Unique id of the configuration source type. Used in the application to distinquish configuration source types
 - `scope:` `experiment` for configuration source types per experiment or `global` for all experiments
-- `queryParameterKeys`: A list of keys that the front-end needs to provide with correspondig values. Use "path" for file path. Only path supported as the first iteration.
+- `parameterDescriptors`: A list of descriptors that describe the parameters that the front-end needs to provide with corresponding values. For example, use "path" for file path.
+
+#### Configuration parameter descriptor
+
+The configuration parameter descriptor describes a parameter that the front-end needs to provide with corresponding values. This descriptor will help implementing a UI for the parameters.
+
+```javascript
+ConfigurationParameterDescriptor {
+    keyName: string,
+    description: string,
+    dataType: string,
+    isRequired: bool
+}
+```
+
+Where:
+
+- `keyName`: Name of the key to use in the parameter map.
+- `description`: The description of the configuration parameter. Can be shown to the end-user.
+- `dataType`: A data type hint to the client. Helps implementing validation of values in the front-end.
+- `isRequired`: A flag indicating whether parameter is required or not.
 
 #### Configuration descriptor
 
