@@ -653,9 +653,9 @@ export abstract class AbstractXYOutputComponent<
     protected tooltip(x: number, y: number): void {
         const xPos = this.positionXMove;
         const timeForX = this.getTimeForX(xPos);
-        let timeLabel: string | undefined = timeForX.toString();
+        let timeLabel: string | undefined = timeForX.toString() + ' ns';
         if (this.props.unitController.numberTranslator) {
-            timeLabel = this.props.unitController.numberTranslator(timeForX);
+            timeLabel = this.props.unitController.numberTranslator(timeForX) + ' s';
         }
         const chartWidth = this.isBarPlot ? this.getChartWidth() : this.chartRef.current.chartInstance.width;
         const chartHeight = this.isBarPlot
@@ -708,7 +708,7 @@ export abstract class AbstractXYOutputComponent<
 
             if (this.isScatterPlot && this.props.unitController.numberTranslator) {
                 const time = this.props.unitController.numberTranslator(BigInt(xValue));
-                formatted = '(' + time + ') ' + formatted;
+                formatted = '(' + time + ' s) ' + formatted;
                 timeLabel = 'Series (time stamp) value';
             }
 
