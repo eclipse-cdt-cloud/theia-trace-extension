@@ -563,12 +563,12 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
             let start: string | undefined;
             let end: string | undefined;
             if (this.props.unitController.numberTranslator) {
-                start = this.props.unitController.numberTranslator(elementRange.start);
-                end = this.props.unitController.numberTranslator(elementRange.end);
+                start = this.props.unitController.numberTranslator(elementRange.start) + ' s';
+                end = this.props.unitController.numberTranslator(elementRange.end) + ' s';
             }
-            start = start ? start : (elementRange.start + (offset ? offset : BigInt(0))).toString();
-            end = end ? end : (elementRange.end + (offset ? offset : BigInt(0))).toString();
-            const duration = (elementRange.end - elementRange.start).toString();
+            start = start ? start : (elementRange.start + (offset ? offset : BigInt(0))).toString() + ' ns';
+            end = end ? end : (elementRange.end + (offset ? offset : BigInt(0))).toString() + ' ns';
+            const duration = (elementRange.end - elementRange.start).toString() + ' ns';
             const tooltip = await this.tspDataProvider.fetchStateTooltip(element, this.props.viewRange);
             return this.filterTooltip({
                 Label: label,
@@ -586,11 +586,11 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
             let start: string | undefined;
             let end: string | undefined;
             if (this.props.unitController.numberTranslator) {
-                start = this.props.unitController.numberTranslator(elementRange.start);
-                end = this.props.unitController.numberTranslator(elementRange.end);
+                start = this.props.unitController.numberTranslator(elementRange.start) + ' s';
+                end = this.props.unitController.numberTranslator(elementRange.end) + ' s';
             }
-            start = start ? start : (elementRange.start + (offset ? offset : BigInt(0))).toString();
-            end = end ? end : (elementRange.end + (offset ? offset : BigInt(0))).toString();
+            start = start ? start : (elementRange.start + (offset ? offset : BigInt(0))).toString() + ' ns';
+            end = end ? end : (elementRange.end + (offset ? offset : BigInt(0))).toString() + ' ns';
             const tooltip = await this.tspDataProvider.fetchAnnotationTooltip(element, this.props.viewRange);
             if (start === end) {
                 return this.filterTooltip({
