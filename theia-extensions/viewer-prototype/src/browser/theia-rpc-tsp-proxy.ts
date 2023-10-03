@@ -15,6 +15,8 @@ import { EntryModel } from 'tsp-typescript-client/lib/models/entry';
 import { OutputStyleModel } from 'tsp-typescript-client/lib/models/styles';
 import { MarkerSet } from 'tsp-typescript-client/lib/models/markerset';
 import { DataTreeEntry } from 'tsp-typescript-client/lib/models/data-tree';
+import { ConfigurationSourceType } from 'tsp-typescript-client/lib/models/configuration-source';
+import { Configuration } from 'tsp-typescript-client/lib/models/configuration';
 
 export const TspClientProxy = Symbol('TspClientProxy') as symbol & interfaces.Abstract<TspClientProxy>;
 export type TspClientProxy = ITspClient;
@@ -367,5 +369,82 @@ export class TheiaRpcTspProxy implements ITspClient {
      */
     public async checkHealth(): Promise<TspClientResponse<HealthStatus>> {
         return this.toTspClientResponse<HealthStatus>(await this.tspClient.checkHealth());
+    }
+
+    /**
+     * Fetch all configuration source types
+     * @returns Generic response with the model
+     */
+    public async fetchConfigurationSourceTypes(): Promise<TspClientResponse<ConfigurationSourceType[]>> {
+        return this.toTspClientResponse<ConfigurationSourceType[]>(
+            await this.tspClient.fetchConfigurationSourceTypes()
+        );
+    }
+
+    /**
+     * Fetch configuration source type for a given type ID
+     * @param typeId the ID of the configuration source type
+     * @returns Generic response with the model
+     */
+    public async fetchConfigurationSourceType(typeId: string): Promise<TspClientResponse<ConfigurationSourceType>> {
+        return this.toTspClientResponse<ConfigurationSourceType>(
+            await this.tspClient.fetchConfigurationSourceType(typeId)
+        );
+    }
+
+    /**
+     * Fetch all configurations for a given type ID
+     * @param typeId the ID of the configuration source type
+     * @returns Generic response with the model
+     */
+    public async fetchConfigurations(typeId: string): Promise<TspClientResponse<Configuration[]>> {
+        return this.toTspClientResponse<Configuration[]>(await this.tspClient.fetchConfigurations(typeId));
+    }
+
+    /**
+     * Fetch a configuration by ID for a given type ID
+     * @param typeId the ID of the configuration source type
+     * @param configId the ID of the configuration
+     * @returns Generic response with the model
+     */
+    public async fetchConfiguration(typeId: string, configId: string): Promise<TspClientResponse<Configuration>> {
+        return this.toTspClientResponse<Configuration>(await this.tspClient.fetchConfiguration(typeId, configId));
+    }
+
+    /**
+     * Create a configuration for a given type ID and parameters
+     * @param typeId the ID of the configuration source type
+     * @param parameters Query object
+     * @returns Generic response with the model
+     */
+    public async createConfiguration(typeId: string, parameters: Query): Promise<TspClientResponse<Configuration>> {
+        return this.toTspClientResponse<Configuration>(await this.tspClient.createConfiguration(typeId, parameters));
+    }
+
+    /**
+     * Update a configuration for a given type ID, config ID and parameters
+     * @param typeId the ID of the configuration source type
+     * @param configId the ID of the configuration
+     * @param parameters Query object
+     * @returns Generic response with the model
+     */
+    public async updateConfiguration(
+        typeId: string,
+        configId: string,
+        parameters: Query
+    ): Promise<TspClientResponse<Configuration>> {
+        return this.toTspClientResponse<Configuration>(
+            await this.tspClient.updateConfiguration(typeId, configId, parameters)
+        );
+    }
+
+    /**
+     * Delete a configuration for a given type ID and config ID
+     * @param typeId the ID of the configuration source type
+     * @param configId the ID of the configuration
+     * @returns Generic response with the model
+     */
+    public async deleteConfiguration(typeId: string, configId: string): Promise<TspClientResponse<Configuration>> {
+        return this.toTspClientResponse<Configuration>(await this.tspClient.deleteConfiguration(typeId, configId));
     }
 }
