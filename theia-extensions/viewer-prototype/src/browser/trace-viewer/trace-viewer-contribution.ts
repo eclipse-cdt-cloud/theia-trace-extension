@@ -17,7 +17,8 @@ import {
     TraceViewerCommand,
     KeyboardShortcutsCommand,
     OpenTraceWithRootPathCommand,
-    OpenTraceWithPathCommand
+    OpenTraceWithPathCommand,
+    OpenTraceConfigurations
 } from './trace-viewer-commands';
 import { PortBusy, TraceServerConfigService } from '../../common/trace-server-config';
 import { TracePreferences, TRACE_PATH, TRACE_ARGS } from '../trace-server-preference';
@@ -136,6 +137,10 @@ export class TraceViewerContribution
         if (fileURI) {
             await this.open(fileURI);
         }
+    }
+
+    async openTraceConfigurations(): Promise<void> {
+        signalManager().fireShowTraceConfigurations();
     }
 
     async open(traceURI: URI, options?: TraceViewerWidgetOpenerOptions): Promise<TraceViewerWidget> {
@@ -271,6 +276,9 @@ export class TraceViewerContribution
             execute: async () => {
                 await new ChartShortcutsDialog({ title: 'Trace Viewer Keyboard and Mouse Shortcuts' }).open();
             }
+        });
+        registry.registerCommand(OpenTraceConfigurations, {
+            execute: () => this.openTraceConfigurations()
         });
     }
 

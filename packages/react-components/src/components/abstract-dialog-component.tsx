@@ -22,6 +22,7 @@ export abstract class AbstractDialogComponent<P extends DialogComponentProps, S>
                 className="dialog"
                 ariaHideApp={false}
                 onRequestClose={this.props.onCloseDialog}
+                onAfterOpen={() => this.onAfterOpen()}
                 shouldFocusAfterRender={false}
             >
                 <div
@@ -42,4 +43,8 @@ export abstract class AbstractDialogComponent<P extends DialogComponentProps, S>
 
     protected abstract renderDialogBody(): React.ReactElement;
     protected abstract renderFooter(): React.ReactElement;
+
+    protected onAfterOpen(): void {
+        return;
+    }
 }
