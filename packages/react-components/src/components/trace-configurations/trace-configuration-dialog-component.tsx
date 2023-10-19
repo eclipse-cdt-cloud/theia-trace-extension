@@ -1,9 +1,10 @@
 import React from 'react';
-import { ConfigurationSourceType } from 'tsp-typescript-client/lib/models/configuration-source';
-import { ITspClient } from 'tsp-typescript-client';
 import { TraceConfigurationListComponent } from './trace-configuration-list-component';
-import { TraceConfigurationManager } from './trace-configuration-manager';
 import { AbstractDialogComponent, DialogComponentProps } from '../abstract-dialog-component';
+import { TraceConfigurationsAddDialogComponent } from './trace-configuration-add-component';
+import { TraceConfigurationManager } from 'traceviewer-base/lib/trace-configuration-manager';
+import { ITspClient } from 'tsp-typescript-client/lib/protocol/tsp-client';
+import { ConfigurationSourceType } from 'tsp-typescript-client/lib/models/configuration-source';
 
 export interface TraceConfigurationVisibility {
     list: boolean;
@@ -25,10 +26,19 @@ export class TraceConfigurationsDialogComponent extends AbstractDialogComponent<
     protected renderDialogBody(): React.ReactElement {
         return (
             <React.Fragment>
-                <TraceConfigurationListComponent
-                    traceConfigurationManager={this.traceConfigurationManager}
-                    configurationSourceTypes={this.state.configurationSourceTypes}
-                ></TraceConfigurationListComponent>
+                <div>
+                    <TraceConfigurationListComponent
+                        traceConfigurationManager={this.traceConfigurationManager}
+                        configurationSourceTypes={this.state.configurationSourceTypes}
+                    ></TraceConfigurationListComponent>
+                </div>
+                <div>
+                    <TraceConfigurationsAddDialogComponent
+                        key={this.state.configurationSourceTypes.length}
+                        traceConfigurationManager={this.traceConfigurationManager}
+                        configurationSourceTypes={this.state.configurationSourceTypes}
+                    ></TraceConfigurationsAddDialogComponent>
+                </div>
             </React.Fragment>
         );
     }
