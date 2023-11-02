@@ -67,11 +67,12 @@ export class TraceExplorerOpenedTracesWidget extends ReactWidget {
 
     public closeExperiment(traceUUID: string): void {
         signalManager().fireCloseTraceViewerTabSignal(traceUUID);
+        this._experimentManager.closeExperiment(traceUUID);
     }
 
     public deleteExperiment(traceUUID: string): void {
-        this._experimentManager.deleteExperiment(traceUUID);
         this.closeExperiment(traceUUID);
+        this._experimentManager.deleteExperiment(traceUUID);
     }
 
     render(): React.ReactNode {

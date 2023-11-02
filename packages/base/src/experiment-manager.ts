@@ -122,6 +122,17 @@ export class ExperimentManager {
     }
 
     /**
+     * Close the given experiment from the server
+     * @param experimentUUID experiment UUID
+     */
+    async closeExperiment(experimentUUID: string): Promise<void> {
+        const experimentToDelete = this.fOpenExperiments.get(experimentUUID);
+        if (experimentToDelete) {
+            await this.fTspClient.closeExperiment(experimentUUID);
+        }
+    }
+
+    /**
      * Delete the given experiment from the server
      * @param experimentUUID experiment UUID
      */
