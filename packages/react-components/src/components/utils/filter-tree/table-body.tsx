@@ -5,12 +5,14 @@ import { TableRow } from './table-row';
 interface TableBodyProps {
     nodes: TreeNode[];
     selectedNode?: number;
+    multiSelectedNodes?: number[];
     collapsedNodes: number[];
     isCheckable: boolean;
     isClosable: boolean;
     getCheckedStatus: (id: number) => number;
     onToggleCollapse: (id: number) => void;
     onRowClick: (id: number) => void;
+    onMultipleRowClick?: (id: number, isShiftClicked?: boolean) => void;
     onClose: (id: number) => void;
     onToggleCheck: (id: number) => void;
     onContextMenu: (event: React.MouseEvent<HTMLDivElement>, id: number) => void;

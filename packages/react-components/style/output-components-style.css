@@ -239,6 +239,10 @@ canvas {
     background-color: var(--trace-viewer-selection-background) !important;
 }
 
+.table-tree tr.multiselected td {
+    background-color: var(--trace-viewer-list-hoverBackground) !important;
+}
+
 .resize-handle {
     float: right;
     position: absolute;

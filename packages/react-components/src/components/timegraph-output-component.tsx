@@ -35,6 +35,16 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import TextField from '@mui/material/TextField';
 import InputAdornment from '@mui/material/InputAdornment';
 import { debounce } from 'lodash';
+import '../../style/react-contextify.css';
+import { Item, ItemParams, Menu, Separator, Submenu, useContextMenu } from 'react-contexify';
+import {
+    ContextMenuContributedSignalPayload,
+    ContextMenuItems,
+    MenuItem,
+    SubMenu
+} from 'traceviewer-base/lib/signals/context-menu-contributed-signal-payload';
+import { ContextMenuItemClickedSignalPayload } from 'traceviewer-base/lib/signals/context-menu-item-clicked-signal-payload';
+import { RowSelectionsChangedSignalPayload } from 'traceviewer-base/lib/signals/row-selections-changed-signal-payload';
 
 type TimegraphOutputProps = AbstractOutputProps & {
     addWidgetResizeHandler: (handler: () => void) => void;
@@ -48,16 +58,18 @@ type TimegraphOutputState = AbstractTreeOutputState & {
         | { rows: TimelineChart.TimeGraphRowModel[]; range: TimelineChart.TimeGraphRange; resolution: number }
         | undefined;
     selectedRow?: number;
+    multiSelectedRows?: number[];
     selectedMarkerRow?: number;
     collapsedNodes: number[];
     collapsedMarkerNodes: number[];
     columns: ColumnHeader[];
     dataRows: TimelineChart.TimeGraphRowModel[];
     searchString: string;
+    menuItems?: ContextMenuItems;
 };
 
 const COARSE_RESOLUTION_FACTOR = 8; // resolution factor to use for first (coarse) update
-
+const MENU_ID = 'timegraph.menuId-';
 export class TimegraphOutputComponent extends AbstractTreeOutputComponent<TimegraphOutputProps, TimegraphOutputState> {
     private totalHeight = 0;
     private rowController: TimeGraphRowController;
@@ -83,6 +95,8 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
     private selectedMarkerCategories: string[] | undefined = undefined;
     private onSelectionChanged = (payload: { [key: string]: string }) => this.doHandleSelectionChangedSignal(payload);
     private onOutputDataChanged = (outputs: OutputDescriptor[]) => this.doHandleOutputDataChangedSignal(outputs);
+    private onContextMenuContributed = (payload: ContextMenuContributedSignalPayload) =>
+        this.doHandleContextMenuContributed(payload);
     private pendingSelection: TimeGraphEntry | undefined;
 
     private _debouncedUpdateSearch = debounce(() => this.updateSearchFilter(), 500);
@@ -101,6 +115,7 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
                 ? (this.props.persistChartState.collapsedNodes as number[])
                 : [],
             selectedRow: undefined,
+            multiSelectedRows: [],
             selectedMarkerRow: undefined,
             columns: [],
             collapsedMarkerNodes: validateNumArray(this.props.persistChartState?.collapsedMarkerNodes)
@@ -132,6 +147,8 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
         this.containerRef = React.createRef();
         this.handleSearchChange = this.handleSearchChange.bind(this);
         this.clearSearchBox = this.clearSearchBox.bind(this);
+        this.onMultipleRowClick = this.onMultipleRowClick.bind(this);
+        this.onCtxMenu = this.onCtxMenu.bind(this);
 
         const providers: TimeGraphChartProviders = {
             rowProvider: () => this.getTimegraphRowIds(),
@@ -252,12 +269,14 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
     }
 
     protected subscribeToEvents(): void {
+        signalManager().on(Signals.CONTRIBUTE_CONTEXT_MENU, this.onContextMenuContributed);
         signalManager().on(Signals.OUTPUT_DATA_CHANGED, this.onOutputDataChanged);
         signalManager().on(Signals.THEME_CHANGED, this.onThemeChange);
         signalManager().on(Signals.SELECTION_CHANGED, this.onSelectionChanged);
     }
 
     protected unsubscribeToEvents(): void {
+        signalManager().off(Signals.CONTRIBUTE_CONTEXT_MENU, this.onContextMenuContributed);
         signalManager().off(Signals.OUTPUT_DATA_CHANGED, this.onOutputDataChanged);
         signalManager().off(Signals.THEME_CHANGED, this.onThemeChange);
         signalManager().off(Signals.SELECTION_CHANGED, this.onSelectionChanged);
@@ -329,6 +348,14 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
         }
         if (!isEqual(this.state.searchString, prevState.searchString)) {
             this._debouncedUpdateSearch();
+        }
+        if (!isEqual(this.state.multiSelectedRows, prevState.multiSelectedRows)) {
+            const signalPayload: RowSelectionsChangedSignalPayload = new RowSelectionsChangedSignalPayload(
+                this.props.traceId,
+                this.props.outputDescriptor.id,
+                this.getEntryModelsForRowIds(this.state.multiSelectedRows)
+            );
+            signalManager().fireRowSelectionsChanged(signalPayload);
         }
     }
 
@@ -490,6 +517,7 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
                     }}
                     tabIndex={0}
                 >
+                    {this.renderContextMenu()}
                     <EntryTree
                         collapsedNodes={this.state.collapsedNodes}
                         showFilter={false}
@@ -497,8 +525,11 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
                         showCheckboxes={false}
                         onToggleCollapse={this.onToggleCollapse}
                         onRowClick={this.onRowClick}
+                        onMultipleRowClick={this.onMultipleRowClick}
                         selectedRow={this.state.selectedRow}
+                        multiSelectedRows={this.state.multiSelectedRows}
                         showHeader={false}
+                        onContextMenu={this.onCtxMenu}
                         className="table-tree timegraph-tree"
                     />
                 </div>
@@ -518,6 +549,135 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
                     />
                 </div>
             </>
+        );
+    }
+
+    onCtxMenu(event: React.MouseEvent<HTMLDivElement>, id: number): void {
+        event.preventDefault();
+        event.stopPropagation();
+
+        if (
+            !this.state.menuItems ||
+            (this.state.menuItems.items.length <= 0 && this.state.menuItems.submenus.length <= 0)
+        ) {
+            return;
+        }
+
+        // If the id that the context menu was triggered from is not in multi-selected-rows, we treat this as a row click
+        if (!this.state.multiSelectedRows?.includes(id)) {
+            this.onRowClick(id);
+        }
+
+        const refNode = this.treeRef.current;
+        let calculatedX = 0;
+        let calculatedY = 0;
+        if (refNode) {
+            calculatedX = event.clientX - refNode.getBoundingClientRect().left;
+            calculatedY = event.clientY - refNode.getBoundingClientRect().top;
+        }
+
+        const { show } = useContextMenu({
+            id: MENU_ID + this.props.outputDescriptor.id
+        });
+
+        show(event, {
+            props: {},
+            position: { x: calculatedX, y: calculatedY }
+        });
+    }
+
+    protected handleItemClick = (params: ItemParams): void => {
+        const props = {
+            selectedRows: this.getEntryModelsForRowIds(this.state.multiSelectedRows)
+        };
+        const signalPayload: ContextMenuItemClickedSignalPayload = new ContextMenuItemClickedSignalPayload(
+            this.props.outputDescriptor.id,
+            params.data.itemId,
+            props,
+            params.data.parentMenuId
+        );
+        signalManager().fireContextMenuItemClicked(signalPayload);
+    };
+
+    protected getEntryModelsForRowIds = (
+        ids: number[] | undefined
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    ): { id: number; parentId?: number; metadata?: { [key: string]: any } }[] => {
+        if (!ids) {
+            return [];
+        }
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const entryModels: { id: number; parentId?: number; metadata?: { [key: string]: any } }[] = [];
+        for (const id of ids) {
+            const element = this.state.timegraphTree.find(el => el.id === id);
+            if (element) {
+                entryModels.push({ id: element.id, parentId: element.parentId, metadata: element.metadata });
+            }
+        }
+        return entryModels;
+    };
+
+    renderContextMenu(): React.ReactNode {
+        if (
+            !this.state.menuItems ||
+            (this.state.menuItems.items.length <= 0 && this.state.menuItems.submenus.length <= 0)
+        ) {
+            return <></>;
+        }
+        return (
+            <React.Fragment>
+                <Menu
+                    id={MENU_ID + this.props.outputDescriptor.id}
+                    theme={this.props.backgroundTheme}
+                    animation={'fade'}
+                >
+                    {this.renderSubMenu(this.state.menuItems.submenus)}
+                    {this.state.menuItems.submenus.length > 0 && <Separator></Separator>}
+                    {this.renderItems(this.state.menuItems.items)}
+                </Menu>
+            </React.Fragment>
+        );
+    }
+
+    renderSubMenu(submenus: SubMenu[]): React.ReactNode {
+        return (
+            <React.Fragment>
+                {submenus && submenus.length > 0 ? (
+                    submenus.map(menu => (
+                        <Submenu label={menu.label} id={menu.id} key={menu.id}>
+                            {menu.submenu && this.renderSubMenu([menu.submenu])}
+                            {this.renderItems(menu.items)}
+                        </Submenu>
+                    ))
+                ) : (
+                    <></>
+                )}
+            </React.Fragment>
+        );
+    }
+
+    renderItems(items: MenuItem[]): React.ReactNode {
+        return (
+            <React.Fragment>
+                {items && items.length > 0 ? (
+                    items.map(item => (
+                        <Item
+                            key={item.id}
+                            id={item.id}
+                            onClick={this.handleItemClick}
+                            data={{
+                                itemId: item.id,
+                                itemLabel: item.label,
+                                parentMenuId: item.parentMenuId
+                            }}
+                        >
+                            {item.label}
+                        </Item>
+                    ))
+                ) : (
+                    <></>
+                )}
+            </React.Fragment>
         );
     }
 
@@ -977,6 +1137,29 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
         }
     };
 
+    private doHandleContextMenuContributed(payload: ContextMenuContributedSignalPayload) {
+        if (payload.getOutputDescriptorId() === this.props.outputDescriptor.id) {
+            const currentMenuItems: ContextMenuItems = this.state.menuItems
+                ? this.state.menuItems
+                : { items: [], submenus: [] };
+            const menuItemsToAdd = payload.getMenuItems();
+            if (currentMenuItems) {
+                for (const submenu of menuItemsToAdd.submenus) {
+                    // Only add menu entries with unique ids
+                    if (currentMenuItems.submenus.findIndex(menu => menu.id === submenu.id) === -1) {
+                        currentMenuItems.submenus.push(submenu);
+                    }
+                }
+                for (const menuItem of menuItemsToAdd.items) {
+                    if (currentMenuItems.items.findIndex(item => item.id === menuItem.id) === -1) {
+                        currentMenuItems.items.push(menuItem);
+                    }
+                }
+            }
+            this.setState({ menuItems: currentMenuItems });
+        }
+    }
+
     public onThemeChange = (): void => {
         // Simulate a click on the selected row when theme changes.
         // This changes the color of the selected row to new theme.
@@ -1197,6 +1380,56 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
             // This highlights the left side if the row is loading.
             this.setState({ selectedRow: id });
         }
+
+        // Regular clicking on a row should clear the multi selected rows to only include the clicked row
+        this.setState({ multiSelectedRows: [id] });
+    };
+
+    public onMultipleRowClick = (id: number, isShiftClicked?: boolean): void => {
+        const tree = listToTree(this.state.timegraphTree, this.state.columns);
+        const rowIndex = getIndexOfNode(id, tree, this.state.collapsedNodes);
+
+        if (isShiftClicked) {
+            // Perform shift action based on selectedRow value
+            if (this.state.selectedRow !== undefined) {
+                const treeNodeIds = getAllExpandedNodeIds(tree, this.state.collapsedNodes);
+                const lastSelectedRowIndex = getIndexOfNode(this.state.selectedRow, tree, this.state.collapsedNodes);
+                this.handleShiftClick(rowIndex, lastSelectedRowIndex, treeNodeIds);
+            } else {
+                // Do not have a previous selection therefore treat this as a normal row click
+                this.onRowClick(id);
+            }
+        } else {
+            const rows = this.state.multiSelectedRows ? this.state.multiSelectedRows.slice() : [];
+            // This indicates that the row is being deselected
+            if (rows.includes(id)) {
+                const index = rows.indexOf(id);
+                /**
+                 *  It is possible for the entry being deselected to be selectedRow.
+                 *  In this case we have to update the selectedRow state to point to another row
+                 *  We will try to set this to previously selected row that is part of the multi-selection, otherwise it should be set to undefined
+                 */
+                if (id === this.state.selectedRow) {
+                    const prevRowId = rows.at(index - 1);
+                    if (prevRowId && prevRowId !== id) {
+                        const prevRowIndex = getIndexOfNode(prevRowId, tree, this.state.collapsedNodes);
+                        this.chartLayer.selectAndReveal(prevRowIndex);
+                    } else {
+                        this.setState({ selectedRow: undefined });
+                        this.chartLayer.selectRow(undefined);
+                    }
+                }
+                rows.splice(index, 1);
+            } else {
+                // No selectedRow - delegate to onRowClick as it is a first selection
+                if (this.state.selectedRow === undefined) {
+                    this.onRowClick(id);
+                    return;
+                }
+                rows?.push(id);
+            }
+            this.setState({ multiSelectedRows: rows });
+        }
     };
 
     public onMarkerRowClick = (id: number): void => {
@@ -1208,9 +1441,38 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
         this.markersChartLayer.selectAndReveal(rowIndex);
     };
 
-    public onSelectionChange = (row: TimelineChart.TimeGraphRowModel): void => this.setState({ selectedRow: row.id });
-    public onMarkerSelectionChange = (row: TimelineChart.TimeGraphRowModel): void =>
+    public onSelectionChange = (row: TimelineChart.TimeGraphRowModel): void => {
+        this.setState({ selectedRow: row.id });
+    };
+
+    public onMarkerSelectionChange = (row: TimelineChart.TimeGraphRowModel): void => {
         this.setState({ selectedMarkerRow: row.id });
+    };
+
+    private handleShiftClick = (currentIndex: number, lastSelectedRowIndex: number, treeNodeIds: number[]): void => {
+        const shiftClickedRows: number[] = [];
+        let startIndex = 0;
+        let endIndex = 0;
+
+        if (lastSelectedRowIndex < currentIndex) {
+            startIndex = lastSelectedRowIndex;
+            endIndex = currentIndex;
+        } else {
+            startIndex = currentIndex;
+            endIndex = lastSelectedRowIndex;
+        }
+
+        if (startIndex < 0 || startIndex >= treeNodeIds.length || endIndex >= treeNodeIds.length) {
+            return;
+        }
+        for (let i = startIndex; i <= endIndex; i++) {
+            const nodeId = treeNodeIds.at(i);
+            if (nodeId) {
+                shiftClickedRows.push(nodeId);
+            }
+        }
+        this.setState({ multiSelectedRows: shiftClickedRows });
+    };
 
     private selectAndReveal(item: TimeGraphEntry) {
         const rowIndex = getIndexOfNode(
