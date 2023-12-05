@@ -7,7 +7,7 @@
     "tsbuild": "tsc -b",
     "tswatch": "tsc -b -w",
     "clean": "lerna run clean",
-    "build:examples": "yarn browser build && yarn electron build",    
+    "build:examples": "yarn browser build && yarn electron build",
     "start:browser": "yarn browser rebuild && yarn browser start",
     "start:electron": "yarn electron rebuild && yarn electron start",
     "download:plugins": "theia download:plugins -p=true --parallel=false",
@@ -48,7 +48,7 @@
     "@types/react-dom": "^18.0.6"
   },
   "devDependencies": {
-    "@theia/cli": "1.40.1",
+    "@theia/cli": "1.43.1",
     "concurrently": "^8.2.1",
     "jsonc-parser": "^3.0.0",
     "lerna": "^7.0.0",
