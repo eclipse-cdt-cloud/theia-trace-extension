@@ -9,8 +9,8 @@ Notes:
   If you want to run a complete application, you will need a service
   running the trace-server (not included here);
 
-- the image will be built using the latest [npm package] of the
-  theia-trace-extension, and not the code in this repo;
+- the image will be built using a specific [npm package] of the
+  theia-trace-extension, and not the latest code in this repo;
 
 - the *example-package.json* file is not named *package.json* because
   at the time this change was proposed building the theia-trace-extension
@@ -20,7 +20,8 @@ Notes:
 
 ## How to build and run
 
-Build the image and name it *tte*:
+Build the image and name it *tte*. Try adding `--network host` in case
+of build failures related to debian packages retrieval:
 
 ```bash
 docker build -t tte .
