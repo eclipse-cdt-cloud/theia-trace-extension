@@ -1,4 +1,4 @@
-name: build
+name: CI
 
 on:
   push:
@@ -9,6 +9,7 @@ on:
 jobs:
 
   build-and-test:
+    name: Build and test
     runs-on: ${{ matrix.os }}
 
     strategy:
@@ -42,13 +43,18 @@ jobs:
         restore-keys: |
           ${{ runner.os }}-yarn-
 
-    - run: yarn --frozen-lockfile
+    - name: Build
+      run: yarn --frozen-lockfile
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # https://github.com/microsoft/vscode-ripgrep/issues/9
 
-    - run: yarn test
+    - name: Test
+      run: yarn test
       env:
         CI: true
 
   code-lint:
+    name: Lint and check format
     runs-on: ubuntu-latest
 
     steps:
@@ -60,7 +66,11 @@ jobs:
         node-version: '16'
 
     # ESLint and Prettier must be in `package.json`
-    - run: yarn --frozen-lockfile --ignore-scripts
+    - name: Install npm dependencies
+      run: yarn --frozen-lockfile --ignore-scripts
 
-    - run: yarn lint
-    - run: yarn format:check
+    - name: Lint
+      run: yarn lint
+
+    - name: Check format
+      run: yarn format:check
