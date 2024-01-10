@@ -21,13 +21,21 @@ The `tracing` we're discussing here is high speed, low overhead tracing. With su
 
 Source: Text adapted from tracevizlab [001-what-is-tracing][tracevizlab-what-file]
 
-## Try a live demo via Gitpod
+## Try a live demo
+
+### Release
+
+Prerequisite: A GitHub account (for logging into the demo)
+
+You can access a live demo of the trace viewer [here][cdt-cloud-demo]. The following [video][cdt-cloud-demo-video] also shows how try the live demo.
+
+### Nightly (via Gitpod)
 
 Click the Gitpod button below to access a live demo of the trace viewer. In a couple of clicks and around 2 minutes, you'll be on your way!
 
 [![Gitpod ready-to-code][gitpod-logo]][gitpod-ext]
 
-Prerequisites: A GitHub account (for logging into Gitpod)
+Prerequisite: A GitHub account (for logging into Gitpod)
 
 * Click [here][gitpod-ext] to open Gitpod.
 * After logging in, it takes around a minute for Gitpod to set up the in-browser IDE used to build the project.
@@ -362,6 +370,8 @@ pip install -r requirements.txt
 
 [adr]: https://adr.github.io
 [app-image]: https://www.dorsal.polymtl.ca/files/other/electron-theia-trace-example-app-0.0.1.AppImage
+[cdt-cloud-demo]: https://try.theia-cloud.io/?appDef=cdt-cloud-demo
+[cdt-cloud-demo-video]: https://www.youtube.com/watch?v=Yqgu_ysFtnw
 [docs]: https://wiki.eclipse.org/Trace_Compass/Design_Documents
 [eclipsecon2021-slides]: https://www.eclipsecon.org/sites/default/files/slides/EclipseCon2021-TraceCompassCloud.pdf
 [gh]: https://github.blog/2022-02-14-include-diagrams-markdown-files-mermaid/
