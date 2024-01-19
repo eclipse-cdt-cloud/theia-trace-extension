@@ -24,7 +24,9 @@
     "format:write": "lerna run format:write",
     "format:check": "lerna run format:check",
     "browser": "yarn -s --cwd examples/browser",
-    "electron": "yarn -s --cwd examples/electron"
+    "electron": "yarn -s --cwd examples/electron",
+    "license:check": "npx dash-licenses-wrapper  --configFile=./configs/license-check-config.json",
+    "license:check:review": "npx dash-licenses-wrapper  --configFile=./configs/license-check-config.json --review"
   },
   "keywords": [
     "theia-extension",
@@ -48,6 +50,7 @@
     "@types/react-dom": "^18.0.6"
   },
   "devDependencies": {
+    "@eclipse-dash/nodejs-wrapper": "^0.0.1",
     "@theia/cli": "1.43.1",
     "concurrently": "^8.2.1",
     "jsonc-parser": "^3.0.0",

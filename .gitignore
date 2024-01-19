@@ -17,3 +17,5 @@ node_modules/
 theia-extensions/viewer-prototype/lib/
 trace-compass-server
 trace-compass-server.tar.gz
+license-check-summary.txt*
+e
