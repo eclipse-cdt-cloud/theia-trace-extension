@@ -48,6 +48,7 @@ export interface TraceContextProps {
     removeResizeHandler: (handler: () => void) => void;
     backgroundTheme: string;
     persistedState?: PersistedState;
+    serverStatus?: boolean;
 }
 
 export interface TraceContextState {
@@ -491,20 +492,29 @@ export class TraceContextComponent extends React.Component<TraceContextProps, Tr
     }
 
     render(): JSX.Element {
+        const { serverStatus } = this.props;
         const shouldRenderOutputs =
             this.state.style.width > 0 && (this.props.outputs.length || this.props.overviewDescriptor);
         return (
-            <div
-                className="trace-context-container"
-                onContextMenu={event => this.onContextMenu(event)}
-                onKeyDown={event => this.onKeyDown(event)}
-                onKeyUp={event => this.onKeyUp(event)}
-                ref={this.traceContextContainer}
-            >
-                <TooltipComponent ref={this.tooltipComponent} />
-                <TooltipXYComponent ref={this.tooltipXYComponent} />
-                {shouldRenderOutputs ? this.renderOutputs() : this.renderPlaceHolder()}
-            </div>
+            <>
+                {/* Render the grey-out overlay if the server is down */}
+                {serverStatus === false && (
+                    <div className="overlay">
+                        <div className="warning-text">Please reconnect to resume using the application.</div>
+                    </div>
+                )}
+                <div
+                    className="trace-context-container"
+                    onContextMenu={event => this.onContextMenu(event)}
+                    onKeyDown={event => this.onKeyDown(event)}
+                    onKeyUp={event => this.onKeyUp(event)}
+                    ref={this.traceContextContainer}
+                >
+                    <TooltipComponent ref={this.tooltipComponent} />
+                    <TooltipXYComponent ref={this.tooltipXYComponent} />
+                    {shouldRenderOutputs ? this.renderOutputs() : this.renderPlaceHolder()}
+                </div>
+            </>
         );
     }
 

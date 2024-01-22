@@ -83,12 +83,16 @@ export class TraceExplorerWidget extends BaseWidget {
         layout.addWidget(this.traceViewsContainer);
         this.node.tabIndex = 0;
         signalManager().on(Signals.OPENED_TRACES_UPDATED, this.onUpdateSignal);
+        // TODO - Should we be using the backend, since we're on the backend?
+        this.connectionStatusClient.addServerStatusChangeListener(this.onServerStatusChange);
         this.update();
     }
 
     dispose(): void {
         super.dispose();
         signalManager().off(Signals.OPENED_TRACES_UPDATED, this.onUpdateSignal);
+        // TODO - Should we be using the backend, since we're on the backend?
+        this.connectionStatusClient.removeServerStatusChangeListener(this.onServerStatusChange);
     }
 
     protected onUpdateSignal = (payload: OpenedTracesUpdatedSignalPayload): void =>
@@ -100,12 +104,17 @@ export class TraceExplorerWidget extends BaseWidget {
 
     protected onUpdateRequest(msg: Message): void {
         super.onUpdateRequest(msg);
-        if (this._numberOfOpenedTraces > 0) {
-            this.traceViewsContainer.show();
-            this.placeholderWidget.hide();
-        } else {
+
+        const serverStatus = this.connectionStatusClient.status;
+        const tracesOpened = this._numberOfOpenedTraces > 0;
+        const shouldShowPlaceholder = serverStatus === false || tracesOpened === false;
+
+        if (shouldShowPlaceholder) {
+            this.placeholderWidget.setStateAndShow({ serverStatus, tracesOpened });
             this.traceViewsContainer.hide();
-            this.placeholderWidget.show();
+        } else {
+            this.placeholderWidget.hide();
+            this.traceViewsContainer.show();
         }
     }
 
@@ -115,12 +124,18 @@ export class TraceExplorerWidget extends BaseWidget {
     }
 
     protected async onAfterShow(): Promise<void> {
-        this.connectionStatusClient.addConnectionStatusListener();
+        this.connectionStatusClient.activate();
         const status = await this.traceServerConnectionStatusProxy.getStatus();
         this.connectionStatusClient.updateStatus(status);
     }
 
     protected onAfterHide(): void {
-        this.connectionStatusClient.removeConnectionStatusListener();
+        this.connectionStatusClient.deactivate();
+    }
+
+    protected onServerStatusChange = (status: boolean): void => this.doHandleOnServerStatusChange(status);
+
+    protected doHandleOnServerStatusChange(status: boolean): void {
+        this.serverStatusWidget.updateStatus(status);
     }
 }

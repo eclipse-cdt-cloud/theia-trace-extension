@@ -31,9 +31,23 @@ export interface TraceServerConnectionStatusClient {
     /**
      * Subscribe this client to the connection status
      */
-    addConnectionStatusListener(): void;
+    activate(): void;
     /**
      * Unsubscribe this client from the connection status
      */
-    removeConnectionStatusListener(): void;
+    deactivate(): void;
+
+    /**
+     * Adds event listener for server status change
+     * @param fn event listener
+     */
+    addServerStatusChangeListener(fn: (status: boolean) => void): void;
+
+    /**
+     * Removes event listener for server status change.
+     * @param fn event listener to be removed
+     */
+    removeServerStatusChangeListener(fn: (status: boolean) => void): void;
+
+    status: boolean;
 }

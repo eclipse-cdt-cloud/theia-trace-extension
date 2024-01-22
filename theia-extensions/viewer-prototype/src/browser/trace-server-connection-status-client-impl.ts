@@ -2,33 +2,40 @@
 import { injectable } from 'inversify';
 import { TraceServerConnectionStatusClient } from '../common/trace-server-connection-status';
 
+type Listener = (serverStatus: boolean) => void;
 @injectable()
 export class TraceServerConnectionStatusClientImpl implements TraceServerConnectionStatusClient {
     protected active = false;
+    protected _status = false;
+    protected listeners: Listener[] = [];
 
-    updateStatus(status: boolean): void {
+    public updateStatus(status: boolean): void {
+        this._status = status;
         if (this.active) {
-            TraceServerConnectionStatusClientImpl.renderStatus(status);
+            this.listeners.forEach(fn => fn(status));
         }
     }
 
-    addConnectionStatusListener(): void {
+    public activate(): void {
         this.active = true;
     }
 
-    removeConnectionStatusListener(): void {
+    public deactivate(): void {
         this.active = false;
     }
 
-    static renderStatus(status: boolean): void {
-        if (document.getElementById('server-status-id')) {
-            document.getElementById('server-status-id')!.className = status
-                ? 'fa fa-check-circle-o fa-lg'
-                : 'fa fa-times-circle-o fa-lg';
-            document.getElementById('server-status-id')!.title = status
-                ? 'Server health and latency are good. No known issues'
-                : 'Trace Viewer Critical Error: Trace Server Offline';
-            document.getElementById('server-status-id')!.style.color = status ? 'green' : 'red';
+    public addServerStatusChangeListener(fn: Listener): void {
+        this.listeners.push(fn);
+    }
+
+    public removeServerStatusChangeListener(fn: Listener): void {
+        const index = this.listeners.indexOf(fn);
+        if (index) {
+            this.listeners.splice(index, 1);
         }
+    }
+
+    get status(): boolean {
+        return this._status;
     }
 }

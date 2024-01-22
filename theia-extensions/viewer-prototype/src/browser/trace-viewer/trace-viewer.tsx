@@ -1,4 +1,4 @@
-import { Disposable, DisposableCollection, MessageService, Path, URI } from '@theia/core';
+import { CommandService, Disposable, DisposableCollection, MessageService, Path, URI } from '@theia/core';
 import { ApplicationShell, Message, StatusBar, WidgetManager, StatefulWidget } from '@theia/core/lib/browser';
 import { ReactWidget } from '@theia/core/lib/browser/widgets/react-widget';
 import { inject, injectable, postConstruct } from '@theia/core/shared/inversify';
@@ -11,6 +11,7 @@ import {
     TraceContextComponent,
     PersistedState
 } from 'traceviewer-react-components/lib/components/trace-context-component';
+import { TraceServerConnectionStatusClient } from '../../common/trace-server-connection-status';
 import { Experiment } from 'tsp-typescript-client/lib/models/experiment';
 import { TheiaMessageManager } from '../theia-message-manager';
 import { ThemeService } from '@theia/core/lib/browser/theming';
@@ -56,6 +57,8 @@ export class TraceViewerWidget extends ReactWidget implements StatefulWidget {
     protected traceContextComponent: React.RefObject<TraceContextComponent>;
     protected persistedState?: PersistedState;
     protected loadTraceOverview = true;
+    protected serverStatus: boolean;
+    protected experimentLoaded: boolean;
 
     protected resizeHandlers: (() => void)[] = [];
     protected readonly addResizeHandler = (h: () => void): void => {
@@ -101,10 +104,13 @@ export class TraceViewerWidget extends ReactWidget implements StatefulWidget {
     @inject(TheiaMessageManager) protected readonly _signalHandler: TheiaMessageManager;
     @inject(MessageService) protected readonly messageService: MessageService;
     @inject(TraceExplorerContribution) protected readonly traceExplorerContribution: TraceExplorerContribution;
+    @inject(CommandService) protected readonly commandService!: CommandService;
     @inject(WidgetManager) protected readonly widgetManager!: WidgetManager;
     @inject(ThemeService) protected readonly themeService: ThemeService;
     @inject(OverviewPreferences) protected overviewPreferences: OverviewPreferences;
     @inject(FileDialogService) protected readonly fileDialogService: FileDialogService;
+    @inject(TraceServerConnectionStatusClient)
+    protected readonly connectionStatusService: TraceServerConnectionStatusClient;
 
     @postConstruct()
     protected init(): void {
@@ -118,6 +124,7 @@ export class TraceViewerWidget extends ReactWidget implements StatefulWidget {
         this.title.closable = true;
         this.addClass('theia-trace-open');
         this.backgroundTheme = this.themeService.getCurrentTheme().type;
+        this.serverStatus = this.connectionStatusService.status;
         this.toDispose.push(this.themeService.onDidColorThemeChange(() => this.updateBackgroundTheme()));
         if (!this.options.traceUUID) {
             this.initialize();
@@ -136,21 +143,7 @@ export class TraceViewerWidget extends ReactWidget implements StatefulWidget {
             })
         );
 
-        if (this.options.traceUUID) {
-            const experiment = await this.experimentManager.updateExperiment(this.options.traceUUID);
-            if (experiment) {
-                this.openedExperiment = experiment;
-                this.title.label = 'Trace: ' + experiment.name;
-                this.id = experiment.UUID;
-                this.experimentManager.addExperiment(experiment);
-                signalManager().fireExperimentOpenedSignal(experiment);
-                if (this.isVisible) {
-                    signalManager().fireTraceViewerTabActivatedSignal(experiment);
-                }
-                this.fetchMarkerSets(experiment.UUID);
-            }
-            this.update();
-        }
+        this.experimentLoaded = await this.loadExperiment();
         this.subscribeToEvents();
         this.toDispose.push(this.toDisposeOnNewExplorer);
         // Make node focusable so it can achieve focus on activate (avoid warning);
@@ -173,6 +166,7 @@ export class TraceViewerWidget extends ReactWidget implements StatefulWidget {
         signalManager().on(Signals.OPEN_OVERVIEW_OUTPUT, this.onTraceOverviewOpened);
         signalManager().on(Signals.OVERVIEW_OUTPUT_SELECTED, this.onTraceOverviewOutputSelected);
         signalManager().on(Signals.SAVE_AS_CSV, this.onSaveAsCSV);
+        this.connectionStatusService.addServerStatusChangeListener(this.onServerStatusChange);
     }
 
     protected updateBackgroundTheme(): void {
@@ -188,6 +182,27 @@ export class TraceViewerWidget extends ReactWidget implements StatefulWidget {
         signalManager().off(Signals.OPEN_OVERVIEW_OUTPUT, this.onTraceOverviewOpened);
         signalManager().off(Signals.OVERVIEW_OUTPUT_SELECTED, this.onTraceOverviewOutputSelected);
         signalManager().off(Signals.SAVE_AS_CSV, this.onSaveAsCSV);
+        this.connectionStatusService.removeServerStatusChangeListener(this.onServerStatusChange);
+    }
+
+    protected async loadExperiment(): Promise<boolean> {
+        if (!this.options.traceUUID) {
+            return false;
+        }
+        const experiment = await this.experimentManager.updateExperiment(this.options.traceUUID);
+        if (!experiment) {
+            return false;
+        }
+        this.openedExperiment = experiment;
+        this.title.label = 'Trace: ' + experiment.name;
+        this.id = experiment.UUID;
+        this.experimentManager.addExperiment(experiment);
+        signalManager().fireExperimentOpenedSignal(experiment);
+        if (this.isVisible) {
+            signalManager().fireTraceViewerTabActivatedSignal(experiment);
+        }
+        this.fetchMarkerSets(experiment.UUID);
+        return true;
     }
 
     async initialize(): Promise<void> {
@@ -317,10 +332,6 @@ export class TraceViewerWidget extends ReactWidget implements StatefulWidget {
     }
 
     restoreState(persistedState: PersistedState): void {
-        /*
-        TODO - BigInt support for restoring state in outputs/outputDescriptors
-        Identify what values need to be BigInt and convert.
-        */
         if (persistedState.outputs.length > 0 || persistedState.storedOverviewOutput) {
             this.persistedState = persistedState;
 
@@ -335,6 +346,14 @@ export class TraceViewerWidget extends ReactWidget implements StatefulWidget {
 
         this.loadTraceOverview = false;
     }
+
+    private onServerStatusChange = async (status: boolean): Promise<void> => {
+        this.serverStatus = status;
+        if (!this.experimentLoaded) {
+            await this.loadExperiment();
+        }
+        this.update();
+    };
 
     private async fetchMarkerSets(expUUID: string) {
         const markers = await this.tspClient.fetchMarkerSets(expUUID);
@@ -390,7 +409,10 @@ export class TraceViewerWidget extends ReactWidget implements StatefulWidget {
                         backgroundTheme={this.backgroundTheme}
                         persistedState={this.persistedState}
                         messageManager={this._signalHandler}
+                        serverStatus={this.serverStatus}
                     />
+                ) : !this.serverStatus ? (
+                    'Server offline.  Waiting to load...'
                 ) : (
                     'Trace is loading...'
                 )}
