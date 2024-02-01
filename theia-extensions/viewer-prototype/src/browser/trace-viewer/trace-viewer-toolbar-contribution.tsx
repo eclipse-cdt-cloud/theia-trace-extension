@@ -9,7 +9,8 @@ import { ChartShortcutsDialog } from '../trace-explorer/trace-explorer-sub-widge
 import { TspClientProvider } from '../tsp-client-provider-impl';
 import { TraceViewerWidget } from './trace-viewer';
 import { TraceViewerToolbarCommands, TraceViewerToolbarMenus } from './trace-viewer-toolbar-commands';
-import { OpenTraceCommand } from './trace-viewer-commands';
+import { OpenTraceCommand, OpenTraceConfigurations } from './trace-viewer-commands';
+import { TraceExplorerViewsWidget } from '../trace-explorer/trace-explorer-sub-widgets/theia-trace-explorer-views-widget';
 
 @injectable()
 export class TraceViewerToolbarContribution implements TabBarToolbarContribution, CommandContribution {
@@ -138,6 +139,18 @@ export class TraceViewerToolbarContribution implements TabBarToolbarContribution
             },
             execute: async () => {
                 await new ChartShortcutsDialog({ title: 'Trace Viewer Keyboard and Mouse Shortcuts' }).open();
+            }
+        });
+
+        registry.registerCommand(TraceViewerToolbarCommands.OPEN_TRACE_CONFIGURATIONS, {
+            isVisible: (w: Widget) => {
+                if (w instanceof TraceExplorerViewsWidget) {
+                    return true;
+                }
+                return false;
+            },
+            execute: async () => {
+                await registry.executeCommand(OpenTraceConfigurations.id);
             }
         });
     }
@@ -347,6 +360,12 @@ export class TraceViewerToolbarContribution implements TabBarToolbarContribution
             command: TraceViewerToolbarCommands.CHARTS_CHEATSHEET.id,
             tooltip: TraceViewerToolbarCommands.CHARTS_CHEATSHEET.label,
             priority: 10
+        });
+        registry.registerItem({
+            id: TraceViewerToolbarCommands.OPEN_TRACE_CONFIGURATIONS.id,
+            command: TraceViewerToolbarCommands.OPEN_TRACE_CONFIGURATIONS.id,
+            tooltip: TraceViewerToolbarCommands.OPEN_TRACE_CONFIGURATIONS.label,
+            priority: 11
         });
     }
 }

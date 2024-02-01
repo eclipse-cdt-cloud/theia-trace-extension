@@ -6,6 +6,7 @@ import { Experiment } from 'tsp-typescript-client/lib/models/experiment';
 import { ITspClientProvider } from 'traceviewer-base/lib/tsp-client-provider';
 import { ExperimentManager } from 'traceviewer-base/lib/experiment-manager';
 import { AvailableViewsComponent } from '../components/utils/available-views-component';
+import { TraceConfigurationsDialogComponent } from '../components/trace-configurations/trace-configuration-dialog-component';
 
 export interface ReactAvailableViewsProps {
     id: string;
@@ -16,6 +17,7 @@ export interface ReactAvailableViewsProps {
 
 export interface ReactAvailableViewsState {
     availableOutputDescriptors: OutputDescriptor[];
+    showConfigurations: boolean;
 }
 
 export class ReactAvailableViewsWidget extends React.Component<ReactAvailableViewsProps, ReactAvailableViewsState> {
@@ -24,6 +26,7 @@ export class ReactAvailableViewsWidget extends React.Component<ReactAvailableVie
 
     private _onExperimentSelected = (experiment: Experiment): void => this.doHandleExperimentSelectedSignal(experiment);
     private _onExperimentClosed = (experiment: Experiment): void => this.doHandleExperimentClosedSignal(experiment);
+    private _onConfigurationOpened = (): void => this.showConfiguration();
 
     constructor(props: ReactAvailableViewsProps) {
         super(props);
@@ -33,17 +36,28 @@ export class ReactAvailableViewsWidget extends React.Component<ReactAvailableVie
         });
         signalManager().on(Signals.EXPERIMENT_SELECTED, this._onExperimentSelected);
         signalManager().on(Signals.EXPERIMENT_CLOSED, this._onExperimentClosed);
-        this.state = { availableOutputDescriptors: [] };
+        signalManager().on(Signals.SHOW_TRACE_CONFIGURATIONS, this._onConfigurationOpened);
+        this.state = {
+            availableOutputDescriptors: [],
+            showConfigurations: false
+        };
     }
 
     componentWillUnmount(): void {
         signalManager().off(Signals.EXPERIMENT_SELECTED, this._onExperimentSelected);
         signalManager().off(Signals.EXPERIMENT_CLOSED, this._onExperimentClosed);
+        signalManager().on(Signals.SHOW_TRACE_CONFIGURATIONS, this.showConfiguration);
     }
 
     render(): React.ReactNode {
         return (
             <div className="trace-explorer-views">
+                <TraceConfigurationsDialogComponent
+                    tspClient={this.props.tspClientProvider.getTspClient()}
+                    title={'Trace Configurations'}
+                    onCloseDialog={() => this.closeConfiguration()}
+                    isOpen={this.state.showConfigurations}
+                ></TraceConfigurationsDialogComponent>
                 <AvailableViewsComponent
                     traceID={this._selectedExperiment?.UUID}
                     outputDescriptors={this.state.availableOutputDescriptors}
@@ -116,5 +130,13 @@ export class ReactAvailableViewsWidget extends React.Component<ReactAvailableVie
         }
 
         return outputDescriptors;
+    }
+
+    protected showConfiguration = (): void => {
+        this.setState({ showConfigurations: true });
+    };
+
+    protected closeConfiguration(): void {
+        this.setState({ showConfigurations: false });
     }
 }

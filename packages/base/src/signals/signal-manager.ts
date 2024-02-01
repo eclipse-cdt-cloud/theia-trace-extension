@@ -41,6 +41,7 @@ export declare interface SignalManager {
     fireSelectionRangeUpdated(payload: TimeRangeUpdatePayload): void;
     fireViewRangeUpdated(payload: TimeRangeUpdatePayload): void;
     fireRequestSelectionRangeChange(payload: TimeRangeUpdatePayload): void;
+    fireShowTraceConfigurations(): void;
 }
 
 export const Signals = {
@@ -75,7 +76,8 @@ export const Signals = {
     VIEW_RANGE_UPDATED: 'view range updated',
     SELECTION_RANGE_UPDATED: 'selection range updated',
     REQUEST_SELECTION_RANGE_CHANGE: 'change selection range',
-    OUTPUT_DATA_CHANGED: 'output data changed'
+    OUTPUT_DATA_CHANGED: 'output data changed',
+    SHOW_TRACE_CONFIGURATIONS: 'open trace configurations'
 };
 
 export class SignalManager extends EventEmitter implements SignalManager {
@@ -173,6 +175,9 @@ export class SignalManager extends EventEmitter implements SignalManager {
     }
     fireRequestSelectionRangeChange(payload: TimeRangeUpdatePayload): void {
         this.emit(Signals.REQUEST_SELECTION_RANGE_CHANGE, payload);
+    }
+    fireShowTraceConfigurations(): void {
+        this.emit(Signals.SHOW_TRACE_CONFIGURATIONS);
     }
 }
 

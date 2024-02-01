@@ -59,6 +59,12 @@ export namespace TraceViewerToolbarCommands {
         label: 'Show trace overview',
         iconClass: 'codicon codicon-graph-line'
     };
+
+    export const OPEN_TRACE_CONFIGURATIONS: Command = {
+        id: 'trace.viewer.openTraceConfigurations',
+        label: 'Open trace configurations',
+        iconClass: 'codicon codicon-server-process'
+    };
 }
 
 export namespace TraceViewerToolbarMenus {

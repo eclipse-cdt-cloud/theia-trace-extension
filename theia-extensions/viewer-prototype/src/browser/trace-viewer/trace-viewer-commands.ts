@@ -30,6 +30,11 @@ export const OpenTraceWithRootPathCommand: Command = {
     label: 'Open Trace With Root Path'
 };
 
+export const OpenTraceConfigurations: Command = {
+    id: 'open-trace-configurations',
+    label: 'Open Trace Configurations'
+};
+
 /**
  * A command to open a trace in the trace viewer.
  *
