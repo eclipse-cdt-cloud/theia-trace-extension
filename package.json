@@ -51,7 +51,7 @@
   },
   "devDependencies": {
     "@eclipse-dash/nodejs-wrapper": "^0.0.1",
-    "@theia/cli": "1.43.1",
+    "@theia/cli": "1.45.1",
     "concurrently": "^8.2.1",
     "jsonc-parser": "^3.0.0",
     "lerna": "^7.0.0",
