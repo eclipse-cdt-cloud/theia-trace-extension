@@ -21,7 +21,7 @@ export class ReactExplorerPlaceholderWidget extends React.Component<ReactPlaceho
         const infoText = serverOn
             ? 'You have not yet opened a trace.'
             : 'No trace server instance is currently running.';
-        const buttonText = serverOn ? 'Open Trace' : 'Start Trace Server';
+        const buttonText = serverOn ? 'Open Trace' : 'Resume Trace Extension';
 
         return (
             <div className="placeholder-container" tabIndex={0}>
