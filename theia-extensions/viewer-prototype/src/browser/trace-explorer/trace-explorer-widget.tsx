@@ -137,5 +137,6 @@ export class TraceExplorerWidget extends BaseWidget {
 
     protected doHandleOnServerStatusChange(status: boolean): void {
         this.serverStatusWidget.updateStatus(status);
+        this.update();
     }
 }

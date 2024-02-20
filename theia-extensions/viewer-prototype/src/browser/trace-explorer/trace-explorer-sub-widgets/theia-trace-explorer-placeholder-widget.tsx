@@ -66,7 +66,8 @@ export class TraceExplorerPlaceholderWidget extends ReactWidget {
     }
 
     public setStateAndShow(newState: { serverStatus: boolean; tracesOpened: boolean }): void {
-        this.state = { ...newState, ...this.state };
+        this.state = { ...this.state, ...newState };
         this.show();
+        this.update();
     }
 }
