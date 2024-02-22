@@ -115,12 +115,12 @@ export class TraceExplorerWidget extends BaseWidget {
     }
 
     protected async onAfterShow(): Promise<void> {
-        this.connectionStatusClient.addConnectionStatusListener();
+        this.connectionStatusClient.activate();
         const status = await this.traceServerConnectionStatusProxy.getStatus();
         this.connectionStatusClient.updateStatus(status);
     }
 
     protected onAfterHide(): void {
-        this.connectionStatusClient.removeConnectionStatusListener();
+        this.connectionStatusClient.deactivate();
     }
 }
