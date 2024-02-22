@@ -31,9 +31,9 @@ export interface TraceServerConnectionStatusClient {
     /**
      * Subscribe this client to the connection status
      */
-    addConnectionStatusListener(): void;
+    activate(): void;
     /**
      * Unsubscribe this client from the connection status
      */
-    removeConnectionStatusListener(): void;
+    deactivate(): void;
 }

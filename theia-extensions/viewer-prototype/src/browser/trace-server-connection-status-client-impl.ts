@@ -12,11 +12,11 @@ export class TraceServerConnectionStatusClientImpl implements TraceServerConnect
         }
     }
 
-    addConnectionStatusListener(): void {
+    activate(): void {
         this.active = true;
     }
 
-    removeConnectionStatusListener(): void {
+    deactivate(): void {
         this.active = false;
     }
 
