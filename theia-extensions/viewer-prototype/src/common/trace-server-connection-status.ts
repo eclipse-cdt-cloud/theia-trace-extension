@@ -36,4 +36,21 @@ export interface TraceServerConnectionStatusClient {
      * Unsubscribe this client from the connection status
      */
     deactivate(): void;
+
+    /**
+     * Adds event listener for server status change
+     * @param fn event listener
+     */
+    addServerStatusChangeListener(fn: (status: boolean) => void): void;
+
+    /**
+     * Removes event listener for server status change.
+     * @param fn event listener to be removed
+     */
+    removeServerStatusChangeListener(fn: (status: boolean) => void): void;
+
+    /**
+     * Get the status of the server
+     */
+    getStatus(): boolean;
 }
