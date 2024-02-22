@@ -1,8 +1,13 @@
 import { Command } from '@theia/core';
 
-export const OpenTraceCommand: Command = {
-    id: 'open-trace',
-    label: 'Open Trace'
+export const OpenTraceFolderCommand: Command = {
+    id: 'open-trace-folder',
+    label: 'Open Trace Folder'
+};
+
+export const OpenTraceFileCommand: Command = {
+    id: 'open-trace-file',
+    label: 'Open Trace File'
 };
 
 export const TraceViewerCommand: Command = {

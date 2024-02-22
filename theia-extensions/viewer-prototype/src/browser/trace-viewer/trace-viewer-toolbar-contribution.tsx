@@ -9,7 +9,7 @@ import { ChartShortcutsDialog } from '../trace-explorer/trace-explorer-sub-widge
 import { TspClientProvider } from '../tsp-client-provider-impl';
 import { TraceViewerWidget } from './trace-viewer';
 import { TraceViewerToolbarCommands, TraceViewerToolbarMenus } from './trace-viewer-toolbar-commands';
-import { OpenTraceCommand } from './trace-viewer-commands';
+import { OpenTraceFileCommand, OpenTraceFolderCommand } from './trace-viewer-commands';
 
 @injectable()
 export class TraceViewerToolbarContribution implements TabBarToolbarContribution, CommandContribution {
@@ -112,7 +112,7 @@ export class TraceViewerToolbarContribution implements TabBarToolbarContribution
                 signalManager().fireResetZoomSignal();
             }
         });
-        registry.registerCommand(TraceViewerToolbarCommands.OPEN_TRACE, {
+        registry.registerCommand(TraceViewerToolbarCommands.OPEN_TRACE_FOLDER, {
             isVisible: (w: Widget) => {
                 if (w instanceof TraceExplorerOpenedTracesWidget) {
                     return true;
@@ -120,7 +120,19 @@ export class TraceViewerToolbarContribution implements TabBarToolbarContribution
                 return false;
             },
             execute: async () => {
-                await registry.executeCommand(OpenTraceCommand.id);
+                await registry.executeCommand(OpenTraceFolderCommand.id);
+            }
+        });
+
+        registry.registerCommand(TraceViewerToolbarCommands.OPEN_TRACE_FILE, {
+            isVisible: (w: Widget) => {
+                if (w instanceof TraceExplorerOpenedTracesWidget) {
+                    return true;
+                }
+                return false;
+            },
+            execute: async () => {
+                await registry.executeCommand(OpenTraceFileCommand.id);
             }
         });
 
@@ -331,22 +343,28 @@ export class TraceViewerToolbarContribution implements TabBarToolbarContribution
             onDidChange: this.onMakerSetsChangedEvent
         });
         registry.registerItem({
-            id: TraceViewerToolbarCommands.OPEN_TRACE.id,
-            command: TraceViewerToolbarCommands.OPEN_TRACE.id,
-            tooltip: TraceViewerToolbarCommands.OPEN_TRACE.label,
+            id: TraceViewerToolbarCommands.OPEN_TRACE_FILE.id,
+            command: TraceViewerToolbarCommands.OPEN_TRACE_FILE.id,
+            tooltip: TraceViewerToolbarCommands.OPEN_TRACE_FILE.label,
             priority: 8
+        });
+        registry.registerItem({
+            id: TraceViewerToolbarCommands.OPEN_TRACE_FOLDER.id,
+            command: TraceViewerToolbarCommands.OPEN_TRACE_FOLDER.id,
+            tooltip: TraceViewerToolbarCommands.OPEN_TRACE_FOLDER.label,
+            priority: 9
         });
         registry.registerItem({
             id: TraceViewerToolbarCommands.OPEN_OVERVIEW_OUTPUT.id,
             command: TraceViewerToolbarCommands.OPEN_OVERVIEW_OUTPUT.id,
             tooltip: TraceViewerToolbarCommands.OPEN_OVERVIEW_OUTPUT.label,
-            priority: 9
+            priority: 10
         });
         registry.registerItem({
             id: TraceViewerToolbarCommands.CHARTS_CHEATSHEET.id,
             command: TraceViewerToolbarCommands.CHARTS_CHEATSHEET.id,
             tooltip: TraceViewerToolbarCommands.CHARTS_CHEATSHEET.label,
-            priority: 10
+            priority: 11
         });
     }
 }

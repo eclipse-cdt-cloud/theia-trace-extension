@@ -2,8 +2,11 @@ import { inject, injectable, postConstruct } from '@theia/core/shared/inversify'
 import { ReactWidget } from '@theia/core/lib/browser';
 import * as React from 'react';
 import { CommandService } from '@theia/core';
-import { OpenTraceCommand } from '../../trace-viewer/trace-viewer-commands';
-import { ReactExplorerPlaceholderWidget } from 'traceviewer-react-components/lib/trace-explorer/trace-explorer-placeholder-widget';
+import { OpenTraceFileCommand, OpenTraceFolderCommand } from '../../trace-viewer/trace-viewer-commands';
+import {
+    ReactExplorerPlaceholderWidget,
+    TraceResourceType
+} from 'traceviewer-react-components/lib/trace-explorer/trace-explorer-placeholder-widget';
 
 @injectable()
 export class TraceExplorerPlaceholderWidget extends ReactWidget {
@@ -33,12 +36,16 @@ export class TraceExplorerPlaceholderWidget extends ReactWidget {
         );
     }
 
-    protected handleOpenTrace = async (): Promise<void> => this.doHandleOpenTrace();
+    protected handleOpenTrace = async (type?: TraceResourceType): Promise<void> => this.doHandleOpenTrace(type);
 
-    private async doHandleOpenTrace() {
+    private async doHandleOpenTrace(type?: TraceResourceType) {
         this.state.loading = true;
         this.update();
-        await this.commandService.executeCommand(OpenTraceCommand.id);
+        if (type && type === TraceResourceType.FILE) {
+            await this.commandService.executeCommand(OpenTraceFileCommand.id);
+        } else {
+            await this.commandService.executeCommand(OpenTraceFolderCommand.id);
+        }
         this.state.loading = false;
         this.update();
     }
