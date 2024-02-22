@@ -42,10 +42,16 @@ export namespace TraceViewerToolbarCommands {
         label: 'Markers',
         iconClass: 'fa fa-bars fa-lg'
     };
-    export const OPEN_TRACE: Command = {
-        id: 'trace.viewer.openTrace',
-        label: 'Open Trace',
+    export const OPEN_TRACE_FOLDER: Command = {
+        id: 'trace.viewer.openTraceFolder',
+        label: 'Open Trace Folder',
         iconClass: 'codicon codicon-new-folder'
+    };
+
+    export const OPEN_TRACE_FILE: Command = {
+        id: 'trace.viewer.openTraceFile',
+        label: 'Open Trace File',
+        iconClass: 'codicon codicon-new-file'
     };
 
     export const CHARTS_CHEATSHEET: Command = {

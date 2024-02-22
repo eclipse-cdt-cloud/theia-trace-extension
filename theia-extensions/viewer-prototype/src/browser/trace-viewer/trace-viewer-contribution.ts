@@ -11,13 +11,14 @@ import { TraceViewerWidget, TraceViewerWidgetOptions } from './trace-viewer';
 import { FileDialogService, OpenFileDialogProps } from '@theia/filesystem/lib/browser';
 import { WorkspaceService } from '@theia/workspace/lib/browser/workspace-service';
 import {
-    OpenTraceCommand,
+    OpenTraceFolderCommand,
     StartServerCommand,
     StopServerCommand,
     TraceViewerCommand,
     KeyboardShortcutsCommand,
     OpenTraceWithRootPathCommand,
-    OpenTraceWithPathCommand
+    OpenTraceWithPathCommand,
+    OpenTraceFileCommand
 } from './trace-viewer-commands';
 import { PortBusy, TraceServerConfigService } from '../../common/trace-server-config';
 import { TracePreferences, TRACE_PATH, TRACE_ARGS } from '../trace-server-preference';
@@ -27,6 +28,7 @@ import { signalManager } from 'traceviewer-base/lib/signals/signal-manager';
 import { TraceServerConnectionStatusClient } from '../../common/trace-server-connection-status';
 import { FileStat } from '@theia/filesystem/lib/common/files';
 import { ITspClient } from 'tsp-typescript-client';
+import { TraceResourceType } from 'traceviewer-react-components/lib/trace-explorer/trace-explorer-placeholder-widget';
 
 interface TraceViewerWidgetOpenerOptions extends WidgetOpenerOptions {
     traceUUID: string;
@@ -71,15 +73,16 @@ export class TraceViewerContribution
         };
     }
 
-    protected async launchTraceServer(rootPath?: string): Promise<void> {
+    protected async launchTraceServer(rootPath?: string, type?: TraceResourceType): Promise<void> {
         let healthResponse;
         try {
             healthResponse = await this.tspClient.checkHealth();
         } catch (err) {
             // continue to start trace server
         }
+        const selectFiles = type && type === TraceResourceType.FILE ? true : false;
         if (healthResponse && healthResponse.isOk() && healthResponse.getModel()?.status === 'UP') {
-            this.openDialog(rootPath);
+            this.openDialog(rootPath, selectFiles);
         } else {
             const progress = await this.messageService.showProgress({ text: '' });
             progress.report({ message: 'Launching trace server... ', work: { done: 10, total: 100 } });
@@ -98,7 +101,7 @@ export class TraceViewerContribution
                     progress.cancel();
                     this.serverStatusService.updateStatus(true);
                     signalManager().fireTraceServerStartedSignal();
-                    this.openDialog(rootPath);
+                    this.openDialog(rootPath, selectFiles);
                 }
             } catch (err) {
                 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -120,12 +123,13 @@ export class TraceViewerContribution
         }
     }
 
-    async openDialog(rootPath?: string): Promise<void> {
+    async openDialog(rootPath?: string, selectFiles = false): Promise<void> {
+        const dialogTitle = selectFiles ? 'Open Trace File' : 'Open Trace Folder';
         const props: OpenFileDialogProps = {
-            title: 'Open Trace',
-            // Only support selecting folders, both folders and file doesn't work in Electron (issue #227)
-            canSelectFolders: true,
-            canSelectFiles: false
+            title: dialogTitle,
+            // Only support selecting folders OR files, both folders and file doesn't work in Electron (issue #227)
+            canSelectFolders: !selectFiles,
+            canSelectFiles: selectFiles
         };
         let fileURI = undefined;
         if (rootPath !== undefined) {
@@ -201,8 +205,11 @@ export class TraceViewerContribution
     }
 
     registerCommands(registry: CommandRegistry): void {
-        registry.registerCommand(OpenTraceCommand, {
-            execute: () => this.launchTraceServer()
+        registry.registerCommand(OpenTraceFolderCommand, {
+            execute: () => this.launchTraceServer(undefined, TraceResourceType.FOLDER)
+        });
+        registry.registerCommand(OpenTraceFileCommand, {
+            execute: () => this.launchTraceServer(undefined, TraceResourceType.FILE)
         });
         registry.registerCommand(OpenTraceWithPathCommand, {
             isVisible: () => false,
