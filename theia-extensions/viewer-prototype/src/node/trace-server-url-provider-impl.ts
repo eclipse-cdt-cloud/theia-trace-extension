@@ -3,6 +3,7 @@ import { TraceServerConfigService } from '../common/trace-server-config';
 import {
     TraceServerUrlProvider,
     TRACE_SERVER_DEFAULT_URL,
+    TRACE_VIEWER_DEFAULT_PORT,
     PortPreferenceProxy
 } from '../common/trace-server-url-provider';
 import { Event, Emitter } from '@theia/core';
@@ -59,6 +60,7 @@ export class TraceServerUrlProviderImpl
         // Get the URL template from the remote environment.
         const variable = process.env['TRACE_SERVER_URL'];
         this._traceServerUrlTemplate = variable ? this.normalizeUrl(variable) : TRACE_SERVER_DEFAULT_URL;
+        this._traceServerPort = TRACE_VIEWER_DEFAULT_PORT;
         this.updateTraceServerUrl();
     }
 
@@ -67,9 +69,9 @@ export class TraceServerUrlProviderImpl
         oldValue?: number,
         preferenceChanged = false
     ): Promise<void> {
-        this._traceServerPort = newPort;
-        this.updateTraceServerUrl();
-        if (preferenceChanged) {
+        if (preferenceChanged || this._traceServerPort !== newPort) {
+            this._traceServerPort = newPort;
+            this.updateTraceServerUrl();
             try {
                 await this.traceServerConfigService.stopTraceServer();
                 if (oldValue) {
@@ -82,7 +84,8 @@ export class TraceServerUrlProviderImpl
     }
 
     async initialize(): Promise<void> {
-        // Don't start the application until the Trace Server URL is initialized.
+        // Don't conclude the initialization life-cycle phase of this contribution
+        // until the Trace Server URL is initialized.
         await this._traceServerUrlPromise;
     }
 
