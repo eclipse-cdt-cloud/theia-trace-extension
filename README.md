@@ -70,13 +70,29 @@ While being initially used within the *theia-traceviewer*, the code base of *tra
 
 ## Build the extension and example application
 
+First, you need Node.js and yarn:
+
+It's suggested to install [nvm](https://github.com/nvm-sh/nvm#installing-and-updating) to manage node on your machine. Once that's done, install the required version:
+
+```bash
+   nvm install 18
+   # optional: make it the default version
+   nvm alias default
+   # or set it every time like so
+   nvm use 18
+```
+
+Then install `yarn`:
+
+```bash
+npm i -g yarn  # the default version should be ok
+```
+
 Here is the step in order to build the trace viewer
 
 1. Clone this theia-trace-extension repository
 2. `cd theia-trace-extension`
 3. Now you are ready to build the application: `yarn`
-
-**Note for some Debian-based machines**: On some distributions, there are 2 yarn commands. If you get an error message saying **ERROR: There are no scenarios; must have at least one.**, you are using the wrong yarn. See [yarn issue #2821][yarn-issue-2821].
 
 You can also run two scripts to watch for changes and rebuild automatically:
 

@@ -16,7 +16,7 @@ RUN sudo apt-get update \
     # Clear package info (to free space)
     && sudo rm -rf /var/lib/apt/lists/*
 
-ENV NODE_VERSION="16.17.0"
+ENV NODE_VERSION="18"
 RUN bash -c ". .nvm/nvm.sh \
     && nvm install $NODE_VERSION \
     && nvm use $NODE_VERSION \

@@ -42,8 +42,8 @@
     "watch": "theia build --watch --mode development"
   },
   "engines": {
-    "yarn": "1.0.x || >=1.2.1",
-    "node": ">=12.14.1 <17"
+    "yarn": ">=1.7.0 <2",
+    "node": ">=16 <19"
   },
   "theiaPluginsDir": "../plugins"
 }

@@ -1,4 +1,4 @@
-FROM node:16.20.2-bookworm-slim as build
+FROM node:18.19.1-bookworm-slim as build
 
 RUN apt-get update && apt-get install -y \
     git \
@@ -21,7 +21,7 @@ RUN yarn && \
     echo *.spec.* >> .yarnclean && \
     yarn cache clean
 
-FROM node:16.20.2-bookworm-slim
+FROM node:18.19.1-bookworm-slim
 
 COPY --from=build /app/tte /app/tte
 
