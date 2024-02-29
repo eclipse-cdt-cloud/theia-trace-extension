@@ -3,6 +3,7 @@
 !examples/*/package.json
 !examples/*/resources/
 !examples/*/scripts/
+!examples/docker/
 *.log
 *.tsbuildinfo
 .browser_modules/
