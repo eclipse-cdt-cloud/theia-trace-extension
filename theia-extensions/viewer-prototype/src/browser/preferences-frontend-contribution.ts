@@ -1,5 +1,5 @@
 import { FrontendApplicationContribution } from '@theia/core/lib/browser';
-import { inject, injectable } from 'inversify';
+import { inject, injectable } from '@theia/core/shared/inversify';
 import { PortPreferenceProxy, TRACE_VIEWER_DEFAULT_PORT } from '../common/trace-server-url-provider';
 import { TracePreferences, TRACE_PORT } from './trace-server-preference';
 
