@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
-import { injectable } from 'inversify';
+import { injectable } from '@theia/core/shared/inversify';
 import { TraceServerConnectionStatusClient } from '../common/trace-server-connection-status';
 
 type Listener = (serverStatus: boolean) => void;
