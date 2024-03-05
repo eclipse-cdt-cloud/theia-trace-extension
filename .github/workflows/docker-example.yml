@@ -1,0 +1,37 @@
+name: docker-example
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+
+  build-and-test:
+    name: Build image
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Build example-docker
+      uses: nick-invision/retry@v3
+      with:
+        timeout_minutes: 10
+        retry_wait_seconds: 15
+        max_attempts: 3
+        retry_on: error
+        command: |
+          cd examples/docker
+          docker build -t tte .
+        on_retry_command: cd ../..
+
+    - name: Run docker image
+      run: |
+        docker run --init -d -p 0.0.0.0:4000:4000 tte
+
+    - name: Test trace viewer appliance
+      run: |
+        echo "TODO"

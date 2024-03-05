@@ -19,7 +19,8 @@ RUN yarn && \
     echo *.ts >> .yarnclean && \
     echo *.ts.map >> .yarnclean && \
     echo *.spec.* >> .yarnclean && \
-    yarn cache clean
+    yarn cache clean && \
+    du -hs /app/tte
 
 FROM node:18.19.1-bookworm-slim
 
