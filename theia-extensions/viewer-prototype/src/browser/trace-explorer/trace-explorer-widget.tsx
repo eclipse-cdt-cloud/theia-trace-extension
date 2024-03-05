@@ -83,12 +83,14 @@ export class TraceExplorerWidget extends BaseWidget {
         layout.addWidget(this.traceViewsContainer);
         this.node.tabIndex = 0;
         signalManager().on(Signals.OPENED_TRACES_UPDATED, this.onUpdateSignal);
+        this.connectionStatusClient.addServerStatusChangeListener(this.onServerStatusChange);
         this.update();
     }
 
     dispose(): void {
         super.dispose();
         signalManager().off(Signals.OPENED_TRACES_UPDATED, this.onUpdateSignal);
+        this.connectionStatusClient.removeServerStatusChangeListener(this.onServerStatusChange);
     }
 
     protected onUpdateSignal = (payload: OpenedTracesUpdatedSignalPayload): void =>
@@ -122,5 +124,12 @@ export class TraceExplorerWidget extends BaseWidget {
 
     protected onAfterHide(): void {
         this.connectionStatusClient.deactivate();
+    }
+
+    protected onServerStatusChange = (status: boolean): void => this.doHandleOnServerStatusChange(status);
+
+    protected doHandleOnServerStatusChange(status: boolean): void {
+        this.serverStatusWidget.updateStatus(status);
+        this.update();
     }
 }
