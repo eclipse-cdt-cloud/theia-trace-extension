@@ -44,6 +44,7 @@
   },
   "homepage": "https://github.com/eclipse-cdt-cloud/theia-trace-extension",
   "resolutions": {
+    "msgpackr": "^1.10.1",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "@types/react": "^18.0.15",
