@@ -102,7 +102,7 @@ export class TraceExplorerWidget extends BaseWidget {
 
     protected onUpdateRequest(msg: Message): void {
         super.onUpdateRequest(msg);
-        if (this._numberOfOpenedTraces > 0) {
+        if (this._numberOfOpenedTraces > 0 && this.connectionStatusClient.getStatus() === true) {
             this.traceViewsContainer.show();
             this.placeholderWidget.hide();
         } else {
