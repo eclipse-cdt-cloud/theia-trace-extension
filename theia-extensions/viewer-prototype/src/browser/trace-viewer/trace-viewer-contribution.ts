@@ -24,7 +24,7 @@ import { TracePreferences, TRACE_PATH, TRACE_ARGS } from '../trace-server-prefer
 import { TspClientProvider } from '../tsp-client-provider-impl';
 import { ChartShortcutsDialog } from '../trace-explorer/trace-explorer-sub-widgets/charts-cheatsheet-component';
 import { signalManager } from 'traceviewer-base/lib/signals/signal-manager';
-import { TraceServerConnectionStatusClientImpl } from '../trace-server-connection-status-client-impl';
+import { TraceServerConnectionStatusClient } from '../../common/trace-server-connection-status';
 import { FileStat } from '@theia/filesystem/lib/common/files';
 import { ITspClient } from 'tsp-typescript-client';
 
@@ -50,6 +50,8 @@ export class TraceViewerContribution
     @inject(TracePreferences) protected tracePreferences: TracePreferences;
     @inject(TraceServerConfigService) protected readonly traceServerConfigService: TraceServerConfigService;
     @inject(MessageService) protected readonly messageService: MessageService;
+    @inject(TraceServerConnectionStatusClient)
+    protected readonly serverStatusService: TraceServerConnectionStatusClient;
 
     readonly id = TraceViewerWidget.ID;
     readonly label = 'Trace Viewer';
@@ -94,7 +96,7 @@ export class TraceViewerContribution
                         progress.report({ message: 'Trace server started.', work: { done: 100, total: 100 } });
                     }
                     progress.cancel();
-                    TraceServerConnectionStatusClientImpl.renderStatus(true);
+                    this.serverStatusService.updateStatus(true);
                     signalManager().fireTraceServerStartedSignal();
                     this.openDialog(rootPath);
                 }
@@ -163,7 +165,7 @@ export class TraceViewerContribution
                         } else {
                             progress.report({ message: 'Trace server started.', work: { done: 100, total: 100 } });
                         }
-                        TraceServerConnectionStatusClientImpl.renderStatus(true);
+                        this.serverStatusService.updateStatus(true);
                         signalManager().fireTraceServerStartedSignal();
                         return super.open(traceURI, options);
                     }
@@ -230,7 +232,7 @@ export class TraceViewerContribution
                         } else {
                             progress.report({ message: 'Trace server started.', work: { done: 100, total: 100 } });
                         }
-                        TraceServerConnectionStatusClientImpl.renderStatus(true);
+                        this.serverStatusService.updateStatus(true);
                         signalManager().fireTraceServerStartedSignal();
                         return;
                     }
@@ -261,7 +263,7 @@ export class TraceViewerContribution
                 try {
                     await this.traceServerConfigService.stopTraceServer();
                     this.messageService.info('Trace server terminated successfully.');
-                    TraceServerConnectionStatusClientImpl.renderStatus(false);
+                    this.serverStatusService.updateStatus(false);
                 } catch (err) {
                     this.messageService.error('Failed to stop the trace server.');
                 }
