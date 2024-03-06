@@ -14,11 +14,12 @@ RUN apt-get update && apt-get install -y \
 COPY example-package.json /app/tte/package.json
 WORKDIR /app/tte/
 RUN yarn && \
-    npx theia build --app-target=\"browser\" --mode development && \
+    npx theia build --app-target=\"browser\" --mode production && \
     yarn autoclean --init && \
     echo *.ts >> .yarnclean && \
     echo *.ts.map >> .yarnclean && \
     echo *.spec.* >> .yarnclean && \
+    yarn --production && \
     yarn cache clean && \
     du -hs /app/tte
 
