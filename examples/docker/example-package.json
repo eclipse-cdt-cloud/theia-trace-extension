@@ -19,18 +19,7 @@
     "@emotion/styled": "^11.10.5",
     "@mui/material": "^5.10.14",
     "@theia/core": "1.45.1",
-    "@theia/editor": "1.45.1",
-    "@theia/filesystem": "1.45.1",
-    "@theia/getting-started": "1.45.1",
-    "@theia/keymaps": "1.45.1",
-    "@theia/markers": "1.45.1",
-    "@theia/messages": "1.45.1",
-    "@theia/monaco": "1.45.1",
-    "@theia/navigator": "1.45.1",
     "@theia/preferences": "1.45.1",
-    "@theia/process": "1.45.1",
-    "@theia/terminal": "1.45.1",
-    "@theia/workspace": "1.45.1",
     "theia-traceviewer": "0.2.0-next.20240229144356.c22cb2c.0"
   },
   "devDependencies": {

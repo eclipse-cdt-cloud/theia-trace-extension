@@ -19,6 +19,8 @@
         "lint": "lerna run lint",
         "lint:fix": "lerna run lint:fix",
         "test": "lerna run test --",
+        "test:browser-app": "yarn playwright ui-tests",
+        "playwright": "yarn --cwd playwright-tests",
         "publish:latest": "lerna publish from-git --registry=https://registry.npmjs.org/ --exact --no-push --yes",
         "publish:next": "lerna publish --registry=https://registry.npmjs.org/ --exact --canary minor --preid=next.$(date -u '+%Y%m%d%H%M%S').$(git rev-parse --short HEAD) --dist-tag=next --no-git-tag-version --no-push --yes",
         "version:major": "lerna version major --exact --no-push --git-tag-command /usr/bin/true --yes -m \"Release %s (Major)\"",
@@ -66,7 +68,8 @@
         "examples/browser",
         "examples/electron",
         "packages/*",
-        "theia-extensions/*"
+        "theia-extensions/*",
+        "playwright-tests"
     ],
     "theiaPluginsDir": "examples/plugins",
     "theiaPlugins": {

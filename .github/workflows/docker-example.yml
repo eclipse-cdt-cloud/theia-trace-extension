@@ -9,12 +9,22 @@ on:
 jobs:
 
   build-and-test:
-    name: Build image
-    runs-on: ubuntu-latest
+    name: Build and test docker-example
+    runs-on: ${{ matrix.os }}
     timeout-minutes: 15
+
+    strategy:
+      matrix:
+        os: [ubuntu-latest]
+        node-version: [18]
 
     steps:
     - uses: actions/checkout@v4
+
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v3
+      with:
+        node-version: ${{ matrix.node-version }}
 
     - name: Build example-docker
       uses: nick-invision/retry@v3
@@ -30,8 +40,9 @@ jobs:
 
     - name: Run docker image
       run: |
-        docker run --init -d -p 0.0.0.0:4000:4000 tte
+        docker run --init -d -p 0.0.0.0:3000:4000 tte
 
     - name: Test trace viewer appliance
       run: |
-        echo "TODO"
+        yarn --ignore-scripts
+        yarn test:browser-app

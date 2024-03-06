@@ -1,0 +1,14 @@
+.DS_Store
+**/node_modules
+**/.browser_modules
+**/dist
+**/lib
+**/src-gen
+**/gen-webpack.config.js
+**/plugins
+**/tsconfig.tsbuildinfo
+*.log
+
+node_modules
+allure-results
+test-results

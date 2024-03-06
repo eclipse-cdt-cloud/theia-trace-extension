@@ -5,6 +5,9 @@
     },
     "references": [
         {
+            "path": "playwright-tests"
+        },
+        {
             "path": "theia-extensions/viewer-prototype"
         },
         {
