@@ -421,6 +421,9 @@ git add RELEASE examples/electron/package.json examples/browser/package.json && 
 
 Finally, push the branch and use it to create a PR. When the PR is merged, a GitHub release should be created with auto-generated release notes, as well as a git tag. Then the `publish-latest` CI job should trigger and if everything goes well, publish the new version of the repo's packages to `npm`.
 
+## License
+
+The code in this repository is licensed under `MIT` (see root `LICENSE`), except for the content of folder `playwright-tests` that's licensed under `EPL-2.0` (see `playwright-tests/LICENSE`). This content is used for testing the components of this repository and is not distributed as part of the various packages that get published to `npm`.
 
 [adr]: https://adr.github.io
 [app-image]: https://www.dorsal.polymtl.ca/files/other/electron-theia-trace-example-app-0.0.1.AppImage
