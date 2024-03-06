@@ -37,7 +37,6 @@
     "@theia/cli": "1.45.1"
   },
   "scripts": {
-    "prepare": "theia build",
     "start": "theia start",
     "watch": "theia build --watch"
   },
