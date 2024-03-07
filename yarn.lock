@@ -2594,7 +2594,7 @@
   resolved "https://registry.npmjs.org/@pkgjs/parseargs/-/parseargs-0.11.0.tgz"
   integrity sha512-+1VkjdD0QBLPodGrJUeqarH8VAIvQODIbwh9XpP5Syisf7YoQgsJKPNFoqqLQlu+VQ/tVSshMR6loPMn8U+dPg==
 
-"@playwright/test@^1.32.1":
+"@playwright/test@^1.32.1", "@playwright/test@^1.37.1":
   version "1.42.1"
   resolved "https://registry.yarnpkg.com/@playwright/test/-/test-1.42.1.tgz#9eff7417bcaa770e9e9a00439e078284b301f31c"
   integrity sha512-Gq9rmS54mjBL/7/MvBaNOBwbfnh7beHvS6oS4srqXFcQHpQCV1+c8JXWE8VLPyRDhgS3H8x8A7hztqI9VnwrAQ==
@@ -3153,12 +3153,12 @@
     "@theia/request" "1.45.1"
     semver "^7.5.4"
 
-"@theia/playwright@1.37.0-next.9":
-  version "1.37.0-next.9"
-  resolved "https://registry.yarnpkg.com/@theia/playwright/-/playwright-1.37.0-next.9.tgz#8f1b24b579cb401fd97f1d1e2286f06a5b895753"
-  integrity sha512-GHQgw0Y+5Gqyfum+tintWSArkv/bQFb9d5PE+gAfY1i3ps5S3j1oifyckve1guNfz6DPSP3gzQD8PewwVDZ4+w==
+"@theia/playwright@1.47.1":
+  version "1.47.1"
+  resolved "https://registry.yarnpkg.com/@theia/playwright/-/playwright-1.47.1.tgz#d053d3309bf5b520d92d718c665c417f57ac8e84"
+  integrity sha512-JJS1BF+dZFaiVhgRlAmzPFQ2euIUH/dSXiL5fFH0LvwO+WkdUJf3rw46VJhQFKHkNf/Fv/wxenKRGb1UDgtdcw==
   dependencies:
-    "@playwright/test" "^1.32.1"
+    "@playwright/test" "^1.37.1"
     fs-extra "^9.0.8"
 
 "@theia/plugin-ext-vscode@1.45.1":
