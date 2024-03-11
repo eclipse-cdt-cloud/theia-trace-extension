@@ -71,6 +71,7 @@ test.describe('My Trace Explorer View', () => {
     test('From closed, can be re-opened using the command palette', async () => {
         expect(await traceExplorer.isDisplayed()).toBe(false);
         await traceExplorer.open();
+        await traceExplorer.activate();
         expect(await traceExplorer.isDisplayed()).toBe(true);
     });
     test('Trace Server status is shown as not started (red)', async () => {
