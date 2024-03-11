@@ -333,6 +333,8 @@ If there is no notification, you can open the application directly in the **Remo
 
 ## Tests
 
+### Unit tests
+
 To run tests once, at the root of the project, run:
 
 ```bash
@@ -345,12 +347,29 @@ To keep tests running, use:
 yarn test --verbose --watch
 ```
 
-### Test coverage
+#### Test coverage
 
-The following command prints a coverage report to the terminal. As of now, it covers all typescript files of the project, including those that are not supposed to have tests.
+The following command computes the test coverage for the unit tests and prints a coverage report to the terminal. To access a more detailed coverage report, open this file in a browser after running the command below: `./packages/react-components/coverage/lcov-report/index.html` As of now, the reported coverage covers all typescript files of the project, including those that are not supposed to have tests.
 
 ```bash
-yarn test --coverage --collectCoverageFrom='src/**/*.ts'
+yarn test --coverage
+```
+
+### UI Tests
+
+To run the UI test suite, first start the browser example application or optionally the Docker example application using external port 3000:
+
+```bash
+yarn browser start
+# or
+docker run --init -d -p 0.0.0.0:3000:4000 tte
+
+```
+
+Then run the UI test suite like so:
+
+```bash
+yarn test:browser-app
 ```
 
 ## About ADRs

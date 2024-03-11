@@ -51,10 +51,15 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # https://github.com/microsoft/vscode-ripgrep/issues/9
 
-    - name: Test
+    - name: Run Unit Tests
       run: yarn test
       env:
         CI: true
+
+    - name: Run UI tests on Browser Example App
+      run: 
+        yarn start:browser &
+        yarn test:browser-app
 
   code-lint:
     name: Lint and check format
