@@ -10,7 +10,7 @@
     box-shadow: 0px 10px 30px -5px rgba(0, 0, 0, 0.3);
     border-radius: 6px;
     padding: 6px 0;
-    min-width: 200px;
+    min-width: 150px;
     z-index: 100;
   }
   .react-contexify__submenu--is-open, .react-contexify__submenu--is-open > .react-contexify__item__content {

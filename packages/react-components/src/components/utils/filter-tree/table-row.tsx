@@ -8,6 +8,7 @@ interface TableRowProps {
     node: TreeNode;
     level: number;
     selectedRow?: number;
+    multiSelectedRows?: number[];
     collapsedNodes: number[];
     isCheckable: boolean;
     isClosable: boolean;
@@ -16,6 +17,7 @@ interface TableRowProps {
     onClose: (id: number) => void;
     onToggleCheck: (id: number) => void;
     onRowClick: (id: number) => void;
+    onMultipleRowClick?: (id: number, isShiftClicked?: boolean) => void;
     onContextMenu: (event: React.MouseEvent<HTMLDivElement>, id: number) => void;
 }
 
@@ -89,9 +91,14 @@ export class TableRow extends React.Component<TableRowProps> {
         return undefined;
     };
 
-    onClick = (): void => {
-        const { node, onRowClick } = this.props;
-        if (onRowClick) {
+    onClick = (e: React.MouseEvent<HTMLDivElement>): void => {
+        const { node, onRowClick, onMultipleRowClick } = this.props;
+
+        if (onMultipleRowClick && e.ctrlKey) {
+            onMultipleRowClick(node.id, false);
+        } else if (onMultipleRowClick && e.shiftKey) {
+            onMultipleRowClick(node.id, true);
+        } else {
             onRowClick(node.id);
         }
     };
@@ -108,16 +115,22 @@ export class TableRow extends React.Component<TableRowProps> {
             return undefined;
         }
         const children = this.renderChildren();
-        const { node, selectedRow } = this.props;
-        const className = selectedRow === node.id ? 'selected' : '';
+        const { node, selectedRow, multiSelectedRows } = this.props;
+        let className = '';
 
-        return (
-            <React.Fragment>
-                <tr className={className} onClick={this.onClick} onContextMenu={this.onContextMenu}>
-                    {this.renderRow()}
-                </tr>
-                {children}
-            </React.Fragment>
-        );
+        if (selectedRow === node.id || multiSelectedRows?.includes(node.id)) {
+            className = 'selected';
+        }
+
+        {
+            return (
+                <React.Fragment>
+                    <tr className={className} onClick={this.onClick} onContextMenu={this.onContextMenu}>
+                        {this.renderRow()}
+                    </tr>
+                    {children}
+                </React.Fragment>
+            );
+        }
     }
 }

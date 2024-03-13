@@ -39,6 +39,16 @@ export class TimeGraphShortcutsTable extends React.Component {
                                         <span className="shortcuts-table-keybinding-key">,</span>
                                     </td>
                                 </tr>
+                                <tr>
+                                    <td>Multi-Select</td>
+                                    <td className="shortcuts-table-keybinding">
+                                        <span className="shortcuts-table-keybinding-key">Ctrl</span>
+                                        <span className="shortcuts-table-keybinding-key">Click</span>
+                                        <span>or</span>
+                                        <span className="shortcuts-table-keybinding-key">Shift</span>
+                                        <span className="shortcuts-table-keybinding-key">Click</span>
+                                    </td>
+                                </tr>
                             </tbody>
                         </table>
                     </div>

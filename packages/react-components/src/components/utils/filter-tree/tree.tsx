@@ -16,9 +16,11 @@ interface FilterTreeProps {
     checkedSeries: number[]; // Optional
     collapsedNodes: number[];
     selectedRow?: number;
+    multiSelectedRows?: number[];
     onToggleCheck: (ids: number[]) => void; // Optional
     onClose: (id: number) => void;
     onRowClick: (id: number) => void;
+    onMultipleRowClick?: (id: number, isShiftClicked?: boolean) => void;
     onContextMenu: (event: React.MouseEvent<HTMLDivElement>, id: number) => void;
     onToggleCollapse: (id: number, nodes: TreeNode[]) => void;
     onOrderChange: (ids: number[]) => void;
@@ -269,6 +271,7 @@ export class FilterTree extends React.Component<FilterTreeProps, FilterTreeState
         <Table
             nodes={nodes}
             selectedRow={this.props.selectedRow}
+            multiSelectedRows={this.props.multiSelectedRows}
             collapsedNodes={this.props.collapsedNodes}
             isCheckable={this.props.showCheckboxes}
             isClosable={this.props.showCloseIcons}
@@ -277,6 +280,7 @@ export class FilterTree extends React.Component<FilterTreeProps, FilterTreeState
             onToggleCollapse={this.handleCollapse}
             onToggleCheck={this.handleCheck}
             onRowClick={this.props.onRowClick}
+            onMultipleRowClick={this.props.onMultipleRowClick}
             onContextMenu={this.props.onContextMenu}
             onClose={this.handleClose}
             onSort={this.handleOrderChange}

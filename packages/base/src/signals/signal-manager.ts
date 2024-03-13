@@ -5,6 +5,9 @@ import { Trace } from 'tsp-typescript-client/lib/models/trace';
 import { OpenedTracesUpdatedSignalPayload } from './opened-traces-updated-signal-payload';
 import { OutputAddedSignalPayload } from './output-added-signal-payload';
 import { TimeRangeUpdatePayload } from './time-range-data-signal-payloads';
+import { ContextMenuContributedSignalPayload } from './context-menu-contributed-signal-payload';
+import { ContextMenuItemClickedSignalPayload } from './context-menu-item-clicked-signal-payload';
+import { RowSelectionsChangedSignalPayload } from './row-selections-changed-signal-payload';
 
 export declare interface SignalManager {
     fireTraceOpenedSignal(trace: Trace): void;
@@ -20,6 +23,7 @@ export declare interface SignalManager {
     fireThemeChangedSignal(theme: string): void;
     // TODO - Refactor or remove this signal.  Similar signal to fireRequestSelectionRangeChange
     fireSelectionChangedSignal(payload: { [key: string]: string }): void;
+    fireRowSelectionsChanged(payload: RowSelectionsChangedSignalPayload): void;
     fireCloseTraceViewerTabSignal(traceUUID: string): void;
     fireTraceViewerTabActivatedSignal(experiment: Experiment): void;
     fireUpdateZoomSignal(hasZoomedIn: boolean): void;
@@ -41,6 +45,8 @@ export declare interface SignalManager {
     fireSelectionRangeUpdated(payload: TimeRangeUpdatePayload): void;
     fireViewRangeUpdated(payload: TimeRangeUpdatePayload): void;
     fireRequestSelectionRangeChange(payload: TimeRangeUpdatePayload): void;
+    fireContributeContextMenu(payload: ContextMenuContributedSignalPayload): void;
+    fireContextMenuItemClicked(payload: ContextMenuItemClickedSignalPayload): void;
 }
 
 export const Signals = {
@@ -57,6 +63,7 @@ export const Signals = {
     ITEM_PROPERTIES_UPDATED: 'item properties updated',
     THEME_CHANGED: 'theme changed',
     SELECTION_CHANGED: 'selection changed',
+    ROW_SELECTIONS_CHANGED: 'rows selected changed',
     CLOSE_TRACEVIEWERTAB: 'tab closed',
     TRACEVIEWERTAB_ACTIVATED: 'widget activated',
     UPDATE_ZOOM: 'update zoom',
@@ -75,7 +82,9 @@ export const Signals = {
     VIEW_RANGE_UPDATED: 'view range updated',
     SELECTION_RANGE_UPDATED: 'selection range updated',
     REQUEST_SELECTION_RANGE_CHANGE: 'change selection range',
-    OUTPUT_DATA_CHANGED: 'output data changed'
+    OUTPUT_DATA_CHANGED: 'output data changed',
+    CONTRIBUTE_CONTEXT_MENU: 'contribute context menu',
+    CONTEXT_MENU_ITEM_CLICKED: 'context menu item clicked'
 };
 
 export class SignalManager extends EventEmitter implements SignalManager {
@@ -96,6 +105,10 @@ export class SignalManager extends EventEmitter implements SignalManager {
     }
     fireExperimentSelectedSignal(experiment: Experiment | undefined): void {
         this.emit(Signals.EXPERIMENT_SELECTED, experiment);
+    }
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    fireRowSelectionsChanged(payload: RowSelectionsChangedSignalPayload): void {
+        this.emit(Signals.ROW_SELECTIONS_CHANGED, payload);
     }
     fireExperimentUpdatedSignal(experiment: Experiment): void {
         this.emit(Signals.EXPERIMENT_UPDATED, experiment);
@@ -173,6 +186,12 @@ export class SignalManager extends EventEmitter implements SignalManager {
     }
     fireRequestSelectionRangeChange(payload: TimeRangeUpdatePayload): void {
         this.emit(Signals.REQUEST_SELECTION_RANGE_CHANGE, payload);
+    }
+    fireContributeContextMenu(payload: ContextMenuContributedSignalPayload): void {
+        this.emit(Signals.CONTRIBUTE_CONTEXT_MENU, payload);
+    }
+    fireContextMenuItemClicked(payload: ContextMenuItemClickedSignalPayload): void {
+        this.emit(Signals.CONTEXT_MENU_ITEM_CLICKED, payload);
     }
 }
 
