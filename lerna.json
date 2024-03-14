@@ -6,12 +6,6 @@
     "run": {
       "stream": true
     },
-    "publish": {
-      "forcePublish": true,
-      "graphType": "all",
-      "skipGit": true,
-      "registry": "https://registry.npmjs.org/"
-    },
     "verifyAccess": false
   }
 }

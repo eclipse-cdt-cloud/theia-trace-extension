@@ -1,0 +1,37 @@
+name: Release
+
+on:
+  push:
+    branches:    
+      - master
+    paths:
+      - 'RELEASE'
+  pull_request:
+    types: [opened, synchronize]
+    branches:
+      - master
+    paths:
+      - 'RELEASE'
+
+jobs:
+  gh-release:
+    name: GitHub release
+    runs-on: ubuntu-latest
+    
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - uses: pipe-cd/actions-gh-release@v2.6.0
+        with:
+          release_file: 'RELEASE'
+          # Actions that run using the auto-generated GitHub token are
+          # not allowed to trigger a new workflow run. In this case we want
+          # the tag created by actions-gh-release to re-trigger the main workflow
+          # and result in publishing the package to npm.
+          # The following scopes are required when creating the committer token:
+          #  - repo:status, repo_deployment, public_repo, read:org
+          # See here for more details:
+          # https://docs.github.com/en/actions/security-guides/automatic-token-authentication#using-the-github_token-in-a-workflow
+          token: ${{ secrets.GH_COMMITTER_TOKEN }}
+            
