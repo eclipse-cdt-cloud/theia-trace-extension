@@ -384,6 +384,43 @@ pip install -r requirements.txt
 * The virtual environment can be replaced with another setup locally.
 * Above, the `./requirements.txt` file has [the ADR tool][tools] to install.
 
+## Release/publish
+
+Publishing this repository's npm packages and creating a corresponding GitHub release with git tag (latest only), all happen on GitHub CI.
+
+### Publish next packages
+
+A set of `next` package is automatically published to `npm` every time a PR is merged.
+
+### Publish latest / release
+
+Whenever a new release is desired, including publishing a corresponding set of `latest` package to `npm`, it can be triggered through a PR. The following has to be done:
+
+Create a new branch for your PR. e.g. 
+```bash
+git branch new-release && git checkout new-release
+```
+
+Then decide if the release shall be a `Major`, `Minor` or `Patch` release and use the corresponding command below to step packages versions, according to the release type. A new release commit will be created:
+
+``` bash
+yarn version:major
+# or
+yarn version:minor
+# or
+yarn version:patch
+```
+
+Modify the _version tag_ in file `./RELEASE`, to match the new release. Then amend the release commit to include this change:
+
+```bash
+<edit ./RELEASES to update tag>
+git add RELEASE && git commit --amend
+```
+
+Finally, push the branch and use it to create a PR. When the PR is merged, a GitHub release should be created with auto-generated release notes, as well as a git tag. Then the `publish-latest` CI job should trigger and if everything goes well, publish the new version of the repo's packages to `npm`.
+
+
 [adr]: https://adr.github.io
 [app-image]: https://www.dorsal.polymtl.ca/files/other/electron-theia-trace-example-app-0.0.1.AppImage
 [cdt-cloud-demo]: https://try.theia-cloud.io/?appDef=cdt-cloud-demo

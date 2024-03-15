@@ -7,6 +7,10 @@
     "type": "git",
     "url": "https://github.com/eclipse-cdt-cloud/theia-trace-extension"
   },
+  "bugs": {
+    "url": "https://github.com/eclipse-cdt-cloud/theia-trace-extension/issues"
+  },
+  "homepage": "https://github.com/eclipse-cdt-cloud/theia-trace-extension",
   "files": [
     "lib",
     "src",
