@@ -1,7 +1,7 @@
 {
   "name": "theia-traceviewer",
   "version": "0.1.0",
-  "description": "Trace Viewer Theia Extension",
+  "description": "A Trace Viewer for Theia applications, in the form of a Theia extension",
   "keywords": [
     "theia-extension"
   ],
@@ -10,6 +10,10 @@
     "type": "git",
     "url": "https://github.com/eclipse-cdt-cloud/theia-trace-extension"
   },
+  "bugs": {
+    "url": "https://github.com/eclipse-cdt-cloud/theia-trace-extension/issues"
+  },
+  "homepage": "https://github.com/eclipse-cdt-cloud/theia-trace-extension",
   "files": [
     "lib",
     "src",

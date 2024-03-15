@@ -150,25 +150,25 @@ For issues related to the Trace Viewer, please open a GitHub tracker for the [Th
 
 For issues concerning `eclipse-cdt-cloud`, please refer to the contact options listed on the [CDT.Cloud website][cdt-cloud-website].
 
-[architecture]: https://github.com/theia-ide/theia-trace-extension#architecture
+[architecture]: https://github.com/eclipse-cdt-cloud/theia-trace-extension#architecture
 [cdt-cloud-website]: https://cdt-cloud.io/contact/
-[commit-message-example]: https://github.com/theia-ide/theia-trace-extension/commit/bc18fcd110d7b8433293692421f2e4fb49f89bd6
+[commit-message-example]: https://github.com/eclipse-cdt-cloud/theia-trace-extension/commit/bc18fcd110d7b8433293692421f2e4fb49f89bd6
 [commit-message-message]: https://tbaggery.com/2008/04/19/a-note-about-git-commit-messages.html
 [commiter-handbook]: https://www.eclipse.org/projects/handbook/#resources-commit
 [contact-us]: #contact
 [creating-changes]: https://www.dataschool.io/how-to-contribute-on-github/
 [dev-process]: https://eclipse.org/projects/dev_process
 [eca]: http://www.eclipse.org/legal/ECA.php
-[external-components]: https://github.com/theia-ide/theia-trace-extension#related-code
-[good-first-issues]: https://github.com/theia-ide/theia-trace-extension/issues?q=is%3Aopen+is%3Aissue+label%3A%22good+first+issue%22
+[external-components]: https://github.com/eclipse-cdt-cloud/theia-trace-extension#related-code
+[good-first-issues]: https://github.com/eclipse-cdt-cloud/theia-trace-extension/issues?q=is%3Aopen+is%3Aissue+label%3A%22good+first+issue%22
 [flexible-architecture-video]: https://www.youtube.com/watch?v=8s5vGf45e-g
 [flexible-architecture-slides]: https://tracingsummit.org/ts/2019/files/Tracingsummit2019-theia-dagenais.pdf
-[gitpod-demo]: https://github.com/theia-ide/theia-trace-extension#try-a-live-demo-via-gitpod
+[gitpod-demo]: https://github.com/eclipse-cdt-cloud/theia-trace-extension#Nightly-via-Gitpod
 [ip-policy]: https://www.eclipse.org/org/documents/Eclipse_IP_Policy.pdf
 [issues]: https://github.com/eclipse-cdt-cloud/theia-trace-extension/issues
-[issue-317]: https://github.com/theia-ide/theia-trace-extension/issues/317
-[issue-369]: https://github.com/theia-ide/theia-trace-extension/pull/369/files
-[issue-402]: https://github.com/theia-ide/theia-trace-extension/pull/402
+[issue-317]: https://github.com/eclipse-cdt-cloud/theia-trace-extension/issues/317
+[issue-369]: https://github.com/eclipse-cdt-cloud/theia-trace-extension/pull/369/files
+[issue-402]: https://github.com/eclipse-cdt-cloud/theia-trace-extension/pull/402
 [new-contributors]: #new-contributors
 [pr-guide]: #pull-request-guidelines
 [pull-requests]: https://github.com/eclipse-cdt-cloud/theia-trace-extension/pulls
