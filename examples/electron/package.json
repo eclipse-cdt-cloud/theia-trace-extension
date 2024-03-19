@@ -40,7 +40,7 @@
     "@theia/terminal": "1.45.1",
     "@theia/vsx-registry": "1.45.1",
     "@theia/workspace": "1.45.1",
-    "theia-traceviewer": "0.1.0"
+    "theia-traceviewer": "0.2.0"
   },
   "devDependencies": {
     "@theia/cli": "1.45.1",
