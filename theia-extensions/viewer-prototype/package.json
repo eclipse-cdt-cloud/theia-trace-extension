@@ -1,61 +1,61 @@
 {
-  "name": "theia-traceviewer",
-  "version": "0.1.0",
-  "description": "A Trace Viewer for Theia applications, in the form of a Theia extension",
-  "keywords": [
-    "theia-extension"
-  ],
-  "license": "MIT",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/eclipse-cdt-cloud/theia-trace-extension"
-  },
-  "bugs": {
-    "url": "https://github.com/eclipse-cdt-cloud/theia-trace-extension/issues"
-  },
-  "homepage": "https://github.com/eclipse-cdt-cloud/theia-trace-extension",
-  "files": [
-    "lib",
-    "src",
-    "style"
-  ],
-  "dependencies": {
-    "@theia/core": "1.45.1",
-    "@theia/editor": "1.45.1",
-    "@theia/filesystem": "1.45.1",
-    "traceviewer-base": "0.1.0",
-    "traceviewer-react-components": "0.1.0",
-    "tree-kill": "latest",
-    "animate.css": "^4.1.1"
-  },
-  "devDependencies": {
-    "@typescript-eslint/eslint-plugin": "^3.4.0",
-    "@typescript-eslint/parser": "^3.4.0",
-    "eslint": "^7.3.0",
-    "eslint-plugin-import": "^2.21.2",
-    "eslint-plugin-no-null": "^1.0.2",
-    "eslint-plugin-react": "^7.20.0",
-    "rimraf": "latest",
-    "typescript": "latest"
-  },
-  "scripts": {
-    "build": "tsc -b",
-    "clean": "rimraf lib *.tsbuildinfo",
-    "lint": "eslint .",
-    "lint:fix": "eslint . --fix",
-    "test": "echo 'test'",
-    "watch": "tsc -w",
-    "format:write": "prettier --write ./src",
-    "format:check": "prettier --check ./src"
-  },
-  "theiaExtensions": [
-    {
-      "frontend": "lib/browser/trace-viewer/trace-viewer-frontend-module",
-      "backend": "lib/node/viewer-prototype-backend-module"
+    "name": "theia-traceviewer",
+    "version": "0.1.0",
+    "description": "A Trace Viewer for Theia applications, in the form of a Theia extension",
+    "keywords": [
+        "theia-extension"
+    ],
+    "license": "MIT",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/eclipse-cdt-cloud/theia-trace-extension"
     },
-    {
-      "backend": "lib/node/trace-server/trace-server-module",
-      "backendElectron": "lib/electron-node/trace-server/electron-trace-server-module"
-    }
-  ]
+    "bugs": {
+        "url": "https://github.com/eclipse-cdt-cloud/theia-trace-extension/issues"
+    },
+    "homepage": "https://github.com/eclipse-cdt-cloud/theia-trace-extension",
+    "files": [
+        "lib",
+        "src",
+        "style"
+    ],
+    "dependencies": {
+        "@theia/core": "1.45.1",
+        "@theia/editor": "1.45.1",
+        "@theia/filesystem": "1.45.1",
+        "traceviewer-base": "0.1.0",
+        "traceviewer-react-components": "0.1.0",
+        "tree-kill": "latest",
+        "animate.css": "^4.1.1"
+    },
+    "devDependencies": {
+        "@typescript-eslint/eslint-plugin": "^3.4.0",
+        "@typescript-eslint/parser": "^3.4.0",
+        "eslint": "^7.3.0",
+        "eslint-plugin-import": "^2.21.2",
+        "eslint-plugin-no-null": "^1.0.2",
+        "eslint-plugin-react": "^7.20.0",
+        "rimraf": "latest",
+        "typescript": "latest"
+    },
+    "scripts": {
+        "build": "tsc -b",
+        "clean": "rimraf lib *.tsbuildinfo",
+        "lint": "eslint .",
+        "lint:fix": "eslint . --fix",
+        "test": "echo 'test'",
+        "watch": "tsc -w",
+        "format:write": "prettier --write ./src",
+        "format:check": "prettier --check ./src"
+    },
+    "theiaExtensions": [
+        {
+            "frontend": "lib/browser/trace-viewer/trace-viewer-frontend-module",
+            "backend": "lib/node/viewer-prototype-backend-module"
+        },
+        {
+            "backend": "lib/node/trace-server/trace-server-module",
+            "backendElectron": "lib/electron-node/trace-server/electron-trace-server-module"
+        }
+    ]
 }

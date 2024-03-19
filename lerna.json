@@ -1,11 +1,11 @@
 {
-  "lerna": "7.3.0",
-  "version": "0.1.0",
-  "npmClient": "yarn",
-  "command": {
-    "run": {
-      "stream": true
-    },
-    "verifyAccess": false
-  }
+    "lerna": "7.3.0",
+    "version": "0.1.0",
+    "npmClient": "yarn",
+    "command": {
+        "run": {
+            "stream": true
+        },
+        "verifyAccess": false
+    }
 }
