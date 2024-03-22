@@ -1,49 +1,49 @@
 {
-  "private": true,
-  "name": "browser-theia-trace-example-app",
-  "version": "0.1.0",
-  "theia": {
-    "target": "browser",
-    "frontend": {
-      "config": {
-        "applicationName": "Theia-Trace Example Application",
-        "preferences": {
-          "editor.autoSave": "on",
-          "trace-viewer.port": 8080
+    "private": true,
+    "name": "browser-theia-trace-example-app",
+    "version": "0.1.0",
+    "theia": {
+        "target": "browser",
+        "frontend": {
+            "config": {
+                "applicationName": "Theia-Trace Example Application",
+                "preferences": {
+                    "editor.autoSave": "on",
+                    "trace-viewer.port": 8080
+                }
+            }
         }
-      }
-    }
-  },
-  "dependencies": {
-    "@theia/core": "1.45.1",
-    "@theia/editor": "1.45.1",
-    "@theia/filesystem": "1.45.1",
-    "@theia/getting-started": "1.45.1",
-    "@theia/keymaps": "1.45.1",
-    "@theia/markers": "1.45.1",
-    "@theia/messages": "1.45.1",
-    "@theia/monaco": "1.45.1",
-    "@theia/navigator": "1.45.1",
-    "@theia/preferences": "1.45.1",
-    "@theia/process": "1.45.1",
-    "@theia/terminal": "1.45.1",
-    "@theia/vsx-registry": "1.45.1",
-    "@theia/workspace": "1.45.1",
-    "theia-traceviewer": "0.2.0"
-  },
-  "devDependencies": {
-    "@theia/cli": "1.45.1"
-  },
-  "scripts": {
-    "prepare": "yarn build",
-    "build": "theia build --mode development",
-    "rebuild": "theia rebuild:browser --cacheRoot ../..",
-    "start": "TRACE_SERVER_PATH=../../trace-compass-server/tracecompass-server theia start --plugins=local-dir:../plugins",
-    "watch": "theia build --watch --mode development"
-  },
-  "engines": {
-    "yarn": ">=1.7.0 <2",
-    "node": ">=16 <19"
-  },
-  "theiaPluginsDir": "../plugins"
+    },
+    "dependencies": {
+        "@theia/core": "1.45.1",
+        "@theia/editor": "1.45.1",
+        "@theia/filesystem": "1.45.1",
+        "@theia/getting-started": "1.45.1",
+        "@theia/keymaps": "1.45.1",
+        "@theia/markers": "1.45.1",
+        "@theia/messages": "1.45.1",
+        "@theia/monaco": "1.45.1",
+        "@theia/navigator": "1.45.1",
+        "@theia/preferences": "1.45.1",
+        "@theia/process": "1.45.1",
+        "@theia/terminal": "1.45.1",
+        "@theia/vsx-registry": "1.45.1",
+        "@theia/workspace": "1.45.1",
+        "theia-traceviewer": "0.2.0"
+    },
+    "devDependencies": {
+        "@theia/cli": "1.45.1"
+    },
+    "scripts": {
+        "prepare": "yarn build",
+        "build": "theia build --mode development",
+        "rebuild": "theia rebuild:browser --cacheRoot ../..",
+        "start": "TRACE_SERVER_PATH=../../trace-compass-server/tracecompass-server theia start --plugins=local-dir:../plugins",
+        "watch": "theia build --watch --mode development"
+    },
+    "engines": {
+        "yarn": ">=1.7.0 <2",
+        "node": ">=16 <19"
+    },
+    "theiaPluginsDir": "../plugins"
 }
