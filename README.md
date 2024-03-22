@@ -430,12 +430,11 @@ yarn version:minor
 yarn version:patch
 ```
 
-Modify the _version tag_ in file `./RELEASE`, to match the new release, and similarly update the requested version for the `theia-traceviewer` dependency in both the browser and electron example applications (`examples/electron/package.json` and `examples/browser/package.json`)
-
-Then amend the release commit to include these changes:
+Modify the _version tag_ in file `./RELEASE`, to match the new release. Then amend the release commit to include this change:
 
 ```bash
-git add RELEASE examples/electron/package.json examples/browser/package.json && git commit --amend
+<edit ./RELEASES to update tag>
+git add RELEASE && git commit --amend
 ```
 
 Finally, push the branch and use it to create a PR. When the PR is merged, a GitHub release should be created with auto-generated release notes, as well as a git tag. Then the `publish-latest` CI job should trigger and if everything goes well, publish the new version of the repo's packages to `npm`.
