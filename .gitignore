@@ -12,6 +12,7 @@ examples/*/gen-webpack.*
 examples/*/lib
 examples/*/src-gen
 examples/electron/dist/
+examples/plugins/
 license-check-summary.txt*
 node_modules/
 theia-extensions/viewer-prototype/lib/
