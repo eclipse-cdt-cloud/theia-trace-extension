@@ -47,6 +47,7 @@ export declare interface SignalManager {
     fireRequestSelectionRangeChange(payload: TimeRangeUpdatePayload): void;
     fireContributeContextMenu(payload: ContextMenuContributedSignalPayload): void;
     fireContextMenuItemClicked(payload: ContextMenuItemClickedSignalPayload): void;
+    fireTraceContexModelUpdated(payload: { [key: string]: unknown }): void;
 }
 
 export const Signals = {
@@ -84,7 +85,8 @@ export const Signals = {
     REQUEST_SELECTION_RANGE_CHANGE: 'change selection range',
     OUTPUT_DATA_CHANGED: 'output data changed',
     CONTRIBUTE_CONTEXT_MENU: 'contribute context menu',
-    CONTEXT_MENU_ITEM_CLICKED: 'context menu item clicked'
+    CONTEXT_MENU_ITEM_CLICKED: 'context menu item clicked',
+    TRACE_MODEL_UPDATED: 'trace model updated'
 };
 
 export class SignalManager extends EventEmitter implements SignalManager {
@@ -192,6 +194,9 @@ export class SignalManager extends EventEmitter implements SignalManager {
     }
     fireContextMenuItemClicked(payload: ContextMenuItemClickedSignalPayload): void {
         this.emit(Signals.CONTEXT_MENU_ITEM_CLICKED, payload);
+    }
+    fireTraceContexModelUpdated(payload: { [key: string]: unknown }): void {
+        this.emit(Signals.TRACE_MODEL_UPDATED, payload);
     }
 }
 

@@ -220,6 +220,23 @@ export class TheiaRpcTspProxy implements ITspClient {
     }
 
     /**
+     * Fetch Time Graph tree, Model is a key-value map
+     * @param expUUID Experiment UUID
+     * @param outputID Output ID
+     * @param parameters Query object
+     * @returns Time graph entry response with model is a key-value map
+     */
+    public async fetchTimeGraphTreeContext(
+        expUUID: string,
+        outputID: string,
+        parameters: Query
+    ): Promise<TspClientResponse<GenericResponse<{ [key: string]: unknown }>>> {
+        return this.toTspClientResponse<GenericResponse<{ [key: string]: unknown }>>(
+            await this.tspClient.fetchTimeGraphTreeContext(expUUID, outputID, parameters)
+        );
+    }
+
+    /**
      * Fetch Time Graph states. Model extends TimeGraphModel
      * @param expUUID Experiment UUID
      * @param outputID Output ID

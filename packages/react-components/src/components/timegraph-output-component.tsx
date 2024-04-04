@@ -104,6 +104,8 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
         this.chartLayer.updateChart();
     }, 500);
 
+    private additonalParameters: { [key: string]: unknown } | undefined;
+
     constructor(props: TimegraphOutputProps) {
         super(props);
         this.state = {
@@ -260,6 +262,12 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
         });
         this.waitAnalysisCompletion();
         this.subscribeToEvents();
+
+        /* Server-side context menus */
+        if (this.props.outputDescriptor) {
+            console.log('this.props.outputDescriptor');
+            this.registerServerSideMenus();
+        }
     }
 
     componentWillUnmount(): void {
@@ -273,6 +281,8 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
         signalManager().on(Signals.OUTPUT_DATA_CHANGED, this.onOutputDataChanged);
         signalManager().on(Signals.THEME_CHANGED, this.onThemeChange);
         signalManager().on(Signals.SELECTION_CHANGED, this.onSelectionChanged);
+        signalManager().on(Signals.CONTEXT_MENU_ITEM_CLICKED, this._onContextMenuItemClicked);
+        signalManager().on(Signals.TRACE_MODEL_UPDATED, this.onModelUpdated);
     }
 
     protected unsubscribeToEvents(): void {
@@ -280,6 +290,8 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
         signalManager().off(Signals.OUTPUT_DATA_CHANGED, this.onOutputDataChanged);
         signalManager().off(Signals.THEME_CHANGED, this.onThemeChange);
         signalManager().off(Signals.SELECTION_CHANGED, this.onSelectionChanged);
+        signalManager().off(Signals.CONTEXT_MENU_ITEM_CLICKED, this._onContextMenuItemClicked);
+        signalManager().off(Signals.TRACE_MODEL_UPDATED, this.onModelUpdated);
     }
 
     async fetchTree(): Promise<ResponseStatus> {
@@ -1482,4 +1494,44 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
         );
         this.chartLayer.selectAndReveal(rowIndex);
     }
+
+    protected registerServerSideMenus(): void {
+        // TODO: create generic API to register server driven menus
+        const ctxMenu: ContextMenuItems = {
+            submenus: [],
+            items: [{ id: 'org.eclipse.tracecompass.follow.thread.id', label: 'Follow thread' }]
+        };
+        const pld: ContextMenuContributedSignalPayload = new ContextMenuContributedSignalPayload(
+            this.props.outputDescriptor.id,
+            ctxMenu
+        );
+        signalManager().fireContributeContextMenu(pld);
+    }
+
+    private _onContextMenuItemClicked = async (payload: ContextMenuItemClickedSignalPayload): Promise<void> => {
+        // handle item clicked payload and perform whatever function you need to based on the selection
+        // TODO: create generic API to execute command-handler for server driven actions
+        // For example, a pre-defined way to query additional query parameters that are passed to back-end calls (global filter)
+
+        if (payload?.getItemId() === 'org.eclipse.tracecompass.follow.thread.id') {
+            const items: { id: number; parentId?: number; metadata?: { [key: string]: unknown } }[] =
+                payload.getProps()['selectedRows'];
+            const item = items[0].id;
+            const parameters = QueryHelper.selectionQuery([item]);
+            const tspClientResponse = await this.props.tspClient.fetchTimeGraphTreeContext(
+                this.props.traceId,
+                this.props.outputDescriptor.id,
+                parameters
+            );
+            const model: { [key: string]: unknown } | undefined = tspClientResponse.getModel()?.model;
+            if (model) {
+                signalManager().fireTraceContexModelUpdated(model);
+            }
+        }
+    };
+
+    onModelUpdated = (model: { [key: string]: unknown }): void => {
+        // TODO add model as addtional parameters to back-end queries
+        this.additonalParameters = model;
+    };
 }
