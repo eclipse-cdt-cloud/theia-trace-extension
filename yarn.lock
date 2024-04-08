@@ -14095,17 +14095,16 @@ through@2, "through@>=2.2.7 <3", through@^2.3.4, through@^2.3.6, through@^2.3.8,
   resolved "https://registry.npmjs.org/through/-/through-2.3.8.tgz"
   integrity sha512-w89qg7PI8wAdvX60bMDP+bFoD5Dvhm9oLheFp5O4a2QF0cSBGsBX4qZmadPMvVqlLJBBci+WqGGOAPvcDeNSVg==
 
-timeline-chart@next:
-  version "0.3.0-next.20240111132757.93cc807.0"
-  resolved "https://registry.npmjs.org/timeline-chart/-/timeline-chart-0.3.0-next.20240111132757.93cc807.0.tgz"
-  integrity sha512-GeOL0bh/hK/Og22hYTPX5zmYrfcy8r+yiS9qeZ9ihf9U4TqzVTdZLDLgchidLQfboVO+qItwsg9ZHUYP4py+lg==
+timeline-chart@^0.3.1:
+  version "0.3.1"
+  resolved "https://registry.npmjs.org/timeline-chart/-/timeline-chart-0.3.1.tgz#2f53b3af20e2dffba7917775db6b1ef5b40303d2"
+  integrity sha512-qDP9se79LtX+SlA6Y8dZDvcgL0z+9yEjdMiObAf3AWjUW+IsR3aQrNUTDER5pCXRMsvLQy5l2WWWQX0DrflKuQ==
   dependencies:
     "@types/lodash.throttle" "^4.1.4"
     glob "^7.1.6"
     keyboard-key "1.1.0"
     lodash.throttle "^4.1.1"
     pixi.js-legacy "^5.3.3"
-    rimraf latest
 
 tmp-promise@^3.0.2:
   version "3.0.3"
@@ -14278,14 +14277,13 @@ tslib@^2.1.0, tslib@^2.3.0, tslib@^2.3.1, tslib@^2.4.0:
   resolved "https://registry.npmjs.org/tslib/-/tslib-2.6.2.tgz"
   integrity sha512-AEYxH93jGFPn/a2iVAwW87VuUIkR1FVUKB77NwMF7nBTDkDrrT/Hpt/IrCJ0QXhW27jTBDcf5ZY7w6RiqTMw2Q==
 
-tsp-typescript-client@next:
-  version "0.4.0-next.20240111132845.6621bc7.0"
-  resolved "https://registry.npmjs.org/tsp-typescript-client/-/tsp-typescript-client-0.4.0-next.20240111132845.6621bc7.0.tgz"
-  integrity sha512-BVQmzZWemO5QMQpcmwKqN7SFyp5dcqas5jkG4ZqFHfW4ge55jQm2upuf41Rh0/p2oCUJ6GjDZiq6O8QRN5amMQ==
+tsp-typescript-client@^0.4.1:
+  version "0.4.1"
+  resolved "https://registry.npmjs.org/tsp-typescript-client/-/tsp-typescript-client-0.4.1.tgz#7475cacf1f5f055279dee4bd3614b24d5434d10d"
+  integrity sha512-T0Bi2qwkJdxEJ7NSASFMzHtSNMbZnmuyDyvR5+6uvcc9zxd7X4/axhCHfiRxlwvWddyQfpPGPrDFiLbz3g2izA==
   dependencies:
     json-bigint sidorares/json-bigint#2c0a5f896d7888e68e5f4ae3c7ea5cd42fd54473
     node-fetch "^2.5.0"
-    rimraf latest
 
 tsutils@^3.17.1, tsutils@^3.21.0:
   version "3.21.0"
