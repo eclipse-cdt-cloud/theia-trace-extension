@@ -12,6 +12,7 @@ RUN apt-get update && apt-get install -y \
 
 # Build the browser theia-trace-extension application
 COPY example-package.json /app/tte/package.json
+COPY webpack.config.js /app/tte/webpack.config.js
 WORKDIR /app/tte/
 RUN yarn && \
     npx theia build --app-target=\"browser\" --mode production && \
