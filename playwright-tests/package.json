@@ -1,31 +1,31 @@
 {
-  "private": true,
-  "name": "theia-playwright-tests",
-  "version": "1.36.0",
-  "license": "EPL-2.0",
-  "scripts": {
-    "prepare": "yarn clean && yarn build && yarn lint",
-    "clean": "rimraf lib tsconfig.tsbuildinfo",
-    "build": "tsc --incremental && npx playwright install chromium",
-    "lint": "eslint -c ./.eslintrc.js --ext .ts ./tests",
-    "lint:fix": "eslint -c ./.eslintrc.js --ext .ts ./tests --fix",
-    "ui-tests": "yarn && playwright test",
-    "ui-tests-report-generate": "allure generate ./allure-results --clean -o allure-results/allure-report",
-    "ui-tests-report": "yarn ui-tests-report-generate && allure open allure-results/allure-report"
-  },
-  "dependencies": {
-    "@playwright/test": "^1.32.1",
-    "@theia/playwright": "1.47.1"
-  },
-  "devDependencies": {
-    "@typescript-eslint/parser": "^5.57.1",
-    "@typescript-eslint/eslint-plugin": "^5.57.1",
-    "allure-commandline": "^2.21.0",
-    "allure-playwright": "^2.1.0",
-    "eslint": "^8.37.0",
-    "eslint-config-prettier": "^8.8.0",
-    "eslint-plugin-import": "^2.27.5",
-    "rimraf": "^2.6.1",
-    "typescript": "~4.5.5"
-  }
+    "private": true,
+    "name": "theia-playwright-tests",
+    "version": "0.2.1",
+    "license": "EPL-2.0",
+    "scripts": {
+        "prepare": "yarn clean && yarn build && yarn lint",
+        "clean": "rimraf lib tsconfig.tsbuildinfo",
+        "build": "tsc --incremental && npx playwright install chromium",
+        "lint": "eslint -c ./.eslintrc.js --ext .ts ./tests",
+        "lint:fix": "eslint -c ./.eslintrc.js --ext .ts ./tests --fix",
+        "ui-tests": "yarn && playwright test",
+        "ui-tests-report-generate": "allure generate ./allure-results --clean -o allure-results/allure-report",
+        "ui-tests-report": "yarn ui-tests-report-generate && allure open allure-results/allure-report"
+    },
+    "dependencies": {
+        "@playwright/test": "^1.32.1",
+        "@theia/playwright": "1.47.1"
+    },
+    "devDependencies": {
+        "@typescript-eslint/eslint-plugin": "^5.57.1",
+        "@typescript-eslint/parser": "^5.57.1",
+        "allure-commandline": "^2.21.0",
+        "allure-playwright": "^2.1.0",
+        "eslint": "^8.37.0",
+        "eslint-config-prettier": "^8.8.0",
+        "eslint-plugin-import": "^2.27.5",
+        "rimraf": "^2.6.1",
+        "typescript": "~4.5.5"
+    }
 }
