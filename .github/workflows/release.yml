@@ -16,6 +16,7 @@ on:
 jobs:
   gh-release:
     name: GitHub release
+    if: github.repository == 'eclipse-cdt-cloud/theia-trace-extension'
     runs-on: ubuntu-latest
     
     steps:
