@@ -50,10 +50,11 @@ Prerequisite: A GitHub account (for logging into Gitpod)
 
 ![gitpod-live-demo-setup][gitpod-live-demo-setup]
 
-## Download an external build of the application
+## Download an external application
 
-If you'd like to explore your own traces, you can **[download a Theia IDE build with this trace viewer extension here][app-image]**
+If you'd like to explore your own traces, you can download a pre-built `CDT Cloud Blueprint` IDE, which includes the Theia trace viewer extension: [here][app-image]
 
+* **Prerequisite: trace-server** Install a [trace server][tc-server] and configure its path in the application's preferences (Trace Server: Path)
 * **Prerequisite: Java 17** (required since this tool uses the [Eclipse Trace Compass server][tc-server] which runs on Java)
   * If you get a confusing error "Error opening serial port ${this.port}. (Port busy)" when you try to run the app, it's likely that Java is missing.
 * **No compilation or additional downloads necessary!** Just change the AppImage file's permissions to make it executable (command: `chmod +x <filename>`) and run it.
@@ -289,7 +290,7 @@ This section discusses known issues on Windows.
 When starting the Trace Extension using `yarn start:browser` on Windows, you might get the following error:
 
 ```bash
-$ TRACE_SERVER_PATH=../../trace-compass-server/tracecompass-server theia start --plugins=local-dir:../plugins
+$ TRACE_SERVER_PATH=../../trace-compass-server/tracecompass-server theia start
 'TRACE_SERVER_PATH' is not recognized as an internal or external command,
 operable program or batch file.
 error Command failed with exit code 1.
@@ -444,7 +445,7 @@ Finally, push the branch and use it to create a PR. When the PR is merged, a Git
 The code in this repository is licensed under `MIT` (see root `LICENSE`), except for the content of folder `playwright-tests` that's licensed under `EPL-2.0` (see `playwright-tests/LICENSE`). This content is used for testing the components of this repository and is not distributed as part of the various packages that get published to `npm`.
 
 [adr]: https://adr.github.io
-[app-image]: https://www.dorsal.polymtl.ca/files/other/electron-theia-trace-example-app-0.0.1.AppImage
+[app-image]: https://download.eclipse.org/theia/cdt-cloud/1.45.1/
 [cdt-cloud-demo]: https://try.theia-cloud.io/?appDef=cdt-cloud-demo
 [cdt-cloud-demo-video]: https://www.youtube.com/watch?v=Yqgu_ysFtnw
 [docs]: https://wiki.eclipse.org/Trace_Compass/Design_Documents

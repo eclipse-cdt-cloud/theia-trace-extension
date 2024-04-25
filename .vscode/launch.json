@@ -52,7 +52,6 @@
             "program": "${workspaceRoot}/examples/browser/src-gen/backend/main.js",
             "cwd": "${workspaceFolder}/examples/browser",
             "args": [
-                "--plugins=local-dir:../plugins",
                 "--loglevel=debug",
                 "--port=3000",
                 "--no-cluster"
@@ -84,7 +83,6 @@
             "cwd": "${workspaceFolder}/examples/electron",
             "protocol": "inspector",
             "args": [
-                "--plugins=local-dir:../plugins",
                 "--loglevel=debug",
                 "--hostname=localhost",
                 "--no-cluster"
