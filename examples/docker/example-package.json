@@ -19,6 +19,7 @@
     "@emotion/styled": "^11.10.5",
     "@mui/material": "^5.10.14",
     "@theia/core": "1.45.1",
+    "@theia/navigator": "1.45.1",
     "@theia/preferences": "1.45.1",
     "theia-traceviewer": "0.2.0-next.20240229144356.c22cb2c.0"
   },
