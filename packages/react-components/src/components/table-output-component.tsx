@@ -23,6 +23,7 @@ import { SearchFilterRenderer, CellRenderer, LoadingRenderer } from './table-ren
 import { OutputDescriptor, ResponseStatus } from 'tsp-typescript-client';
 import { PaginationBarComponent } from './utils/pagination-bar-component';
 import { OptionCheckBoxState, OptionState, OptionType } from './drop-down-component';
+import { ItemPropertiesSignalPayload } from 'traceviewer-base/lib/signals/item-properties-signal-payload';
 
 type TableOuputState = AbstractOutputState & {
     tableColumns: ColDef[];
@@ -301,7 +302,9 @@ export class TableOutputComponent extends AbstractOutputComponent<TableOutputPro
         // Notfiy selection changed
         this.handleRowSelectionChange(itemPropsObj);
         // Notfiy properties changed
-        signalManager().fireItemPropertiesSignalUpdated(itemPropsObj);
+        signalManager().fireItemPropertiesSignalUpdated(
+            new ItemPropertiesSignalPayload(itemPropsObj, this.props.traceId, this.props.outputDescriptor.id)
+        );
     }
 
     private fetchItemProperties(columns: Column[] | null, data: any) {
@@ -437,7 +440,11 @@ export class TableOutputComponent extends AbstractOutputComponent<TableOutputPro
             // Notfiy selection changed
             this.handleRowSelectionChange(itemPropsObj);
             // Notify properties changed
-            signalManager().fireItemPropertiesSignalUpdated(itemPropsObj);
+            if (itemPropsObj) {
+                signalManager().fireItemPropertiesSignalUpdated(
+                    new ItemPropertiesSignalPayload(itemPropsObj, this.props.traceId, this.props.outputDescriptor.id)
+                );
+            }
         }
     }
 
@@ -839,7 +846,15 @@ export class TableOutputComponent extends AbstractOutputComponent<TableOutputPro
                     // Notify selection changed
                     this.handleRowSelectionChange(itemPropsObj);
                     // Notify properties changed
-                    signalManager().fireItemPropertiesSignalUpdated(itemPropsObj);
+                    if (itemPropsObj) {
+                        signalManager().fireItemPropertiesSignalUpdated(
+                            new ItemPropertiesSignalPayload(
+                                itemPropsObj,
+                                this.props.traceId,
+                                this.props.outputDescriptor.id
+                            )
+                        );
+                    }
                     isFound = true;
                     rowNode.setSelected(true);
                 }
@@ -875,7 +890,15 @@ export class TableOutputComponent extends AbstractOutputComponent<TableOutputPro
                 // Notfiy selection changed
                 this.handleRowSelectionChange(itemPropsObj);
                 // Notify properties changed
-                signalManager().fireItemPropertiesSignalUpdated(itemPropsObj);
+                if (itemPropsObj) {
+                    signalManager().fireItemPropertiesSignalUpdated(
+                        new ItemPropertiesSignalPayload(
+                            itemPropsObj,
+                            this.props.traceId,
+                            this.props.outputDescriptor.id
+                        )
+                    );
+                }
                 this.selectRows();
             }
             this.gridMatched = false;

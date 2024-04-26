@@ -25,6 +25,7 @@ interface TableProps {
     showHeader: boolean;
     headers: ColumnHeader[];
     className: string;
+    hideFillers?: boolean;
 }
 
 export class Table extends React.Component<TableProps> {
@@ -59,10 +60,20 @@ export class Table extends React.Component<TableProps> {
     };
 
     render(): JSX.Element {
-        const gridTemplateColumns = this.props.headers
-            .map(() => 'max-content')
-            .join(' ')
-            .concat(' minmax(0px, 1fr)');
+        let gridTemplateColumns = this.props.headers
+            .map((_header, index) => {
+                if (index === this.props.headers.length - 1) {
+                    if (this.props.hideFillers) {
+                        return 'auto';
+                    }
+                }
+                return 'max-content';
+            })
+            .join(' ');
+        if (!this.props.hideFillers) {
+            gridTemplateColumns = gridTemplateColumns.concat(' minmax(0px, 1fr)');
+        }
+
         return (
             <div>
                 <table style={{ gridTemplateColumns: gridTemplateColumns }} className={this.props.className}>
@@ -72,6 +83,7 @@ export class Table extends React.Component<TableProps> {
                             sortableColumns={this.sortableColumns}
                             onSort={this.onSortChange}
                             sortConfig={this.props.sortConfig}
+                            hideFillers={this.props.hideFillers}
                         />
                     )}
                     <TableBody {...this.props} nodes={sortNodes(this.props.nodes, this.props.sortConfig)} />

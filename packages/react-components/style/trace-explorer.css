@@ -249,6 +249,12 @@
     text-decoration: underline;
 }
 
+.source-code-tooltip:hover {
+    background-color: var(--trace-viewer-list-hoverBackground);
+    color: var(--trace-viewer-list-hoverForeground);
+    cursor: pointer;
+}
+
 .ag-react-container {
     overflow: hidden;
     text-overflow: ellipsis;

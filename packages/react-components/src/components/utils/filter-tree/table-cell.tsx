@@ -13,11 +13,19 @@ export class TableCell extends React.Component<TableCellProps> {
     }
     render(): React.ReactNode {
         const { node, index } = this.props;
-        const content = node.labels[index];
+
+        let content;
+        if (node.elementIndex && node.elementIndex === index && node.getElement) {
+            content = node.getElement();
+        } else {
+            content = node.labels[index];
+        }
+
+        const title = node.showTooltip ? node.labels[index] : undefined;
 
         return (
             <td key={this.props.index + '-td-' + this.props.node.id}>
-                <span>
+                <span title={title}>
                     {this.props.children}
                     {content}
                 </span>

@@ -7,6 +7,7 @@ interface TableHeaderProps {
     sortableColumns: string[];
     sortConfig: SortConfig[];
     onSort: (sortColumn: string) => void;
+    hideFillers?: boolean;
 }
 
 export class TableHeader extends React.Component<TableHeaderProps> {
@@ -18,8 +19,17 @@ export class TableHeader extends React.Component<TableHeaderProps> {
 
     constructor(props: TableHeaderProps) {
         super(props);
-        this.gridTemplateColumns = this.props.columns.map(() => 'max-content');
-        this.gridTemplateColumns.push('minmax(0px, 1fr)');
+        this.gridTemplateColumns = this.props.columns.map((_header, index) => {
+            if (index === this.props.columns.length - 1) {
+                if (this.props.hideFillers) {
+                    return 'auto';
+                }
+            }
+            return 'max-content';
+        });
+        if (!this.props.hideFillers) {
+            this.gridTemplateColumns.push('minmax(0px, 1fr)');
+        }
     }
 
     handleSortChange = (sortColumn: string, ev: React.MouseEvent<HTMLTableCellElement, MouseEvent>): void => {
@@ -106,7 +116,9 @@ export class TableHeader extends React.Component<TableHeaderProps> {
                 </span>
             </th>
         ));
-        header.push(<th key={'th-filler'} className="filler" />);
+        if (!this.props.hideFillers) {
+            header.push(<th key={'th-filler'} className="filler" />);
+        }
         return header;
     };
 

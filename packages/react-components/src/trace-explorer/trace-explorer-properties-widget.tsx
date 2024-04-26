@@ -1,5 +1,9 @@
 import * as React from 'react';
+import '../../style/output-components-style.css';
 import { signalManager, Signals } from 'traceviewer-base/lib/signals/signal-manager';
+import { FilterTree } from '../components/utils/filter-tree/tree';
+import { TreeNode } from '../components/utils/filter-tree/tree-node';
+import { ItemPropertiesSignalPayload } from 'traceviewer-base/src/signals/item-properties-signal-payload';
 
 export interface ReactPropertiesWidgetProps {
     id: string;
@@ -8,14 +12,14 @@ export interface ReactPropertiesWidgetProps {
 }
 
 export interface ReactPropertiesWidgetState {
-    itemProperties: { [key: string]: string };
+    itemProperties: TreeNode[];
 }
 
 export class ReactItemPropertiesWidget extends React.Component<ReactPropertiesWidgetProps, ReactPropertiesWidgetState> {
     constructor(props: ReactPropertiesWidgetProps) {
         super(props);
         this.state = {
-            itemProperties: {}
+            itemProperties: []
         };
         signalManager().on(Signals.ITEM_PROPERTIES_UPDATED, this._onItemProperties);
     }
@@ -33,48 +37,72 @@ export class ReactItemPropertiesWidget extends React.Component<ReactPropertiesWi
     }
 
     private renderTooltip() {
-        const tooltipArray: JSX.Element[] = [];
         if (this.state.itemProperties) {
-            Object.entries(this.state.itemProperties).forEach(([key, value]) => {
-                if (key === 'Source') {
-                    const sourceCodeInfo = value;
-                    const matches = sourceCodeInfo.match('(.*):(\\d+)');
-                    let fileLocation;
-                    let line;
-                    if (matches && matches.length === 3) {
-                        fileLocation = matches[1];
-                        line = matches[2];
-                    }
-                    tooltipArray.push(
-                        <p
-                            className="source-code-tooltip"
-                            key={key}
-                            onClick={this.props.handleSourcecodeLookup}
-                            data-id={JSON.stringify({ fileLocation, line })}
-                        >
-                            {key + ': ' + sourceCodeInfo}
-                        </p>
-                    );
-                } else {
-                    tooltipArray.push(<p key={key}>{key + ': ' + value}</p>);
-                }
-            });
-        } else {
-            tooltipArray.push(
-                <p key="-1">
-                    <i>Select item to view properties</i>
-                </p>
+            return (
+                <div className="scrollable item-properties-table">
+                    <FilterTree
+                        className="table-tree"
+                        nodes={this.state.itemProperties}
+                        showCheckboxes={false}
+                        showFilter={false}
+                        showHeader={true}
+                        hideFillers={true}
+                        onRowClick={() => {
+                            // do nothing
+                        }}
+                        headers={[
+                            { title: 'Key', sortable: true, resizable: true },
+                            { title: 'Value', resizable: true }
+                        ]}
+                    />
+                </div>
             );
         }
-
-        return <React.Fragment>{tooltipArray.map(element => element)}</React.Fragment>;
+        return <></>;
     }
 
     /** Tooltip Signal and Signal Handlers */
-    protected _onItemProperties = (tooltip: { [key: string]: string }): void =>
-        this.doHandleItemPropertiesSignal(tooltip);
+    protected _onItemProperties = (data: ItemPropertiesSignalPayload): void =>
+        this.doHandleItemPropertiesSignal(data.getProperties());
 
     private doHandleItemPropertiesSignal(tooltipProps: { [key: string]: string }): void {
-        this.setState({ itemProperties: tooltipProps });
+        const entries: TreeNode[] = [];
+        Object.entries(tooltipProps).forEach(([key, value], index) => {
+            const node: TreeNode = {
+                id: index,
+                parentId: -1,
+                labels: [key, value],
+                children: [],
+                isRoot: true,
+                showTooltip: true
+            };
+            if (key === 'Source') {
+                const sourceCodeInfo = value;
+                const matches = sourceCodeInfo.match('(.*):(\\d+)');
+                let fileLocation: string;
+                let line: string;
+                if (matches && matches.length === 3) {
+                    fileLocation = matches[1];
+                    line = matches[2];
+                }
+                // labels index for which the element needs to be rendered
+                node.elementIndex = 1;
+                node.getElement = () => this.getSourceCodeElement(key, value, fileLocation, line);
+            }
+            entries.push(node);
+        });
+        this.setState({ itemProperties: entries });
     }
+
+    getSourceCodeElement = (key: string, value: string, fileLocation: string, line: string): JSX.Element => (
+        <span
+            className="source-code-tooltip"
+            key={key}
+            title={value}
+            onClick={this.props.handleSourcecodeLookup}
+            data-id={JSON.stringify({ fileLocation, line })}
+        >
+            {value}
+        </span>
+    );
 }
