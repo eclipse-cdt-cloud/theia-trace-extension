@@ -122,14 +122,45 @@ You can find those example applications under `examples/`.
 
 ### Run the Trace Server
 
-In order to open traces, you need a trace server running on the same machine as the trace extension. You can download the [Eclipse Trace Compass server][tc-server] or let `yarn` download and run it:
+In order to open traces, you need a trace server running on the same machine as the trace extension. There are 3 options to run the trace server. You can build and start the server manually using the server development environment, from the command line, or from the Theia application. The latter two options requires you to download a Trace Server build. See [Getting a Trace Server build][tc-server-download-guide] for more details.
+
+#### Building with the server development environment
+
+You can build and run the trace server manually using Eclipse. Starting it manually, has the advantage, that the open-traces
+are populated with traces on the server, or the server can be started in debug mode from the server development environment to debug the server. To set up the development environment for the Trace Server, see [here][tc-server-build].
+
+Please note that you need to stop the server manually as well.
+
+#### Starting the Trace Server from the command line
+
+To start the Trace Server from the command line, use the following command:
 
 ```bash
-yarn download:server
 yarn start:server
 ```
 
-You can also build the trace-server yourself using Trace Compass and the Incubator. Take a look at the [instructions here][tc-server-build].
+Please note that you need a Trace Server Build before starting the server. See [Getting a Trace Server build][tc-server-download-guide] for more details. You will need to stop the server manually as well.
+
+#### Starting the Trace Server from the Theia application
+
+When you open a trace using the Theia application, the trace server will be automatically started. Alternately, you can start
+the server from the application. First, open the command pallette (using `Ctrl+Shift+P` or `F1`), then use the command `Start Trace Server`. You can also use the `Stop Trace Server` command to stop the server. Otherwise, the server will be stopped
+automatically when you stop the application. By default, it uses the location where `yarn download:server` stores the server for both the browser backend and electron app.
+
+Please note that you need a Trace Server Build before starting the server. See [Getting a Trace Server build][tc-server-download-guide] for more details.
+
+#### Getting a Trace Server build
+
+You can download different builds of the Trace Server [here][tc-server]. Select the version of the Trace Server that best matches your working environment. There are different versions of the trace server for Linux, Windows and MacOS.
+
+If you are working on Linux, you can simply let `yarn` download it:
+
+```bash
+yarn download:server
+```
+
+If you are on other OS, you can download the server manually and extract the compressed files. Make sure that the path stored
+in `yarn start:server` matches with the location where you have extracted the server build. You can also change the path of the `yarn start:server` command to switch between different server builds.
 
 ### Run the example app
 
@@ -477,6 +508,7 @@ The code in this repository is licensed under `MIT` (see root `LICENSE`), except
 [tc-project]: https://www.eclipse.org/tracecompass/
 [tc-server]: https://download.eclipse.org/tracecompass.incubator/trace-server/rcp/?d
 [tc-server-build]: https://www.eclipse.org/tracecompass/download.html#trace-server
+[tc-server-download-guide]: #getting-a-trace-server-build
 [tc-server-gh-label]: https://github.com/eclipse-cdt-cloud/theia-trace-extension/labels/Trace%20Server
 [tci-code]: https://git.eclipse.org/r/admin/repos/tracecompass.incubator/org.eclipse.tracecompass.incubator
 [theia-prereq]: https://github.com/eclipse-theia/theia/blob/master/doc/Developing.md#prerequisites
