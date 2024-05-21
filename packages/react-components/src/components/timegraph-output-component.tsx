@@ -45,6 +45,7 @@ import {
 } from 'traceviewer-base/lib/signals/context-menu-contributed-signal-payload';
 import { ContextMenuItemClickedSignalPayload } from 'traceviewer-base/lib/signals/context-menu-item-clicked-signal-payload';
 import { RowSelectionsChangedSignalPayload } from 'traceviewer-base/lib/signals/row-selections-changed-signal-payload';
+import { ItemPropertiesSignalPayload } from 'traceviewer-base/lib/signals/item-properties-signal-payload';
 
 type TimegraphOutputProps = AbstractOutputProps & {
     addWidgetResizeHandler: (handler: () => void) => void;
@@ -929,7 +930,11 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
         if (element && this.props.viewRange) {
             tooltipObject = await this.fetchTooltip(element);
         }
-        signalManager().fireItemPropertiesSignalUpdated(tooltipObject);
+        if (tooltipObject) {
+            signalManager().fireItemPropertiesSignalUpdated(
+                new ItemPropertiesSignalPayload(tooltipObject, this.props.traceId, this.props.outputDescriptor.id)
+            );
+        }
     }
 
     private getTimegraphRowIds() {

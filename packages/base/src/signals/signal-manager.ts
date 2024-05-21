@@ -8,6 +8,7 @@ import { TimeRangeUpdatePayload } from './time-range-data-signal-payloads';
 import { ContextMenuContributedSignalPayload } from './context-menu-contributed-signal-payload';
 import { ContextMenuItemClickedSignalPayload } from './context-menu-item-clicked-signal-payload';
 import { RowSelectionsChangedSignalPayload } from './row-selections-changed-signal-payload';
+import { ItemPropertiesSignalPayload } from './item-properties-signal-payload';
 
 export declare interface SignalManager {
     fireTraceOpenedSignal(trace: Trace): void;
@@ -19,7 +20,7 @@ export declare interface SignalManager {
     fireExperimentUpdatedSignal(experiment: Experiment): void;
     fireOpenedTracesChangedSignal(payload: OpenedTracesUpdatedSignalPayload): void;
     fireOutputAddedSignal(payload: OutputAddedSignalPayload): void;
-    fireItemPropertiesSignalUpdated(properties?: { [key: string]: string }): void;
+    fireItemPropertiesSignalUpdated(payload: ItemPropertiesSignalPayload): void;
     fireThemeChangedSignal(theme: string): void;
     // TODO - Refactor or remove this signal.  Similar signal to fireRequestSelectionRangeChange
     fireSelectionChangedSignal(payload: { [key: string]: string }): void;
@@ -119,8 +120,8 @@ export class SignalManager extends EventEmitter implements SignalManager {
     fireOutputAddedSignal(payload: OutputAddedSignalPayload): void {
         this.emit(Signals.OUTPUT_ADDED, payload);
     }
-    fireItemPropertiesSignalUpdated(properties?: { [key: string]: string }): void {
-        this.emit(Signals.ITEM_PROPERTIES_UPDATED, properties);
+    fireItemPropertiesSignalUpdated(payload: ItemPropertiesSignalPayload): void {
+        this.emit(Signals.ITEM_PROPERTIES_UPDATED, payload);
     }
     fireThemeChangedSignal(theme: string): void {
         this.emit(Signals.THEME_CHANGED, theme);

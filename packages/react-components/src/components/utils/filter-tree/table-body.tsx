@@ -16,6 +16,7 @@ interface TableBodyProps {
     onClose: (id: number) => void;
     onToggleCheck: (id: number) => void;
     onContextMenu: (event: React.MouseEvent<HTMLDivElement>, id: number) => void;
+    hideFillers?: boolean;
 }
 
 export class TableBody extends React.Component<TableBodyProps> {

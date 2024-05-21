@@ -19,6 +19,7 @@ interface TableRowProps {
     onRowClick: (id: number) => void;
     onMultipleRowClick?: (id: number, isShiftClicked?: boolean) => void;
     onContextMenu: (event: React.MouseEvent<HTMLDivElement>, id: number) => void;
+    hideFillers?: boolean;
 }
 
 export class TableRow extends React.Component<TableRowProps> {
@@ -78,7 +79,9 @@ export class TableRow extends React.Component<TableRowProps> {
                 {index === 0 ? this.renderCloseButton() : undefined}
             </TableCell>
         ));
-        row.push(<td key={node.id + '-filler'} className="filler" />);
+        if (!this.props.hideFillers) {
+            row.push(<td key={node.id + '-filler'} className="filler" />);
+        }
         return row;
     };
 
