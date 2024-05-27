@@ -1,14 +1,19 @@
 # 11. Tsp analysis api
 
-Date: 2023-06-20
+Date: 2024-05-29
 
 ## Status
 
 Proposed
+Version v2
 
 ## Context
 
-The trace viewer currently is able to visualize trace data provided by a trace server over the trace server protocol (TSP). The Trace Compass server has some built-in analysis view for that. However, it is not possible to side-load analysis and visualization descriptions over the TSP so that end-user can provide some custom views. The Trace Compass supports loading of data-driven analysis and views, e.g. XML driven views or in-and-out anlysis of the Trace Compass incubator project. In the Eclispe-based Trace Compass application, there exists UI primitive to load e.g. XML files or configure custom analysis. While the Trace Compass server has the capablility to understand these defintions, there is no way to side-load this definition over the TSP. This ADR will propose a configuration service within the TSP to facilitate these custom analysis. The proposed configuration service can be use to configure other server specific customization, e.g. custom trace parsers.
+The trace viewer currently is able to visualize trace data provided by a trace server over the trace server protocol (TSP). The Trace Compass server has some built-in analysis view for that. It is not possible to side-load analysis and visualization descriptions over the TSP so that end-user can provide custom views. Trace Compass supports loading of data-driven analysis and views, e.g. XML driven views or in-and-out anlysis of the Trace Compass incubator project. The Eclispe-based Trace Compass application has UI primitives to load e.g. XML files or configure custom analysis (InAndOut analysis). While the Trace Compass server has the capablility to understand these defintions, there is no way to side-load this definition over the TSP. This ADR will propose a configuration service within the TSP to facilitate these custom analysis. The proposed configuration service can also be used to configure other server specific customizations, e.g. custom trace parsers.
+
+The ADR has been modified from its orignal version to remove experiment configuring service for loading customizations per experiment. Instead new chapters were added for customizing analysis over the TSP. With this it will be possible to provide parameters for data providers that can be customized. The server will indicate which data provider can be customized and what parameters it needs. New endpoints will provide users ways to create and delete custom outputs.
+
+Note that `data provider` and `output` below are used interexchangably, however `output` is used in all data structures and endpoints.
 
 ### Global configuration service
 
@@ -90,7 +95,7 @@ Where:
 - `description`: The description of the configuration. Can be shown to the end-user.
 - `id`: Unique id of the configuration. Used in the application to distinquish the configurations
 - `sourceTypeId`: ID of the configuration source type.
-- `parameters`: An optional map of parameters to show to the users of the configuration
+- `parameters`: Input parameters to be used to create configuration
 
 #### Sequence: Create configuration instance
 
@@ -178,80 +183,155 @@ sequenceDiagram
     client->>client: Refresh UI
 ```
 
-### Configuration service per experiment
+### Configure customizable outputs 
 
-For this data provider service will be augmented for managing configurations per experiment.
+Outputs might accept input parameters that will configure the analysis used to create the output. Such customization can create new outputs or provide additional query parameters. The TSP api will allow the back-end to define configuration types for that. Each configuration type will use `CustomizationTypeSource` to define what parameters need to be provided to create a new and derived output. The derived output descriptor will store the configuration details. Derived outputs can be deleted using a DELETE operation.
 
-    GET experiments/{expUUID}/outputs/config
-        returns a map typeId -> list of configuration descriptors of existing configurations on server
-    POST experiments/{expUUID}/outputs/config
-        Assign configuration to an experiment using typeId and configId from above.
-        Returns configuration descriptor and list of data provider descriptors (if available)
-    DELETE experiments/{expUUID}/outputs/config/{configId}
-        Removes a configuration from an experiment
+    GET /experiments/{expUUID}/outputs/{outputId}/configTypes
+    Returns a list of configuration source types: typeId, name, description, scope, expected parameter descriptors (e.g. "path" for file path)
 
-#### Sequence: Create configuration instance for an experiment
+    GET /experiments/{expUUID}/outputs/{outputId}/configTypes/{typeId}
+    Returns a single configuration source type for given typeId: typeId, name, description, scope, expected parameter descriptors (e.g. "path" for file path)
 
-The following illustrates the sequence of events and messages to create an configuration instance for a given type and experiment. It uses the Trace Compass In-And-Out as example. Note, that the configuration is provided using a file.
+    POST /experiments/{expUUID}/outputs/{outputId}
+    Create derived output. It returns a derived output descriptor with a unique Derived Output ID. It will contain the configuration used to create to allow manual reuse, as well as, the parent output ID. The parameter must include typeId and parameters adhering to the configuration type referenced by typeId.
 
-Pre-requisite: Configuration instance created as described in [Sequence: Create configuration instance](#sequence-create-configuration-instance).
+    DELETE /experiments/{expUUID}/outputs/{outputId}/{derivedOutputId}
+    Delete a Derived Data Provider
 
-```mermaid
-sequenceDiagram
-    participant user as User
-    participant client as TSP Client
-    participant server as Trace Server
-    user->>client: Select global confiugration manager
-    client->>client: Open configuration manager UI
-    client->>server: GET /config/
-    server->>client: 200: List of ConfigurationSourceType
-    client->>client: Populate drop-down menu
-    user->>client: Select "In-And-Out" type
-    client->>server: GET /config/types/{typeId}
-    server->>client: 200: List of exiting Configuration descriptors
-    client->>client: Populate UI
-    user->>client: Select browse button
-    client->>client: Open file chooser dialog
-    user->>client: Select new "In-And-Out" analysis file
-    client->>server: POST /config/types/{typeId}
-    server->>client: 200: New Configuration
-    client->>client: Update list of existing Configuration
-    user->>client: Select experiment
-    user->>client: Open Configuration Selector UI for experiments
-    client->>client: Select Configuration (typeId, configId)
-    Note over client,server: Configuration can be assigned for different experiments
-    user->>client: Open trace
-    client->>server: GET /experiments/{expUUID}/outputs
-    server->>client: 200: list of available outputs including In-And-Out outputs
-    client->>client: Refresh UI
+    GET /experiments/{expUUID}/outputs/{derivedOutputId}
+    Get derived output descriptor. It will contain the configuration used to create to allow manual reuse, as well as, the parent output ID
+
+The update API proposal augments the `OutputDescriptor`, and `ConfigurationSourceType`.
+
+**Updated or new data structures**
+
+```javascript
+    OutputDescriptor {
+        id: string,
+        name: string,
+        description: string,
+        type: string,  // provider type
+        // new parameter
+        parentId?: string // optional, parent Id if derived
+        configuration: Configuration // optional if derived, configuration used to be created
+    }
 ```
 
-#### Sequence: Delete configuration instance for an experiment
+#### Sequence: Create new data provider
 
-The following illustrates the sequence of events and messages to delete an configuration instance for a given type and experiment.
-
-Pre-requisite: Analysis instance created as described in [Sequence: Create configuration instance for an experiment](#sequence-create-configuration-instance-for-an-experiment).
+The following illustrates the sequence of events and messages to execute an action to create a derived data provider from an existing data provider. It uses an example to create a new, custom Flame Chart from an existing flame chart with parameters `title` and `filter`. The existing `Flame Chart` data provider would have a configuration source type `Custom Flame Chart`.
 
 ```mermaid
 sequenceDiagram
     participant user as User
     participant client as TSP Client
     participant server as Trace Server
-    user->>client: Open Configuration Selector UI for experiments
-    client->>server: GET /experiments/{expUUID}/outputs/config/
-    server->>client: 200: Map <typeId -> List of Configuration>
-    client->>client: Populate drop-down menu
-    user->>client: Select "In-And-Out" type
-    client->>client: Populate UI with "In-And-Out" type only
-    user->>client: Select configuration instance
-    user->>client: CLick on Delete button
-    client->>server: DELETE /config/types/{typeId}/configs/{configId}
-    server->>client: 200
-    client->>client: Refresh UI
+    client->>server: GET /experiments/{expUUID}/outputs
+    server->>client: 200: List of Available Views
+    client->>client: Render "Available Views" view and config menu buttons
+    user->>client: Click config menu beside 'Flame Chart''
+    client->>server: GET /experiments/{expUUID}/outputs/{outputId}/configTypes {scope=view}
+    server->>client: 200: List of ConfigurationSourceTypes
+    client->>client: Render menu for each type
+    user->>client: Click on "Create Custom Flame Chart..."
+    client->>client: Open Dialog (Webview) to input parameters
+    user->>client: Fill in parameters 'title' and 'filter' and click on 'Apply'
+    client->>server: POST experiments/{expUUID}/outputs/{outputId} {title, filter}
+    server->>server: Validate, create data provider, persist config for data provider
+    server->>client: 200: OutputDescriptor
+    client->>client: Refresh 'Available views' view
+    user->>client: User clicks on derived output
+    client->>client: Customized view opens
+```
+
+Notes: 
+- Data provider persists input parameters (configuration) so that output is avaivable after closing of experiment or restart
+
+
+Example configuration source type:
+
+```javascript
+ConfigurationSourceType {
+    "name": Custom Flame Chart,
+    "description": Create instance of a custom flame based on input parameters,
+    "id": "custom.flame.charts.id",
+    "scope": "data provider",
+    "parameterDescriptors": [
+        {
+            "keyName": "title",
+            "description": "Provide a name of custom flame chart to be shown in UI",
+            "dataType": "string",
+            "isRequired": "true"
+        },
+        {
+            "keyName": "filter",
+            "description": "Provide a filter string according to filter language",
+            "dataType": "string",
+            "isRequired": "true"
+        }
+    ]
+}
+```
+
+Input data provider:
+
+```javascript
+OutputDescriptor {
+    "id": "flamechart.id",
+    "name": "Flame Chart",
+    "description": "Flame Chart description",
+    "type": "TIME_GRAPH"
+}
+```
+
+`User input`:
+```javascript
+    {"title": "CPU 0-1 only", "filter": "cpu matches [0-1]"}
+```
+
+Resulting data provider:
+```javascript
+    OutputDescriptor {
+        parentId: string, // parent ID used to create (if not present or -1 for root data providers)
+        id: string,
+        name: string,
+        description: string,
+        type: string,  // provider type
+        configuration: Configuration
+    }
+```
+
+Notes:
+- Stored configurations need to have unique IDs. Consider generating IDs from input parameters to avoid duplicate configurations.
+
+#### Sequence: Delete custom data provider
+
+The following illustrates the sequence of events and messages to delete a custom data provider for an experiment.
+
+Pre-requisite: Analysis instance created as described in [Sequence: create new data provider](#sequence-create-new-data-provider).
+
+```mermaid
+sequenceDiagram
+    participant user as User
+    participant client as TSP Client
+    participant server as Trace Server
+    client->>server: GET /experiments/{expUUID}/outputs
+    server->>client: 200: List of Available Views
+    client->>client: Render "Available Views" view and render Delete button for derived outputs (if configuration is present)
+    user->>client: Click on "Delete"
+    client->>server: DELETE experiments/{expUUID}/outputs/{outputId}/{derivedOutput}/
+    server->>server: Delete data provider and persisted data
+    server->>client: 200:
+    client->>client: Refresh 'Available views' view and close view
+    Note right of client: Custom view is gone
 ```
 
 ### Future considerations
-The proposal requires the input of the configuration be a file that needs to be provided to the trace server. This works well, however a generic front-end cannot provide a UI implementation for creating such a file with the correct syntax. Custom client extensions implementation can be implemented for that. Also, JSON forms could be used for JSON based input.
+
+- The proposal requires the input of the configuration be a file that needs to be provided to the trace server. This works well, however a generic front-end cannot provide a UI implementation for creating such a file with the correct syntax. Custom client extensions implementation can be implemented for that. Also, JSON forms could be used for JSON based input.
+
+- Data provider may decide to persist input parameters (configuration) in global server-wide storage that can be managed through the [Global Configuration Service](#global-configuration-service). With this configurations can be shared between experiments and users. For that data provider can return additional actions in List of Action Descriptors for applying existing configs that had been stored in the global server-wide storage. To list or delete a persisted configuration in global server-wide storage use the global configuration source endpoint described here [Global configuration service](#global-configuration-service).
 
 ### Implementation steps
 
@@ -259,19 +339,21 @@ The proposal requires the input of the configuration be a file that needs to be 
  The following list provides a break down in different implementation steps. This doesn't inlcude effort for the Python client.
 
 - Configuration Service
-    - TSP updates for configuration service
-    - Back-end: Configuration Service (TSP) skeleton
-    - Back-end: Trace Compass Server back-end API for configuration source types
-    - Back-end: Trace Compass Server back-end API for XML analysis
-    - Back-end: Use Trace Compass Server back-end API in Configuration Service
-    - Front-end: tsp-typescript-client updates
+    - TSP updates for configuration service 
+    - Back-end: Configuration Service (TSP) skeleton (Done)
+    - Back-end: Trace Compass Server back-end API for configuration source types (Done)
+    - Back-end: Trace Compass Server back-end API for XML analysis (Done)
+    - Back-end: Use Trace Compass Server back-end API in Configuration Service (Done)
+    - Front-end: tsp-typescript-client updates (Done)
     - Front-end: Implement simple manager UI for files per typeID (re-usable react component)
-- Data provider configuration service (InAndOut)
+- Data provider configuration service:
     - TSP updates for data provider configuration service
     - Back-end: Data provider configuration service (TSP) skeleton
-    - Back-end: Implement support for InAndOut configuration
+    - Back-end: Implement support for selected use case
     - Front-end: tsp-typescript-client updates
-    - Front-end: Add UI to apply configuration to experiment (in react-component)
+    - Front-end: Add UI to trigger dp creation from data provider
+
+Other use case will be implemented on a need base.
 
 ## Decision
 
@@ -290,4 +372,5 @@ Having new TSP endpoints will make the TSP more complicated to use, and interest
 ### Risks introduced
 
 The TSP will be bigger and more APIs need to be maintained on all levels of the client-server application.
+
 
