@@ -137,50 +137,57 @@ export class SearchFilterRenderer extends React.Component<SearchFilterRendererPr
                     </div>
                 )}
                 {this.state.hasClicked && (
-                    <div>
-                        <input
-                            data-testid="search-filter-element-input"
-                            type="text"
-                            autoFocus={true}
-                            onKeyDown={this.onKeyDownEvent}
-                            onInput={this.onInputBoxChanged}
-                            style={{
-                                width: '50%',
-                                margin: '10px',
-                                color: this.state.isSearchSuccessful ? '' : 'red'
-                            }}
-                            defaultValue={this.props.filterModel.get(this.props.colName) ?? ''}
-                            title="Enter a regular expression, then press Enter"
-                        />
-                        {this.state.isSearching && (
-                            <FontAwesomeIcon
-                                spin
-                                icon={faSpinner}
-                                style={{ marginRight: '10px', marginTop: '20px' }}
-                                title="Searching..."
+                    <div className="search-bar-container">
+                        <div className="input-container">
+                            <input
+                                data-testid="search-filter-element-input"
+                                type="text"
+                                autoFocus={true}
+                                onKeyDown={this.onKeyDownEvent}
+                                onInput={this.onInputBoxChanged}
+                                style={{
+                                    width: '100%',
+                                    marginTop: '5px',
+                                    paddingRight: this.state.isSearching ? '14px' : '4px',
+                                    color: this.state.isSearchSuccessful ? '' : 'red'
+                                }}
+                                defaultValue={this.props.filterModel.get(this.props.colName) ?? ''}
+                                title="Enter a regular expression, then press Enter"
                             />
-                        )}
-                        <FontAwesomeIcon
-                            className="hoverClass"
-                            icon={faTimes}
-                            style={{ marginTop: '20px' }}
-                            onClick={this.onCloseClickHandler}
-                            title="Clear search"
-                        />
-                        <FontAwesomeIcon
-                            className="hoverClass"
-                            icon={faAngleDown}
-                            style={{ marginLeft: '10px', marginTop: '20px' }}
-                            onClick={this.onDownClickHandler}
-                            title="Find next"
-                        />
-                        <FontAwesomeIcon
-                            className="hoverClass"
-                            icon={faAngleUp}
-                            style={{ marginLeft: '10px', marginTop: '20px' }}
-                            onClick={this.onUpClickHandler}
-                            title="Find previous"
-                        />
+                            {this.state.isSearching && (
+                                <div className="icon-container">
+                                    <FontAwesomeIcon
+                                        spin
+                                        icon={faSpinner}
+                                        title="Searching..."
+                                        style={{ fontSize: '10px' }}
+                                    />
+                                </div>
+                            )}
+                        </div>
+                        <div className="toolbar-container">
+                            <FontAwesomeIcon
+                                className="hoverClass"
+                                icon={faTimes}
+                                style={{ marginLeft: '8px', marginTop: '5px' }}
+                                onClick={this.onCloseClickHandler}
+                                title="Clear search"
+                            />
+                            <FontAwesomeIcon
+                                className="hoverClass"
+                                icon={faAngleDown}
+                                style={{ marginLeft: '8px', marginTop: '5px' }}
+                                onClick={this.onDownClickHandler}
+                                title="Find next"
+                            />
+                            <FontAwesomeIcon
+                                className="hoverClass"
+                                icon={faAngleUp}
+                                style={{ marginLeft: '8px', marginTop: '5px' }}
+                                onClick={this.onUpClickHandler}
+                                title="Find previous"
+                            />
+                        </div>
                     </div>
                 )}
             </div>

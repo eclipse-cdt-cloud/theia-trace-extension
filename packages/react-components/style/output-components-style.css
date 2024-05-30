@@ -489,3 +489,30 @@ canvas {
     outline: none;
     box-shadow: none;
 }
+
+.search-bar-container {
+    display: flex;
+    align-items: center;
+}
+
+.input-container {
+    flex: 5;
+    padding: 5px;
+    display: flex;
+    position: relative;
+}
+
+.input-container input {
+    flex: 1;
+}
+
+.icon-container {
+    position: absolute;
+    right: 8px;
+    margin-top: 8px;
+}
+
+.toolbar-container {
+    flex: 1;
+    margin-right: 5px;
+}
