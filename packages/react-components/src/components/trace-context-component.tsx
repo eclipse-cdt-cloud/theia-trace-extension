@@ -509,6 +509,14 @@ export class TraceContextComponent extends React.Component<TraceContextProps, Tr
     }
 
     private onKeyDown(event: React.KeyboardEvent) {
+        if (
+            document.activeElement &&
+            (document.activeElement.tagName === 'INPUT' || document.activeElement.tagName === 'TEXTAREA')
+        ) {
+            // User is typing in an input field, ignore the shortcut
+            return;
+        }
+
         switch (event.key) {
             case '+':
             case '=': {
