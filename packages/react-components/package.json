@@ -1,6 +1,6 @@
 {
     "name": "traceviewer-react-components",
-    "version": "0.2.2",
+    "version": "0.2.3",
     "description": "Trace Compass react components",
     "license": "MIT",
     "repository": {
@@ -36,7 +36,7 @@
         "semantic-ui-css": "^2.4.1",
         "semantic-ui-react": "^0.86.0",
         "timeline-chart": "^0.3.1",
-        "traceviewer-base": "0.2.2",
+        "traceviewer-base": "0.2.3",
         "tsp-typescript-client": "^0.4.1"
     },
     "devDependencies": {
