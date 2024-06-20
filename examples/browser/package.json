@@ -15,14 +15,14 @@
         }
     },
     "dependencies": {
-        "@theia/core": "1.45.1",
-        "@theia/navigator": "1.45.1",
-        "@theia/preferences": "1.45.1",
-        "@theia/terminal": "1.45.1",
+        "@theia/core": "1.49.1",
+        "@theia/navigator": "1.49.1",
+        "@theia/preferences": "1.49.1",
+        "@theia/terminal": "1.49.1",
         "theia-traceviewer": "0.2.3"
     },
     "devDependencies": {
-        "@theia/cli": "1.45.1"
+        "@theia/cli": "1.49.1"
     },
     "scripts": {
         "prepare": "yarn build",
