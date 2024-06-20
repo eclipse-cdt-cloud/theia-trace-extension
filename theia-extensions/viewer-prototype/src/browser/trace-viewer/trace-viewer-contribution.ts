@@ -1,10 +1,11 @@
-import { injectable, inject } from '@theia/core/shared/inversify';
+import { injectable, inject, postConstruct } from '@theia/core/shared/inversify';
 import { CommandRegistry, CommandContribution, MessageService } from '@theia/core';
 import {
     WidgetOpenerOptions,
     WidgetOpenHandler,
     KeybindingContribution,
-    KeybindingRegistry
+    KeybindingRegistry,
+    OpenWithService
 } from '@theia/core/lib/browser';
 import URI from '@theia/core/lib/common/uri';
 import { TraceViewerWidget, TraceViewerWidgetOptions } from './trace-viewer';
@@ -52,6 +53,7 @@ export class TraceViewerContribution
     @inject(TracePreferences) protected tracePreferences: TracePreferences;
     @inject(TraceServerConfigService) protected readonly traceServerConfigService: TraceServerConfigService;
     @inject(MessageService) protected readonly messageService: MessageService;
+    @inject(OpenWithService) protected readonly openWithService: OpenWithService;
     @inject(TraceServerConnectionStatusClient)
     protected readonly serverStatusService: TraceServerConnectionStatusClient;
 
@@ -64,6 +66,17 @@ export class TraceViewerContribution
 
     protected get args(): string | undefined {
         return this.tracePreferences[TRACE_ARGS];
+    }
+
+    @postConstruct()
+    protected init(): void {
+        this.openWithService.registerHandler({
+            id: this.id + '-open-with',
+            label: this.label,
+            providerName: 'Theia Trace Viewer',
+            canHandle: (uri: URI) => this.canHandle(uri),
+            open: (uri: URI) => this.open(uri)
+        });
     }
 
     protected createWidgetOptions(uri: URI, options?: TraceViewerWidgetOpenerOptions): TraceViewerWidgetOptions {
