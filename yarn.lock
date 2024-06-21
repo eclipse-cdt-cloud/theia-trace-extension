@@ -2954,6 +2954,15 @@
     "@theia/filesystem" "1.45.1"
     "@theia/workspace" "1.45.1"
 
+"@theia/messages@1.45.1":
+  version "1.45.1"
+  resolved "https://registry.npmjs.org/@theia/messages/-/messages-1.45.1.tgz#6de906d2812a7b8d79b45ec52f234f8a7a3c9e3e"
+  integrity sha512-s4hR5CsbblRIBschT6eogUdMeJxOEPJ22QYwD0QDSWvOLd93TgDadzgyrSaj2mkVrAT39+2ty53vm3Mp1bMbrQ==
+  dependencies:
+    "@theia/core" "1.45.1"
+    react-perfect-scrollbar "^1.5.3"
+    ts-md5 "^1.2.2"
+
 "@theia/monaco-editor-core@1.72.3":
   version "1.72.3"
   resolved "https://registry.npmjs.org/@theia/monaco-editor-core/-/monaco-editor-core-1.72.3.tgz"
@@ -11475,7 +11484,7 @@ pend@~1.2.0:
   resolved "https://registry.npmjs.org/pend/-/pend-1.2.0.tgz"
   integrity sha512-F3asv42UuXchdzt+xXqfW1OGlVBe+mxa2mqI0pg5yAHZPvFmY3Y6drSf/GQ1A86WgWEN9Kzh/WrgKa6iGcHXLg==
 
-perfect-scrollbar@^1.3.0:
+perfect-scrollbar@^1.3.0, perfect-scrollbar@^1.5.0:
   version "1.5.5"
   resolved "https://registry.npmjs.org/perfect-scrollbar/-/perfect-scrollbar-1.5.5.tgz"
   integrity sha512-dzalfutyP3e/FOpdlhVryN4AJ5XDVauVWxybSkLZmakFE2sS3y3pc4JnSprw8tGmHvkaG5Edr5T7LBTZ+WWU2g==
@@ -11797,7 +11806,7 @@ promzard@^1.0.0:
   dependencies:
     read "^2.0.0"
 
-prop-types@15.x, prop-types@^15.0.0, prop-types@^15.6.2, prop-types@^15.7.2, prop-types@^15.8.1:
+prop-types@15.x, prop-types@^15.0.0, prop-types@^15.6.1, prop-types@^15.6.2, prop-types@^15.7.2, prop-types@^15.8.1:
   version "15.8.1"
   resolved "https://registry.npmjs.org/prop-types/-/prop-types-15.8.1.tgz"
   integrity sha512-oj87CgZICdulUohogVAR7AjlC0327U4el4L6eAvOqCeudMDVU0NThNaV+b9Df4dXgSP1gXMTnPdhfe/2qDH5cg==
@@ -12045,6 +12054,14 @@ react-modal@^3.8.1:
     prop-types "^15.7.2"
     react-lifecycles-compat "^3.0.0"
     warning "^4.0.3"
+
+react-perfect-scrollbar@^1.5.3:
+  version "1.5.8"
+  resolved "https://registry.npmjs.org/react-perfect-scrollbar/-/react-perfect-scrollbar-1.5.8.tgz#380959387a325c5c9d0268afc08b3f73ed5b3078"
+  integrity sha512-bQ46m70gp/HJtiBOF3gRzBISSZn8FFGNxznTdmTG8AAwpxG1bJCyn7shrgjEvGSQ5FJEafVEiosY+ccER11OSA==
+  dependencies:
+    perfect-scrollbar "^1.5.0"
+    prop-types "^15.6.1"
 
 react-resizable@^1.10.0:
   version "1.11.1"
@@ -13644,6 +13661,11 @@ ts-jest@^28.0.8:
     make-error "1.x"
     semver "7.x"
     yargs-parser "^21.0.1"
+
+ts-md5@^1.2.2:
+  version "1.3.1"
+  resolved "https://registry.npmjs.org/ts-md5/-/ts-md5-1.3.1.tgz#f5b860c0d5241dd9bb4e909dd73991166403f511"
+  integrity sha512-DiwiXfwvcTeZ5wCE0z+2A9EseZsztaiZtGrtSaY5JOD7ekPnR/GoIVD5gXZAlK9Na9Kvpo9Waz5rW64WKAWApg==
 
 tsconfig-paths@^3.14.2:
   version "3.14.2"
