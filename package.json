@@ -52,11 +52,12 @@
         "react": "^18.2.0",
         "react-dom": "^18.2.0",
         "@types/react": "^18.0.15",
-        "@types/react-dom": "^18.0.6"
+        "@types/react-dom": "^18.0.6",
+        "nan": "2.18.0"
     },
     "devDependencies": {
         "@eclipse-dash/nodejs-wrapper": "^0.0.1",
-        "@theia/cli": "1.49.1",
+        "@theia/cli": "1.50.0",
         "concurrently": "^8.2.1",
         "jsonc-parser": "^3.0.0",
         "lerna": "^7.0.0",
