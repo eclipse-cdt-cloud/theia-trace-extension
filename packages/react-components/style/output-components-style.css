@@ -442,14 +442,16 @@ canvas {
 .timgraph-search-bar {
     background: var(--trace-viewer-editor-background);
     padding-top: 5px;
-    padding-bottom: 10px;
+    padding-bottom: 15px;
+    height: 30px;
     display: flex;
     flex-direction: row;
     flex-wrap: wrap;
+    gap: 10px;
 }
 
 .timegraph-search-box {
-    height: 24px;
+    height: 30px;
     margin-left: 2.5px;
     margin-right: 2.5px;
     font-family: var(--trace-viewer-ui-font-family) !important;
@@ -495,12 +497,6 @@ canvas {
     align-items: center;
 }
 
-.input-container {
-    flex: 5;
-    padding: 5px;
-    display: flex;
-    position: relative;
-}
 
 .input-container input {
     flex: 1;
@@ -515,4 +511,22 @@ canvas {
 .toolbar-container {
     flex: 1;
     margin-right: 5px;
+}
+
+.filter-chip {
+    background-color: var(--theia-selection-background) !important;
+    color: var(--trace-viewer-ui-font-color0);
+    border-radius: 15px !important;
+    border-width: 1px !important;
+    display: flex;
+    align-items: center;
+    font-size: 12px;
+    height: 30px !important;
+}
+
+.filter-chip .MuiChip-deleteIcon {
+    color: var(--trace-viewer-ui-font-color0);
+    font-size: 16px;
+    margin-left: 4px;
+    cursor: pointer;
 }
