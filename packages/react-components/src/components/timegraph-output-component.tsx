@@ -34,6 +34,7 @@ import { faSpinner } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import TextField from '@mui/material/TextField';
 import InputAdornment from '@mui/material/InputAdornment';
+import Chip from '@mui/material/Chip';
 import { debounce } from 'lodash';
 import '../../style/react-contextify.css';
 import { Item, ItemParams, Menu, Separator, Submenu, useContextMenu } from 'react-contexify';
@@ -66,6 +67,7 @@ type TimegraphOutputState = AbstractTreeOutputState & {
     columns: ColumnHeader[];
     dataRows: TimelineChart.TimeGraphRowModel[];
     searchString: string;
+    filters: string[];
     menuItems?: ContextMenuItems;
 };
 
@@ -100,7 +102,7 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
         this.doHandleContextMenuContributed(payload);
     private pendingSelection: TimeGraphEntry | undefined;
 
-    private _debouncedUpdateSearch = debounce(() => this.updateSearchFilter(), 500);
+    private _debouncedUpdateSearch = debounce(() => this.updateSearchFilters(), 500);
     private _debouncedUpdateChart = debounce(() => {
         this.chartLayer.updateChart();
     }, 500);
@@ -124,7 +126,8 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
                 : [],
             dataRows: [],
             showTree: true,
-            searchString: ''
+            searchString: '',
+            filters: []
         };
         this.selectedMarkerCategories = this.props.markerCategories;
         this.onToggleCollapse = this.onToggleCollapse.bind(this);
@@ -331,7 +334,10 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
             prevProps.markerSetId !== this.props.markerSetId
         ) {
             this.selectedMarkerCategories = this.props.markerCategories;
-            if (this.state.searchString && this.state.searchString.length > 0) {
+            if (
+                this.state.searchString?.length > 0 ||
+                this.state.filters.length > 0
+            ) {
                 this._debouncedUpdateSearch();
             } else {
                 this.chartLayer.updateChart();
@@ -347,7 +353,10 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
         ) {
             this.markersChartLayer.updateChart();
         }
-        if (!isEqual(this.state.searchString, prevState.searchString)) {
+        if (
+            !isEqual(this.state.searchString, prevState.searchString) ||
+            !isEqual(this.state.filters, prevState.filters)
+        ) {
             this._debouncedUpdateSearch();
         }
         if (!isEqual(this.state.multiSelectedRows, prevState.multiSelectedRows)) {
@@ -357,16 +366,6 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
                 this.getEntryModelsForRowIds(this.state.multiSelectedRows)
             );
             signalManager().fireRowSelectionsChanged(signalPayload);
-        }
-    }
-
-    async updateSearchFilter(): Promise<void> {
-        if (this.state.searchString && this.state.searchString.length > 0) {
-            const filterExpressionsMap: { [key: number]: string[] } = {};
-            filterExpressionsMap[1] = [this.state.searchString];
-            this.chartLayer.updateChart(filterExpressionsMap);
-        } else {
-            this.chartLayer.updateChart();
         }
     }
 
@@ -820,8 +819,16 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
                         }}
                         value={this.state.searchString}
                         onChange={this.handleSearchChange}
-                        onKeyDown={event => this.onKeyDown(event)}
+                        onKeyDown={this.handleKeyDown}
                     />
+                    {this.state.filters.map((filter, index) => (
+                        <Chip
+                            key={index}
+                            label={filter}
+                            onDelete={() => this.removeFilter(filter)}
+                            className="filter-chip"
+                        />
+                    ))}
                 </div>
             </div>
         );
@@ -834,6 +841,45 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
     private handleSearchChange(event: React.ChangeEvent<HTMLInputElement>) {
         this.setState({ searchString: event.target.value ?? '' });
     }
+
+    private handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
+        if (
+            event.key === 'Enter' &&
+            this.state.searchString.trim() &&
+            event.target instanceof HTMLInputElement &&
+            event.target.classList.contains('MuiInputBase-input')
+        ) {
+            this.addFilter(this.state.searchString.trim());
+            this.setState({ searchString: '' });
+        }
+    };
+
+    private addFilter = (filter: string) => {
+        this.setState(prevState => ({ filters: [...prevState.filters, filter] }), this.updateSearchFilters);
+    };
+
+    private removeFilter = (filter: string) => {
+        this.setState(
+            prevState => ({ filters: prevState.filters.filter(f => f !== filter) }),
+            this.updateSearchFilters
+        );
+    };
+
+    private updateSearchFilters = () => {
+        const filterExpressionsMap: { [key: number]: string[] } = {};
+        if (this.state.searchString) {
+            filterExpressionsMap[1] = [this.state.searchString]; // For greying out
+        }
+        if (this.state.filters.length > 0) {
+            filterExpressionsMap[4] = this.state.filters; // For filtering
+        }
+
+        if (Object.keys(filterExpressionsMap).length > 0) {
+            this.chartLayer.updateChart(filterExpressionsMap);
+        } else {
+            this.chartLayer.updateChart();
+        }
+    };
 
     private clearSearchBox() {
         this.setState({ searchString: '' });
