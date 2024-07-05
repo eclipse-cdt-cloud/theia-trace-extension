@@ -188,7 +188,10 @@ export class TraceContextComponent extends React.Component<TraceContextProps, Tr
             backgroundTheme: this.props.backgroundTheme
         };
         const absoluteRange = traceRange.getDuration();
-        this.unitController = new TimeGraphUnitController(absoluteRange, { start: BigInt(0), end: absoluteRange });
+        const offset = viewRange.getOffset();
+        const viewRangeStart = viewRange.getStart() - (offset ? offset : BigInt(0));
+        const viewRangeEnd = viewRange.getEnd() - (offset ? offset : BigInt(0));
+        this.unitController = new TimeGraphUnitController(absoluteRange, { start: viewRangeStart, end: viewRangeEnd });
         this.unitController.numberTranslator = (theNumber: bigint) => {
             const originalStart = this.state.currentRange.getStart();
             theNumber += originalStart;
@@ -238,10 +241,8 @@ export class TraceContextComponent extends React.Component<TraceContextProps, Tr
         await this.updateTrace();
         this.unitController.absoluteRange = this.state.experiment.end - this.state.timeOffset;
         this.unitController.offset = this.state.timeOffset;
-        if (this.props.persistedState) {
-            const { start, end } = this.props.persistedState.unitControllerViewRange;
-            this.unitController.viewRange = { start: BigInt(start), end: BigInt(end) };
-        } else {
+        if (this.unitController.viewRangeLength === BigInt(0)) {
+            // set the initial view range if not set yet
             this.unitController.viewRange = {
                 start: BigInt(0),
                 end: this.state.experiment.end - this.state.timeOffset
@@ -270,6 +271,10 @@ export class TraceContextComponent extends React.Component<TraceContextProps, Tr
                             updatedExperiment.start
                         )
                     });
+
+                    this.unitController.absoluteRange = this.state.experiment.end - this.state.timeOffset;
+                    this.unitController.offset = this.state.timeOffset;
+                    signalManager().fireExperimentUpdatedSignal(updatedExperiment);
 
                     // Update status bar
                     this.props.messageManager.addStatusMessage(this.INDEXING_STATUS_BAR_KEY, {
@@ -332,6 +337,13 @@ export class TraceContextComponent extends React.Component<TraceContextProps, Tr
         if (prevProps.outputs.length < this.props.outputs.length) {
             // added a new output - scroll to bottom
             this.scrollToBottom();
+            if (this.unitController.viewRangeLength === BigInt(0)) {
+                // set the initial view range if not set yet
+                this.unitController.viewRange = {
+                    start: BigInt(0),
+                    end: this.state.experiment.end - this.state.timeOffset
+                };
+            }
         } else if (
             prevProps.outputs.length === this.props.outputs.length &&
             prevState.pinnedView === undefined &&

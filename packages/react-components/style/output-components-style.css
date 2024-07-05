@@ -175,6 +175,7 @@ canvas {
     font-size: 24px;
     display: flex;
     position: absolute;
+    pointer-events: none;
     top: 0;
     height: 100%;
 }
@@ -439,7 +440,7 @@ canvas {
     color: var(--trace-viewer-foreground);
 }
 
-.timgraph-search-bar {
+.timegraph-search-bar {
     background: var(--trace-viewer-editor-background);
     padding-top: 5px;
     padding-bottom: 15px;

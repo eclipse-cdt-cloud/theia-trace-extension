@@ -25,6 +25,7 @@ import { ChartOptions } from 'chart.js';
 import { Line, Scatter } from 'react-chartjs-2';
 import { getAllExpandedNodeIds } from './utils/filter-tree/utils';
 import { debounce } from 'lodash';
+import { isEqual } from 'lodash';
 
 export const ZOOM_IN_RATE = 0.8;
 export const ZOOM_OUT_RATE = 1.25;
@@ -226,7 +227,7 @@ export abstract class AbstractXYOutputComponent<
 
     componentDidUpdate(prevProps: AbstractOutputProps, prevState: AbstractXYOutputState): void {
         const viewRangeChanged = this.props.viewRange !== prevProps.viewRange;
-        const checkedSeriesChanged = this.state.checkedSeries !== prevState.checkedSeries;
+        const checkedSeriesChanged = !isEqual(this.state.checkedSeries, prevState.checkedSeries);
         const collapsedNodesChanged = this.state.collapsedNodes !== prevState.collapsedNodes;
         const chartWidthChanged =
             this.props.style.width !== prevProps.style.width ||
