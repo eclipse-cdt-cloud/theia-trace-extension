@@ -236,12 +236,15 @@ export class TraceContextComponent extends React.Component<TraceContextProps, Tr
 
     private async initialize() {
         await this.updateTrace();
+        const updateViewRange =
+            this.unitController.viewRange.start === BigInt(0) &&
+            this.unitController.viewRange.end === this.unitController.absoluteRange;
         this.unitController.absoluteRange = this.state.experiment.end - this.state.timeOffset;
         this.unitController.offset = this.state.timeOffset;
         if (this.props.persistedState) {
             const { start, end } = this.props.persistedState.unitControllerViewRange;
             this.unitController.viewRange = { start: BigInt(start), end: BigInt(end) };
-        } else {
+        } else if (updateViewRange) {
             this.unitController.viewRange = {
                 start: BigInt(0),
                 end: this.state.experiment.end - this.state.timeOffset
@@ -270,6 +273,23 @@ export class TraceContextComponent extends React.Component<TraceContextProps, Tr
                             updatedExperiment.start
                         )
                     });
+
+                    // Only update the view range if it's currently showing the full range
+                    const updateViewRange =
+                        this.unitController.viewRange.start === BigInt(0) &&
+                        this.unitController.viewRange.end === this.unitController.absoluteRange &&
+                        (this.unitController.viewRange.end !== updatedExperiment.end - updatedExperiment.start ||
+                            this.unitController.offset !== updatedExperiment.start);
+                    this.unitController.absoluteRange = this.state.experiment.end - this.state.timeOffset;
+                    this.unitController.offset = this.state.timeOffset;
+                    signalManager().fireExperimentUpdatedSignal(updatedExperiment);
+                    if (updateViewRange) {
+                        this.unitController.viewRange = {
+                            start: BigInt(0),
+                            end: this.unitController.absoluteRange
+                        };
+                        this.emitTimeRangeData();
+                    }
 
                     // Update status bar
                     this.props.messageManager.addStatusMessage(this.INDEXING_STATUS_BAR_KEY, {
