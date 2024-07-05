@@ -198,7 +198,7 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
             }
         });
 
-        this.markersChartLayer = new TimeGraphChart('timeGraphChart', markersProvider, this.markerRowController);
+        this.markersChartLayer = new TimeGraphChart('markersChart', markersProvider, this.markerRowController);
         this.markerChartCursors = new TimeGraphMarkersChartCursors(
             'chart-cursors-new',
             this.markersChartLayer,
@@ -328,27 +328,30 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
 
     async componentDidUpdate(prevProps: TimegraphOutputProps, prevState: TimegraphOutputState): Promise<void> {
         if (
-            prevState.outputStatus === ResponseStatus.RUNNING ||
-            !isEqual(this.state.collapsedNodes, prevState.collapsedNodes) ||
             !isEqual(prevProps.markerCategories, this.props.markerCategories) ||
             prevProps.markerSetId !== this.props.markerSetId
         ) {
             this.selectedMarkerCategories = this.props.markerCategories;
-            if (this.state.searchString?.length > 0 || this.state.filters.length > 0) {
-                this._debouncedUpdateSearch();
-            } else {
-                this.chartLayer.updateChart();
-            }
+            this.chartLayer.updateChart();
             this.markersChartLayer.updateChart();
-            this.arrowLayer.update();
             this.rangeEventsLayer.update();
-        }
-        if (
-            !isEqual(this.state.markerCategoryEntries, prevState.markerCategoryEntries) ||
-            !isEqual(this.state.collapsedMarkerNodes, prevState.collapsedMarkerNodes) ||
-            !isEqual(this.state.markerLayerData, prevState.markerLayerData)
-        ) {
-            this.markersChartLayer.updateChart();
+            this.arrowLayer.update();
+        } else {
+            if (
+                this.state.outputStatus !== prevState.outputStatus ||
+                !isEqual(this.state.timegraphTree, prevState.timegraphTree) ||
+                !isEqual(this.state.collapsedNodes, prevState.collapsedNodes)
+            ) {
+                this.chartLayer.update();
+                this.arrowLayer.update();
+            }
+            if (
+                !isEqual(this.state.markerCategoryEntries, prevState.markerCategoryEntries) ||
+                !isEqual(this.state.collapsedMarkerNodes, prevState.collapsedMarkerNodes) ||
+                !isEqual(this.state.markerLayerData, prevState.markerLayerData)
+            ) {
+                this.markersChartLayer.updateChart();
+            }
         }
         if (
             !isEqual(this.state.searchString, prevState.searchString) ||
@@ -685,22 +688,23 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
     renderChart(): React.ReactNode {
         return (
             <React.Fragment>
-                {this.state.outputStatus === ResponseStatus.COMPLETED ? (
-                    <div
-                        id="timegraph-main"
-                        className="ps__child--consume"
-                        onWheel={ev => {
-                            ev.preventDefault();
-                            ev.stopPropagation();
-                        }}
-                        style={{ height: this.props.style.height }}
-                    >
-                        {this.renderTimeGraphContent()}
-                    </div>
-                ) : (
-                    <div className="analysis-running">
-                        {<FontAwesomeIcon icon={faSpinner} spin style={{ marginRight: '5px' }} />}
-                        {'Analysis running'}
+                <div
+                    id="timegraph-main"
+                    className="ps__child--consume"
+                    onWheel={ev => {
+                        ev.preventDefault();
+                        ev.stopPropagation();
+                    }}
+                    style={{ height: this.props.style.height }}
+                >
+                    {this.renderTimeGraphContent()}
+                </div>
+                {this.state.outputStatus === ResponseStatus.RUNNING && (
+                    <div className="analysis-running-overflow" style={{ width: this.getChartWidth() }}>
+                        <div>
+                            <FontAwesomeIcon icon={faSpinner} spin style={{ marginRight: '5px' }} />
+                            <span>Analysis running</span>
+                        </div>
                     </div>
                 )}
             </React.Fragment>
@@ -783,50 +787,56 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
             <div id="main-timegraph-content" ref={this.horizontalContainer} style={{ height: this.props.style.height }}>
                 {this.getChartContainer()}
                 {this.getMarkersContainer()}
-                <div
-                    id={this.props.traceId + this.props.outputDescriptor.id + 'searchBar'}
-                    className="timgraph-search-bar"
-                >
-                    <TextField
-                        InputProps={{
-                            placeholder: 'Search',
-                            startAdornment: (
-                                <InputAdornment
-                                    sx={{
-                                        color: 'var(--trace-viewer-ui-font-color0)'
-                                    }}
-                                    position="start"
-                                >
-                                    <i className="codicon codicon-search"></i>
-                                </InputAdornment>
-                            ),
-                            className: 'timegraph-search-box',
-                            endAdornment: (
-                                <InputAdornment
-                                    sx={{
-                                        color: 'var(--trace-viewer-ui-font-color0)'
-                                    }}
-                                    position="end"
-                                >
-                                    <button className="remove-search-button" onClick={this.clearSearchBox}>
-                                        <i className="codicon codicon-close"></i>
-                                    </button>
-                                </InputAdornment>
-                            )
-                        }}
-                        value={this.state.searchString}
-                        onChange={this.handleSearchChange}
-                        onKeyDown={this.handleKeyDown}
+                {this.getSearchBar()}
+            </div>
+        );
+    }
+
+    private getSearchBar() {
+        return (
+            <div
+                id={this.props.traceId + this.props.outputDescriptor.id + 'searchBar'}
+                className="timegraph-search-bar"
+            >
+                <TextField
+                    InputProps={{
+                        placeholder: 'Search',
+                        startAdornment: (
+                            <InputAdornment
+                                sx={{
+                                    color: 'var(--trace-viewer-ui-font-color0)'
+                                }}
+                                position="start"
+                            >
+                                <i className="codicon codicon-search"></i>
+                            </InputAdornment>
+                        ),
+                        className: 'timegraph-search-box',
+                        endAdornment: (
+                            <InputAdornment
+                                sx={{
+                                    color: 'var(--trace-viewer-ui-font-color0)'
+                                }}
+                                position="end"
+                            >
+                                <button className="remove-search-button" onClick={this.clearSearchBox}>
+                                    <i className="codicon codicon-close"></i>
+                                </button>
+                            </InputAdornment>
+                        )
+                    }}
+                    value={this.state.searchString}
+                    onChange={this.handleSearchChange}
+                    onKeyDown={this.handleKeyDown}
+                />
+                {this.state.filters.map((filter, index) => (
+                    <Chip
+                        key={index}
+                        label={filter}
+                        onDelete={() => this.removeFilter(filter)}
+                        className="filter-chip"
                     />
-                    {this.state.filters.map((filter, index) => (
-                        <Chip
-                            key={index}
-                            label={filter}
-                            onDelete={() => this.removeFilter(filter)}
-                            className="filter-chip"
-                        />
-                    ))}
-                </div>
+                ))}
             </div>
         );
     }
