@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { GridApi } from 'ag-grid-community';
+import { GridApi } from '@ag-grid-community/core';
 import { numberFormat } from './xy-output-component-utils';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faChevronRight } from '@fortawesome/free-solid-svg-icons';

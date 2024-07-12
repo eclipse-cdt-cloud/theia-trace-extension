@@ -2,22 +2,23 @@
 import { AbstractOutputComponent, AbstractOutputProps, AbstractOutputState } from './abstract-output-component';
 import * as React from 'react';
 import { flushSync } from 'react-dom';
-import { AgGridReact } from 'ag-grid-react';
+import { AgGridReact } from '@ag-grid-community/react';
 import {
-    ColDef,
-    IDatasource,
-    GridReadyEvent,
     CellClickedEvent,
-    GridApi,
-    ColumnApi,
+    CellKeyDownEvent,
+    ColDef,
     Column,
-    RowNode
-} from 'ag-grid-community';
+    GridApi,
+    GridReadyEvent,
+    IDatasource,
+    IRowNode,
+    ModuleRegistry
+} from '@ag-grid-community/core';
+import { InfiniteRowModelModule } from '@ag-grid-community/infinite-row-model';
 import { QueryHelper } from 'tsp-typescript-client/lib/models/query/query-helper';
 import { cloneDeep } from 'lodash';
 import { Signals, signalManager } from 'traceviewer-base/lib/signals/signal-manager';
 import { TimelineChart } from 'timeline-chart/lib/time-graph-model';
-import { CellKeyDownEvent } from 'ag-grid-community/dist/lib/events';
 import { TableModel } from 'tsp-typescript-client/lib/models/table';
 import { SearchFilterRenderer, CellRenderer, LoadingRenderer } from './table-renderer-components';
 import { OutputDescriptor, ResponseStatus } from 'tsp-typescript-client';
@@ -49,6 +50,8 @@ enum Direction {
     LAST
 }
 
+ModuleRegistry.registerModules([InfiniteRowModelModule]);
+
 export class TableOutputComponent extends AbstractOutputComponent<TableOutputProps, TableOuputState> {
     private debugMode = false;
     private columnIds: Array<number> = [];
@@ -61,7 +64,6 @@ export class TableOutputComponent extends AbstractOutputComponent<TableOutputPro
     private gridMatched = false;
     private gridRedrawn = false;
     private gridSearched = false;
-    private columnApi: ColumnApi | undefined = undefined;
     private prevStartTimestamp = -BigInt(2 ** 63);
     private startTimestamp = BigInt(2 ** 63);
     private endTimestamp = -BigInt(2 ** 63);
@@ -73,6 +75,7 @@ export class TableOutputComponent extends AbstractOutputComponent<TableOutputPro
     private selectEndIndex = -1;
     private filterModel: Map<string, string> = new Map<string, string>();
     private dataSource: IDatasource;
+
     private onOutputDataChanged = (outputs: OutputDescriptor[]) => this.doHandleOutputDataChangedSignal(outputs);
 
     static defaultProps: Partial<TableOutputProps> = {
@@ -126,10 +129,10 @@ export class TableOutputComponent extends AbstractOutputComponent<TableOutputPro
     }
 
     protected addToggleColumnsOption(arg?: () => unknown): void {
-        if (!this.columnApi) {
+        if (!this.gridApi) {
             return;
         }
-        const columns = this.columnApi.getAllGridColumns();
+        const columns = this.gridApi.getAllGridColumns();
         const subOptions: OptionState[] = [];
         columns.forEach(column => {
             const header = column.getColDef().headerName ?? '';
@@ -137,7 +140,8 @@ export class TableOutputComponent extends AbstractOutputComponent<TableOutputPro
                 type: OptionType.CHECKBOX,
                 label: header,
                 checked: (): boolean => column.isVisible(),
-                onClick: () => this.toggleColumnVisibility(this.columnApi!, column.getColDef()),
+                // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+                onClick: () => this.toggleColumnVisibility(this.gridApi!, column.getColDef()),
                 arg: arg,
                 condition: () => this.state.showToggleColumns
             } as OptionCheckBoxState;
@@ -226,7 +230,7 @@ export class TableOutputComponent extends AbstractOutputComponent<TableOutputPro
     doHandleOutputDataChangedSignal(outputs: OutputDescriptor[]): void {
         const desc = outputs.find(descriptor => descriptor.id === this.props.outputDescriptor.id);
         if (desc !== undefined) {
-            this.gridApi?.setDatasource(this.dataSource);
+            this.gridApi?.setGridOption('datasource', this.dataSource);
         }
     }
 
@@ -265,10 +269,13 @@ export class TableOutputComponent extends AbstractOutputComponent<TableOutputPro
     }
 
     private onEventClick(event: CellClickedEvent) {
-        const columns = event.columnApi.getColumns();
+        const gridApi = this.gridApi;
+        if (!gridApi) {
+            return;
+        }
+        const columns = gridApi.getColumns();
         const data = event.data;
         const mouseEvent = event.event as MouseEvent;
-        const gridApi = event.api;
         const rowIndex = event.rowIndex ?? 0;
         const itemPropsObj: { [key: string]: string } | undefined = this.fetchItemProperties(columns, data);
 
@@ -320,7 +327,7 @@ export class TableOutputComponent extends AbstractOutputComponent<TableOutputPro
     }
 
     private onKeyDown(event: CellKeyDownEvent) {
-        const gridApi = event.api;
+        const gridApi = this.gridApi;
         const keyEvent = event.event as KeyboardEvent;
         const rowIndex = event.rowIndex ?? 0;
         this.enableIndexSelection = true;
@@ -432,7 +439,7 @@ export class TableOutputComponent extends AbstractOutputComponent<TableOutputPro
                 }
             }
             let itemPropsObj;
-            const columns = event.columnApi.getColumns();
+            const columns = gridApi.getColumns();
             itemPropsObj = undefined;
             if (nextRow && nextRow.data) {
                 itemPropsObj = this.fetchItemProperties(columns, nextRow.data);
@@ -450,8 +457,7 @@ export class TableOutputComponent extends AbstractOutputComponent<TableOutputPro
 
     private onGridReady = async (event: GridReadyEvent) => {
         this.gridApi = event.api;
-        this.columnApi = event.columnApi;
-        event.api.setDatasource(this.dataSource);
+        this.gridApi.setGridOption('datasource', this.dataSource);
     };
 
     private async init() {
@@ -492,6 +498,7 @@ export class TableOutputComponent extends AbstractOutputComponent<TableOutputPro
                 field: columnHeader.id.toString(),
                 width: this.props.columnWidth,
                 resizable: true,
+                sortable: false,
                 cellRenderer: 'cellRenderer',
                 cellRendererParams: {
                     filterModel: this.filterModel,
@@ -500,6 +507,7 @@ export class TableOutputComponent extends AbstractOutputComponent<TableOutputPro
                 suppressMenu: true,
                 filter: 'agTextColumnFilter',
                 floatingFilter: true,
+                suppressHeaderFilterButton: true,
                 floatingFilterComponent: 'searchFilterRenderer',
                 floatingFilterComponentParams: {
                     suppressFilterButton: true,
@@ -531,8 +539,8 @@ export class TableOutputComponent extends AbstractOutputComponent<TableOutputPro
             });
         });
 
-        if (this.columnApi) {
-            const columns = this.columnApi.getColumns();
+        if (this.gridApi) {
+            const columns = this.gridApi.getColumns();
             const timestampHeader = columns?.find(column => column.getColDef().headerName === 'Timestamp ns');
             if (timestampHeader) {
                 this.timestampCol = timestampHeader.getColDef().field;
@@ -694,8 +702,8 @@ export class TableOutputComponent extends AbstractOutputComponent<TableOutputPro
     private onModelUpdated = async () => {
         this.selectRows();
 
-        if (this.columnArray.length > 0 && !this.columnsPacked && this.columnApi) {
-            this.columnApi.autoSizeAllColumns();
+        if (this.columnArray.length > 0 && !this.columnsPacked && this.gridApi) {
+            this.gridApi.autoSizeAllColumns();
             this.columnsPacked = true;
         }
     };
@@ -799,7 +807,7 @@ export class TableOutputComponent extends AbstractOutputComponent<TableOutputPro
                 return false;
             }
 
-            let rowNodes: RowNode[] = [];
+            let rowNodes: IRowNode[] = [];
             this.gridApi.forEachNode(rowNode => {
                 rowNodes.push(rowNode);
             });
@@ -840,8 +848,8 @@ export class TableOutputComponent extends AbstractOutputComponent<TableOutputPro
                         this.startTimestamp = this.endTimestamp = BigInt(rowNode.data[this.timestampCol]);
                     }
                     let itemPropsObj;
-                    if (this.columnApi) {
-                        itemPropsObj = this.fetchItemProperties(this.columnApi.getColumns(), rowNode.data);
+                    if (this.gridApi) {
+                        itemPropsObj = this.fetchItemProperties(this.gridApi.getColumns(), rowNode.data);
                     }
                     // Notify selection changed
                     this.handleRowSelectionChange(itemPropsObj);
@@ -884,8 +892,8 @@ export class TableOutputComponent extends AbstractOutputComponent<TableOutputPro
             // apply new or previous selection
             if (this.selectStartIndex !== -1 && this.selectEndIndex !== -1) {
                 let itemPropsObj;
-                if (this.columnApi && syncData) {
-                    itemPropsObj = this.fetchItemProperties(this.columnApi.getColumns(), syncData);
+                if (this.gridApi && syncData) {
+                    itemPropsObj = this.fetchItemProperties(this.gridApi.getColumns(), syncData);
                 }
                 // Notfiy selection changed
                 this.handleRowSelectionChange(itemPropsObj);
@@ -906,7 +914,7 @@ export class TableOutputComponent extends AbstractOutputComponent<TableOutputPro
         return isFound;
     }
 
-    private isValidRowSelection(rowNode: RowNode): boolean {
+    private isValidRowSelection(rowNode: IRowNode): boolean {
         if (
             (this.enableIndexSelection &&
                 this.selectStartIndex !== -1 &&
@@ -936,17 +944,17 @@ export class TableOutputComponent extends AbstractOutputComponent<TableOutputPro
         }
     }
 
-    private toggleColumnVisibility(columnApi: ColumnApi, column: ColDef) {
-        if (!columnApi || !column.field) {
+    private toggleColumnVisibility(api: GridApi, column: ColDef) {
+        if (!api || !column.field) {
             return;
         }
 
-        columnApi.setColumnsVisible([column.field], !columnApi.getColumn(column)?.isVisible());
+        api.setColumnsVisible([column.field], !api.getColumn(column)?.isVisible());
         const allCols = cloneDeep(this.state.tableColumns);
 
         allCols.map(item => {
             if (item.field === column.field) {
-                item.hide = columnApi.getColumn(column)?.isVisible();
+                item.hide = api.getColumn(column)?.isVisible();
             }
         });
 
