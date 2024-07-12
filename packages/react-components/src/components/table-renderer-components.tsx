@@ -1,6 +1,6 @@
 import { faAngleDown, faAngleUp, faSearch, faSpinner, faTimes } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { ICellRendererParams, IFloatingFilterParams } from 'ag-grid-community';
+import { ICellRendererParams, IFloatingFilterParams } from '@ag-grid-community/core';
 import debounce from 'lodash.debounce';
 import * as React from 'react';
 
