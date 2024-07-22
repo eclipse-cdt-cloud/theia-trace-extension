@@ -36,7 +36,7 @@
         "eslint-plugin-import": "^2.21.2",
         "eslint-plugin-no-null": "^1.0.2",
         "eslint-plugin-react": "^7.20.0",
-        "rimraf": "latest",
+        "rimraf": "^5.0.0",
         "typescript": "latest"
     },
     "scripts": {
