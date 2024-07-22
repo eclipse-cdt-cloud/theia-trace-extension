@@ -50,9 +50,7 @@ enum Direction {
     LAST
 }
 
-ModuleRegistry.registerModules([
-    InfiniteRowModelModule
-]);
+ModuleRegistry.registerModules([InfiniteRowModelModule]);
 
 export class TableOutputComponent extends AbstractOutputComponent<TableOutputProps, TableOuputState> {
     private debugMode = false;
@@ -272,7 +270,9 @@ export class TableOutputComponent extends AbstractOutputComponent<TableOutputPro
 
     private onEventClick(event: CellClickedEvent) {
         const gridApi = this.gridApi;
-        if (!gridApi) { return; }
+        if (!gridApi) {
+            return;
+        }
         const columns = gridApi.getColumns();
         const data = event.data;
         const mouseEvent = event.event as MouseEvent;
