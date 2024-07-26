@@ -12,6 +12,34 @@
   resolved "https://registry.npmjs.org/@aashutoshrathi/word-wrap/-/word-wrap-1.2.6.tgz"
   integrity sha512-1Yjs2SvM8TflER/OD3cOjhWWOZb58A2t7wpE2S9XfBYTiIl+XFhQG2bjy4Pu1I+EAlCNUzRDYDdFwFYUKvXcIA==
 
+"@ag-grid-community/core@32.0.2", "@ag-grid-community/core@^32.0.1":
+  version "32.0.2"
+  resolved "https://registry.npmjs.org/@ag-grid-community/core/-/core-32.0.2.tgz#58c0ef1bde55c32d576e7f432b3c21d6b14322da"
+  integrity sha512-Pm4KpWuoHtn/eXgzunX0R10TZt6ze3KIz89Q/pzl2ZE+GdEjn6vPmgG+lMb/z90FgFwnMuIOQiz1qk0x5/xaHA==
+  dependencies:
+    ag-charts-types "10.0.2"
+    tslib "^2.3.0"
+
+"@ag-grid-community/infinite-row-model@^32.0.0":
+  version "32.0.2"
+  resolved "https://registry.npmjs.org/@ag-grid-community/infinite-row-model/-/infinite-row-model-32.0.2.tgz#b71d0759f27a96e63772b8450fb6134fbb033bdc"
+  integrity sha512-OCYF/t49Y8Ru5wRUBjuJqIqqm9tEEPPIfDLrNiURBtwlQiaqLXJ2qGnZQe+RWQ0iQh2eBaQrtbr1xley4Z+DWw==
+  dependencies:
+    "@ag-grid-community/core" "32.0.2"
+    tslib "^2.3.0"
+
+"@ag-grid-community/react@^32.0.0":
+  version "32.0.2"
+  resolved "https://registry.npmjs.org/@ag-grid-community/react/-/react-32.0.2.tgz#6bafa0682ec5af3a232020fc47fc000398705eb2"
+  integrity sha512-flvY58sLaOKFR+nOeqqtZrRHyp0p7a5fGdPUSJPdQnF0iK9VhXvGtKQHCkZ/px6qZ8W//OrGeo3bgiHRxa1Rcg==
+  dependencies:
+    prop-types "^15.8.1"
+
+"@ag-grid-community/styles@^32.0.0":
+  version "32.0.2"
+  resolved "https://registry.npmjs.org/@ag-grid-community/styles/-/styles-32.0.2.tgz#828c44db95c0edeefa442664f2e694ed57487ea8"
+  integrity sha512-AIbk1Oq1TOEfQopdretMs7Umv5Swm74JTTWH38sc1BX5NOFEC49m3wDi+5E/8xejtH0tmCAhKtpMsbMa16FGIQ==
+
 "@ampproject/remapping@^2.2.0":
   version "2.2.1"
   resolved "https://registry.npmjs.org/@ampproject/remapping/-/remapping-2.2.1.tgz"
@@ -4384,17 +4412,10 @@ add-stream@^1.0.0:
   resolved "https://registry.npmjs.org/add-stream/-/add-stream-1.0.0.tgz"
   integrity sha512-qQLMr+8o0WC4FZGQTcJiKBVC59JylcPSrTtk6usvmIDFUOCKegapy1VHQwRbFMOFyb/inzUVqHs+eMYKDM1YeQ==
 
-ag-grid-community@^28.2.0:
-  version "28.2.1"
-  resolved "https://registry.npmjs.org/ag-grid-community/-/ag-grid-community-28.2.1.tgz"
-  integrity sha512-DMZh/xD/FqYP17qJ1M92PolTYe+hrKuEaf+A4h13O6qn2x/xZQrTRGW5DgnQLR/uLMe1XXZQPKR3UKgAlKo69A==
-
-ag-grid-react@^28.2.0:
-  version "28.2.1"
-  resolved "https://registry.npmjs.org/ag-grid-react/-/ag-grid-react-28.2.1.tgz"
-  integrity sha512-3vbw+B77uWwAyiOJxQA5U+PQFRCCccUx7L5PIwrnA4Y7c1yAu8sB65hAZdBc9kuW26iltwv7asq0UzP7UAQUpg==
-  dependencies:
-    prop-types "^15.8.1"
+ag-charts-types@10.0.2:
+  version "10.0.2"
+  resolved "https://registry.npmjs.org/ag-charts-types/-/ag-charts-types-10.0.2.tgz#fe4d7aa3cdc4ba6f354d7b4bbf65818e242f2fd6"
+  integrity sha512-Nxo5slHOXlaeg0gRIsVnovAosQzzlYfWJtdDy0Aq/VvpJru/PJ+5i2c9aCyEhgRxhBjImsoegwkgRj7gNOWV6Q==
 
 agent-base@6, agent-base@^6.0.2:
   version "6.0.2"
@@ -8284,6 +8305,18 @@ glob@^10.2.2:
     minipass "^5.0.0 || ^6.0.2 || ^7.0.0"
     path-scurry "^1.10.1"
 
+glob@^10.3.7:
+  version "10.4.5"
+  resolved "https://registry.npmjs.org/glob/-/glob-10.4.5.tgz#f4d9f0b90ffdbab09c9d77f5f29b4262517b0956"
+  integrity sha512-7Bv8RF0k6xjo7d4A/PxYLbUCfb6c+Vpd2/mB2yRDlew7Jb5hEXiCD9ibfO7wpk8i4sevK6DFny9h7EYbM3/sHg==
+  dependencies:
+    foreground-child "^3.1.0"
+    jackspeak "^3.1.2"
+    minimatch "^9.0.4"
+    minipass "^7.1.2"
+    package-json-from-dist "^1.0.0"
+    path-scurry "^1.11.1"
+
 glob@^7.1.2, glob@^7.1.3, glob@^7.1.4, glob@^7.1.6, glob@^7.2.0:
   version "7.2.3"
   resolved "https://registry.npmjs.org/glob/-/glob-7.2.3.tgz"
@@ -9235,6 +9268,15 @@ jackspeak@^2.3.5:
   version "2.3.6"
   resolved "https://registry.npmjs.org/jackspeak/-/jackspeak-2.3.6.tgz"
   integrity sha512-N3yCS/NegsOBokc8GAdM8UcmfsKiSS8cipheD/nivzr700H+nsMOxJjQnvwOcRYVuFkdH0wGUvW2WbXGmrZGbQ==
+  dependencies:
+    "@isaacs/cliui" "^8.0.2"
+  optionalDependencies:
+    "@pkgjs/parseargs" "^0.11.0"
+
+jackspeak@^3.1.2:
+  version "3.4.3"
+  resolved "https://registry.npmjs.org/jackspeak/-/jackspeak-3.4.3.tgz#8833a9d89ab4acde6188942bd1c53b6390ed5a8a"
+  integrity sha512-OGlZQpz2yfahA/Rd1Y8Cd9SIEsqvXkLVoSw/cgwhnhFMDbsQFeZYoJJ7bIZBS9BcamUW96asq/npPWugM+RQBw==
   dependencies:
     "@isaacs/cliui" "^8.0.2"
   optionalDependencies:
@@ -10241,6 +10283,11 @@ lowercase-keys@^2.0.0:
   resolved "https://registry.npmjs.org/lowercase-keys/-/lowercase-keys-2.0.0.tgz"
   integrity sha512-tqNXrS78oMOE73NMxK4EMLQsQowWf8jKooH9g7xPavRT706R6bkQJ6DY2Te7QukaZsulxa30wQ7bk0pm4XiHmA==
 
+lru-cache@^10.2.0:
+  version "10.4.3"
+  resolved "https://registry.npmjs.org/lru-cache/-/lru-cache-10.4.3.tgz#410fc8a17b70e598013df257c2446b7f3383f119"
+  integrity sha512-JNAzZcXrCt42VGLuYz0zfAzDfAvJWW6AfYlDBQyDV5DClI2m5sAmK+OIO7s59XfsRsWHp02jAJrRadPRGTt6SQ==
+
 lru-cache@^4.0.1:
   version "4.1.5"
   resolved "https://registry.npmjs.org/lru-cache/-/lru-cache-4.1.5.tgz"
@@ -10575,6 +10622,13 @@ minimatch@^9.0.0, minimatch@^9.0.1:
   dependencies:
     brace-expansion "^2.0.1"
 
+minimatch@^9.0.4:
+  version "9.0.5"
+  resolved "https://registry.npmjs.org/minimatch/-/minimatch-9.0.5.tgz#d74f9dd6b57d83d8e98cfb82133b03978bc929e5"
+  integrity sha512-G6T0ZX48xgozx7587koeX9Ys2NYy6Gmv//P89sEte9V9whIapMNF4idKxnW2QtCcLiTWlb/wfCabAtAFWhhBow==
+  dependencies:
+    brace-expansion "^2.0.1"
+
 minimist-options@4.1.0:
   version "4.1.0"
   resolved "https://registry.npmjs.org/minimist-options/-/minimist-options-4.1.0.tgz"
@@ -10668,6 +10722,11 @@ minipass@^5.0.0:
   version "7.0.4"
   resolved "https://registry.npmjs.org/minipass/-/minipass-7.0.4.tgz"
   integrity sha512-jYofLM5Dam9279rdkWzqHozUo4ybjdZmCsDHePy5V/PbBcVMiSZR97gmAy45aqi8CK1lG2ECd356FU86avfwUQ==
+
+minipass@^7.1.2:
+  version "7.1.2"
+  resolved "https://registry.npmjs.org/minipass/-/minipass-7.1.2.tgz#93a9626ce5e5e66bd4db86849e7515e92340a707"
+  integrity sha512-qOOzS1cBTWYF4BH8fVePDBOO9iptMnGUEZwNc/cMWnTV2nVLZ7VoNWEPHkYczZA0pdoA7dl6e7FL659nX9S2aw==
 
 minizlib@^2.1.1, minizlib@^2.1.2:
   version "2.1.2"
@@ -11538,6 +11597,11 @@ p-waterfall@2.1.1:
   dependencies:
     p-reduce "^2.0.0"
 
+package-json-from-dist@^1.0.0:
+  version "1.0.0"
+  resolved "https://registry.npmjs.org/package-json-from-dist/-/package-json-from-dist-1.0.0.tgz#e501cd3094b278495eb4258d4c9f6d5ac3019f00"
+  integrity sha512-dATvCeZN/8wQsGywez1mzHtTlP22H8OEfPrVMLNr4/eGa+ijtLn/6M5f0dY8UKNrC2O9UCU6SSoG3qRKnt7STw==
+
 pacote@^15.2.0:
   version "15.2.0"
   resolved "https://registry.npmjs.org/pacote/-/pacote-15.2.0.tgz"
@@ -11695,6 +11759,14 @@ path-scurry@^1.10.1, path-scurry@^1.6.1:
   integrity sha512-MkhCqzzBEpPvxxQ71Md0b1Kk51W01lrYvlMzSUaIzNsODdd7mqhiimSZlr+VegAz5Z6Vzt9Xg2ttE//XBhH3EQ==
   dependencies:
     lru-cache "^9.1.1 || ^10.0.0"
+    minipass "^5.0.0 || ^6.0.2 || ^7.0.0"
+
+path-scurry@^1.11.1:
+  version "1.11.1"
+  resolved "https://registry.npmjs.org/path-scurry/-/path-scurry-1.11.1.tgz#7960a668888594a0720b12a911d1a742ab9f11d2"
+  integrity sha512-Xa4Nw17FS9ApQFJ9umLiJS4orGjm7ZzwUrwamcGQuHSzDyth9boKDaycYdDcZDuqYATXw4HFXgaqWTctW/v1HA==
+  dependencies:
+    lru-cache "^10.2.0"
     minipass "^5.0.0 || ^6.0.2 || ^7.0.0"
 
 path-to-regexp@0.1.7:
@@ -12714,7 +12786,7 @@ rimraf@2, rimraf@^2.6.1, rimraf@^2.6.2, rimraf@^2.6.3:
   dependencies:
     glob "^7.1.3"
 
-rimraf@3.0.2, rimraf@^3.0.0, rimraf@^3.0.2, rimraf@latest:
+rimraf@3.0.2, rimraf@^3.0.0, rimraf@^3.0.2:
   version "3.0.2"
   resolved "https://registry.npmjs.org/rimraf/-/rimraf-3.0.2.tgz"
   integrity sha512-JZkJMZkAGFFPP2YqXZXPbMlMBgsxzE8ILs4lMIX/2o0L9UBw9O/Y3o6wFw/i9YLapcUJWwqbi3kdxIPdC62TIA==
@@ -12727,6 +12799,13 @@ rimraf@^4.4.1:
   integrity sha512-Gk8NlF062+T9CqNGn6h4tls3k6T1+/nXdOcSZVikNVtlRdYpA7wRJJMoXmuvOnLW844rPjdQ7JgXCYM6PPC/og==
   dependencies:
     glob "^9.2.0"
+
+rimraf@^5.0.0:
+  version "5.0.9"
+  resolved "https://registry.npmjs.org/rimraf/-/rimraf-5.0.9.tgz#c3baa1b886eadc2ec7981a06a593c3d01134ffe9"
+  integrity sha512-3i7b8OcswU6CpU8Ej89quJD4O98id7TtVM5U4Mybh84zQXdrFmDLouWBEEaD/QfO3gDDfH+AGFCGsR7kngzQnA==
+  dependencies:
+    glob "^10.3.7"
 
 rimraf@~2.6.2:
   version "2.6.3"
