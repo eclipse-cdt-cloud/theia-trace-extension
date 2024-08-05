@@ -689,22 +689,26 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
     renderChart(): React.ReactNode {
         return (
             <React.Fragment>
-                {this.state.outputStatus === ResponseStatus.COMPLETED ? (
+                <div
+                    id="timegraph-main"
+                    className="ps__child--consume"
+                    onWheel={ev => {
+                        ev.preventDefault();
+                        ev.stopPropagation();
+                    }}
+                    style={{ height: this.props.style.height }}
+                >
+                    {this.renderTimeGraphContent()}
+                </div>
+                {this.state.outputStatus === ResponseStatus.RUNNING && (
                     <div
-                        id="timegraph-main"
-                        className="ps__child--consume"
-                        onWheel={ev => {
-                            ev.preventDefault();
-                            ev.stopPropagation();
-                        }}
-                        style={{ height: this.props.style.height }}
+                        className="analysis-running-overflow"
+                        style={{ width: this.getChartWidth() }}
                     >
-                        {this.renderTimeGraphContent()}
-                    </div>
-                ) : (
-                    <div className="analysis-running">
-                        {<FontAwesomeIcon icon={faSpinner} spin style={{ marginRight: '5px' }} />}
-                        {'Analysis running'}
+                        <div>
+                            <FontAwesomeIcon icon={faSpinner} spin style={{ marginRight: '5px' }} />
+                            <span>Analysis running</span>
+                        </div>
                     </div>
                 )}
             </React.Fragment>
