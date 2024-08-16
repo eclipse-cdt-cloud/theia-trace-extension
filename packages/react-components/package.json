@@ -35,9 +35,9 @@
         "react-virtualized": "^9.21.0",
         "semantic-ui-css": "^2.4.1",
         "semantic-ui-react": "^0.86.0",
-        "timeline-chart": "^0.3.1",
+        "timeline-chart": "^0.3.2",
         "traceviewer-base": "0.2.4",
-        "tsp-typescript-client": "^0.4.1"
+        "tsp-typescript-client": "^0.4.2"
     },
     "devDependencies": {
         "@testing-library/react": "^13.4.0",

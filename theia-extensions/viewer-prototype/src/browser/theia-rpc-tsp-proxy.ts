@@ -6,6 +6,7 @@ import { Query } from 'tsp-typescript-client/lib/models/query/query';
 import { Experiment } from 'tsp-typescript-client/lib/models/experiment';
 import { GenericResponse } from 'tsp-typescript-client/lib/models/response/responses';
 import { HealthStatus } from 'tsp-typescript-client/lib/models/health';
+import { Identifier } from 'tsp-typescript-client/lib/models/identifier';
 import { XyEntry, XYModel } from 'tsp-typescript-client/lib/models/xy';
 import { TimeGraphEntry, TimeGraphArrow, TimeGraphModel } from 'tsp-typescript-client/lib/models/timegraph';
 import { AnnotationCategoriesModel, AnnotationModel } from 'tsp-typescript-client/lib/models/annotation';
@@ -369,6 +370,14 @@ export class TheiaRpcTspProxy implements ITspClient {
      */
     public async checkHealth(): Promise<TspClientResponse<HealthStatus>> {
         return this.toTspClientResponse<HealthStatus>(await this.tspClient.checkHealth());
+    }
+
+    /**
+     * Fetch the identifier service
+     * @returns Important information regarding the trace server and the system it is running on
+     */
+    public async fetchIdentifier(): Promise<TspClientResponse<Identifier>> {
+        return this.toTspClientResponse<Identifier>(await this.tspClient.fetchIdentifier());
     }
 
     /**
