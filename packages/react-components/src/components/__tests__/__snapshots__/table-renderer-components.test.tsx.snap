@@ -309,7 +309,7 @@ exports[`<TableOutputComponent /> Renders AG-Grid table with provided props & st
                   />
                 </div>
                 <div
-                  class="ag-sticky-bottom"
+                  class="ag-sticky-bottom ag-hidden"
                   role="presentation"
                   style="height: 0px; bottom: 0px; width: 100%;"
                 >
@@ -471,7 +471,6 @@ exports[`<TableOutputComponent /> Renders AG-Grid table with provided props & st
                 
               <span
                 class="ag-paging-row-summary-panel"
-                role="status"
               >
                 
                     
@@ -551,7 +550,6 @@ exports[`<TableOutputComponent /> Renders AG-Grid table with provided props & st
                     
                 <span
                   class="ag-paging-description"
-                  role="status"
                 >
                   
                         
