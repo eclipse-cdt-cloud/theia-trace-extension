@@ -48,11 +48,7 @@
     },
     "homepage": "https://github.com/eclipse-cdt-cloud/theia-trace-extension",
     "resolutions": {
-        "msgpackr": "^1.10.1",
-        "react": "^18.2.0",
-        "react-dom": "^18.2.0",
-        "@types/react": "^18.0.15",
-        "@types/react-dom": "^18.0.6"
+        "msgpackr": "^1.10.1"
     },
     "devDependencies": {
         "@eclipse-dash/nodejs-wrapper": "^0.0.1",
@@ -61,7 +57,7 @@
         "jsonc-parser": "^3.0.0",
         "lerna": "^7.0.0",
         "prettier": "2.8.8",
-        "typescript": "4.5.5"
+        "typescript": "4.9.5"
     },
     "workspaces": [
         "examples/browser",
@@ -74,6 +70,9 @@
         "@emotion/react": "^11.10.5",
         "@emotion/styled": "^11.10.5",
         "@types/react": "^18.0.15",
-        "@types/react-dom": "^18.0.6"
+        "@types/react-dom": "^18.0.6",
+        "msgpackr": "^1.10.1",
+        "react": "^18.2.0",
+        "react-dom": "^18.2.0"
     }
 }

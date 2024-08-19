@@ -127,7 +127,9 @@ export class TooltipXYComponent extends React.Component<unknown, TooltipXYCompon
             clearTimeout(this.timerId);
         }
         this.timerId = setTimeout(() => {
-            this.setState({ tooltipData, onDisplay: true });
+            if (tooltipData) {
+                this.setState({ tooltipData, onDisplay: true });
+            }
         }, 500);
 
         if (this.state.onDisplay) {
