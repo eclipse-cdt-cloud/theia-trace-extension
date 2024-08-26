@@ -22,7 +22,7 @@
         "@fortawesome/react-fontawesome": "^0.1.4",
         "@mui/material": "^5.10.14",
         "@vscode/codicons": "^0.0.29",
-        "ag-grid-community": "^28.2.0",
+        "ag-grid-community": "^31.3.4",
         "ag-grid-react": "^28.2.0",
         "chart.js": "^2.8.0",
         "d3": "^7.1.1",
