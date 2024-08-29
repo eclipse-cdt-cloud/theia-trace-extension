@@ -1,11 +1,16 @@
 # 11. Tsp analysis api
 
-Date: 2024-05-29
+Date: 2024-08-29
 
 ## Status
 
-Proposed
+Proposed - v2
+
+Version v1
+    Initial version
 Version v2
+    Remove "Configuration service per experiment"
+    Add "Configure customizable outputs"
 
 ## Context
 
