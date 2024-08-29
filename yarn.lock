@@ -13645,10 +13645,10 @@ through@2, "through@>=2.2.7 <3", through@^2.3.4, through@^2.3.6, through@^2.3.8:
   resolved "https://registry.npmjs.org/through/-/through-2.3.8.tgz#0dd4c9ffaabc357960b1b724115d7e0e86a2e1f5"
   integrity sha512-w89qg7PI8wAdvX60bMDP+bFoD5Dvhm9oLheFp5O4a2QF0cSBGsBX4qZmadPMvVqlLJBBci+WqGGOAPvcDeNSVg==
 
-timeline-chart@^0.3.2:
-  version "0.3.2"
-  resolved "https://registry.npmjs.org/timeline-chart/-/timeline-chart-0.3.2.tgz#a943e613c3d211ee81e7225c8d9c1654ac858555"
-  integrity sha512-DnmD2c+N4IGx5/AOxacUu2r9FanxAtbfratUxiElkYS53vZ65DBjiOTPvarsGeIC+DZNnVjObcq4jyh/tshFbg==
+timeline-chart@^0.3.4:
+  version "0.3.4"
+  resolved "https://registry.npmjs.org/timeline-chart/-/timeline-chart-0.3.4.tgz#2833ac5c1250ae1273bc8287b989af350b373792"
+  integrity sha512-npz+x1/b11DzNAmh3FBS3QGLuUbvmOioZ9CSEi2e/97vo046ds1Y1wHR6vvmnhqVMmKSf0/TueQB6F8NhmhCdg==
   dependencies:
     "@types/lodash.throttle" "^4.1.4"
     glob "^7.1.6"
@@ -13808,10 +13808,10 @@ tslib@^2.1.0, tslib@^2.3.0, tslib@^2.3.1, tslib@^2.4.0, tslib@^2.6.2:
   resolved "https://registry.npmjs.org/tslib/-/tslib-2.7.0.tgz#d9b40c5c40ab59e8738f297df3087bf1a2690c01"
   integrity sha512-gLXCKdN1/j47AiHiOkJN69hJmcbGTHI0ImLmbYLHykhgeN0jVGola9yVjFgzCUklsZQMW55o+dW7IXv3RCXDzA==
 
-tsp-typescript-client@^0.4.2:
-  version "0.4.2"
-  resolved "https://registry.npmjs.org/tsp-typescript-client/-/tsp-typescript-client-0.4.2.tgz#1c4d1328a26a90148f34ddbdf5525f4edd923732"
-  integrity sha512-MPYA9DctzwpMdcEIaZGQUKonHY+zGBB6yKnaTZlheBGlPV16N0nSHvuYTAhZ3K8yWgKilzZ+Bsx6gyFFtjM3EA==
+tsp-typescript-client@^0.4.3:
+  version "0.4.3"
+  resolved "https://registry.npmjs.org/tsp-typescript-client/-/tsp-typescript-client-0.4.3.tgz#c2a679c8bed359ff09f4532d0365e0ee42dae461"
+  integrity sha512-6wmi9Y6ftWJHWdNmzt7b5ST2EPP3srDnPfviA/8hSt/VYsFnagDKLCWWuCHVSPee2XmEWG2vfIIy3Q6LzJdHiQ==
   dependencies:
     json-bigint sidorares/json-bigint#2c0a5f896d7888e68e5f4ae3c7ea5cd42fd54473
     node-fetch "^2.5.0"
