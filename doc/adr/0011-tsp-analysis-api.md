@@ -4,13 +4,15 @@ Date: 2024-08-29
 
 ## Status
 
-Proposed - v2
+Proposed - v3
 
 Version v1
     Initial version
 Version v2
     Remove "Configuration service per experiment"
     Add "Configure customizable outputs"
+Version v3
+    Support of json-schema for configuration source types
 
 ## Context
 
@@ -49,7 +51,8 @@ ConfigurationSourceType {
     description: string,
     id: string,
     scope: string,
-    parameterDescriptors: ConfigurationParameterDescriptor[]
+    parameterDescriptors?: ConfigurationParameterDescriptor[],
+    schema?: object
 }
 ```
 
@@ -59,11 +62,14 @@ Where:
 - `description`: The description of the configuration source type. Can be shown to the end-user.
 - `id`: Unique id of the configuration source type. Used in the application to distinquish configuration source types
 - `scope:` `experiment` for configuration source types per experiment or `global` for all experiments
-- `parameterDescriptors`: A list of descriptors that describe the parameters that the front-end needs to provide with corresponding values. For example, use "path" for file path.
+- `parameterDescriptors`: A list of descriptors that describe the parameters that the front-end needs to provide with corresponding values. For example, use "path" for file path. Use this instead of `schema`.
+- `schema`: a JSON schema object that describes the parameters that the front-end needs to provide with corresponding values. Use this for complex parameter descriptions instead of `parameterDescriptors`.
+
+Note: One of `parameterDescriptors` and `schema` must be present.
 
 #### Configuration parameter descriptor
 
-The configuration parameter descriptor describes a parameter that the front-end needs to provide with corresponding values. This descriptor will help implementing a UI for the parameters.
+The configuration parameter descriptor describes a parameter that the front-end needs to provide with corresponding values. This descriptor will help implementing a UI for the parameters. Use this for simple parameters. For complex parameter descriptions use a [json-schema](#configuration-parameter-schema) instead.
 
 ```javascript
 ConfigurationParameterDescriptor {
@@ -80,6 +86,10 @@ Where:
 - `description`: The description of the configuration parameter. Can be shown to the end-user.
 - `dataType`: A data type hint to the client. Helps implementing validation of values in the front-end.
 - `isRequired`: A flag indicating whether parameter is required or not.
+
+#### Configuration parameter schema
+
+The configuration parameter schema describes parameters that the front-end needs to provide with corresponding values. This descriptor will help implementing a UI for the parameters. Use this for complex parameter descriptions use a [json-schema](#configuration-parameter-schema) and omit the list of [configuration parameter descriptors](#configuration-parameter-descriptor). The schema string has to comply with the [json-schema specification](https://json-schema.org/)
 
 #### Configuration descriptor
 
