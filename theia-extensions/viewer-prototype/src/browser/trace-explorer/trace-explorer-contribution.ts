@@ -1,15 +1,22 @@
-import { injectable } from '@theia/core/shared/inversify';
+import { injectable, inject } from '@theia/core/shared/inversify';
 import { AbstractViewContribution } from '@theia/core/lib/browser/shell/view-contribution';
 import { TraceExplorerWidget } from './trace-explorer-widget';
 import { FrontendApplicationContribution, FrontendApplication } from '@theia/core/lib/browser';
 import { MenuModelRegistry, CommandRegistry } from '@theia/core';
 import { TraceExplorerCommands, TraceExplorerMenus } from './trace-explorer-commands';
+import { NavigatorContextMenu } from '@theia/navigator/lib/browser/navigator-contribution';
+import { UriAwareCommandHandler } from '@theia/core/lib/common/uri-command-handler';
+import { SelectionService } from '@theia/core/lib/common';
+import { TraceViewerContribution } from '../trace-viewer/trace-viewer-contribution';
 
 @injectable()
 export class TraceExplorerContribution
     extends AbstractViewContribution<TraceExplorerWidget>
     implements FrontendApplicationContribution
 {
+    @inject(SelectionService) protected readonly selectionService: SelectionService;
+    @inject(TraceViewerContribution) protected readonly traceViewer: TraceViewerContribution;
+
     constructor() {
         super({
             widgetId: TraceExplorerWidget.ID,
@@ -44,6 +51,11 @@ export class TraceExplorerContribution
             label: TraceExplorerCommands.REMOVE_TRACE.label,
             order: 'c'
         });
+
+        menus.registerMenuAction(NavigatorContextMenu.NAVIGATION, {
+            commandId: TraceExplorerCommands.OPEN_IN_TRACE_VIEWER.id,
+            order: 'z9'
+        });
     }
 
     async registerCommands(registry: CommandRegistry): Promise<void> {
@@ -67,5 +79,14 @@ export class TraceExplorerContribution
                 explorerWidget.deleteExperiment(traceUUID);
             }
         });
+
+        registry.registerCommand(
+            TraceExplorerCommands.OPEN_IN_TRACE_VIEWER,
+            UriAwareCommandHandler.MonoSelect(this.selectionService, {
+                execute: uri => {
+                    this.traceViewer.open(uri);
+                }
+            })
+        );
     }
 }
