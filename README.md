@@ -222,9 +222,9 @@ This is the most intuitive way to open traces and trace groups, but it can only 
 
 #### Via the File Explorer
 
-You can open any supported trace format via the file explorer context menu. For a single trace, right-click on the trace file, or folder (for a CTF trace), then select **Open With → Open Trace**. To open several CTF trace files as a group, right-click on the parent folder instead.
+You can open any supported trace format via the file explorer context menu. For a single trace, right-click on the trace file, or folder (for a CTF trace), then select **Open in Trace Viewer**. To open several CTF trace files as a group, right-click on the parent folder instead.
 
-![Open With Trace Viewer][image-open-with]
+![Open in Trace Viewer][image-open-in-trace-viewer]
 
 ### Open a view
 
@@ -466,7 +466,7 @@ The code in this repository is licensed under `MIT` (see root `LICENSE`), except
 [image-icon]: https://raw.githubusercontent.com/eclipse-cdt-cloud/theia-trace-extension/master/doc/images/theia-trace-extension-icon.png
 [image-open-browser]: https://raw.githubusercontent.com/eclipse-cdt-cloud/theia-trace-extension/master/doc/images/theia-trace-extension-open-browser.png
 [image-open-view]: https://raw.githubusercontent.com/eclipse-cdt-cloud/theia-trace-extension/master/doc/images/theia-trace-extension-open-view.gif
-[image-open-with]: https://raw.githubusercontent.com/eclipse-cdt-cloud/theia-trace-extension/master/doc/images/theia-trace-extension-open-with-trace-viewer.gif
+[image-open-in-trace-viewer]: https://raw.githubusercontent.com/eclipse-cdt-cloud/theia-trace-extension/master/doc/images/theia-trace-extension-open-in-trace-viewer.gif
 [image-properties]: https://raw.githubusercontent.com/eclipse-cdt-cloud/theia-trace-extension/master/doc/images/theia-trace-extension-item-properties-0.0.2.png
 [image-sidebar]: https://raw.githubusercontent.com/eclipse-cdt-cloud/theia-trace-extension/master/doc/images/theia-trace-extension-open-trace-viewer.gif
 [image-viewer]: https://raw.githubusercontent.com/eclipse-cdt-cloud/theia-trace-extension/master/doc/images/theia-trace-extension-0.0.3.png
