@@ -17,4 +17,9 @@ export namespace TraceExplorerCommands {
         id: 'trace-explorer:remove-trace',
         label: 'Remove Trace'
     };
+
+    export const OPEN_IN_TRACE_VIEWER: Command = {
+        id: 'trace-explorer:open-in-trace-viewer',
+        label: 'Open in Trace Viewer'
+    };
 }
