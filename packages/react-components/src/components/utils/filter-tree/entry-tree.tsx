@@ -13,6 +13,8 @@ interface EntryTreeProps {
     selectedRow?: number;
     multiSelectedRows?: number[];
     collapsedNodes: number[];
+    emptyNodes: number[];
+    hideEmptyNodes: boolean;
     showFilter: boolean;
     onToggleCheck: (ids: number[]) => void;
     onRowClick: (id: number) => void;
@@ -46,7 +48,9 @@ export class EntryTree extends React.Component<EntryTreeProps> {
         this.props.entries !== nextProps.entries ||
         this.props.collapsedNodes !== nextProps.collapsedNodes ||
         this.props.selectedRow !== nextProps.selectedRow ||
-        this.props.multiSelectedRows !== nextProps.multiSelectedRows;
+        this.props.multiSelectedRows !== nextProps.multiSelectedRows ||
+        this.props.hideEmptyNodes !== nextProps.hideEmptyNodes ||
+        this.props.emptyNodes !== nextProps.emptyNodes;
 
     render(): JSX.Element {
         return <FilterTree nodes={listToTree(this.props.entries, this.props.headers)} {...this.props} />;

@@ -4,6 +4,7 @@ import { TableHeader } from './table-header';
 import { TableBody } from './table-body';
 import { SortConfig, sortState, nextSortState, sortNodes } from './sort';
 import ColumnHeader from './column-header';
+import { filterEmptyNodes } from './utils';
 
 interface TableProps {
     nodes: TreeNode[];
@@ -26,6 +27,8 @@ interface TableProps {
     headers: ColumnHeader[];
     className: string;
     hideFillers?: boolean;
+    emptyNodes: number[];
+    hideEmptyNodes: boolean;
 }
 
 export class Table extends React.Component<TableProps> {
@@ -74,6 +77,12 @@ export class Table extends React.Component<TableProps> {
             gridTemplateColumns = gridTemplateColumns.concat(' minmax(0px, 1fr)');
         }
 
+        let nodes = sortNodes(this.props.nodes, this.props.sortConfig);
+
+        if (this.props.hideEmptyNodes) {
+            nodes = filterEmptyNodes(nodes, this.props.emptyNodes);
+        }
+
         return (
             <div>
                 <table style={{ gridTemplateColumns: gridTemplateColumns }} className={this.props.className}>
@@ -86,7 +95,7 @@ export class Table extends React.Component<TableProps> {
                             hideFillers={this.props.hideFillers}
                         />
                     )}
-                    <TableBody {...this.props} nodes={sortNodes(this.props.nodes, this.props.sortConfig)} />
+                    <TableBody {...this.props} nodes={nodes} />
                 </table>
             </div>
         );
