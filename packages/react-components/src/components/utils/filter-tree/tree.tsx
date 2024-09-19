@@ -3,7 +3,7 @@ import { TreeNode } from './tree-node';
 import { Message } from './message';
 import { Filter } from './filter';
 import { Table } from './table';
-import { getAllExpandedNodeIds } from './utils';
+import { getAllExpandedNodeIds, filterEmptyNodes } from './utils';
 import { SortConfig, sortNodes } from './sort';
 import ColumnHeader from './column-header';
 import { isEqual } from 'lodash';
@@ -15,6 +15,8 @@ interface FilterTreeProps {
     showFilter: boolean; // Optional
     checkedSeries: number[]; // Optional
     collapsedNodes: number[];
+    emptyNodes: number[];
+    hideEmptyNodes: boolean;
     selectedRow?: number;
     multiSelectedRows?: number[];
     onToggleCheck: (ids: number[]) => void; // Optional
@@ -274,6 +276,8 @@ export class FilterTree extends React.Component<FilterTreeProps, FilterTreeState
             selectedRow={this.props.selectedRow}
             multiSelectedRows={this.props.multiSelectedRows}
             collapsedNodes={this.props.collapsedNodes}
+            emptyNodes={this.props.emptyNodes}
+            hideEmptyNodes={this.props.hideEmptyNodes}
             isCheckable={this.props.showCheckboxes}
             isClosable={this.props.showCloseIcons}
             sortConfig={this.state.sortConfig}
