@@ -35,11 +35,11 @@
     "devDependencies": {
         "@theia/cli": "1.52.0",
         "electron": "^28.2.8",
-        "electron-builder": "~23.6.0"
+        "electron-builder": "~24.13.0"
     },
     "scripts": {
         "prepare": "yarn build",
-        "build": "theia build --mode development",
+        "build": "theia build --app-target=\"electron\" --mode development",
         "rebuild": "theia rebuild:electron --cacheRoot ../..",
         "start": "TRACE_SERVER_PATH=../../trace-compass-server/tracecompass-server theia start",
         "watch": "theia build --watch --mode development",

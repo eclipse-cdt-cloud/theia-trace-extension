@@ -206,7 +206,7 @@ exports[`<TableOutputComponent /> Renders AG-Grid table with provided props & st
               <div
                 aria-colcount="0"
                 aria-rowcount="-1"
-                class="ag-root ag-unselectable ag-layout-normal"
+                class="ag-root ag-unselectable ag-layout-normal ag-body-vertical-content-no-gap ag-body-horizontal-content-no-gap"
                 role="treegrid"
               >
                 <div
