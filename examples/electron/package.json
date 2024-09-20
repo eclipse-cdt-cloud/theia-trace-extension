@@ -25,16 +25,16 @@
         }
     },
     "dependencies": {
-        "@theia/core": "1.49.1",
-        "@theia/electron": "1.49.1",
-        "@theia/navigator": "1.49.1",
-        "@theia/preferences": "1.49.1",
-        "@theia/terminal": "1.49.1",
+        "@theia/core": "1.52.0",
+        "@theia/electron": "1.52.0",
+        "@theia/navigator": "1.52.0",
+        "@theia/preferences": "1.52.0",
+        "@theia/terminal": "1.52.0",
         "theia-traceviewer": "0.2.7"
     },
     "devDependencies": {
-        "@theia/cli": "1.49.1",
-        "electron": "^23.2.4",
+        "@theia/cli": "1.52.0",
+        "electron": "^28.2.8",
         "electron-builder": "~23.6.0"
     },
     "scripts": {
