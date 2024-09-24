@@ -15,6 +15,7 @@
         }
     },
     "dependencies": {
+        "@theia/collaboration": "1.53.2",
         "@theia/core": "1.53.2",
         "@theia/navigator": "1.53.2",
         "@theia/preferences": "1.53.2",

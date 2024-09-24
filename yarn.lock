@@ -2813,6 +2813,24 @@
     tslib "^2.6.2"
     yargs "^15.3.1"
 
+"@theia/collaboration@1.53.2":
+  version "1.53.2"
+  resolved "https://registry.npmjs.org/@theia/collaboration/-/collaboration-1.53.2.tgz#e247b24aba0b12ed371fe1e6854d81ace2ad3fd7"
+  integrity sha512-ks+sDW7ay3AHnVehegRjjraZRV06tViM7NFDc4j3s3s+yZrkPWbWeTkT9k3LkUg+tIXLmcSzVMepS7/xlothyw==
+  dependencies:
+    "@theia/core" "1.53.2"
+    "@theia/editor" "1.53.2"
+    "@theia/filesystem" "1.53.2"
+    "@theia/monaco" "1.53.2"
+    "@theia/monaco-editor-core" "1.83.101"
+    "@theia/workspace" "1.53.2"
+    lib0 "^0.2.52"
+    open-collaboration-protocol "0.2.0"
+    open-collaboration-yjs "0.2.0"
+    socket.io-client "^4.5.3"
+    y-protocols "^1.0.6"
+    yjs "^13.6.7"
+
 "@theia/core@1.53.2":
   version "1.53.2"
   resolved "https://registry.npmjs.org/@theia/core/-/core-1.53.2.tgz#9960cf7b18a3f5ee4f32e15fdd40d862bc81529a"
@@ -6928,6 +6946,17 @@ engine.io-client@~6.5.2:
     ws "~8.17.1"
     xmlhttprequest-ssl "~2.0.0"
 
+engine.io-client@~6.6.1:
+  version "6.6.1"
+  resolved "https://registry.npmjs.org/engine.io-client/-/engine.io-client-6.6.1.tgz#28a9cc4e90d448e1d0ba9369ad08a7af82f9956a"
+  integrity sha512-aYuoak7I+R83M/BBPIOs2to51BmFIpC1wZe6zZzMrT2llVsHy5cvcmdsJgP2Qz6smHu+sD9oexiSUAVd8OfBPw==
+  dependencies:
+    "@socket.io/component-emitter" "~3.1.0"
+    debug "~4.3.1"
+    engine.io-parser "~5.2.1"
+    ws "~8.17.1"
+    xmlhttprequest-ssl "~2.1.1"
+
 engine.io-parser@~5.2.1:
   version "5.2.3"
   resolved "https://registry.npmjs.org/engine.io-parser/-/engine.io-parser-5.2.3.tgz#00dc5b97b1f233a23c9398d0209504cf5f94d92f"
@@ -7674,6 +7703,11 @@ fd-slicer@~1.1.0:
   integrity sha512-cE1qsB/VwyQozZ+q1dGxR8LBYNZeofhEdUNGSMbQD3Gw2lAzX9Zb3uIU6Ebc/Fmyjo9AWWfnn0AUCHqtevs/8g==
   dependencies:
     pend "~1.2.0"
+
+fflate@^0.8.2:
+  version "0.8.2"
+  resolved "https://registry.npmjs.org/fflate/-/fflate-0.8.2.tgz#fc8631f5347812ad6028bbe4a2308b2792aa1dea"
+  integrity sha512-cPJU47OaAoCbg0pBvzsgpTPhmhqI5eJjh/JIu8tPj5q+T7iLvW/JAYUqmE7KOB4R1ZyEhzBaIQpQpardBF5z8A==
 
 figures@3.2.0, figures@^3.0.0:
   version "3.2.0"
@@ -9078,6 +9112,11 @@ isobject@^3.0.1:
   resolved "https://registry.npmjs.org/isobject/-/isobject-3.0.1.tgz#4e431e92b11a9731636aa1f9c8d1ccbcfdab78df"
   integrity sha512-WhB9zCku7EGTj/HQQRz5aUQEUeoQZH2bWcltRErOpymJ4boYE6wL9Tbr23krRPSZ+C5zqNSrSw+Cc7sZZ4b7vg==
 
+isomorphic.js@^0.2.4:
+  version "0.2.5"
+  resolved "https://registry.npmjs.org/isomorphic.js/-/isomorphic.js-0.2.5.tgz#13eecf36f2dba53e85d355e11bf9d4208c6f7f88"
+  integrity sha512-PIeMbHqMt4DnUP3MA/Flc0HElYjMXArsw1qwJZcm9sqR8mq3l8NYizFMty0pWwE/tzIGH3EKK5+jes5mAr85yw==
+
 istanbul-lib-coverage@^3.0.0, istanbul-lib-coverage@^3.2.0:
   version "3.2.2"
   resolved "https://registry.npmjs.org/istanbul-lib-coverage/-/istanbul-lib-coverage-3.2.2.tgz#2d166c4b0644d43a39f04bf6c2edd1e585f31756"
@@ -9912,6 +9951,13 @@ levn@^0.4.1:
   dependencies:
     prelude-ls "^1.2.1"
     type-check "~0.4.0"
+
+lib0@^0.2.52, lib0@^0.2.85, lib0@^0.2.86, lib0@^0.2.94:
+  version "0.2.97"
+  resolved "https://registry.npmjs.org/lib0/-/lib0-0.2.97.tgz#a68d7c88577ac1910cdbe5204bac070f07c8e0b4"
+  integrity sha512-Q4d1ekgvufi9FiHkkL46AhecfNjznSL9MRNoJRQ76gBHS9OqU2ArfQK0FvBpuxgWeJeNI0LVgAYMIpsGeX4gYg==
+  dependencies:
+    isomorphic.js "^0.2.4"
 
 libnpmaccess@7.0.2:
   version "7.0.2"
@@ -11191,6 +11237,26 @@ onetime@^5.1.0, onetime@^5.1.2:
   integrity sha512-kbpaSSGJTWdAY5KPVeMOKXSrPtr8C8C7wodJbcsd51jRnmD+GZu8Y0VoU6Dm5Z4vWr0Ig/1NKuWRKf7j5aaYSg==
   dependencies:
     mimic-fn "^2.1.0"
+
+open-collaboration-protocol@0.2.0, open-collaboration-protocol@^0.2.0:
+  version "0.2.0"
+  resolved "https://registry.npmjs.org/open-collaboration-protocol/-/open-collaboration-protocol-0.2.0.tgz#f3f93f22bb5fbb46e3fd31e6bb87f52a9ce6526b"
+  integrity sha512-ZaLMTMyVoJJ0vPjoMXGhNZqiycbfyJPbNCkbI9uHTOYRsvZqreRAFhSd7p9RbxLJNS5xeQGNSfldrhhec94Bmg==
+  dependencies:
+    base64-js "^1.5.1"
+    fflate "^0.8.2"
+    msgpackr "^1.10.2"
+    semver "^7.6.2"
+    socket.io-client "^4.7.5"
+
+open-collaboration-yjs@0.2.0:
+  version "0.2.0"
+  resolved "https://registry.npmjs.org/open-collaboration-yjs/-/open-collaboration-yjs-0.2.0.tgz#7c7e30dba444b9f6947fe76ae02a7c3fdaec6172"
+  integrity sha512-HT2JU/HJObIaQMF/MHt5/5VdOnGn+bVTaTJnyYfyaa/vjqg4Z4Glas3Hc9Ua970ssP3cOIRUQoHQumM0giaxrw==
+  dependencies:
+    lib0 "^0.2.94"
+    open-collaboration-protocol "^0.2.0"
+    y-protocols "^1.0.6"
 
 open@^7.4.2:
   version "7.4.2"
@@ -12768,7 +12834,7 @@ semver@7.5.3:
   dependencies:
     lru-cache "^6.0.0"
 
-semver@7.x, semver@^7.0.0, semver@^7.1.1, semver@^7.2.1, semver@^7.3.2, semver@^7.3.4, semver@^7.3.5, semver@^7.3.7, semver@^7.3.8, semver@^7.5.3, semver@^7.5.4:
+semver@7.x, semver@^7.0.0, semver@^7.1.1, semver@^7.2.1, semver@^7.3.2, semver@^7.3.4, semver@^7.3.5, semver@^7.3.7, semver@^7.3.8, semver@^7.5.3, semver@^7.5.4, semver@^7.6.2:
   version "7.6.3"
   resolved "https://registry.npmjs.org/semver/-/semver-7.6.3.tgz#980f7b5550bc175fb4dc09403085627f9eb33143"
   integrity sha512-oVekP1cKtI+CTDvHWYFUcMtsK/00wmAEfyqKfNdARm8u1wNVhSgaX7A8d4UuIlUI5e84iEwOhs7ZPYRmzU9U6A==
@@ -13021,6 +13087,16 @@ socket.io-client@^4.5.3:
     "@socket.io/component-emitter" "~3.1.0"
     debug "~4.3.2"
     engine.io-client "~6.5.2"
+    socket.io-parser "~4.2.4"
+
+socket.io-client@^4.7.5:
+  version "4.8.0"
+  resolved "https://registry.npmjs.org/socket.io-client/-/socket.io-client-4.8.0.tgz#2ea0302d0032d23422bd2860f78127a800cad6a2"
+  integrity sha512-C0jdhD5yQahMws9alf/yvtsMGTaIDBnZ8Rb5HU56svyq0l5LIrGzIDZZD5pHQlmzxLuU91Gz+VpQMKgCTNYtkw==
+  dependencies:
+    "@socket.io/component-emitter" "~3.1.0"
+    debug "~4.3.2"
+    engine.io-client "~6.6.1"
     socket.io-parser "~4.2.4"
 
 socket.io-parser@~4.2.4:
@@ -14701,6 +14777,11 @@ xmlhttprequest-ssl@~2.0.0:
   resolved "https://registry.npmjs.org/xmlhttprequest-ssl/-/xmlhttprequest-ssl-2.0.0.tgz#91360c86b914e67f44dce769180027c0da618c67"
   integrity sha512-QKxVRxiRACQcVuQEYFsI1hhkrMlrXHPegbbd1yn9UHOmRxY+si12nQYzri3vbzt8VdTTRviqcKxcyllFas5z2A==
 
+xmlhttprequest-ssl@~2.1.1:
+  version "2.1.1"
+  resolved "https://registry.npmjs.org/xmlhttprequest-ssl/-/xmlhttprequest-ssl-2.1.1.tgz#0d045c3b2babad8e7db1af5af093f5d0d60df99a"
+  integrity sha512-ptjR8YSJIXoA3Mbv5po7RtSYHO6mZr8s7i5VGmEk7QY2pQWyT1o0N+W1gKbOyJPUCGXGnuw0wqe8f0L6Y0ny7g==
+
 xtend@^4.0.0, xtend@~4.0.1:
   version "4.0.2"
   resolved "https://registry.npmjs.org/xtend/-/xtend-4.0.2.tgz#bb72779f5fa465186b1f438f674fa347fdb5db54"
@@ -14720,6 +14801,13 @@ xterm@^5.3.0:
   version "5.3.0"
   resolved "https://registry.npmjs.org/xterm/-/xterm-5.3.0.tgz#867daf9cc826f3d45b5377320aabd996cb0fce46"
   integrity sha512-8QqjlekLUFTrU6x7xck1MsPzPA571K5zNqWm0M0oroYEWVOptZ0+ubQSkQ3uxIEhcIHRujJy6emDWX4A7qyFzg==
+
+y-protocols@^1.0.6:
+  version "1.0.6"
+  resolved "https://registry.npmjs.org/y-protocols/-/y-protocols-1.0.6.tgz#66dad8a95752623443e8e28c0e923682d2c0d495"
+  integrity sha512-vHRF2L6iT3rwj1jub/K5tYcTT/mEYDUppgNPXwp8fmLpui9f7Yeq3OEtTLVF012j39QnV+KEQpNqoN7CWU7Y9Q==
+  dependencies:
+    lib0 "^0.2.85"
 
 y18n@^4.0.0:
   version "4.0.3"
@@ -14839,6 +14927,13 @@ yauzl@^2.10.0, yauzl@^2.4.2, yauzl@^2.9.2:
   dependencies:
     buffer-crc32 "~0.2.3"
     fd-slicer "~1.1.0"
+
+yjs@^13.6.7:
+  version "13.6.19"
+  resolved "https://registry.npmjs.org/yjs/-/yjs-13.6.19.tgz#66999f41254ab65be8c8e71bd767d124ad600909"
+  integrity sha512-GNKw4mEUn5yWU2QPHRx8jppxmCm9KzbBhB4qJLUJFiiYD0g/tDVgXQ7aPkyh01YO28kbs2J/BEbWBagjuWyejw==
+  dependencies:
+    lib0 "^0.2.86"
 
 yocto-queue@^0.1.0:
   version "0.1.0"
