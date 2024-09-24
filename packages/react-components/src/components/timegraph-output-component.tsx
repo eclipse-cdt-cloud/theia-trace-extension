@@ -102,9 +102,8 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
         this.doHandleContextMenuContributed(payload);
     private pendingSelection: TimeGraphEntry | undefined;
 
-    private _debouncedUpdateSearch = debounce(() => this.updateSearchFilters(), 500);
     private _debouncedUpdateChart = debounce(() => {
-        this.chartLayer.updateChart();
+        this.chartLayer.updateChart(this.filterExpressionsMap());
     }, 500);
 
     constructor(props: TimegraphOutputProps) {
@@ -332,7 +331,7 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
             prevProps.markerSetId !== this.props.markerSetId
         ) {
             this.selectedMarkerCategories = this.props.markerCategories;
-            this.chartLayer.updateChart();
+            this.chartLayer.updateChart(this.filterExpressionsMap());
             this.markersChartLayer.updateChart();
             this.rangeEventsLayer.update();
             this.arrowLayer.update();
@@ -357,7 +356,7 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
             !isEqual(this.state.searchString, prevState.searchString) ||
             !isEqual(this.state.filters, prevState.filters)
         ) {
-            this._debouncedUpdateSearch();
+            this._debouncedUpdateChart();
         }
         if (!isEqual(this.state.multiSelectedRows, prevState.multiSelectedRows)) {
             const signalPayload: RowSelectionsChangedSignalPayload = new RowSelectionsChangedSignalPayload(
@@ -862,17 +861,14 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
     };
 
     private addFilter = (filter: string) => {
-        this.setState(prevState => ({ filters: [...prevState.filters, filter] }), this.updateSearchFilters);
+        this.setState(prevState => ({ filters: [...prevState.filters, filter] }));
     };
 
     private removeFilter = (filter: string) => {
-        this.setState(
-            prevState => ({ filters: prevState.filters.filter(f => f !== filter) }),
-            this.updateSearchFilters
-        );
+        this.setState(prevState => ({ filters: prevState.filters.filter(f => f !== filter) }));
     };
 
-    private updateSearchFilters = () => {
+    private filterExpressionsMap() {
         const filterExpressionsMap: { [key: number]: string[] } = {};
         if (this.state.searchString) {
             const DIMMED = 1;
@@ -882,13 +878,12 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
             const FILTERED = 4;
             filterExpressionsMap[FILTERED] = this.state.filters; // For filtering
         }
-
         if (Object.keys(filterExpressionsMap).length > 0) {
-            this.chartLayer.updateChart(filterExpressionsMap);
+            return filterExpressionsMap;
         } else {
-            this.chartLayer.updateChart();
+            return undefined;
         }
-    };
+    }
 
     private clearSearchBox() {
         this.setState({ searchString: '' });
