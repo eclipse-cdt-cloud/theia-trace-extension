@@ -20,10 +20,10 @@
         "style"
     ],
     "dependencies": {
-        "@theia/core": "1.52.0",
-        "@theia/editor": "1.52.0",
-        "@theia/filesystem": "1.52.0",
-        "@theia/messages": "1.52.0",
+        "@theia/core": "1.53.2",
+        "@theia/editor": "1.53.2",
+        "@theia/filesystem": "1.53.2",
+        "@theia/messages": "1.53.2",
         "animate.css": "^4.1.1",
         "traceviewer-base": "0.2.7",
         "traceviewer-react-components": "0.2.7",

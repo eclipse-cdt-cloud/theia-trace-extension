@@ -48,11 +48,11 @@
     },
     "homepage": "https://github.com/eclipse-cdt-cloud/theia-trace-extension",
     "resolutions": {
-        "**/nan": "2.18.0"
+        "**/nan": "2.20.0"
     },
     "devDependencies": {
         "@eclipse-dash/nodejs-wrapper": "^0.0.1",
-        "@theia/cli": "1.52.0",
+        "@theia/cli": "1.53.2",
         "concurrently": "^8.2.1",
         "jsonc-parser": "^3.0.0",
         "lerna": "^7.0.0",
