@@ -349,6 +349,7 @@ export class TraceViewerWidget extends ReactWidget implements StatefulWidget {
         super.onCloseRequest(msg);
         if (this.openedExperiment) {
             signalManager().fireExperimentClosedSignal(this.openedExperiment);
+            this.experimentManager.closeExperiment(this.openedExperiment.UUID);
         }
     }
 
