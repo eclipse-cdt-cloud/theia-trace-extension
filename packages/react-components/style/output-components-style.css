@@ -258,6 +258,17 @@ canvas {
     font-weight: normal;
 }
 
+.avail-views-table {
+    border: 0px;
+    width: 100%;
+}
+
+.avail-views-table td {
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
+}
+
 .table-tree tr.selected td {
     background-color: var(--trace-viewer-selection-background) !important;
 }
