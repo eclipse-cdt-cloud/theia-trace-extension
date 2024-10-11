@@ -21,8 +21,15 @@ export class TableCell extends React.Component<TableCellProps> {
             content = node.labels[index];
         }
 
-        const title = node.showTooltip ? node.labels[index] : undefined;
+        let title = undefined;
 
+        if (node.showTooltip) {
+            if (node.tooltips !== undefined) {
+                title = node.tooltips[index];
+            } else {
+                title = node.labels[index];
+            }
+        }
         return (
             <td key={this.props.index + '-td-' + this.props.node.id}>
                 <span title={title}>
