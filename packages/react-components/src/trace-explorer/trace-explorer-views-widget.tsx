@@ -28,6 +28,7 @@ export class ReactAvailableViewsWidget extends React.Component<ReactAvailableVie
     private _experimentManager: ExperimentManager;
 
     private _nodeIdToOutput: { [key: number]: OutputDescriptor } = {};
+    private _idGenerator = 0;
 
     private _onExperimentSelected = (experiment: Experiment): void => this.doHandleExperimentSelectedSignal(experiment);
     private _onExperimentClosed = (experiment: Experiment): void => this.doHandleExperimentClosedSignal(experiment);
@@ -133,20 +134,7 @@ export class ReactAvailableViewsWidget extends React.Component<ReactAvailableVie
         const signalExperiment: Experiment | undefined = this._selectedExperiment;
         if (signalExperiment) {
             outputs = await this.getOutputDescriptors(signalExperiment);
-            const entries: TreeNode[] = [];
-            outputs.forEach((output, index) => {
-                const node: TreeNode = {
-                    id: index,
-                    parentId: -1,
-                    labels: [output?.name],
-                    tooltips: [output?.description],
-                    children: [],
-                    isRoot: true,
-                    showTooltip: true
-                };
-                entries.push(node);
-                this._nodeIdToOutput[index] = output;
-            });
+            const entries: TreeNode[] = this.listToTree(outputs);
             this.setState({ treeNodes: entries });
         } else {
             this._nodeIdToOutput = {};
@@ -180,5 +168,70 @@ export class ReactAvailableViewsWidget extends React.Component<ReactAvailableVie
 
     private onOrderChange(ids: number[]): void {
         this.setState({ orderedNodes: ids });
+    }
+
+    private listToTree(list: OutputDescriptor[]): TreeNode[] {
+        const rootNodes: TreeNode[] = [];
+        const lookup: { [key: string]: TreeNode } = {};
+        const idStringToNodeId: { [key: string]: number } = {};
+
+        // Fill-in the lookup table
+        list.forEach(output => {
+            const node: TreeNode = this.entryToTreeNode(output, idStringToNodeId);
+            lookup[output.id] = node;
+            this._nodeIdToOutput[node.id] = output;
+        });
+        // Create the tree in the order it has been received
+        list.forEach(output => {
+            const node = lookup[output.id];
+            if (output.parentId !== undefined) {
+                const parent: TreeNode = lookup[output.parentId];
+                if (parent) {
+                    if (parent.id !== node.id) {
+                        parent.children.push(node);
+                    }
+                } else {
+                    // no parent available, treat is as root node
+                    node.isRoot = true;
+                    rootNodes.push(node);
+                }
+            } else {
+                node.isRoot = true;
+                rootNodes.push(node);
+            }
+        });
+        return rootNodes;
+    }
+
+    private entryToTreeNode(entry: OutputDescriptor, idStringToNodeId: { [key: string]: number }): TreeNode {
+        const labels = [entry.name];
+        let tooltips = undefined;
+        if (entry.description) {
+            tooltips = [entry.description];
+        }
+        let id = idStringToNodeId[entry.id];
+        if (id === undefined) {
+            id = this._idGenerator++;
+            idStringToNodeId[entry.id] = id;
+        }
+        let parentId = -1;
+        if (entry.parentId) {
+            const existingId = idStringToNodeId[entry.parentId];
+            if (existingId === undefined) {
+                parentId = this._idGenerator++;
+                idStringToNodeId[entry.parentId] = parentId;
+            } else {
+                parentId = existingId;
+            }
+        }
+        return {
+            labels: labels,
+            tooltips: tooltips,
+            showTooltip: true,
+            isRoot: false,
+            id: id,
+            parentId: parentId,
+            children: []
+        } as TreeNode;
     }
 }
