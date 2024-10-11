@@ -89,6 +89,9 @@ jobs:
     if: github.ref == 'refs/heads/master' && github.event_name == 'push' && github.repository == 'eclipse-cdt-cloud/theia-trace-extension' 
     runs-on: ubuntu-latest
     steps:
+    - name: install dependencies on ubuntu
+      run: |
+        sudo apt install -y make gcc pkg-config build-essential libx11-dev libxkbfile-dev libsecret-1-dev
     - uses: actions/checkout@v4
     # Setup .npmrc file to publish to npm
     - uses: actions/setup-node@v4
@@ -106,6 +109,9 @@ jobs:
     if: github.event_name == 'release' && startsWith(github.ref, 'refs/tags/v') && github.repository == 'eclipse-cdt-cloud/theia-trace-extension'
     runs-on: ubuntu-latest
     steps:
+    - name: install dependencies on ubuntu
+      run: |
+        sudo apt install -y make gcc pkg-config build-essential libx11-dev libxkbfile-dev libsecret-1-dev
     - uses: actions/checkout@v4
     # Setup .npmrc file to publish to npm
     - uses: actions/setup-node@v4
