@@ -24,7 +24,7 @@ jobs:
     - name: install dependencies on ubuntu
       if: startsWith(matrix.os,'ubuntu')
       run: |
-        sudo apt install -y make gcc pkg-config build-essential libx11-dev libxkbfile-dev
+        sudo apt install -y make gcc pkg-config build-essential libx11-dev libxkbfile-dev libsecret-1-dev
 
     - uses: actions/checkout@v4
 
