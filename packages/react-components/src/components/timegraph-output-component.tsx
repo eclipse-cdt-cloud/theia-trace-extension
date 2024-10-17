@@ -1056,9 +1056,6 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
             additionalProperties
         );
         this.updateMarkersData(timeGraphData.rangeEvents, newRange, nbTimes);
-        if (fetchArrows) {
-            this.arrowLayer.addArrows(timeGraphData.arrows, this.getTimegraphRowIds().rowIds);
-        }
         this.rangeEventsLayer.addRangeEvents(timeGraphData.rangeEvents);
 
         if (document.getElementById(this.props.traceId + this.props.outputDescriptor.id + 'handleSpinner')) {
@@ -1085,6 +1082,9 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
             emptyNodes = [];
         }
 
+        if (fetchArrows) {
+            this.arrowLayer.addArrows(timeGraphData.arrows, this.getTimegraphRowIds().rowIds.filter(rowId => !emptyNodes.includes(rowId)));
+        }
         this.setState({ emptyNodes });
 
         // Apply the pending selection here since the row provider had been called before this method.
