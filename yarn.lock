@@ -13633,10 +13633,10 @@ through@2, "through@>=2.2.7 <3", through@^2.3.4, through@^2.3.6, through@^2.3.8:
   resolved "https://registry.npmjs.org/through/-/through-2.3.8.tgz#0dd4c9ffaabc357960b1b724115d7e0e86a2e1f5"
   integrity sha512-w89qg7PI8wAdvX60bMDP+bFoD5Dvhm9oLheFp5O4a2QF0cSBGsBX4qZmadPMvVqlLJBBci+WqGGOAPvcDeNSVg==
 
-timeline-chart@^0.4.0:
-  version "0.4.0"
-  resolved "https://registry.yarnpkg.com/timeline-chart/-/timeline-chart-0.4.0.tgz#c96301ce89b1306e4f69aa366b44e87bfcd4bffd"
-  integrity sha512-Pmsr+fLVBERWyKO3P9UJRIVWY3Sj+rqvzP4yg/RjCslqdQvl9qpQ+n8Tg7G9bxSvZ/NBKG+EpVpJGPDunPO84Q==
+timeline-chart@^0.4.1:
+  version "0.4.1"
+  resolved "https://registry.yarnpkg.com/timeline-chart/-/timeline-chart-0.4.1.tgz#57cefac6cfa928cd84842cfb5031a157d8bb716e"
+  integrity sha512-f5lNTaY4438ml6x4bHdh29/FTXZgMOvunM5FDA1fWocxlq5PCBWvndwSh/HiqOHT0HLuom7jz9juxFtjyFCZmg==
   dependencies:
     "@types/lodash.throttle" "^4.1.4"
     glob "^7.1.6"

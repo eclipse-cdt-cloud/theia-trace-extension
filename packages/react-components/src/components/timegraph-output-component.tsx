@@ -1056,9 +1056,6 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
             additionalProperties
         );
         this.updateMarkersData(timeGraphData.rangeEvents, newRange, nbTimes);
-        if (fetchArrows) {
-            this.arrowLayer.addArrows(timeGraphData.arrows, this.getTimegraphRowIds().rowIds);
-        }
         this.rangeEventsLayer.addRangeEvents(timeGraphData.rangeEvents);
 
         if (document.getElementById(this.props.traceId + this.props.outputDescriptor.id + 'handleSpinner')) {
@@ -1085,6 +1082,12 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
             emptyNodes = [];
         }
 
+        if (fetchArrows) {
+            this.arrowLayer.addArrows(
+                timeGraphData.arrows,
+                this.getTimegraphRowIds().rowIds.filter(rowId => !emptyNodes.includes(rowId))
+            );
+        }
         this.setState({ emptyNodes });
 
         // Apply the pending selection here since the row provider had been called before this method.
@@ -1475,7 +1478,8 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
         const rowIndex = getIndexOfNode(
             id,
             listToTree(this.state.timegraphTree, this.state.columns),
-            this.state.collapsedNodes
+            this.state.collapsedNodes,
+            this.state.emptyNodes
         );
         this.chartLayer.selectAndReveal(rowIndex);
         if (this.rowController.selectedRow?.id !== id) {
@@ -1489,13 +1493,18 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
 
     public onMultipleRowClick = (id: number, isShiftClicked?: boolean): void => {
         const tree = listToTree(this.state.timegraphTree, this.state.columns);
-        const rowIndex = getIndexOfNode(id, tree, this.state.collapsedNodes);
+        const rowIndex = getIndexOfNode(id, tree, this.state.collapsedNodes, this.state.emptyNodes);
 
         if (isShiftClicked) {
             // Perform shift action based on selectedRow value
             if (this.state.selectedRow !== undefined) {
-                const treeNodeIds = getAllExpandedNodeIds(tree, this.state.collapsedNodes);
-                const lastSelectedRowIndex = getIndexOfNode(this.state.selectedRow, tree, this.state.collapsedNodes);
+                const treeNodeIds = getAllExpandedNodeIds(tree, this.state.collapsedNodes, this.state.emptyNodes);
+                const lastSelectedRowIndex = getIndexOfNode(
+                    this.state.selectedRow,
+                    tree,
+                    this.state.collapsedNodes,
+                    this.state.emptyNodes
+                );
                 this.handleShiftClick(rowIndex, lastSelectedRowIndex, treeNodeIds);
             } else {
                 // Do not have a previous selection therefore treat this as a normal row click
@@ -1514,7 +1523,12 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
                 if (id === this.state.selectedRow) {
                     const prevRowId = rows.at(index - 1);
                     if (prevRowId && prevRowId !== id) {
-                        const prevRowIndex = getIndexOfNode(prevRowId, tree, this.state.collapsedNodes);
+                        const prevRowIndex = getIndexOfNode(
+                            prevRowId,
+                            tree,
+                            this.state.collapsedNodes,
+                            this.state.emptyNodes
+                        );
                         this.chartLayer.selectAndReveal(prevRowIndex);
                     } else {
                         this.setState({ selectedRow: undefined });
@@ -1538,7 +1552,8 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
         const rowIndex = getIndexOfNode(
             id,
             listToTree(this.state.markerCategoryEntries, this.state.columns),
-            this.state.collapsedNodes
+            this.state.collapsedNodes,
+            this.state.emptyNodes
         );
         this.markersChartLayer.selectAndReveal(rowIndex);
     };
@@ -1580,7 +1595,8 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
         const rowIndex = getIndexOfNode(
             item.id,
             listToTree(this.state.timegraphTree, this.state.columns),
-            this.state.collapsedNodes
+            this.state.collapsedNodes,
+            this.state.emptyNodes
         );
         this.chartLayer.selectAndReveal(rowIndex);
     }

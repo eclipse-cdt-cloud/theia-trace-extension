@@ -3,7 +3,7 @@ import { TreeNode } from './tree-node';
 import { Message } from './message';
 import { Filter } from './filter';
 import { Table } from './table';
-import { getAllExpandedNodeIds, filterEmptyNodes } from './utils';
+import { getAllExpandedNodeIds } from './utils';
 import { SortConfig, sortNodes } from './sort';
 import ColumnHeader from './column-header';
 import { isEqual } from 'lodash';
@@ -96,7 +96,7 @@ export class FilterTree extends React.Component<FilterTreeProps, FilterTreeState
     };
 
     handleOrderChange = (nodes: TreeNode[]): void => {
-        const ids = getAllExpandedNodeIds(nodes, this.props.collapsedNodes);
+        const ids = getAllExpandedNodeIds(nodes, this.props.collapsedNodes, this.props.emptyNodes);
         this.props.onOrderChange(ids);
     };
 

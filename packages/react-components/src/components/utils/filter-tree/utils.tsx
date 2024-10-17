@@ -47,19 +47,26 @@ export const listToTree = (list: Entry[], headers: ColumnHeader[]): TreeNode[] =
     return rootNodes;
 };
 
-export const getAllExpandedNodeIds = (nodes: TreeNode[], collapsedNodes: number[]): number[] => {
+export const getAllExpandedNodeIds = (nodes: TreeNode[], collapsedNodes: number[], emptyNodes?: number[]): number[] => {
     const visibleIds: number[] = [];
     nodes.forEach((node: TreeNode) => {
-        visibleIds.push(node.id);
+        if (!emptyNodes?.includes(node.id)) {
+            visibleIds.push(node.id);
+        }
         if (node.children.length && !collapsedNodes.includes(node.id)) {
-            visibleIds.push(...getAllExpandedNodeIds(node.children, collapsedNodes));
+            visibleIds.push(...getAllExpandedNodeIds(node.children, collapsedNodes, emptyNodes));
         }
     });
     return visibleIds;
 };
 
-export const getIndexOfNode = (id: number, nodes: TreeNode[], collapsedNodes: number[]): number => {
-    const ids = getAllExpandedNodeIds(nodes, collapsedNodes);
+export const getIndexOfNode = (
+    id: number,
+    nodes: TreeNode[],
+    collapsedNodes: number[],
+    emptyNodes: number[]
+): number => {
+    const ids = getAllExpandedNodeIds(nodes, collapsedNodes, emptyNodes);
     return ids.findIndex(eId => eId === id);
 };
 
@@ -75,26 +82,31 @@ export const validateNumArray = (arr: any | undefined): boolean => {
  * Removes specified nodes from the tree structure.
  * @param nodes The array of root nodes of the tree.
  * @param nodesToRemove An array of node IDs to be removed.
+ * @param collapsedNodes The array of collapsed node IDs.
  * @returns A new array of root nodes with specified nodes removed.
  */
-export function filterEmptyNodes(nodes: TreeNode[], nodesToRemove: number[]): TreeNode[] {
+export function filterEmptyNodes(nodes: TreeNode[], nodesToRemove: number[], collapsedNodes: number[]): TreeNode[] {
     // return nodes;
     return nodes.reduce((acc: TreeNode[], node) => {
-        // If the current node is in the removal list, don't add it to the accumulator
-        if (nodesToRemove.includes(node.id)) {
-            return acc;
-        }
-
         // Create a new node object with the same properties
         const newNode: TreeNode = { ...node };
 
         // Recursively remove nodes from children
         if (newNode.children.length > 0) {
-            newNode.children = filterEmptyNodes(newNode.children, nodesToRemove);
+            newNode.children = filterEmptyNodes(newNode.children, nodesToRemove, collapsedNodes);
         }
 
-        // Add the new node to the accumulator
-        acc.push(newNode);
+        if (!nodesToRemove.includes(node.id)) {
+            // If the new node is not in the removal list, add it to the accumulator
+            acc.push(newNode);
+        } else if (!collapsedNodes.includes(node.id)) {
+            // If the new node is in the removal list and expanded, add its filtered children to the accumulator
+            newNode.children.forEach(child => {
+                child.parentId = newNode.parentId;
+                acc.push(child);
+            });
+        }
+
         return acc;
     }, []);
 }
