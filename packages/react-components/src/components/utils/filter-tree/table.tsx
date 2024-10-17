@@ -80,7 +80,7 @@ export class Table extends React.Component<TableProps> {
         let nodes = sortNodes(this.props.nodes, this.props.sortConfig);
 
         if (this.props.hideEmptyNodes) {
-            nodes = filterEmptyNodes(nodes, this.props.emptyNodes);
+            nodes = filterEmptyNodes(nodes, this.props.emptyNodes, this.props.collapsedNodes);
         }
 
         return (
