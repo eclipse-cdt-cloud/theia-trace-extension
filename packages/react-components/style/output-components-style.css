@@ -258,6 +258,15 @@ canvas {
     font-weight: normal;
 }
 
+.avail-views-table .table-tree td span {
+    text-wrap: pretty;
+    min-width: 100px;
+}
+
+.avail-views-table .table-tree th {
+    font-weight: normal;
+}
+
 .table-tree tr.selected td {
     background-color: var(--trace-viewer-selection-background) !important;
 }
