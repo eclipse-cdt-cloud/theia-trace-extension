@@ -6,7 +6,7 @@ import { TraceExplorerOpenedTracesWidget } from './trace-explorer-sub-widgets/th
 import { TraceExplorerPlaceholderWidget } from './trace-explorer-sub-widgets/theia-trace-explorer-placeholder-widget';
 import { TraceExplorerServerStatusWidget } from './trace-explorer-sub-widgets/trace-explorer-server-status-widget';
 import { TraceExplorerTimeRangeDataWidget } from './trace-explorer-sub-widgets/theia-trace-explorer-time-range-data-widget';
-import { signalManager, Signals } from 'traceviewer-base/lib/signals/signal-manager';
+import { signalManager } from 'traceviewer-base/lib/signals/signal-manager';
 import { OpenedTracesUpdatedSignalPayload } from 'traceviewer-base/lib/signals/opened-traces-updated-signal-payload';
 import {
     TraceServerConnectionStatusBackend,
@@ -82,14 +82,14 @@ export class TraceExplorerWidget extends BaseWidget {
         layout.addWidget(this.placeholderWidget);
         layout.addWidget(this.traceViewsContainer);
         this.node.tabIndex = 0;
-        signalManager().on(Signals.OPENED_TRACES_UPDATED, this.onUpdateSignal);
+        signalManager().on('OPENED_TRACES_UPDATED', this.onUpdateSignal);
         this.connectionStatusClient.addServerStatusChangeListener(this.onServerStatusChange);
         this.update();
     }
 
     dispose(): void {
         super.dispose();
-        signalManager().off(Signals.OPENED_TRACES_UPDATED, this.onUpdateSignal);
+        signalManager().off('OPENED_TRACES_UPDATED', this.onUpdateSignal);
         this.connectionStatusClient.removeServerStatusChangeListener(this.onServerStatusChange);
     }
 

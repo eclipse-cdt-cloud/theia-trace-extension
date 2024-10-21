@@ -66,7 +66,7 @@ export class TraceExplorerOpenedTracesWidget extends ReactWidget {
     }
 
     public closeExperiment(traceUUID: string): void {
-        signalManager().fireCloseTraceViewerTabSignal(traceUUID);
+        signalManager().emit('CLOSE_TRACEVIEWERTAB', traceUUID);
     }
 
     public deleteExperiment(traceUUID: string): void {

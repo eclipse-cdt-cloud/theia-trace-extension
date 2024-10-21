@@ -86,7 +86,7 @@ export class TraceManager {
         const trace = traceResponse.getModel();
         if (traceResponse.isOk() && trace) {
             this.addTrace(trace);
-            signalManager().fireTraceOpenedSignal(trace);
+            signalManager().emit('TRACE_OPENED', trace);
             return trace;
         }
         // TODO Handle trace open errors
@@ -123,7 +123,7 @@ export class TraceManager {
             if (deleteResponse.getStatusCode() !== 409) {
                 const deletedTrace = this.removeTrace(traceUUID);
                 if (deletedTrace) {
-                    signalManager().fireTraceDeletedSignal(deletedTrace);
+                    signalManager().emit('TRACE_DELETED', { trace: deletedTrace });
                 }
             }
         }

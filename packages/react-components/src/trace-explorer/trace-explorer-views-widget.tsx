@@ -31,7 +31,8 @@ export class ReactAvailableViewsWidget extends React.Component<ReactAvailableVie
     private _nodeIdToOutput: { [key: number]: OutputDescriptor } = {};
     private _idGenerator = 0;
 
-    private _onExperimentSelected = (experiment: Experiment): void => this.doHandleExperimentSelectedSignal(experiment);
+    private _onExperimentSelected = (experiment?: Experiment): void =>
+        this.doHandleExperimentSelectedSignal(experiment);
     private _onExperimentClosed = (experiment: Experiment): void => this.doHandleExperimentClosedSignal(experiment);
 
     constructor(props: ReactAvailableViewsProps) {
@@ -40,8 +41,8 @@ export class ReactAvailableViewsWidget extends React.Component<ReactAvailableVie
         this.props.tspClientProvider.addTspClientChangeListener(() => {
             this._experimentManager = this.props.tspClientProvider.getExperimentManager();
         });
-        signalManager().on(Signals.EXPERIMENT_SELECTED, this._onExperimentSelected);
-        signalManager().on(Signals.EXPERIMENT_CLOSED, this._onExperimentClosed);
+        signalManager().on('EXPERIMENT_SELECTED', this._onExperimentSelected);
+        signalManager().on('EXPERIMENT_CLOSED', this._onExperimentClosed);
         this._nodeIdToOutput = {};
         this.state = { treeNodes: [], collapsedNodes: [], orderedNodes: [], selectedOutput: -1 };
         this.onToggleCollapse = this.onToggleCollapse.bind(this);
@@ -49,8 +50,8 @@ export class ReactAvailableViewsWidget extends React.Component<ReactAvailableVie
     }
 
     componentWillUnmount(): void {
-        signalManager().off(Signals.EXPERIMENT_SELECTED, this._onExperimentSelected);
-        signalManager().off(Signals.EXPERIMENT_CLOSED, this._onExperimentClosed);
+        signalManager().off('EXPERIMENT_SELECTED', this._onExperimentSelected);
+        signalManager().off('EXPERIMENT_CLOSED', this._onExperimentClosed);
     }
 
     render(): React.ReactNode {
@@ -94,7 +95,8 @@ export class ReactAvailableViewsWidget extends React.Component<ReactAvailableVie
         this.setState({ selectedOutput: id });
         if (selectedOutput && this._selectedExperiment) {
             if (selectedOutput.type !== ProviderType.NONE) {
-                signalManager().fireOutputAddedSignal(
+                signalManager().emit(
+                    'OUTPUT_ADDED',
                     new OutputAddedSignalPayload(selectedOutput, this._selectedExperiment)
                 );
             }

@@ -404,10 +404,7 @@ export class XYOutputComponent extends AbstractXYOutputComponent<AbstractOutputP
         const columnLabels = this.state.columns.map(col => col.title);
         const tableContent = this.state.xyTree.map(rowData => rowData.labels);
         const tableString = columnLabels.join(',') + '\n' + tableContent.map(row => row.join(',')).join('\n');
-        signalManager().fireSaveAsCsv({
-            traceId: this.props.traceId,
-            data: tableString
-        });
+        signalManager().emit('SAVE_AS_CSV', this.props.traceId, tableString);
         this.setState({
             dropDownOpen: false
         });

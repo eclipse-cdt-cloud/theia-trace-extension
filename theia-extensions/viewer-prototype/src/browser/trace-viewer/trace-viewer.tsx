@@ -14,7 +14,7 @@ import {
 import { Experiment } from 'tsp-typescript-client/lib/models/experiment';
 import { TheiaMessageManager } from '../theia-message-manager';
 import { ThemeService } from '@theia/core/lib/browser/theming';
-import { signalManager, Signals } from 'traceviewer-base/lib/signals/signal-manager';
+import { signalManager } from 'traceviewer-base/lib/signals/signal-manager';
 import { OutputAddedSignalPayload } from 'traceviewer-base/lib/signals/output-added-signal-payload';
 import { TraceExplorerWidget } from '../trace-explorer/trace-explorer-widget';
 import { TraceExplorerContribution } from '../trace-explorer/trace-explorer-contribution';
@@ -78,17 +78,14 @@ export class TraceViewerWidget extends ReactWidget implements StatefulWidget {
     private onOutputAdded = (payload: OutputAddedSignalPayload): Promise<void> =>
         this.doHandleOutputAddedSignal(payload);
     private onTraceOverviewOpened = (traceId: string): Promise<void> => this.doHandleTraceOverviewOpenedSignal(traceId);
-    private onTraceOverviewOutputSelected = (payload: {
-        traceId: string;
-        outputDescriptor: OutputDescriptor;
-    }): Promise<void> => this.doHandleTraceOverviewOutputSelected(payload);
-    private onExperimentSelected = (experiment: Experiment): Promise<void> =>
+    private onTraceOverviewOutputSelected = (traceId: string, outputDescriptor: OutputDescriptor): Promise<void> =>
+        this.doHandleTraceOverviewOutputSelected(traceId, outputDescriptor);
+    private onExperimentSelected = (experiment?: Experiment): Promise<void> =>
         this.doHandleExperimentSelectedSignal(experiment);
     private onCloseExperiment = (UUID: string): void => this.doHandleCloseExperimentSignal(UUID);
-    private onMarkerCategoryClosedSignal = (payload: { traceViewerId: string; markerCategory: string }) =>
-        this.doHandleMarkerCategoryClosedSignal(payload);
-    private onSaveAsCSV = (payload: { traceId: string; data: string }): Promise<void> =>
-        this.doHandleSaveAsCSVSignal(payload);
+    private onMarkerCategoryClosedSignal = (traceViewerId: string, markerCategory: string) =>
+        this.doHandleMarkerCategoryClosedSignal(traceViewerId, markerCategory);
+    private onSaveAsCSV = (traceId: string, data: string): Promise<void> => this.doHandleSaveAsCSVSignal(traceId, data);
 
     private overviewOutputDescriptor: OutputDescriptor | undefined;
     private prevOverviewOutputDescriptor: OutputDescriptor | undefined;
@@ -143,9 +140,9 @@ export class TraceViewerWidget extends ReactWidget implements StatefulWidget {
                 this.title.label = 'Trace: ' + experiment.name;
                 this.id = experiment.UUID;
                 this.experimentManager.addExperiment(experiment);
-                signalManager().fireExperimentOpenedSignal(experiment);
+                signalManager().emit('EXPERIMENT_OPENED', experiment);
                 if (this.isVisible) {
-                    signalManager().fireTraceViewerTabActivatedSignal(experiment);
+                    signalManager().emit('TRACEVIEWERTAB_ACTIVATED', experiment);
                 }
                 this.fetchMarkerSets(experiment.UUID);
             }
@@ -166,28 +163,28 @@ export class TraceViewerWidget extends ReactWidget implements StatefulWidget {
 
     protected subscribeToEvents(): void {
         this.toDisposeOnNewExplorer.dispose();
-        signalManager().on(Signals.OUTPUT_ADDED, this.onOutputAdded);
-        signalManager().on(Signals.EXPERIMENT_SELECTED, this.onExperimentSelected);
-        signalManager().on(Signals.CLOSE_TRACEVIEWERTAB, this.onCloseExperiment);
-        signalManager().on(Signals.MARKER_CATEGORY_CLOSED, this.onMarkerCategoryClosedSignal);
-        signalManager().on(Signals.OPEN_OVERVIEW_OUTPUT, this.onTraceOverviewOpened);
-        signalManager().on(Signals.OVERVIEW_OUTPUT_SELECTED, this.onTraceOverviewOutputSelected);
-        signalManager().on(Signals.SAVE_AS_CSV, this.onSaveAsCSV);
+        signalManager().on('OUTPUT_ADDED', this.onOutputAdded);
+        signalManager().on('EXPERIMENT_SELECTED', this.onExperimentSelected);
+        signalManager().on('CLOSE_TRACEVIEWERTAB', this.onCloseExperiment);
+        signalManager().on('MARKER_CATEGORY_CLOSED', this.onMarkerCategoryClosedSignal);
+        signalManager().on('OPEN_OVERVIEW_OUTPUT', this.onTraceOverviewOpened);
+        signalManager().on('OVERVIEW_OUTPUT_SELECTED', this.onTraceOverviewOutputSelected);
+        signalManager().on('SAVE_AS_CSV', this.onSaveAsCSV);
     }
 
     protected updateBackgroundTheme(): void {
         const currentThemeType = this.themeService.getCurrentTheme().type;
-        signalManager().fireThemeChangedSignal(currentThemeType);
+        signalManager().emit('THEME_CHANGED', currentThemeType);
     }
 
     dispose(): void {
         super.dispose();
-        signalManager().off(Signals.OUTPUT_ADDED, this.onOutputAdded);
-        signalManager().off(Signals.EXPERIMENT_SELECTED, this.onExperimentSelected);
-        signalManager().off(Signals.CLOSE_TRACEVIEWERTAB, this.onCloseExperiment);
-        signalManager().off(Signals.OPEN_OVERVIEW_OUTPUT, this.onTraceOverviewOpened);
-        signalManager().off(Signals.OVERVIEW_OUTPUT_SELECTED, this.onTraceOverviewOutputSelected);
-        signalManager().off(Signals.SAVE_AS_CSV, this.onSaveAsCSV);
+        signalManager().off('OUTPUT_ADDED', this.onOutputAdded);
+        signalManager().off('EXPERIMENT_SELECTED', this.onExperimentSelected);
+        signalManager().off('CLOSE_TRACEVIEWERTAB', this.onCloseExperiment);
+        signalManager().off('OPEN_OVERVIEW_OUTPUT', this.onTraceOverviewOpened);
+        signalManager().off('OVERVIEW_OUTPUT_SELECTED', this.onTraceOverviewOutputSelected);
+        signalManager().off('SAVE_AS_CSV', this.onSaveAsCSV);
     }
 
     async initialize(): Promise<void> {
@@ -283,7 +280,7 @@ export class TraceViewerWidget extends ReactWidget implements StatefulWidget {
                                 this.fetchMarkerSets(experiment.UUID);
                             }
                             if (sendSignal) {
-                                signalManager().fireTraceViewerTabActivatedSignal(experiment);
+                                signalManager().emit('TRACEVIEWERTAB_ACTIVATED', experiment);
                             }
                             this.traceExplorerContribution.openView({
                                 activate: true
@@ -348,14 +345,14 @@ export class TraceViewerWidget extends ReactWidget implements StatefulWidget {
         this.statusBar.removeElement('time-selection-range');
         super.onCloseRequest(msg);
         if (this.openedExperiment) {
-            signalManager().fireExperimentClosedSignal(this.openedExperiment);
+            signalManager().emit('EXPERIMENT_CLOSED', this.openedExperiment);
         }
     }
 
     onActivateRequest(msg: Message): void {
         super.onActivateRequest(msg);
         if (this.openedExperiment) {
-            signalManager().fireTraceViewerTabActivatedSignal(this.openedExperiment);
+            signalManager().emit('TRACEVIEWERTAB_ACTIVATED', this.openedExperiment);
         }
         this.node.focus();
     }
@@ -461,8 +458,8 @@ export class TraceViewerWidget extends ReactWidget implements StatefulWidget {
         this.update();
     }
 
-    protected async doHandleExperimentSelectedSignal(experiment: Experiment): Promise<void> {
-        if (this.openedExperiment && this.openedExperiment.UUID === experiment.UUID) {
+    protected async doHandleExperimentSelectedSignal(experiment?: Experiment): Promise<void> {
+        if (this.openedExperiment && this.openedExperiment.UUID === experiment?.UUID) {
             // Update the trace UUID so that the overview can be opened
             if (this.loadTraceOverview) {
                 const defaultOutputDescriptor = await this.getDefaultTraceOverviewOutputDescriptor();
@@ -473,8 +470,8 @@ export class TraceViewerWidget extends ReactWidget implements StatefulWidget {
         }
     }
 
-    private async doHandleSaveAsCSVSignal(payload: { traceId: string; data: string }) {
-        if (this.openedExperiment && payload && payload.traceId === this.openedExperiment.UUID) {
+    private async doHandleSaveAsCSVSignal(traceId: string, data: string) {
+        if (this.openedExperiment && traceId === this.openedExperiment.UUID) {
             const props: SaveFileDialogProps = {
                 inputValue: (this.openedExperiment !== undefined ? this.openedExperiment.name : 'trace') + '.csv',
                 filters: {
@@ -484,7 +481,7 @@ export class TraceViewerWidget extends ReactWidget implements StatefulWidget {
             };
             const uri: URI | undefined = await this.fileDialogService.showSaveDialog(props);
             if (uri) {
-                const resolve = await this.backendFileService.writeToFile(uri, payload.data);
+                const resolve = await this.backendFileService.writeToFile(uri, data);
                 if (resolve === 'success') {
                     this.messageService.info('CSV saved successfully');
                 } else {
@@ -494,9 +491,7 @@ export class TraceViewerWidget extends ReactWidget implements StatefulWidget {
         }
     }
 
-    private doHandleMarkerCategoryClosedSignal(payload: { traceViewerId: string; markerCategory: string }) {
-        const traceViewerId = payload.traceViewerId;
-        const markerCategory = payload.markerCategory;
+    private doHandleMarkerCategoryClosedSignal(traceViewerId: string, markerCategory: string) {
         if (traceViewerId === this.id) {
             this.updateMarkerCategoryState(markerCategory);
         }
@@ -509,17 +504,12 @@ export class TraceViewerWidget extends ReactWidget implements StatefulWidget {
         }
     }
 
-    private async doHandleTraceOverviewOutputSelected(payload: {
-        traceId: string;
-        outputDescriptor: OutputDescriptor;
-    }): Promise<void> {
-        if (
-            this.openedExperiment &&
-            payload &&
-            payload.traceId === this.openedExperiment.UUID &&
-            payload.outputDescriptor
-        ) {
-            await this.updateOverviewOutputDescriptor(payload.outputDescriptor);
+    private async doHandleTraceOverviewOutputSelected(
+        traceId: string,
+        outputDescriptor: OutputDescriptor
+    ): Promise<void> {
+        if (this.openedExperiment && traceId === this.openedExperiment.UUID && outputDescriptor) {
+            await this.updateOverviewOutputDescriptor(outputDescriptor);
             this.shell.activateWidget(this.openedExperiment.UUID);
         }
     }
@@ -543,7 +533,7 @@ export class TraceViewerWidget extends ReactWidget implements StatefulWidget {
                 this.markerSetsMap.set(markerSet, false);
             }
         });
-        signalManager().fireMarkerSetsFetchedSignal();
+        signalManager().emit('MARKERSETS_FETCHED');
     }
 
     private addMarkerCategories(outputId: string, markerCategories: string[]) {
@@ -560,7 +550,7 @@ export class TraceViewerWidget extends ReactWidget implements StatefulWidget {
         });
         this.selectedMarkerCategoriesMap.set(outputId, selectedMarkerCategories);
         this.markerCategoriesMap.set(outputId, markerCategories);
-        signalManager().fireMarkerCategoriesFetchedSignal();
+        signalManager().emit('MARKER_CATEGORIES_FETCHED');
     }
 
     private removeMarkerCategories(outputId: string) {
@@ -659,7 +649,7 @@ export class TraceViewerWidget extends ReactWidget implements StatefulWidget {
 
     openOverview(): void {
         if (this.openedExperiment?.UUID) {
-            signalManager().fireOpenOverviewOutputSignal(this.openedExperiment.UUID);
+            signalManager().emit('OPEN_OVERVIEW_OUTPUT', this.openedExperiment.UUID);
         }
     }
 

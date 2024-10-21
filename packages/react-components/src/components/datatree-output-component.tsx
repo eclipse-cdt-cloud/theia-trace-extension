@@ -357,10 +357,7 @@ export class DataTreeOutputComponent extends AbstractOutputComponent<AbstractOut
                     csvArray.push(row.join(','));
                 }
                 const tableString = csvArray.join('\n');
-                signalManager().fireSaveAsCsv({
-                    traceId: this.props.traceId,
-                    data: tableString
-                });
+                signalManager().emit('SAVE_AS_CSV', this.props.traceId, tableString);
             }
         }
     }
