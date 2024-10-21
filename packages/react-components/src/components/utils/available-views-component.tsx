@@ -2,7 +2,7 @@ import { ListRowProps, AutoSizer, List } from 'react-virtualized';
 import React from 'react';
 import { OutputDescriptor } from 'tsp-typescript-client/lib/models/output-descriptor';
 import { Experiment } from 'tsp-typescript-client/lib/models/experiment';
-import { signalManager, Signals } from 'traceviewer-base/lib/signals/signal-manager';
+import { signalManager } from 'traceviewer-base/lib/signals/signal-manager';
 
 export interface AvailableViewsComponentProps {
     traceID: string | undefined;
@@ -31,16 +31,17 @@ export class AvailableViewsComponent extends React.Component<
 
     private _forceUpdateKey = false;
     protected handleOutputClicked = (e: React.MouseEvent<HTMLDivElement>): void => this.doHandleOutputClicked(e);
-    private _onExperimentSelected = (experiment: Experiment): void => this.doHandleExperimentSelectedSignal(experiment);
+    private _onExperimentSelected = (experiment?: Experiment): void =>
+        this.doHandleExperimentSelectedSignal(experiment);
 
     constructor(props: AvailableViewsComponentProps) {
         super(props);
-        signalManager().on(Signals.EXPERIMENT_SELECTED, this._onExperimentSelected);
+        signalManager().on('EXPERIMENT_SELECTED', this._onExperimentSelected);
         this.state = { lastSelectedOutputIndex: -1 };
     }
 
     componentWillUnmount(): void {
-        signalManager().off(Signals.EXPERIMENT_SELECTED, this._onExperimentSelected);
+        signalManager().off('EXPERIMENT_SELECTED', this._onExperimentSelected);
     }
 
     render(): React.ReactNode {

@@ -3,7 +3,7 @@ import { ApplicationShell, ContextMenuRenderer, Widget } from '@theia/core/lib/b
 import { TabBarToolbarContribution, TabBarToolbarRegistry } from '@theia/core/lib/browser/shell/tab-bar-toolbar';
 import { inject, injectable, postConstruct } from '@theia/core/shared/inversify';
 import * as React from 'react';
-import { signalManager, Signals } from 'traceviewer-base/lib/signals/signal-manager';
+import { signalManager } from 'traceviewer-base/lib/signals/signal-manager';
 import { TraceExplorerOpenedTracesWidget } from '../trace-explorer/trace-explorer-sub-widgets/theia-trace-explorer-opened-traces-widget';
 import { ChartShortcutsDialog } from '../trace-explorer/trace-explorer-sub-widgets/charts-cheatsheet-component';
 import { TspClientProvider } from '../tsp-client-provider-impl';
@@ -29,8 +29,8 @@ export class TraceViewerToolbarContribution implements TabBarToolbarContribution
 
     @postConstruct()
     protected init(): void {
-        signalManager().on(Signals.MARKER_CATEGORIES_FETCHED, this.onMarkerCategoriesFetchedSignal);
-        signalManager().on(Signals.MARKERSETS_FETCHED, this.onMarkerSetsFetchedSignal);
+        signalManager().on('MARKER_CATEGORIES_FETCHED', this.onMarkerCategoriesFetchedSignal);
+        signalManager().on('MARKERSETS_FETCHED', this.onMarkerSetsFetchedSignal);
     }
 
     private doHandleMarkerCategoriesFetchedSignal() {
@@ -64,7 +64,7 @@ export class TraceViewerToolbarContribution implements TabBarToolbarContribution
                 return false;
             },
             execute: () => {
-                signalManager().fireUpdateZoomSignal(true);
+                signalManager().emit('UPDATE_ZOOM', true);
             }
         });
         registry.registerCommand(TraceViewerToolbarCommands.ZOOM_OUT, {
@@ -76,7 +76,7 @@ export class TraceViewerToolbarContribution implements TabBarToolbarContribution
                 return false;
             },
             execute: () => {
-                signalManager().fireUpdateZoomSignal(false);
+                signalManager().emit('UPDATE_ZOOM', false);
             }
         });
         registry.registerCommand(TraceViewerToolbarCommands.UNDO, {
@@ -87,7 +87,7 @@ export class TraceViewerToolbarContribution implements TabBarToolbarContribution
                 return false;
             },
             execute: () => {
-                signalManager().fireUndoSignal();
+                signalManager().emit('UNDO');
             }
         });
         registry.registerCommand(TraceViewerToolbarCommands.REDO, {
@@ -98,7 +98,7 @@ export class TraceViewerToolbarContribution implements TabBarToolbarContribution
                 return false;
             },
             execute: () => {
-                signalManager().fireRedoSignal();
+                signalManager().emit('REDO');
             }
         });
         registry.registerCommand(TraceViewerToolbarCommands.RESET, {
@@ -109,7 +109,7 @@ export class TraceViewerToolbarContribution implements TabBarToolbarContribution
                 return false;
             },
             execute: () => {
-                signalManager().fireResetZoomSignal();
+                signalManager().emit('RESET_ZOOM');
             }
         });
         registry.registerCommand(TraceViewerToolbarCommands.OPEN_TRACE_FOLDER, {

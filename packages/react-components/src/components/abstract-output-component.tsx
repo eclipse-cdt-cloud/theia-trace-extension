@@ -204,7 +204,7 @@ export abstract class AbstractOutputComponent<
 
     private closeComponent() {
         if (this.props.pinned) {
-            signalManager().fireUnPinView(this.props.outputDescriptor);
+            signalManager().emit('UNPIN_VIEW', this.props.outputDescriptor);
         }
         this.props.onOutputRemove(this.props.outputDescriptor.id);
     }
@@ -271,15 +271,15 @@ export abstract class AbstractOutputComponent<
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/explicit-module-boundary-types
     protected pinView(payload?: any): void {
-        signalManager().firePinView(this.props.outputDescriptor, payload);
+        signalManager().emit('PIN_VIEW', this.props.outputDescriptor, payload);
     }
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/explicit-module-boundary-types
     protected unPinView(payload?: any): void {
         if (payload) {
-            signalManager().fireUnPinView(this.props.outputDescriptor, payload);
+            signalManager().emit('UNPIN_VIEW', this.props.outputDescriptor, payload);
         } else {
-            signalManager().fireUnPinView(this.props.outputDescriptor);
+            signalManager().emit('UNPIN_VIEW', this.props.outputDescriptor);
         }
     }
 

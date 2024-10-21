@@ -1,6 +1,6 @@
 import * as React from 'react';
 import '../../style/output-components-style.css';
-import { signalManager, Signals } from 'traceviewer-base/lib/signals/signal-manager';
+import { signalManager } from 'traceviewer-base/lib/signals/signal-manager';
 import { FilterTree } from '../components/utils/filter-tree/tree';
 import { TreeNode } from '../components/utils/filter-tree/tree-node';
 import { ItemPropertiesSignalPayload } from 'traceviewer-base/src/signals/item-properties-signal-payload';
@@ -21,11 +21,11 @@ export class ReactItemPropertiesWidget extends React.Component<ReactPropertiesWi
         this.state = {
             itemProperties: []
         };
-        signalManager().on(Signals.ITEM_PROPERTIES_UPDATED, this._onItemProperties);
+        signalManager().on('ITEM_PROPERTIES_UPDATED', this._onItemProperties);
     }
 
     componentWillUnmount(): void {
-        signalManager().off(Signals.ITEM_PROPERTIES_UPDATED, this._onItemProperties);
+        signalManager().off('ITEM_PROPERTIES_UPDATED', this._onItemProperties);
     }
 
     render(): React.ReactNode {

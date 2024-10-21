@@ -71,10 +71,7 @@ export class TraceOverviewSelectionDialogComponent extends AbstractDialogCompone
     }
 
     private doHandleOutputClicked(selectedOutput: OutputDescriptor) {
-        signalManager().fireOverviewOutputSelectedSignal({
-            traceId: this.props.traceID,
-            outputDescriptor: selectedOutput
-        });
+        signalManager().emit('OVERVIEW_OUTPUT_SELECTED', this.props.traceID, selectedOutput);
         this.props.onCloseDialog();
     }
 }

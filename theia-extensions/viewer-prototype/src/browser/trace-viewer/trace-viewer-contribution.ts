@@ -100,7 +100,7 @@ export class TraceViewerContribution
                     }
                     progress.cancel();
                     this.serverStatusService.updateStatus(true);
-                    signalManager().fireTraceServerStartedSignal();
+                    signalManager().emit('TRACE_SERVER_STARTED');
                     this.openDialog(rootPath, selectFiles);
                 }
             } catch (err) {
@@ -170,7 +170,7 @@ export class TraceViewerContribution
                             progress.report({ message: 'Trace server started.', work: { done: 100, total: 100 } });
                         }
                         this.serverStatusService.updateStatus(true);
-                        signalManager().fireTraceServerStartedSignal();
+                        signalManager().emit('TRACE_SERVER_STARTED');
                         return super.open(traceURI, options);
                     }
                     throw new Error('Could not start trace server: ' + resolve);
@@ -240,7 +240,7 @@ export class TraceViewerContribution
                             progress.report({ message: 'Trace server started.', work: { done: 100, total: 100 } });
                         }
                         this.serverStatusService.updateStatus(true);
-                        signalManager().fireTraceServerStartedSignal();
+                        signalManager().emit('TRACE_SERVER_STARTED');
                         return;
                     }
                     throw new Error('Could not start trace server: ' + resolve);

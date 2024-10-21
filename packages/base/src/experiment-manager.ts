@@ -5,7 +5,7 @@ import { OutputDescriptor } from 'tsp-typescript-client/lib/models/output-descri
 import { Experiment } from 'tsp-typescript-client/lib/models/experiment';
 import { TraceManager } from './trace-manager';
 import { TspClientResponse } from 'tsp-typescript-client/lib/protocol/tsp-client-response';
-import { signalManager, Signals } from './signals/signal-manager';
+import { signalManager } from './signals/signal-manager';
 
 export class ExperimentManager {
     private fOpenExperiments: Map<string, Experiment> = new Map();
@@ -15,9 +15,7 @@ export class ExperimentManager {
     constructor(tspClient: ITspClient, traceManager: TraceManager) {
         this.fTspClient = tspClient;
         this.fTraceManager = traceManager;
-        signalManager().on(Signals.EXPERIMENT_DELETED, (experiment: Experiment) =>
-            this.onExperimentDeleted(experiment)
-        );
+        signalManager().on('EXPERIMENT_DELETED', (experiment: Experiment) => this.onExperimentDeleted(experiment));
     }
 
     /**
@@ -99,7 +97,7 @@ export class ExperimentManager {
         const experiment = experimentResponse.getModel();
         if (experimentResponse.isOk() && experiment) {
             this.addExperiment(experiment);
-            signalManager().fireExperimentOpenedSignal(experiment);
+            signalManager().emit('EXPERIMENT_OPENED', experiment);
             return experiment;
         }
         // TODO Handle any other experiment open errors
@@ -131,7 +129,7 @@ export class ExperimentManager {
             await this.fTspClient.deleteExperiment(experimentUUID);
             const deletedExperiment = this.removeExperiment(experimentUUID);
             if (deletedExperiment) {
-                signalManager().fireExperimentDeletedSignal(deletedExperiment);
+                signalManager().emit('EXPERIMENT_DELETED', deletedExperiment);
             }
         }
     }

@@ -75,7 +75,6 @@ export class TableOutputComponent extends AbstractOutputComponent<TableOutputPro
     private selectEndIndex = -1;
     private filterModel: Map<string, string> = new Map<string, string>();
     private dataSource: IDatasource;
-
     private onOutputDataChanged = (outputs: OutputDescriptor[]) => this.doHandleOutputDataChangedSignal(outputs);
 
     static defaultProps: Partial<TableOutputProps> = {
@@ -216,7 +215,7 @@ export class TableOutputComponent extends AbstractOutputComponent<TableOutputPro
         this.props.unitController.onSelectionRangeChange(range => {
             this.handleTimeSelectionChange(range);
         });
-        signalManager().on(Signals.OUTPUT_DATA_CHANGED, this.onOutputDataChanged);
+        signalManager().on('OUTPUT_DATA_CHANGED', this.onOutputDataChanged);
     }
 
     componentWillUnmount(): void {
@@ -224,7 +223,7 @@ export class TableOutputComponent extends AbstractOutputComponent<TableOutputPro
         // See timeline-chart issue #98
         // In the meantime, replace the handler with a noop on unmount
         this.handleTimeSelectionChange = () => Promise.resolve();
-        signalManager().off(Signals.OUTPUT_DATA_CHANGED, this.onOutputDataChanged);
+        signalManager().off('OUTPUT_DATA_CHANGED', this.onOutputDataChanged);
     }
 
     doHandleOutputDataChangedSignal(outputs: OutputDescriptor[]): void {
@@ -309,7 +308,8 @@ export class TableOutputComponent extends AbstractOutputComponent<TableOutputPro
         // Notfiy selection changed
         this.handleRowSelectionChange(itemPropsObj);
         // Notfiy properties changed
-        signalManager().fireItemPropertiesSignalUpdated(
+        signalManager().emit(
+            'ITEM_PROPERTIES_UPDATED',
             new ItemPropertiesSignalPayload(itemPropsObj, this.props.traceId, this.props.outputDescriptor.id)
         );
     }
@@ -448,7 +448,8 @@ export class TableOutputComponent extends AbstractOutputComponent<TableOutputPro
             this.handleRowSelectionChange(itemPropsObj);
             // Notify properties changed
             if (itemPropsObj) {
-                signalManager().fireItemPropertiesSignalUpdated(
+                signalManager().emit(
+                    'ITEM_PROPERTIES_UPDATED',
                     new ItemPropertiesSignalPayload(itemPropsObj, this.props.traceId, this.props.outputDescriptor.id)
                 );
             }
@@ -562,7 +563,7 @@ export class TableOutputComponent extends AbstractOutputComponent<TableOutputPro
             this.prevStartTimestamp = BigInt(startTimestamp);
             this.eventSignal = true;
             this.handleSelectionRangeUpdate(payload);
-            signalManager().fireSelectionChangedSignal(payload);
+            signalManager().emit('SELECTION_CHANGED', payload);
         }
     }
 
@@ -855,7 +856,8 @@ export class TableOutputComponent extends AbstractOutputComponent<TableOutputPro
                     this.handleRowSelectionChange(itemPropsObj);
                     // Notify properties changed
                     if (itemPropsObj) {
-                        signalManager().fireItemPropertiesSignalUpdated(
+                        signalManager().emit(
+                            'ITEM_PROPERTIES_UPDATED',
                             new ItemPropertiesSignalPayload(
                                 itemPropsObj,
                                 this.props.traceId,
@@ -899,7 +901,8 @@ export class TableOutputComponent extends AbstractOutputComponent<TableOutputPro
                 this.handleRowSelectionChange(itemPropsObj);
                 // Notify properties changed
                 if (itemPropsObj) {
-                    signalManager().fireItemPropertiesSignalUpdated(
+                    signalManager().emit(
+                        'ITEM_PROPERTIES_UPDATED',
                         new ItemPropertiesSignalPayload(
                             itemPropsObj,
                             this.props.traceId,

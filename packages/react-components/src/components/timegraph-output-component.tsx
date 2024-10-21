@@ -14,7 +14,7 @@ import { TimeGraphRowController } from 'timeline-chart/lib/time-graph-row-contro
 import { QueryHelper } from 'tsp-typescript-client/lib/models/query/query-helper';
 import { ResponseStatus } from 'tsp-typescript-client/lib/models/response/responses';
 import { TimeGraphEntry } from 'tsp-typescript-client/lib/models/timegraph';
-import { signalManager, Signals } from 'traceviewer-base/lib/signals/signal-manager';
+import { signalManager } from 'traceviewer-base/lib/signals/signal-manager';
 import { AbstractOutputProps } from './abstract-output-component';
 import { AbstractTreeOutputComponent, AbstractTreeOutputState } from './abstract-tree-output-component';
 import { StyleProperties } from './data-providers/style-properties';
@@ -272,17 +272,17 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
     }
 
     protected subscribeToEvents(): void {
-        signalManager().on(Signals.CONTRIBUTE_CONTEXT_MENU, this.onContextMenuContributed);
-        signalManager().on(Signals.OUTPUT_DATA_CHANGED, this.onOutputDataChanged);
-        signalManager().on(Signals.THEME_CHANGED, this.onThemeChange);
-        signalManager().on(Signals.SELECTION_CHANGED, this.onSelectionChanged);
+        signalManager().on('CONTRIBUTE_CONTEXT_MENU', this.onContextMenuContributed);
+        signalManager().on('OUTPUT_DATA_CHANGED', this.onOutputDataChanged);
+        signalManager().on('THEME_CHANGED', this.onThemeChange);
+        signalManager().on('SELECTION_CHANGED', this.onSelectionChanged);
     }
 
     protected unsubscribeToEvents(): void {
-        signalManager().off(Signals.CONTRIBUTE_CONTEXT_MENU, this.onContextMenuContributed);
-        signalManager().off(Signals.OUTPUT_DATA_CHANGED, this.onOutputDataChanged);
-        signalManager().off(Signals.THEME_CHANGED, this.onThemeChange);
-        signalManager().off(Signals.SELECTION_CHANGED, this.onSelectionChanged);
+        signalManager().off('CONTRIBUTE_CONTEXT_MENU', this.onContextMenuContributed);
+        signalManager().off('OUTPUT_DATA_CHANGED', this.onOutputDataChanged);
+        signalManager().off('THEME_CHANGED', this.onThemeChange);
+        signalManager().off('SELECTION_CHANGED', this.onSelectionChanged);
     }
 
     async fetchTree(): Promise<ResponseStatus> {
@@ -364,7 +364,7 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
                 this.props.outputDescriptor.id,
                 this.getEntryModelsForRowIds(this.state.multiSelectedRows)
             );
-            signalManager().fireRowSelectionsChanged(signalPayload);
+            signalManager().emit('ROW_SELECTIONS_CHANGED', signalPayload);
         }
     }
 
@@ -403,10 +403,7 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
                     markerLayerData
                 });
             }
-            signalManager().fireMarkerCategoryClosedSignal({
-                traceViewerId: this.props.traceId,
-                markerCategory: annotationLabel
-            });
+            signalManager().emit('MARKER_CATEGORY_CLOSED', this.props.traceId, annotationLabel);
         }
     }
 
@@ -608,7 +605,7 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
             props,
             params.data.parentMenuId
         );
-        signalManager().fireContextMenuItemClicked(signalPayload);
+        signalManager().emit('CONTEXT_MENU_ITEM_CLICKED', signalPayload);
     };
 
     protected getEntryModelsForRowIds = (
@@ -1015,7 +1012,8 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
             tooltipObject = await this.fetchTooltip(element);
         }
         if (tooltipObject) {
-            signalManager().fireItemPropertiesSignalUpdated(
+            signalManager().emit(
+                'ITEM_PROPERTIES_UPDATED',
                 new ItemPropertiesSignalPayload(tooltipObject, this.props.traceId, this.props.outputDescriptor.id)
             );
         }

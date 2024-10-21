@@ -3,7 +3,7 @@ import { flushSync } from 'react-dom';
 import { List, ListRowProps, Index, AutoSizer } from 'react-virtualized';
 import { Experiment } from 'tsp-typescript-client/lib/models/experiment';
 import { ExperimentManager } from 'traceviewer-base/lib/experiment-manager';
-import { signalManager, Signals } from 'traceviewer-base/lib/signals/signal-manager';
+import { signalManager } from 'traceviewer-base/lib/signals/signal-manager';
 import ReactModal from 'react-modal';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCopy } from '@fortawesome/free-solid-svg-icons';
@@ -47,11 +47,11 @@ export class ReactOpenTracesWidget extends React.Component<ReactOpenTracesWidget
 
     constructor(props: ReactOpenTracesWidgetProps) {
         super(props);
-        signalManager().on(Signals.EXPERIMENT_OPENED, this._onExperimentOpened);
-        signalManager().on(Signals.EXPERIMENT_CLOSED, this._onExperimentClosed);
-        signalManager().on(Signals.EXPERIMENT_DELETED, this._onExperimentDeleted);
-        signalManager().on(Signals.TRACEVIEWERTAB_ACTIVATED, this._onOpenedTracesWidgetActivated);
-        signalManager().on(Signals.TRACE_SERVER_STARTED, this._onTraceServerStarted);
+        signalManager().on('EXPERIMENT_OPENED', this._onExperimentOpened);
+        signalManager().on('EXPERIMENT_CLOSED', this._onExperimentClosed);
+        signalManager().on('EXPERIMENT_DELETED', this._onExperimentDeleted);
+        signalManager().on('TRACEVIEWERTAB_ACTIVATED', this._onOpenedTracesWidgetActivated);
+        signalManager().on('TRACE_SERVER_STARTED', this._onTraceServerStarted);
 
         this._experimentManager = this.props.tspClientProvider.getExperimentManager();
         this.props.tspClientProvider.addTspClientChangeListener(() => {
@@ -65,11 +65,11 @@ export class ReactOpenTracesWidget extends React.Component<ReactOpenTracesWidget
     }
 
     componentWillUnmount(): void {
-        signalManager().off(Signals.EXPERIMENT_OPENED, this._onExperimentOpened);
-        signalManager().off(Signals.EXPERIMENT_CLOSED, this._onExperimentClosed);
-        signalManager().off(Signals.EXPERIMENT_DELETED, this._onExperimentDeleted);
-        signalManager().off(Signals.TRACEVIEWERTAB_ACTIVATED, this._onOpenedTracesWidgetActivated);
-        signalManager().off(Signals.TRACE_SERVER_STARTED, this._onTraceServerStarted);
+        signalManager().off('EXPERIMENT_OPENED', this._onExperimentOpened);
+        signalManager().off('EXPERIMENT_CLOSED', this._onExperimentClosed);
+        signalManager().off('EXPERIMENT_DELETED', this._onExperimentDeleted);
+        signalManager().off('TRACEVIEWERTAB_ACTIVATED', this._onOpenedTracesWidgetActivated);
+        signalManager().off('TRACE_SERVER_STARTED', this._onTraceServerStarted);
     }
 
     async initialize(): Promise<void> {
@@ -227,7 +227,7 @@ export class ReactOpenTracesWidget extends React.Component<ReactOpenTracesWidget
 
     protected doHandleOnExperimentDeleted(e: React.MouseEvent<HTMLButtonElement>, traceUUID: string): void {
         this._experimentManager.deleteExperiment(traceUUID);
-        signalManager().fireCloseTraceViewerTabSignal(traceUUID);
+        signalManager().emit('CLOSE_TRACEVIEWERTAB', traceUUID);
         e.preventDefault();
         e.stopPropagation();
     }
@@ -313,7 +313,8 @@ export class ReactOpenTracesWidget extends React.Component<ReactOpenTracesWidget
         flushSync(() => {
             this.setState({ openedExperiments: remoteExperiments, selectedExperimentIndex: selectedIndex });
         });
-        signalManager().fireOpenedTracesChangedSignal(
+        signalManager().emit(
+            'OPENED_TRACES_UPDATED',
             new OpenedTracesUpdatedSignalPayload(remoteExperiments ? remoteExperiments.length : 0)
         );
     }
@@ -324,7 +325,8 @@ export class ReactOpenTracesWidget extends React.Component<ReactOpenTracesWidget
         const traceToShare = this.state.openedExperiments[index];
         this._sharingLink = 'https://localhost:3000/share/trace?' + traceToShare.UUID;
         this._showShareDialog = true;
-        signalManager().fireOpenedTracesChangedSignal(
+        signalManager().emit(
+            'OPENED_TRACES_UPDATED',
             new OpenedTracesUpdatedSignalPayload(this.state.openedExperiments ? this.state.openedExperiments.length : 0)
         );
     }
@@ -347,7 +349,7 @@ export class ReactOpenTracesWidget extends React.Component<ReactOpenTracesWidget
         if (index >= 0 && index !== this.state.selectedExperimentIndex) {
             this.setState({ selectedExperimentIndex: index });
             this._selectedExperiment = this.state.openedExperiments[index];
-            signalManager().fireExperimentSelectedSignal(this._selectedExperiment);
+            signalManager().emit('EXPERIMENT_SELECTED', this._selectedExperiment);
         }
     }
 
@@ -358,7 +360,7 @@ export class ReactOpenTracesWidget extends React.Component<ReactOpenTracesWidget
             this.state.selectedExperimentIndex < this.state.openedExperiments.length
         ) {
             this._selectedExperiment = this.state.openedExperiments[this.state.selectedExperimentIndex];
-            signalManager().fireExperimentSelectedSignal(this._selectedExperiment);
+            signalManager().emit('EXPERIMENT_SELECTED', this._selectedExperiment);
         }
     }
 
@@ -377,7 +379,8 @@ export class ReactOpenTracesWidget extends React.Component<ReactOpenTracesWidget
     protected doHandleShareModalClose(): void {
         this._showShareDialog = false;
         this._sharingLink = '';
-        signalManager().fireOpenedTracesChangedSignal(
+        signalManager().emit(
+            'OPENED_TRACES_UPDATED',
             new OpenedTracesUpdatedSignalPayload(this.state.openedExperiments ? this.state.openedExperiments.length : 0)
         );
     }

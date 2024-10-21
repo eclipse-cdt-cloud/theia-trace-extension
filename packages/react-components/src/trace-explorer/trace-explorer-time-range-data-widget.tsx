@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { TimeRangeUpdatePayload } from 'traceviewer-base/lib/signals/time-range-data-signal-payloads';
 import { TimeRangeDataMap } from '../components/utils/time-range-data-map';
-import { signalManager, Signals } from 'traceviewer-base/lib/signals/signal-manager';
+import { signalManager } from 'traceviewer-base/lib/signals/signal-manager';
 import { Experiment } from 'tsp-typescript-client';
 import { TimeRange } from 'traceviewer-base/lib/utils/time-range';
 
@@ -47,21 +47,21 @@ export class ReactTimeRangeDataWidget extends React.Component<
     }
 
     private subscribeToEvents = (): void => {
-        signalManager().on(Signals.VIEW_RANGE_UPDATED, this.onViewRangeUpdated);
-        signalManager().on(Signals.SELECTION_RANGE_UPDATED, this.onSelectionRangeUpdated);
-        signalManager().on(Signals.EXPERIMENT_SELECTED, this.onExperimentSelected);
-        signalManager().on(Signals.EXPERIMENT_UPDATED, this.onExperimentUpdated);
-        signalManager().on(Signals.EXPERIMENT_CLOSED, this.onExperimentClosed);
-        signalManager().on(Signals.CLOSE_TRACEVIEWERTAB, this.onExperimentClosed);
+        signalManager().on('VIEW_RANGE_UPDATED', this.onViewRangeUpdated);
+        signalManager().on('SELECTION_RANGE_UPDATED', this.onSelectionRangeUpdated);
+        signalManager().on('EXPERIMENT_SELECTED', this.onExperimentSelected);
+        signalManager().on('EXPERIMENT_UPDATED', this.onExperimentUpdated);
+        signalManager().on('EXPERIMENT_CLOSED', this.onExperimentClosed);
+        signalManager().on('CLOSE_TRACEVIEWERTAB', this.onExperimentClosed);
     };
 
     public componentWillUnmount = (): void => {
-        signalManager().off(Signals.VIEW_RANGE_UPDATED, this.onViewRangeUpdated);
-        signalManager().off(Signals.SELECTION_RANGE_UPDATED, this.onSelectionRangeUpdated);
-        signalManager().off(Signals.EXPERIMENT_SELECTED, this.onExperimentSelected);
-        signalManager().off(Signals.EXPERIMENT_UPDATED, this.onExperimentUpdated);
-        signalManager().off(Signals.EXPERIMENT_CLOSED, this.onExperimentClosed);
-        signalManager().off(Signals.CLOSE_TRACEVIEWERTAB, this.onExperimentClosed);
+        signalManager().off('VIEW_RANGE_UPDATED', this.onViewRangeUpdated);
+        signalManager().off('SELECTION_RANGE_UPDATED', this.onSelectionRangeUpdated);
+        signalManager().off('EXPERIMENT_SELECTED', this.onExperimentSelected);
+        signalManager().off('EXPERIMENT_UPDATED', this.onExperimentUpdated);
+        signalManager().off('EXPERIMENT_CLOSED', this.onExperimentClosed);
+        signalManager().off('CLOSE_TRACEVIEWERTAB', this.onExperimentClosed);
     };
 
     private onViewRangeUpdated = (payload: TimeRangeUpdatePayload): void => {
@@ -221,7 +221,7 @@ export class ReactTimeRangeDataWidget extends React.Component<
             this.reset();
             const start = selectionStart - offset;
             const end = selectionEnd - offset;
-            signalManager().fireRequestSelectionRangeChange({
+            signalManager().emit('REQUEST_SELECTION_RANGE_CHANGE', {
                 experimentUUID: activeData.UUID,
                 timeRange: new TimeRange(start, end)
             });

@@ -20,7 +20,7 @@ import { XYOutputComponent } from './xy-output-component';
 import { NullOutputComponent } from './null-output-component';
 import { AbstractOutputProps } from './abstract-output-component';
 import * as Messages from 'traceviewer-base/lib/message-manager';
-import { signalManager, Signals } from 'traceviewer-base/lib/signals/signal-manager';
+import { signalManager } from 'traceviewer-base/lib/signals/signal-manager';
 import ReactTooltip from 'react-tooltip';
 import { TooltipComponent } from './tooltip-component';
 import { TooltipXYComponent } from './tooltip-xy-component';
@@ -119,9 +119,9 @@ export class TraceContextComponent extends React.Component<TraceContextProps, Tr
     private onUpdateZoom = (hasZoomedIn: boolean) => this.doHandleUpdateZoomSignal(hasZoomedIn);
     private onResetZoom = () => this.doHandleResetZoomSignal();
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    private onPinView = (output: OutputDescriptor, payload?: any) => this.doHandlePinView(output, payload);
+    private onPinView = (output: OutputDescriptor, extra?: any) => this.doHandlePinView(output, extra);
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    private onUnPinView = (output: OutputDescriptor, payload?: any) => this.doHandleUnPinView(output, payload);
+    private onUnPinView = (output: OutputDescriptor, extra?: any) => this.doHandleUnPinView(output, extra);
 
     constructor(props: TraceContextProps) {
         super(props);
@@ -274,7 +274,7 @@ export class TraceContextComponent extends React.Component<TraceContextProps, Tr
 
                     this.unitController.absoluteRange = this.state.experiment.end - this.state.timeOffset;
                     this.unitController.offset = this.state.timeOffset;
-                    signalManager().fireExperimentUpdatedSignal(updatedExperiment);
+                    signalManager().emit('EXPERIMENT_UPDATED', updatedExperiment);
 
                     // Update status bar
                     this.props.messageManager.addStatusMessage(this.INDEXING_STATUS_BAR_KEY, {
@@ -289,7 +289,7 @@ export class TraceContextComponent extends React.Component<TraceContextProps, Tr
         }
         // When indexing is completed
         const finalResponse = await this.props.tspClient.fetchExperiment(this.props.experiment.UUID);
-        signalManager().fireExperimentUpdatedSignal(finalResponse.getModel() || this.props.experiment);
+        signalManager().emit('EXPERIMENT_UPDATED', finalResponse.getModel() || this.props.experiment);
         this.emitTimeRangeData();
         this.props.messageManager.removeStatusMessage(this.INDEXING_STATUS_BAR_KEY);
     }
@@ -310,25 +310,25 @@ export class TraceContextComponent extends React.Component<TraceContextProps, Tr
     }
 
     private subscribeToEvents() {
-        signalManager().on(Signals.THEME_CHANGED, this.onBackgroundThemeChange);
-        signalManager().on(Signals.UPDATE_ZOOM, this.onUpdateZoom);
-        signalManager().on(Signals.RESET_ZOOM, this.onResetZoom);
-        signalManager().on(Signals.UNDO, this.undoHistory);
-        signalManager().on(Signals.REDO, this.redoHistory);
-        signalManager().on(Signals.PIN_VIEW, this.onPinView);
-        signalManager().on(Signals.UNPIN_VIEW, this.onUnPinView);
-        signalManager().on(Signals.REQUEST_SELECTION_RANGE_CHANGE, this.onRequestToUpdateSelectionRange);
+        signalManager().on('THEME_CHANGED', this.onBackgroundThemeChange);
+        signalManager().on('UPDATE_ZOOM', this.onUpdateZoom);
+        signalManager().on('RESET_ZOOM', this.onResetZoom);
+        signalManager().on('UNDO', this.undoHistory);
+        signalManager().on('REDO', this.redoHistory);
+        signalManager().on('PIN_VIEW', this.onPinView);
+        signalManager().on('UNPIN_VIEW', this.onUnPinView);
+        signalManager().on('REQUEST_SELECTION_RANGE_CHANGE', this.onRequestToUpdateSelectionRange);
     }
 
     private unsubscribeToEvents() {
-        signalManager().off(Signals.THEME_CHANGED, this.onBackgroundThemeChange);
-        signalManager().off(Signals.UPDATE_ZOOM, this.onUpdateZoom);
-        signalManager().off(Signals.RESET_ZOOM, this.onResetZoom);
-        signalManager().off(Signals.UNDO, this.undoHistory);
-        signalManager().off(Signals.REDO, this.redoHistory);
-        signalManager().off(Signals.PIN_VIEW, this.onPinView);
-        signalManager().off(Signals.UNPIN_VIEW, this.onUnPinView);
-        signalManager().off(Signals.REQUEST_SELECTION_RANGE_CHANGE, this.onRequestToUpdateSelectionRange);
+        signalManager().off('THEME_CHANGED', this.onBackgroundThemeChange);
+        signalManager().off('UPDATE_ZOOM', this.onUpdateZoom);
+        signalManager().off('RESET_ZOOM', this.onResetZoom);
+        signalManager().off('UNDO', this.undoHistory);
+        signalManager().off('REDO', this.redoHistory);
+        signalManager().off('PIN_VIEW', this.onPinView);
+        signalManager().off('UNPIN_VIEW', this.onUnPinView);
+        signalManager().off('REQUEST_SELECTION_RANGE_CHANGE', this.onRequestToUpdateSelectionRange);
     }
 
     async componentDidUpdate(prevProps: TraceContextProps, prevState: TraceContextState): Promise<void> {
@@ -443,7 +443,7 @@ export class TraceContextComponent extends React.Component<TraceContextProps, Tr
                 experimentUUID: this.props.experiment.UUID,
                 timeRange: new TimeRange(start, end)
             } as TimeRangeUpdatePayload;
-            signalManager().fireSelectionRangeUpdated(payload);
+            signalManager().emit('SELECTION_RANGE_UPDATED', payload);
 
             this.setState(
                 prevState => ({
@@ -460,7 +460,7 @@ export class TraceContextComponent extends React.Component<TraceContextProps, Tr
             experimentUUID: this.props.experiment.UUID,
             timeRange: new TimeRange(start, end)
         } as TimeRangeUpdatePayload;
-        signalManager().fireViewRangeUpdated(payload);
+        signalManager().emit('VIEW_RANGE_UPDATED', payload);
 
         this.setState(
             prevState => ({
@@ -476,10 +476,10 @@ export class TraceContextComponent extends React.Component<TraceContextProps, Tr
             experimentUUID: this.props.experiment.UUID,
             timeRange: new TimeRange(viewRange.start, viewRange.end)
         } as TimeRangeUpdatePayload;
-        signalManager().fireViewRangeUpdated(payload);
+        signalManager().emit('VIEW_RANGE_UPDATED', payload);
         if (selectionRange) {
             payload.timeRange = new TimeRange(selectionRange.start, selectionRange.end);
-            signalManager().fireSelectionRangeUpdated(payload);
+            signalManager().emit('SELECTION_RANGE_UPDATED', payload);
         }
     };
 
