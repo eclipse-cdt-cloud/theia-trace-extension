@@ -114,6 +114,15 @@ export class TheiaRpcTspProxy implements ITspClient {
     }
 
     /**
+     * Close an experiment
+     * @param expUUID Experiment UUID to close
+     * @returns The closed experiment
+     */
+    public async closeExperiment(expUUID: string): Promise<TspClientResponse<Experiment>> {
+        return this.toTspClientResponse<Experiment>(await this.tspClient.closeExperiment(expUUID));
+    }
+
+    /**
      * Delete an experiment on the server
      * @param expUUID Experiment UUID to delete
      * @returns The deleted experiment
