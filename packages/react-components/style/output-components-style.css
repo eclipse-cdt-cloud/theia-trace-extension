@@ -515,8 +515,8 @@ canvas {
 }
 
 .filter-chip {
-    background-color: var(--theia-selection-background) !important;
-    color: var(--trace-viewer-ui-font-color0);
+    background-color: var(--trace-viewer-selection-background) !important;
+    color: var(--trace-viewer-ui-font-color0) !important;
     border-radius: 15px !important;
     border-width: 1px !important;
     display: flex;
