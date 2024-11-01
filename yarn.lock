@@ -13796,10 +13796,10 @@ tslib@^2.1.0, tslib@^2.3.0, tslib@^2.3.1, tslib@^2.4.0, tslib@^2.6.2:
   resolved "https://registry.npmjs.org/tslib/-/tslib-2.7.0.tgz#d9b40c5c40ab59e8738f297df3087bf1a2690c01"
   integrity sha512-gLXCKdN1/j47AiHiOkJN69hJmcbGTHI0ImLmbYLHykhgeN0jVGola9yVjFgzCUklsZQMW55o+dW7IXv3RCXDzA==
 
-tsp-typescript-client@^0.4.3:
-  version "0.4.3"
-  resolved "https://registry.npmjs.org/tsp-typescript-client/-/tsp-typescript-client-0.4.3.tgz#c2a679c8bed359ff09f4532d0365e0ee42dae461"
-  integrity sha512-6wmi9Y6ftWJHWdNmzt7b5ST2EPP3srDnPfviA/8hSt/VYsFnagDKLCWWuCHVSPee2XmEWG2vfIIy3Q6LzJdHiQ==
+tsp-typescript-client@^0.5.0:
+  version "0.5.0"
+  resolved "https://registry.npmjs.org/tsp-typescript-client/-/tsp-typescript-client-0.5.0.tgz#02572aeced3e1cba3b82bf07c4d30d6029a980eb"
+  integrity sha512-bV2fsvce4B9sAsZzO/pP0NrCxJmqugmkO5HHoKQ6MPx34BUH/bQ1ODkhk+Zqv/1Hjw8KLn94EXkTpgcvZmSXuA==
   dependencies:
     json-bigint sidorares/json-bigint#2c0a5f896d7888e68e5f4ae3c7ea5cd42fd54473
     node-fetch "^2.5.0"

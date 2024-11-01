@@ -7,7 +7,7 @@ import '../../style/status-bar.css';
 import { Layout, Responsive, WidthProvider } from 'react-grid-layout';
 import { TimelineChart } from 'timeline-chart/lib/time-graph-model';
 import { TimeGraphUnitController } from 'timeline-chart/lib/time-graph-unit-controller';
-import { OutputDescriptor } from 'tsp-typescript-client/lib/models/output-descriptor';
+import { OutputDescriptor, ProviderType } from 'tsp-typescript-client/lib/models/output-descriptor';
 import { Experiment } from 'tsp-typescript-client/lib/models/experiment';
 import { ITspClient } from 'tsp-typescript-client/lib/protocol/tsp-client';
 import { TimeRange, TimeRangeString } from 'traceviewer-base/lib/utils/time-range';
@@ -735,7 +735,7 @@ export class TraceContextComponent extends React.Component<TraceContextProps, Tr
                                     {...outputProps}
                                 ></TraceOverviewComponent>
                             );
-                        case 'TIME_GRAPH':
+                        case ProviderType.TIME_GRAPH:
                             if (this.chartPersistedState && this.chartPersistedState.output.id === output.id) {
                                 outputProps.persistChartState = this.chartPersistedState.payload;
                                 this.chartPersistedState = undefined;
@@ -749,7 +749,7 @@ export class TraceContextComponent extends React.Component<TraceContextProps, Tr
                                     className={this.state.pinnedView?.id === output.id ? 'pinned-view-shadow' : ''}
                                 />
                             );
-                        case 'TREE_TIME_XY':
+                        case ProviderType.TREE_TIME_XY:
                             if (this.chartPersistedState && this.chartPersistedState.output.id === output.id) {
                                 outputProps.persistChartState = this.chartPersistedState.payload;
                                 this.chartPersistedState = undefined;
@@ -761,7 +761,7 @@ export class TraceContextComponent extends React.Component<TraceContextProps, Tr
                                     className={this.state.pinnedView?.id === output.id ? 'pinned-view-shadow' : ''}
                                 />
                             );
-                        case 'TABLE':
+                        case ProviderType.TABLE:
                             return (
                                 <TableOutputComponent
                                     key={output.id}
@@ -769,7 +769,7 @@ export class TraceContextComponent extends React.Component<TraceContextProps, Tr
                                     className={this.state.pinnedView?.id === output.id ? 'pinned-view-shadow' : ''}
                                 />
                             );
-                        case 'DATA_TREE':
+                        case ProviderType.DATA_TREE:
                             return (
                                 <DataTreeOutputComponent
                                     key={output.id}

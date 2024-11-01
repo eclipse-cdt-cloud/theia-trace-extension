@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { OutputAddedSignalPayload } from 'traceviewer-base/lib/signals/output-added-signal-payload';
 import { signalManager, Signals } from 'traceviewer-base/lib/signals/signal-manager';
-import { OutputDescriptor } from 'tsp-typescript-client/lib/models/output-descriptor';
+import { OutputDescriptor, ProviderType } from 'tsp-typescript-client/lib/models/output-descriptor';
 import { Experiment } from 'tsp-typescript-client/lib/models/experiment';
 import { ITspClientProvider } from 'traceviewer-base/lib/tsp-client-provider';
 import { ExperimentManager } from 'traceviewer-base/lib/experiment-manager';
@@ -91,7 +91,7 @@ export class ReactAvailableViewsWidget extends React.Component<ReactAvailableVie
         const selectedOutput: OutputDescriptor = this._nodeIdToOutput[id];
         this.setState({ selectedOutput: id });
         if (selectedOutput && this._selectedExperiment) {
-            if (selectedOutput.type !== 'NONE') {
+            if (selectedOutput.type !== ProviderType.NONE) {
                 signalManager().fireOutputAddedSignal(
                     new OutputAddedSignalPayload(selectedOutput, this._selectedExperiment)
                 );
