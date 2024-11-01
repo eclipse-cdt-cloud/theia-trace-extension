@@ -1,23 +1,23 @@
 import { inject, injectable, interfaces } from '@theia/core/shared/inversify';
-import { ITspClient } from 'tsp-typescript-client/lib/protocol/tsp-client';
-import { TspClientResponse } from 'tsp-typescript-client/lib/protocol/tsp-client-response';
-import { Trace } from 'tsp-typescript-client/lib/models/trace';
-import { Query } from 'tsp-typescript-client/lib/models/query/query';
+import { AnnotationCategoriesModel, AnnotationModel } from 'tsp-typescript-client/lib/models/annotation';
+import { Configuration } from 'tsp-typescript-client/lib/models/configuration';
+import { ConfigurationSourceType } from 'tsp-typescript-client/lib/models/configuration-source';
+import { DataTreeEntry } from 'tsp-typescript-client/lib/models/data-tree';
+import { EntryModel } from 'tsp-typescript-client/lib/models/entry';
 import { Experiment } from 'tsp-typescript-client/lib/models/experiment';
-import { GenericResponse } from 'tsp-typescript-client/lib/models/response/responses';
 import { HealthStatus } from 'tsp-typescript-client/lib/models/health';
 import { Identifier } from 'tsp-typescript-client/lib/models/identifier';
-import { XyEntry, XYModel } from 'tsp-typescript-client/lib/models/xy';
-import { TimeGraphEntry, TimeGraphArrow, TimeGraphModel } from 'tsp-typescript-client/lib/models/timegraph';
-import { AnnotationCategoriesModel, AnnotationModel } from 'tsp-typescript-client/lib/models/annotation';
-import { TableModel, ColumnHeaderEntry } from 'tsp-typescript-client/lib/models/table';
-import { OutputDescriptor } from 'tsp-typescript-client/lib/models/output-descriptor';
-import { EntryModel } from 'tsp-typescript-client/lib/models/entry';
-import { OutputStyleModel } from 'tsp-typescript-client/lib/models/styles';
 import { MarkerSet } from 'tsp-typescript-client/lib/models/markerset';
-import { DataTreeEntry } from 'tsp-typescript-client/lib/models/data-tree';
-import { ConfigurationSourceType } from 'tsp-typescript-client/lib/models/configuration-source';
-import { Configuration } from 'tsp-typescript-client/lib/models/configuration';
+import { OutputDescriptor } from 'tsp-typescript-client/lib/models/output-descriptor';
+import { ConfigurationQuery, OutputConfigurationQuery, Query } from 'tsp-typescript-client/lib/models/query/query';
+import { GenericResponse } from 'tsp-typescript-client/lib/models/response/responses';
+import { OutputStyleModel } from 'tsp-typescript-client/lib/models/styles';
+import { ColumnHeaderEntry, TableModel } from 'tsp-typescript-client/lib/models/table';
+import { TimeGraphArrow, TimeGraphEntry, TimeGraphModel } from 'tsp-typescript-client/lib/models/timegraph';
+import { Trace } from 'tsp-typescript-client/lib/models/trace';
+import { XyEntry, XYModel } from 'tsp-typescript-client/lib/models/xy';
+import { ITspClient } from 'tsp-typescript-client/lib/protocol/tsp-client';
+import { TspClientResponse } from 'tsp-typescript-client/lib/protocol/tsp-client-response';
 
 export const TspClientProxy = Symbol('TspClientProxy') as symbol & interfaces.Abstract<TspClientProxy>;
 export type TspClientProxy = ITspClient;
@@ -365,6 +365,73 @@ export class TheiaRpcTspProxy implements ITspClient {
     }
 
     /**
+     * Fetch all configuration source types for a given experiment and output
+     * @param expUUID Experiment UUID
+     * @param outputID Output ID
+     * @returns Generic response with the model
+     */
+    public async fetchOutputConfigurationTypes(
+        expUUID: string,
+        outputID: string
+    ): Promise<TspClientResponse<ConfigurationSourceType[]>> {
+        return this.toTspClientResponse<ConfigurationSourceType[]>(
+            await this.tspClient.fetchOutputConfigurationTypes(expUUID, outputID)
+        );
+    }
+
+    /**
+     * Fetch configuration source type for a given type ID, experiment and output
+     * @param expUUID Experiment UUID
+     * @param outputID Output ID
+     * @param typeID the ID of the configuration source type
+     * @returns Generic response with the model
+     */
+    public async fetchOutputConfigurationType(
+        expUUID: string,
+        outputID: string,
+        typeID: string
+    ): Promise<TspClientResponse<ConfigurationSourceType>> {
+        return this.toTspClientResponse<ConfigurationSourceType>(
+            await this.tspClient.fetchOutputConfigurationType(expUUID, outputID, typeID)
+        );
+    }
+
+    /**
+     * Create a derived output for a given experiment, output and parameters
+     * @param expUUID Experiment UUID
+     * @param outputID Output ID
+     * @param parameters OutputConfigurationQuery object
+     * @returns the output descriptor of the derived output
+     */
+    public async createDerivedOutput(
+        expUUID: string,
+        outputID: string,
+        parameters: OutputConfigurationQuery
+    ): Promise<TspClientResponse<OutputDescriptor>> {
+        return this.toTspClientResponse<OutputDescriptor>(
+            await this.tspClient.createDerivedOutput(expUUID, outputID, parameters)
+        );
+    }
+
+    /**
+     * Delete a derived output (and it's configuration) for a given experiment,
+     * output and derived output
+     * @param expUUID Experiment UUID
+     * @param outputID Output ID
+     * @param derivedOutputID the ID of the derived output
+     * @returns the output descriptor of the deleted derived output
+     */
+    public async deleteDerivedOutput(
+        expUUID: string,
+        outputID: string,
+        derivedOutputID: string
+    ): Promise<TspClientResponse<OutputDescriptor>> {
+        return this.toTspClientResponse<OutputDescriptor>(
+            await this.tspClient.deleteDerivedOutput(expUUID, outputID, derivedOutputID)
+        );
+    }
+
+    /**
      * Check the health status of the server
      * @returns The Health Status
      */
@@ -423,10 +490,13 @@ export class TheiaRpcTspProxy implements ITspClient {
     /**
      * Create a configuration for a given type ID and parameters
      * @param typeId the ID of the configuration source type
-     * @param parameters Query object
+     * @param parameters ConfigurationQuery object
      * @returns Generic response with the model
      */
-    public async createConfiguration(typeId: string, parameters: Query): Promise<TspClientResponse<Configuration>> {
+    public async createConfiguration(
+        typeId: string,
+        parameters: ConfigurationQuery
+    ): Promise<TspClientResponse<Configuration>> {
         return this.toTspClientResponse<Configuration>(await this.tspClient.createConfiguration(typeId, parameters));
     }
 
@@ -434,13 +504,13 @@ export class TheiaRpcTspProxy implements ITspClient {
      * Update a configuration for a given type ID, config ID and parameters
      * @param typeId the ID of the configuration source type
      * @param configId the ID of the configuration
-     * @param parameters Query object
+     * @param parameters ConfigurationQuery object
      * @returns Generic response with the model
      */
     public async updateConfiguration(
         typeId: string,
         configId: string,
-        parameters: Query
+        parameters: ConfigurationQuery
     ): Promise<TspClientResponse<Configuration>> {
         return this.toTspClientResponse<Configuration>(
             await this.tspClient.updateConfiguration(typeId, configId, parameters)
