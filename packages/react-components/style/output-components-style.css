@@ -332,6 +332,7 @@ canvas {
     padding: 3px;
     margin-bottom: 5px;
     text-indent: 23px;
+    box-sizing: border-box;
     color: var(--trace-viewer-input-placeholder-foreground);
 }
 

@@ -19,7 +19,7 @@ export class Filter extends React.Component<FilterProps, FilterState> {
         };
         this.resizeObserver = new ResizeObserver(entries => {
             this.setState({
-                width: entries[0].contentRect.width
+                width: entries[0].contentRect.right
             });
         });
     }
