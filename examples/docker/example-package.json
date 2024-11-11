@@ -14,6 +14,7 @@
       }
     }
   },
+  
   "dependencies": {
     "@emotion/react": "^11.10.5",
     "@emotion/styled": "^11.10.5",
@@ -35,6 +36,7 @@
     "node": ">=16 <19"
   },
   "resolutions": {
-    "msgpackr": "^1.10.1"
+    "msgpackr": "^1.10.1",
+    "inversify": "6.0.3" 
   }
 }
