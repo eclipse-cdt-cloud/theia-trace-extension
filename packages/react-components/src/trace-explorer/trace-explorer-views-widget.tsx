@@ -1,4 +1,5 @@
 import * as React from 'react';
+import '../../style/output-components-style.css';
 import { OutputAddedSignalPayload } from 'traceviewer-base/lib/signals/output-added-signal-payload';
 import { signalManager, Signals } from 'traceviewer-base/lib/signals/signal-manager';
 import { OutputDescriptor, ProviderType } from 'tsp-typescript-client/lib/models/output-descriptor';
