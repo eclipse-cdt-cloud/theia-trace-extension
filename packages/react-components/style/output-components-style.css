@@ -269,6 +269,10 @@ canvas {
     white-space: nowrap;
 }
 
+.avail-views-table tr {
+    cursor: pointer;
+}
+
 .table-tree tr.selected td {
     background-color: var(--trace-viewer-selection-background) !important;
 }
