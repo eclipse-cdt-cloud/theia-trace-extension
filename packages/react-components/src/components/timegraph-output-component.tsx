@@ -540,6 +540,7 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
                         className="table-tree timegraph-tree"
                         emptyNodes={this.state.emptyNodes}
                         hideEmptyNodes={this.shouldHideEmptyNodes}
+                        headers={this.state.columns}
                     />
                 </div>
                 <div ref={this.markerTreeRef} className="scrollable" style={{ height: this.getMarkersLayerHeight() }}>
