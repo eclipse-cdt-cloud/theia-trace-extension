@@ -306,17 +306,19 @@ canvas {
 }
 
 .timegraph-tree {
-    border: 0px;
+    border-collapse: collapse;
 }
 
 .timegraph-tree tr {
     /* TODO: Fix row alignment, this number is arbitrary, it works [on my machine], but it should match line height in timeline-chart */
     line-height: 18px;
+    border:none;
 }
 
 .timegraph-tree td {
     padding: 1px;
-    border: 0px;
+    border-left: 1px solid var(--trace-viewer-tree-inactiveIndentGuidesStroke);
+    border-bottom:none;
 }
 
 #input-filter-container {
