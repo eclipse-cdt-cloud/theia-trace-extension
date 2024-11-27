@@ -4,5 +4,5 @@ If you think or suspect that you have discovered a new security vulnerability in
 
 Instead, please report any potential vulnerability to the Eclipse Foundation [Security Team][security]. Make sure to provide a concise description of the issue, a CWE, and other supporting information.
 
-[policy]: https://www.eclipse.org/security/policy.php
+[policy]: https://www.eclipse.org/security/policy/
 [security]: https://www.eclipse.org/security
