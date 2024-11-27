@@ -29,6 +29,11 @@ export class BackendFileServiceImpl implements BackendFileService {
         const stats = await fs.promises.stat(cleanedPath);
         if (stats.isDirectory()) {
             await this.deepFindTraces(cleanedPath, traces, cancellationToken);
+            // No CTF traces found. Add root directory as trace directory.
+            // Back-end will reject if it is not a trace
+            if (traces.length === 0) {
+                traces.push(cleanedPath);
+            }
         } else if (stats.isFile()) {
             traces.push(cleanedPath);
         }
