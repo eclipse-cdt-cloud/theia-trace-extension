@@ -1,6 +1,6 @@
 {
     "name": "traceviewer-base",
-    "version": "0.4.3",
+    "version": "0.4.4",
     "description": "Trace Viewer base package, contains trace management utilities",
     "license": "MIT",
     "repository": {
