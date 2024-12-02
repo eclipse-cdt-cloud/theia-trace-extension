@@ -1,6 +1,6 @@
 {
     "name": "theia-traceviewer",
-    "version": "0.4.4",
+    "version": "0.5.0",
     "description": "A Trace Viewer for Theia applications, in the form of a Theia extension",
     "keywords": [
         "theia-extension"
@@ -25,8 +25,8 @@
         "@theia/filesystem": "1.52.0",
         "@theia/messages": "1.52.0",
         "animate.css": "^4.1.1",
-        "traceviewer-base": "0.4.4",
-        "traceviewer-react-components": "0.4.4",
+        "traceviewer-base": "0.5.0",
+        "traceviewer-react-components": "0.5.0",
         "tree-kill": "latest"
     },
     "devDependencies": {

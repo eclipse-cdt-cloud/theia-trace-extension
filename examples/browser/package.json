@@ -1,7 +1,7 @@
 {
     "private": true,
     "name": "browser-theia-trace-example-app",
-    "version": "0.4.4",
+    "version": "0.5.0",
     "theia": {
         "target": "browser",
         "frontend": {
@@ -19,7 +19,7 @@
         "@theia/navigator": "1.52.0",
         "@theia/preferences": "1.52.0",
         "@theia/terminal": "1.52.0",
-        "theia-traceviewer": "0.4.4"
+        "theia-traceviewer": "0.5.0"
     },
     "devDependencies": {
         "@theia/cli": "1.52.0"
