@@ -112,13 +112,14 @@ You can also run two scripts to watch for changes and rebuild automatically:
 
 ## Try the trace extension
 
-This repository contains an example trace-viewer application that includes the trace extension. It has three versions:
+This repository contains an example trace-viewer application that includes the trace extension. It has two versions:
 
 * *browser*: a "browser" application, accessed with a web browser
 * *electron*: a native desktop application
-* *docker*: a Docker-izable "browser" application, accessed with a web browser
 
 You can find those example applications under `examples/`.
+
+Alternatively, you may find example applications in the [trace-viewer-examples] repository, including some "batteries included" Docker images that also contain the trace server and demo traces
 
 ### Run the Trace Server
 
@@ -358,12 +359,10 @@ yarn test --coverage
 
 ### UI Tests
 
-To run the UI test suite, first start the browser example application or optionally the Docker example application using external port 3000:
+To run the UI test suite, first start the browser example application:
 
 ```bash
 yarn browser start
-# or
-docker run --init -d -p 0.0.0.0:3000:4000 tte
 
 ```
 
@@ -495,3 +494,4 @@ The code in this repository is licensed under `MIT` (see root `LICENSE`), except
 [tspc]: https://github.com/eclipse-cdt-cloud/tsp-typescript-client
 [tsp-gh-label]: https://github.com/eclipse-cdt-cloud/theia-trace-extension/labels/trace%20server%20protocol
 [yarn-issue-2821]: https://github.com/yarnpkg/yarn/issues/2821
+[trace-viewer-examples]: https://github.com/eclipse-cdt-cloud/trace-viewer-examples
