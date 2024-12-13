@@ -112,7 +112,6 @@ more may be necessary depending on the case. Here is an example used to uplift f
    * Some bumps may then be required also in the extension; consider applying them.
 1. Uplift the version of each `@theia/` dependency in these `package.json` files, from `1.34.1` to `1.34.2` (replacing the former with the latter):
    * `./examples/browser/package.json`
-   * `./examples/docker/example-package.json`
    * `./examples/electron/package.json`
    * `./package.json`
    * `./theia-extensions/viewer-prototype/package.json`
