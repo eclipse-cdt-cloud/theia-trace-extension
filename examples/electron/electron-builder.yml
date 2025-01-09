@@ -1,4 +1,4 @@
-electronVersion: 28.3.3
+electronVersion: 30.3.1
 electronDist: ../../node_modules/electron/dist
 productName: Theia Trace Example Application
 appId: theia-trace-example
