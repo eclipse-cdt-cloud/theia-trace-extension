@@ -20,14 +20,14 @@
         "style"
     ],
     "dependencies": {
-        "@theia/core": "1.52.0",
-        "@theia/editor": "1.52.0",
-        "@theia/filesystem": "1.52.0",
-        "@theia/messages": "1.52.0",
+        "@theia/core": "1.55.0",
+        "@theia/editor": "1.55.0",
+        "@theia/filesystem": "1.55.0",
+        "@theia/messages": "1.55.0",
         "animate.css": "^4.1.1",
         "traceviewer-base": "0.5.0",
         "traceviewer-react-components": "0.5.0",
-        "tree-kill": "latest"
+        "tree-kill": "^1.0.0"
     },
     "devDependencies": {
         "@typescript-eslint/eslint-plugin": "^3.4.0",
