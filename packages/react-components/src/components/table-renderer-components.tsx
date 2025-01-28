@@ -50,24 +50,38 @@ export class CellRenderer extends React.Component<CellRendererProps> {
         const searchTerm = (currField && this.props.filterModel.get(currField)) || '';
         if (this.props.filterModel.size > 0) {
             if (isMatched) {
+                const regex = new RegExp(searchTerm, 'g');
+                const matches = currFieldVal.match(regex);
                 cellElement = (
                     <>
-                        {currFieldVal
-                            .split(new RegExp(searchTerm))
-                            .map((tag: string, index: number, array: string[]) => (
-                                <span key={index.toString()}>
-                                    <>{tag}</>
+                        {currFieldVal.split(regex).map((tag: string, index: number, array: string[]) => (
+                            <span key={index.toString()}>
+                                {array.length > matches.length + 1 ? (
+                                    // regex contains groups, evens are non-matching strings, odds are captured groups or undefined
                                     <>
-                                        {index < array.length - 1 ? (
+                                        {index % 2 === 0 ? (
+                                            <>{tag}</>
+                                        ) : (
                                             <span style={{ backgroundColor: this.props.searchResultsColor }}>
-                                                {currFieldVal.match(new RegExp(searchTerm))[0]}
+                                                {matches[(index / 2) | 0]}
+                                            </span>
+                                        )}
+                                    </>
+                                ) : (
+                                    // regex does not contain groups, all elements are non-matching strings
+                                    <>
+                                        {tag}
+                                        {index < matches.length ? (
+                                            <span style={{ backgroundColor: this.props.searchResultsColor }}>
+                                                {matches[index]}
                                             </span>
                                         ) : (
                                             <></>
                                         )}
                                     </>
-                                </span>
-                            ))}
+                                )}
+                            </span>
+                        ))}
                     </>
                 );
             } else {
