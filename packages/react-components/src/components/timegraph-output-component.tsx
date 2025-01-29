@@ -214,11 +214,17 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
             this.onElementSelected(this.selectedElement);
         });
         this.chartLayer.registerMouseInteractions({
-            mouseover: el => {
-                this.props.tooltipComponent?.setElement(el, () => this.fetchTooltip(el));
+            mouseover: async el => {
+                const tooltipObject = await this.fetchTooltip(el);
+                if (!tooltipObject) {
+                    this.closeTooltip();
+                } else {
+                    const tooltipContent = this.generateTooltipTable(tooltipObject);
+                    this.setTooltipContent(tooltipContent);
+                }
             },
             mouseout: () => {
-                this.props.tooltipComponent?.setElement(undefined);
+                this.closeTooltip();
             },
             click: (el, ev, clickCount) => {
                 if (clickCount === 2) {
@@ -814,6 +820,19 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
             }
         });
         return fullTooltip;
+    }
+
+    private generateTooltipTable(tooltip: { [key: string]: string }) {
+        return (
+            <table>
+                {Object.keys(tooltip).map(key => (
+                    <tr key={key}>
+                        <td style={{ textAlign: 'left' }}> {key} </td>
+                        <td style={{ textAlign: 'left' }}> {tooltip[key]} </td>
+                    </tr>
+                ))}
+            </table>
+        );
     }
 
     private renderTimeGraphContent() {

@@ -27,7 +27,6 @@ describe('<TableOutputComponent />', () => {
 
     test('Renders AG-Grid table with provided props & state', async () => {
         const tableOutputComponentProps: AbstractOutputProps = {
-            tooltipComponent: null,
             style: {
                 width: 0,
                 height: 0,
@@ -61,7 +60,6 @@ describe('<TableOutputComponent />', () => {
             onOutputRemove: () => 0,
             unitController: new TimeGraphUnitController(BigInt(0), { start: BigInt(0), end: BigInt(0) }),
             backgroundTheme: 'light',
-            tooltipXYComponent: null,
             outputWidth: 0
         };
 
@@ -95,7 +93,6 @@ describe('<TableOutputComponent />', () => {
         // Renders with provided props
         expect(table.state.tableColumns).toEqual(tableOutputComponentState);
         expect(table.props.backgroundTheme).toEqual('light');
-        expect(table.props.tooltipComponent).toEqual(null);
         expect(table.props.style).toEqual({
             width: 0,
             height: 0,

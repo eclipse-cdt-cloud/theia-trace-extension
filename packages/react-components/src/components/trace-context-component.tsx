@@ -21,9 +21,6 @@ import { NullOutputComponent } from './null-output-component';
 import { AbstractOutputProps } from './abstract-output-component';
 import * as Messages from 'traceviewer-base/lib/message-manager';
 import { signalManager } from 'traceviewer-base/lib/signals/signal-manager';
-import ReactTooltip from 'react-tooltip';
-import { TooltipComponent } from './tooltip-component';
-import { TooltipXYComponent } from './tooltip-xy-component';
 import { BIMath } from 'timeline-chart/lib/bigint-utils';
 import { DataTreeOutputComponent } from './datatree-output-component';
 import { cloneDeep } from 'lodash';
@@ -95,8 +92,6 @@ export class TraceContextComponent extends React.Component<TraceContextProps, Tr
 
     private unitController: TimeGraphUnitController;
     private historyHandler: UnitControllerHistoryHandler;
-    private tooltipComponent: React.RefObject<TooltipComponent>;
-    private tooltipXYComponent: React.RefObject<TooltipXYComponent>;
     private traceContextContainer: React.RefObject<HTMLDivElement>;
     private _storedTimescaleLayout: Layout[] = [];
     private _storedNonTimescaleLayout: Layout[] = [];
@@ -214,8 +209,6 @@ export class TraceContextComponent extends React.Component<TraceContextProps, Tr
         this.unitController.onViewRangeChanged((oldRange, newRange) => {
             this.handleViewRangeChange(oldRange, newRange);
         });
-        this.tooltipComponent = React.createRef();
-        this.tooltipXYComponent = React.createRef();
         this.traceContextContainer = React.createRef();
         this.onResize = this.onResize.bind(this);
         this.setChartOffset = this.setChartOffset.bind(this);
@@ -333,7 +326,6 @@ export class TraceContextComponent extends React.Component<TraceContextProps, Tr
 
     async componentDidUpdate(prevProps: TraceContextProps, prevState: TraceContextState): Promise<void> {
         // Rebuild enables tooltip on newly added output component
-        ReactTooltip.rebuild();
         if (prevProps.outputs.length < this.props.outputs.length) {
             // added a new output - scroll to bottom
             this.scrollToBottom();
@@ -513,8 +505,6 @@ export class TraceContextComponent extends React.Component<TraceContextProps, Tr
                 onKeyUp={event => this.onKeyUp(event)}
                 ref={this.traceContextContainer}
             >
-                <TooltipComponent ref={this.tooltipComponent} />
-                <TooltipXYComponent ref={this.tooltipXYComponent} />
                 {shouldRenderOutputs ? this.renderOutputs() : this.renderPlaceHolder()}
             </div>
         );
@@ -707,8 +697,6 @@ export class TraceContextComponent extends React.Component<TraceContextProps, Tr
 
                     const outputProps: AbstractOutputProps = {
                         tspClient: this.props.tspClient,
-                        tooltipComponent: this.tooltipComponent.current,
-                        tooltipXYComponent: this.tooltipXYComponent.current,
                         traceId: this.state.experiment.UUID,
                         traceName: this.props.experiment.name,
                         outputDescriptor: output,
