@@ -78,8 +78,6 @@ exports[`<TableOutputComponent /> Renders AG-Grid table with provided props & st
 <div>
   <div
     class="output-container undefined"
-    data-for="tooltip-component"
-    data-tip=""
     id="00"
     style="width: 0px; height: 0px;"
     tabindex="-1"

@@ -5,7 +5,6 @@ import { ResponseStatus } from 'tsp-typescript-client/lib/models/response/respon
 import { QueryHelper } from 'tsp-typescript-client/lib/models/query/query-helper';
 import { Entry } from 'tsp-typescript-client/lib/models/entry';
 import ColumnHeader from './utils/filter-tree/column-header';
-import { TreeNode } from './utils/filter-tree/tree-node';
 import { scaleLinear } from 'd3-scale';
 import { axisLeft } from 'd3-axis';
 import { select } from 'd3-selection';
@@ -23,7 +22,6 @@ import {
 } from './utils/xy-output-component-utils';
 import { ChartOptions } from 'chart.js';
 import { Line, Scatter } from 'react-chartjs-2';
-import { getAllExpandedNodeIds } from './utils/filter-tree/utils';
 import { debounce } from 'lodash';
 import { isEqual } from 'lodash';
 
@@ -63,6 +61,19 @@ export type AbstractXYOutputState = AbstractTreeOutputState & {
     allMin: number;
     cursor?: string;
 };
+
+interface Point {
+    label: any;
+    color: any;
+    background: any;
+    value: string;
+}
+
+interface TooltipData {
+    title?: string;
+    dataPoints?: Point[];
+    zeros: number;
+}
 
 class xyPair {
     x: number;
@@ -658,7 +669,7 @@ export abstract class AbstractXYOutputComponent<
         }
     }
 
-    protected tooltip(x: number, y: number): void {
+    protected tooltip(): void {
         const xPos = this.positionXMove;
         const timeForX = this.getTimeForX(xPos);
         let timeLabel: string | undefined = timeForX.toString() + ' ns';
@@ -671,7 +682,7 @@ export abstract class AbstractXYOutputComponent<
             : this.chartRef.current.chartInstance.height;
         const arraySize = this.state.xyData.labels.length;
         const index = Math.max(Math.round((xPos / chartWidth) * (arraySize - 1)), 0);
-        const points: any = [];
+        const points: Point[] = [];
         let zeros = 0;
 
         this.state.xyData.datasets.forEach((d: any) => {
@@ -724,7 +735,7 @@ export abstract class AbstractXYOutputComponent<
             // If there are more than 10 lines in the chart, summarise the ones that are equal to 0.
             if (!invalidPoint) {
                 if (this.state.xyData.datasets.length <= 10 || rounded > 0) {
-                    const point: any = {
+                    const point = {
                         label: d.label,
                         color: d.borderColor,
                         background: d.backgroundColor,
@@ -739,46 +750,48 @@ export abstract class AbstractXYOutputComponent<
         // Sort in decreasing order
         points.sort((a: any, b: any) => Number(b.value) - Number(a.value));
 
-        // Adjust tooltip position if mouse is too close to the bottom of the window
-        let topPos = undefined;
-        let bottomPos = undefined;
-        if (y > window.innerHeight - 350) {
-            bottomPos = window.innerHeight - y;
-        } else {
-            topPos = window.pageYOffset + y - 40;
-        }
-
-        // Adjust tooltip position if mouse is too close to the left edge of the chart
-        let leftPos = undefined;
-        let rightPos = undefined;
-        const xLocation = chartWidth - xPos;
-        if (xLocation > chartWidth * 0.8) {
-            leftPos = x - this.props.style.componentLeft;
-        } else {
-            rightPos = xLocation;
-        }
-
-        const tooltipData = {
+        const tooltipData: TooltipData = {
             title: timeLabel,
             dataPoints: points,
-            top: topPos,
-            bottom: bottomPos,
-            right: rightPos,
-            left: leftPos,
-            opacity: 1,
             zeros
         };
 
         if (points.length > 0) {
-            this.props.tooltipXYComponent?.setElement(tooltipData);
+            this.setTooltipContent(this.generateXYComponentTooltip(tooltipData));
         } else {
-            this.hideTooltip();
+            this.closeTooltip();
         }
     }
 
-    protected hideTooltip(): void {
-        this.props.tooltipXYComponent?.setElement({
-            opacity: 0
-        });
-    }
+    private generateXYComponentTooltip = (tooltipData: TooltipData) => (
+        <>
+            <p style={{ margin: '0 0 5px 0' }}>{tooltipData?.title}</p>
+            <ul style={{ padding: '0' }}>
+                {tooltipData.dataPoints?.map(
+                    (point: { color: string; background: string; label: string; value: string }, i: number) => (
+                        <li key={i} style={{ listStyle: 'none', display: 'flex', marginBottom: 5 }}>
+                            <div
+                                style={{
+                                    height: '10px',
+                                    width: '10px',
+                                    margin: 'auto 0',
+                                    border: 'solid thin',
+                                    borderColor: point.color,
+                                    backgroundColor: point.background
+                                }}
+                            ></div>
+                            <span style={{ marginLeft: '5px' }}>
+                                {point.label} {point.value}
+                            </span>
+                        </li>
+                    )
+                )}
+            </ul>
+            {tooltipData.zeros > 0 && (
+                <p style={{ marginBottom: 0 }}>
+                    {tooltipData.zeros} other{tooltipData.zeros > 1 ? 's' : ''}: 0
+                </p>
+            )}
+        </>
+    );
 }
