@@ -64,6 +64,25 @@ export type AbstractXYOutputState = AbstractTreeOutputState & {
     cursor?: string;
 };
 
+interface Point {
+    label: any;
+    color: any;
+    background: any;
+    value: string;
+}
+
+interface TooltipData {
+    title?: string;
+    dataPoints?: Point[];
+    top?: number;
+    bottom?: number;
+    right?: number;
+    left?: number;
+    opacity?: number;
+    transition?: string;
+    zeros: number;
+}
+
 class xyPair {
     x: number;
     y: number;
@@ -664,7 +683,7 @@ export abstract class AbstractXYOutputComponent<
             : this.chartRef.current.chartInstance.height;
         const arraySize = this.state.xyData.labels.length;
         const index = Math.max(Math.round((xPos / chartWidth) * (arraySize - 1)), 0);
-        const points: any = [];
+        const points: Point[] = [];
         let zeros = 0;
 
         this.state.xyData.datasets.forEach((d: any) => {
@@ -717,7 +736,7 @@ export abstract class AbstractXYOutputComponent<
             // If there are more than 10 lines in the chart, summarise the ones that are equal to 0.
             if (!invalidPoint) {
                 if (this.state.xyData.datasets.length <= 10 || rounded > 0) {
-                    const point: any = {
+                    const point = {
                         label: d.label,
                         color: d.borderColor,
                         background: d.backgroundColor,
@@ -751,7 +770,7 @@ export abstract class AbstractXYOutputComponent<
             rightPos = xLocation;
         }
 
-        const tooltipData = {
+        const tooltipData: TooltipData = {
             title: timeLabel,
             dataPoints: points,
             top: topPos,
@@ -763,15 +782,41 @@ export abstract class AbstractXYOutputComponent<
         };
 
         if (points.length > 0) {
-            this.props.tooltipXYComponent?.setElement(tooltipData);
+            this.setTooltipContent(this.generateXYComponentTooltip(tooltipData));
         } else {
-            this.hideTooltip();
+            this.closeTooltip();
         }
     }
 
-    protected hideTooltip(): void {
-        this.props.tooltipXYComponent?.setElement({
-            opacity: 0
-        });
-    }
+    private generateXYComponentTooltip = (tooltipData: TooltipData) => (
+        <>
+            <p style={{ margin: '0 0 5px 0' }}>{tooltipData?.title}</p>
+            <ul style={{ padding: '0' }}>
+                {tooltipData.dataPoints?.map(
+                    (point: { color: string; background: string; label: string; value: string }, i: number) => (
+                        <li key={i} style={{ listStyle: 'none', display: 'flex', marginBottom: 5 }}>
+                            <div
+                                style={{
+                                    height: '10px',
+                                    width: '10px',
+                                    margin: 'auto 0',
+                                    border: 'solid thin',
+                                    borderColor: point.color,
+                                    backgroundColor: point.background
+                                }}
+                            ></div>
+                            <span style={{ marginLeft: '5px' }}>
+                                {point.label} {point.value}
+                            </span>
+                        </li>
+                    )
+                )}
+            </ul>
+            {tooltipData.zeros > 0 && (
+                <p style={{ marginBottom: 0 }}>
+                    {tooltipData.zeros} other{tooltipData.zeros > 1 ? 's' : ''}: 0
+                </p>
+            )}
+        </>
+    );
 }

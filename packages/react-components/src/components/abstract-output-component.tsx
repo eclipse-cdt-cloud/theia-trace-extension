@@ -8,15 +8,12 @@ import { TimeRange } from 'traceviewer-base/lib/utils/time-range';
 import { OutputComponentStyle } from './utils/output-component-style';
 import { OutputStyleModel } from 'tsp-typescript-client/lib/models/styles';
 import { TooltipComponent } from './tooltip-component';
-import { TooltipXYComponent } from './tooltip-xy-component';
 import { ResponseStatus } from 'tsp-typescript-client/lib/models/response/responses';
 import { signalManager } from 'traceviewer-base/lib/signals/signal-manager';
 import { DropDownComponent, DropDownSubSection, OptionState } from './drop-down-component';
 
 export interface AbstractOutputProps {
     tspClient: ITspClient;
-    tooltipComponent: TooltipComponent | null;
-    tooltipXYComponent: TooltipXYComponent | null;
     traceId: string;
     traceName?: string;
     range: TimeRange;
@@ -51,6 +48,8 @@ export interface AbstractOutputState {
     outputStatus: string;
     styleModel?: OutputStyleModel;
     dropDownOpen?: boolean;
+    tooltipContent?: React.ReactNode;
+    tooltipVisible?: boolean;
 }
 
 export abstract class AbstractOutputComponent<
@@ -99,8 +98,7 @@ export abstract class AbstractOutputComponent<
                 onMouseDown={this.props.onMouseDown}
                 onTouchStart={this.props.onTouchStart}
                 onTouchEnd={this.props.onTouchEnd}
-                data-tip=""
-                data-for="tooltip-component"
+                onMouseLeave={() => this.closeTooltip()}
             >
                 <div
                     id={this.getOutputComponentDomId() + 'handle'}
@@ -117,6 +115,7 @@ export abstract class AbstractOutputComponent<
                     {this.renderMainOutputContainer()}
                 </div>
                 {this.props.children}
+                <TooltipComponent content={this.state.tooltipContent} visible={this.state.tooltipVisible} />
             </div>
         );
     }
@@ -313,5 +312,13 @@ export abstract class AbstractOutputComponent<
 
     protected getTitleBarTooltip(): string {
         return this.props.outputDescriptor.name;
+    }
+
+    protected setTooltipContent(content: React.ReactNode): void {
+        this.setState({ tooltipContent: content, tooltipVisible: true });
+    }
+
+    protected closeTooltip(): void {
+        this.setState({ tooltipVisible: false });
     }
 }
