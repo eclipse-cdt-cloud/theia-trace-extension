@@ -1022,7 +1022,7 @@ Array [
       id="input-filter-icon"
     />
     <input
-      id="input-filter-tree"
+      id="input-filter-text"
       placeholder="Filter"
       style={
         Object {

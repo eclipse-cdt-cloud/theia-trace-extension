@@ -39,7 +39,7 @@ export class Filter extends React.Component<FilterProps, FilterState> {
         return (
             <div ref={this.ref} onChange={this.props.onChange} id="input-filter-container">
                 <i id="input-filter-icon" className="codicon codicon-filter"></i>
-                <input id="input-filter-tree" type="text" placeholder="Filter" style={{ width: this.state.width }} />
+                <input id="input-filter-text" type="text" placeholder="Filter" style={{ width: this.state.width }} />
             </div>
         );
     }

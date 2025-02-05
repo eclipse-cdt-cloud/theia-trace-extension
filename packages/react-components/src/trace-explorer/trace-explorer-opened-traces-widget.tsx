@@ -22,6 +22,7 @@ export interface ReactOpenTracesWidgetProps {
 export interface ReactOpenTracesWidgetState {
     openedExperiments: Array<Experiment>;
     selectedExperimentIndex: number;
+    filter: string;
 }
 
 export class ReactOpenTracesWidget extends React.Component<ReactOpenTracesWidgetProps, ReactOpenTracesWidgetState> {
@@ -57,7 +58,7 @@ export class ReactOpenTracesWidget extends React.Component<ReactOpenTracesWidget
         this.props.tspClientProvider.addTspClientChangeListener(() => {
             this._experimentManager = this.props.tspClientProvider.getExperimentManager();
         });
-        this.state = { openedExperiments: [], selectedExperimentIndex: -1 };
+        this.state = { openedExperiments: [], selectedExperimentIndex: -1, filter: '' };
     }
 
     componentDidMount(): void {
@@ -147,23 +148,49 @@ export class ReactOpenTracesWidget extends React.Component<ReactOpenTracesWidget
                 </ReactModal>
                 <div className="trace-explorer-opened">
                     <div className="trace-explorer-panel-content" onClick={this.updateOpenedExperiments}>
-                        <AutoSizer>
-                            {({ width }) => (
-                                <List
-                                    key={key}
-                                    height={totalHeight}
-                                    width={width}
-                                    rowCount={this.state.openedExperiments.length}
-                                    rowHeight={this.getRowHeight}
-                                    rowRenderer={this.renderExperimentRow}
-                                />
-                            )}
-                        </AutoSizer>
+                        <React.Fragment>
+                            {this.renderFilter()}
+                            <AutoSizer>
+                                {({ width }) => (
+                                    <List
+                                        key={key}
+                                        height={totalHeight}
+                                        width={width}
+                                        rowCount={this.state.openedExperiments.length}
+                                        rowHeight={this.getRowHeight}
+                                        rowRenderer={this.renderExperimentRow}
+                                    />
+                                )}
+                            </AutoSizer>
+                        </React.Fragment>
                     </div>
                 </div>
             </>
         );
     }
+
+    renderFilter(): JSX.Element {
+        const onChange = (e: React.ChangeEvent<HTMLInputElement>) => this.setState({ filter: e.target.value });
+        return (
+            <div ref={React.createRef()} onChange={onChange} id="input-filter-container">
+                <i id="input-filter-icon" className="codicon codicon-filter"></i>
+                <input id="input-filter-text" type="text" placeholder="Filter" style={{ width: '100%' }} />
+            </div>
+        );
+    }
+
+    isVisible = (experiment: Experiment): boolean => {
+        if (this.state.filter) {
+            if (experiment.name.includes(this.state.filter)) {
+                return true;
+            }
+            if (experiment.traces.find(trace => trace.name.includes(this.state.filter))) {
+                return true;
+            }
+            return false;
+        }
+        return true;
+    };
 
     protected renderExperimentRow = (props: ListRowProps): React.ReactNode => this.doRenderExperimentRow(props);
 
@@ -172,14 +199,17 @@ export class ReactOpenTracesWidget extends React.Component<ReactOpenTracesWidget
         with experiment name as root and traces (name and path) as children
      */
     protected doRenderExperimentRow(props: ListRowProps): React.ReactNode {
-        const traceName =
+        const experiment =
             this.state.openedExperiments.length && props.index < this.state.openedExperiments.length
-                ? this.state.openedExperiments[props.index].name
-                : '';
-        const traceUUID =
-            this.state.openedExperiments.length && props.index < this.state.openedExperiments.length
-                ? this.state.openedExperiments[props.index].UUID
-                : '';
+                ? this.state.openedExperiments[props.index]
+                : undefined;
+        if (!experiment) {
+            return undefined;
+        }
+        if (!this.isVisible(experiment)) {
+            return undefined;
+        }
+        const traceUUID = experiment.UUID;
         let traceContainerClassName = 'trace-list-container';
         if (props.index === this.state.selectedExperimentIndex && this.state.selectedExperimentIndex >= 0) {
             traceContainerClassName = traceContainerClassName + ' theia-mod-selected';
@@ -200,8 +230,8 @@ export class ReactOpenTracesWidget extends React.Component<ReactOpenTracesWidget
             >
                 <div className="trace-element-container">
                     <div className="trace-element-info">
-                        <h4 className="trace-element-name">{traceName}</h4>
-                        {this.renderTracesForExperiment(props.index)}
+                        <h4 className="trace-element-name">{experiment.name}</h4>
+                        {this.renderTracesForExperiment(experiment)}
                     </div>
                     <div className="remove-trace-button-container" title="Remove trace from Trace Viewer">
                         <button
@@ -232,11 +262,10 @@ export class ReactOpenTracesWidget extends React.Component<ReactOpenTracesWidget
         e.stopPropagation();
     }
 
-    protected renderTracesForExperiment(index: number): React.ReactNode {
-        const tracePaths = this.state.openedExperiments[index].traces;
+    protected renderTracesForExperiment(experiment: Experiment): React.ReactNode {
         return (
             <div className="trace-element-path-container">
-                {tracePaths.map(trace => (
+                {experiment.traces.map(trace => (
                     <div
                         className="trace-element-path child-element"
                         id={trace.UUID}
@@ -255,6 +284,9 @@ export class ReactOpenTracesWidget extends React.Component<ReactOpenTracesWidget
     protected doGetRowHeight(index: Index | number): number {
         const resolvedIndex = typeof index === 'object' ? index.index : index;
         const experiment = this.state.openedExperiments[resolvedIndex];
+        if (!this.isVisible(experiment)) {
+            return 0;
+        }
         let totalHeight = 0;
         if (experiment.name) {
             totalHeight += ReactOpenTracesWidget.LINE_HEIGHT;

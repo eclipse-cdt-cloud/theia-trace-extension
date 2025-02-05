@@ -332,7 +332,7 @@ canvas {
     left: 8px;
 }
 
-#input-filter-tree {
+#input-filter-text {
     background-color: var(--trace-viewer-input-background);
     border-style: solid;
     border-color: var(--trace-viewer-tree-inactiveIndentGuidesStroke);
