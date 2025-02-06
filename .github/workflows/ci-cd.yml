@@ -18,7 +18,7 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest]
-        node-version: [18]
+        node-version: [18, 20, 22]
 
     steps:
     - name: install dependencies on ubuntu
@@ -71,7 +71,7 @@ jobs:
 
     - uses: actions/setup-node@v4
       with:
-        node-version: '18'
+        node-version: '20'
 
     # ESLint and Prettier must be in `package.json`
     - name: Install npm dependencies
@@ -96,7 +96,7 @@ jobs:
     # Setup .npmrc file to publish to npm
     - uses: actions/setup-node@v4
       with:
-        node-version: '18'
+        node-version: '20'
         registry-url: 'https://registry.npmjs.org'
     - run: yarn --frozen-lockfile
     - run: yarn publish:next
@@ -116,7 +116,7 @@ jobs:
     # Setup .npmrc file to publish to npm
     - uses: actions/setup-node@v4
       with:
-        node-version: '18'
+        node-version: '20'
         registry-url: 'https://registry.npmjs.org'
     - run: yarn --frozen-lockfile
     - run: yarn publish:latest
