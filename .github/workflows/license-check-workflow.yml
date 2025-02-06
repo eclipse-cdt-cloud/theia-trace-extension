@@ -14,13 +14,13 @@ on:
 jobs:
 
   License-check:
-    name: 3PP License Check using dash-licenses
+    name: 3PP License Check using dash-licenses (${{ matrix.os }})
 
     strategy:
       fail-fast: false
       matrix:
         os: [ubuntu-latest]
-        node: [18]
+        node-version: [20]
         java: [11]
 
     runs-on: ${{ matrix.os }}
@@ -32,10 +32,10 @@ jobs:
         with:
           fetch-depth: 2
 
-      - name: Use Node.js ${{ matrix.node }}
+      - name: Use Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v4
         with:
-          node-version: ${{ matrix.node }}
+          node-version: ${{ matrix.node-version }}
 
       - name: Use Java ${{ matrix.java }}
         uses: actions/setup-java@v4
