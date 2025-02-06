@@ -49,7 +49,7 @@
     },
     "engines": {
         "yarn": ">=1.7.0 <2",
-        "node": ">=18 <21"
+        "node": ">=18 <23"
     },
     "repository": {
         "type": "git",

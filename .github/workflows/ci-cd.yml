@@ -12,13 +12,13 @@ on:
 jobs:
 
   build-and-test:
-    name: Build and test
+    name: Build and test (${{ matrix.os }}, node-${{ matrix.node-version }})
     runs-on: ${{ matrix.os }}
 
     strategy:
       matrix:
         os: [ubuntu-latest]
-        node-version: [18]
+        node-version: [18, 20, 22]
 
     steps:
     - name: install dependencies on ubuntu
@@ -42,7 +42,7 @@ jobs:
       id: yarn-cache # use this to check for `cache-hit` (`steps.yarn-cache.outputs.cache-hit != 'true'`)
       with:
         path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
-        key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
+        key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}-${{matrix.node-version}}
         restore-keys: |
           ${{ runner.os }}-yarn-
 
@@ -62,8 +62,12 @@ jobs:
         yarn test:browser-app
 
   code-lint:
-    name: Lint and check format
-    runs-on: ubuntu-latest
+    name: Lint and check format (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest]
+        node-version: [20]
 
     steps:
     - name: Check out Git repository
@@ -71,7 +75,7 @@ jobs:
 
     - uses: actions/setup-node@v4
       with:
-        node-version: '18'
+        node-version: ${{ matrix.node-version }}
 
     # ESLint and Prettier must be in `package.json`
     - name: Install npm dependencies
@@ -87,7 +91,12 @@ jobs:
     name: Publish 'next' packages to npm
     needs: build-and-test
     if: github.ref == 'refs/heads/master' && github.event_name == 'push' && github.repository == 'eclipse-cdt-cloud/theia-trace-extension' 
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest]
+        node-version: [20]
+
     steps:
     - name: install dependencies on ubuntu
       run: |
@@ -96,7 +105,7 @@ jobs:
     # Setup .npmrc file to publish to npm
     - uses: actions/setup-node@v4
       with:
-        node-version: '18'
+        node-version: ${{ matrix.node-version }}
         registry-url: 'https://registry.npmjs.org'
     - run: yarn --frozen-lockfile
     - run: yarn publish:next
@@ -107,7 +116,12 @@ jobs:
     name: Publish 'latest' packages to npm
     needs: build-and-test
     if: github.event_name == 'release' && startsWith(github.ref, 'refs/tags/v') && github.repository == 'eclipse-cdt-cloud/theia-trace-extension'
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest]
+        node-version: [20]
+
     steps:
     - name: install dependencies on ubuntu
       run: |
@@ -116,7 +130,7 @@ jobs:
     # Setup .npmrc file to publish to npm
     - uses: actions/setup-node@v4
       with:
-        node-version: '18'
+        node-version: ${{ matrix.node-version }}
         registry-url: 'https://registry.npmjs.org'
     - run: yarn --frozen-lockfile
     - run: yarn publish:latest
