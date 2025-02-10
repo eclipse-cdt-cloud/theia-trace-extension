@@ -69,6 +69,7 @@ type TimegraphOutputState = AbstractTreeOutputState & {
     filters: string[];
     menuItems?: ContextMenuItems;
     emptyNodes: number[];
+    marginTop: number;
 };
 
 const COARSE_RESOLUTION_FACTOR = 8; // resolution factor to use for first (coarse) update
@@ -126,7 +127,8 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
             showTree: true,
             searchString: '',
             filters: [],
-            emptyNodes: []
+            emptyNodes: [],
+            marginTop: 0
         };
         this.selectedMarkerCategories = this.props.markerCategories;
         this.onToggleCollapse = this.onToggleCollapse.bind(this);
@@ -296,13 +298,11 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
         if (tspClientResponse.isOk() && treeResponse) {
             if (treeResponse.model) {
                 const headers = treeResponse.model.headers;
-                const columns = [];
+                const columns: ColumnHeader[] = [];
                 if (headers && headers.length > 0) {
                     headers.forEach(header => {
-                        columns.push({ title: header.name, sortable: true, resizable: true, tooltip: header.tooltip });
+                        columns.push({ title: header.name, sortable: false, resizable: true, tooltip: header.tooltip });
                     });
-                } else {
-                    columns.push({ title: 'Name', sortable: true });
                 }
                 this.setState(
                     {
@@ -365,6 +365,19 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
                 this.getEntryModelsForRowIds(this.state.multiSelectedRows)
             );
             signalManager().emit('ROW_SELECTIONS_CHANGED', signalPayload);
+        }
+        if (!isEqual(this.state.columns, prevState.columns)) {
+            if (this.state.columns) {
+                const header = this.treeRef.current?.querySelector('th');
+                if (header) {
+                    new ResizeObserver(target => {
+                        const marginTop = target[0].target.getBoundingClientRect().height;
+                        this.setState({ marginTop });
+                    }).observe(header);
+                }
+            } else {
+                this.setState({ marginTop: 0 });
+            }
         }
     }
 
@@ -532,7 +545,7 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
                         onMultipleRowClick={this.onMultipleRowClick}
                         selectedRow={this.state.selectedRow}
                         multiSelectedRows={this.state.multiSelectedRows}
-                        showHeader={false}
+                        showHeader={true}
                         onContextMenu={this.onCtxMenu}
                         className="table-tree timegraph-tree"
                         emptyNodes={this.state.emptyNodes}
@@ -704,7 +717,7 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
                         ev.preventDefault();
                         ev.stopPropagation();
                     }}
-                    style={{ height: this.props.style.height }}
+                    style={{ height: 'auto' }}
                 >
                     {this.renderTimeGraphContent()}
                 </div>
@@ -818,7 +831,11 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
 
     private renderTimeGraphContent() {
         return (
-            <div id="main-timegraph-content" ref={this.horizontalContainer} style={{ height: this.props.style.height }}>
+            <div
+                id="main-timegraph-content"
+                ref={this.horizontalContainer}
+                style={{ height: 'auto', marginTop: this.state.marginTop }}
+            >
                 {this.getChartContainer()}
                 {this.getMarkersContainer()}
                 {this.getSearchBar()}
@@ -956,6 +973,7 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
                     id: this.props.traceId + this.props.outputDescriptor.id + 'focusContainer',
                     height:
                         parseInt(this.props.style.height.toString()) -
+                        this.state.marginTop -
                         this.getMarkersLayerHeight() -
                         (document.getElementById(this.props.traceId + this.props.outputDescriptor.id + 'searchBar')
                             ?.offsetHeight ?? 0),
