@@ -37,22 +37,13 @@ export class ReactOpenTracesWidget extends React.Component<ReactOpenTracesWidget
     private _selectedExperiment: Experiment | undefined;
     private _experimentManager: ExperimentManager;
 
-    private _onExperimentOpened = (experiment: Experiment): Promise<void> =>
-        this.doHandleExperimentOpenedSignal(experiment);
-    private _onExperimentClosed = (experiment: Experiment): void => this.doHandleExperimentClosed(experiment);
-    private _onExperimentDeleted = (experiment: Experiment): Promise<void> =>
-        this.doHandleExperimentDeletedSignal(experiment);
-    private _onOpenedTracesWidgetActivated = (experiment: Experiment): void =>
-        this.doHandleTracesWidgetActivatedSignal(experiment);
-    private _onTraceServerStarted = (): Promise<void> => this.doHandleTraceServerStartedSignal();
-
     constructor(props: ReactOpenTracesWidgetProps) {
         super(props);
-        signalManager().on('EXPERIMENT_OPENED', this._onExperimentOpened);
-        signalManager().on('EXPERIMENT_CLOSED', this._onExperimentClosed);
-        signalManager().on('EXPERIMENT_DELETED', this._onExperimentDeleted);
-        signalManager().on('TRACEVIEWERTAB_ACTIVATED', this._onOpenedTracesWidgetActivated);
-        signalManager().on('TRACE_SERVER_STARTED', this._onTraceServerStarted);
+        signalManager().on('EXPERIMENT_OPENED', this.handleExperimentOpenedSignal);
+        signalManager().on('EXPERIMENT_CLOSED', this.handleExperimentClosedSignal);
+        signalManager().on('EXPERIMENT_DELETED', this.handleExperimentDeletedSignal);
+        signalManager().on('TRACEVIEWERTAB_ACTIVATED', this.handleTracesWidgetActivatedSignal);
+        signalManager().on('TRACE_SERVER_STARTED', this.handleTraceServerStartedSignal);
 
         this._experimentManager = this.props.tspClientProvider.getExperimentManager();
         this.props.tspClientProvider.addTspClientChangeListener(() => {
@@ -66,11 +57,11 @@ export class ReactOpenTracesWidget extends React.Component<ReactOpenTracesWidget
     }
 
     componentWillUnmount(): void {
-        signalManager().off('EXPERIMENT_OPENED', this._onExperimentOpened);
-        signalManager().off('EXPERIMENT_CLOSED', this._onExperimentClosed);
-        signalManager().off('EXPERIMENT_DELETED', this._onExperimentDeleted);
-        signalManager().off('TRACEVIEWERTAB_ACTIVATED', this._onOpenedTracesWidgetActivated);
-        signalManager().off('TRACE_SERVER_STARTED', this._onTraceServerStarted);
+        signalManager().off('EXPERIMENT_OPENED', this.handleExperimentOpenedSignal);
+        signalManager().off('EXPERIMENT_CLOSED', this.handleExperimentClosedSignal);
+        signalManager().off('EXPERIMENT_DELETED', this.handleExperimentDeletedSignal);
+        signalManager().off('TRACEVIEWERTAB_ACTIVATED', this.handleTracesWidgetActivatedSignal);
+        signalManager().off('TRACE_SERVER_STARTED', this.handleTraceServerStartedSignal);
     }
 
     async initialize(): Promise<void> {
@@ -78,26 +69,26 @@ export class ReactOpenTracesWidget extends React.Component<ReactOpenTracesWidget
         this.updateSelectedExperiment();
     }
 
-    public async doHandleTraceServerStartedSignal(): Promise<void> {
+    public handleTraceServerStartedSignal = async (): Promise<void> => {
         await this.initialize();
-    }
+    };
 
-    public async doHandleExperimentOpenedSignal(_experiment: Experiment): Promise<void> {
+    public handleExperimentOpenedSignal = async (_experiment: Experiment): Promise<void> => {
         await this.initialize();
-    }
+    };
 
-    protected doHandleExperimentClosed(experiment: Experiment): void {
+    protected handleExperimentClosedSignal = (experiment: Experiment): void => {
         if (this._selectedExperiment?.UUID === experiment.UUID) {
             this._selectedExperiment = undefined;
             this.setState({ selectedExperimentIndex: -1 });
         }
-    }
+    };
 
-    public async doHandleExperimentDeletedSignal(_experiment: Experiment): Promise<void> {
+    public handleExperimentDeletedSignal = async (_experiment: Experiment): Promise<void> => {
         await this.initialize();
-    }
+    };
 
-    protected doHandleTracesWidgetActivatedSignal(experiment: Experiment): void {
+    protected handleTracesWidgetActivatedSignal = (experiment: Experiment): void => {
         if (this._selectedExperiment?.UUID !== experiment.UUID) {
             this._selectedExperiment = experiment;
             const selectedIndex = this.state.openedExperiments.findIndex(
@@ -105,27 +96,27 @@ export class ReactOpenTracesWidget extends React.Component<ReactOpenTracesWidget
             );
             this.selectExperiment(selectedIndex);
         }
-    }
+    };
 
-    protected doHandleContextMenuEvent(event: React.MouseEvent<HTMLDivElement>, traceUUID: string): void {
-        this.doHandleOnExperimentSelected(event);
+    protected handleContextMenuEvent = (event: React.MouseEvent<HTMLDivElement>, traceUUID: string): void => {
+        this.handleOnExperimentSelected(event);
         const experiment = this.getExperiment(traceUUID);
         if (experiment !== undefined && this.props.contextMenuRenderer) {
             this.props.contextMenuRenderer(event, experiment);
         }
         event.preventDefault();
         event.stopPropagation();
-    }
+    };
 
-    protected dohandleClickEvent(event: React.MouseEvent<HTMLDivElement>, traceUUID: string): void {
-        this.doHandleOnExperimentSelected(event);
+    protected handleClickEvent = (event: React.MouseEvent<HTMLDivElement>, traceUUID: string): void => {
+        this.handleOnExperimentSelected(event);
         const experiment = this.getExperiment(traceUUID);
         if (experiment !== undefined && this.props.onClick) {
             this.props.onClick(event, experiment);
         }
         event.preventDefault();
         event.stopPropagation();
-    }
+    };
 
     private getExperiment(traceUUID: string): Experiment | undefined {
         return this.state.openedExperiments.find(experiment => experiment.UUID === traceUUID);
@@ -192,13 +183,11 @@ export class ReactOpenTracesWidget extends React.Component<ReactOpenTracesWidget
         return true;
     };
 
-    protected renderExperimentRow = (props: ListRowProps): React.ReactNode => this.doRenderExperimentRow(props);
-
     /*
         TODO: Implement better visualization of experiment, e.g. a tree
         with experiment name as root and traces (name and path) as children
      */
-    protected doRenderExperimentRow(props: ListRowProps): React.ReactNode {
+    protected renderExperimentRow = (props: ListRowProps): React.ReactNode => {
         const experiment =
             this.state.openedExperiments.length && props.index < this.state.openedExperiments.length
                 ? this.state.openedExperiments[props.index]
@@ -253,14 +242,14 @@ export class ReactOpenTracesWidget extends React.Component<ReactOpenTracesWidget
                 </div>
             </div>
         );
-    }
+    };
 
-    protected doHandleOnExperimentDeleted(e: React.MouseEvent<HTMLButtonElement>, traceUUID: string): void {
+    protected handleOnExperimentDeleted = (e: React.MouseEvent<HTMLButtonElement>, traceUUID: string): void => {
         this._experimentManager.deleteExperiment(traceUUID);
         signalManager().emit('CLOSE_TRACEVIEWERTAB', traceUUID);
         e.preventDefault();
         e.stopPropagation();
-    }
+    };
 
     protected renderTracesForExperiment(experiment: Experiment): React.ReactNode {
         return (
@@ -351,9 +340,7 @@ export class ReactOpenTracesWidget extends React.Component<ReactOpenTracesWidget
         );
     }
 
-    protected handleShareButtonClick = (index: number): void => this.doHandleShareButtonClick(index);
-
-    protected doHandleShareButtonClick(index: number): void {
+    protected handleShareButtonClick = (index: number): void => {
         const traceToShare = this.state.openedExperiments[index];
         this._sharingLink = 'https://localhost:3000/share/trace?' + traceToShare.UUID;
         this._showShareDialog = true;
@@ -361,21 +348,12 @@ export class ReactOpenTracesWidget extends React.Component<ReactOpenTracesWidget
             'OPENED_TRACES_UPDATED',
             new OpenedTracesUpdatedSignalPayload(this.state.openedExperiments ? this.state.openedExperiments.length : 0)
         );
-    }
+    };
 
-    protected handleOnExperimentSelected = (e: React.MouseEvent<HTMLDivElement>): void =>
-        this.doHandleOnExperimentSelected(e);
-    protected handleContextMenuEvent = (e: React.MouseEvent<HTMLDivElement>, traceUUID: string): void =>
-        this.doHandleContextMenuEvent(e, traceUUID);
-    protected handleClickEvent = (e: React.MouseEvent<HTMLDivElement>, traceUUID: string): void =>
-        this.dohandleClickEvent(e, traceUUID);
-    protected handleOnExperimentDeleted = (e: React.MouseEvent<HTMLButtonElement>, traceUUID: string): void =>
-        this.doHandleOnExperimentDeleted(e, traceUUID);
-
-    protected doHandleOnExperimentSelected(e: React.MouseEvent<HTMLDivElement>): void {
+    protected handleOnExperimentSelected = (e: React.MouseEvent<HTMLDivElement>): void => {
         const index = Number(e.currentTarget.getAttribute('data-id'));
         this.selectExperiment(index);
-    }
+    };
 
     private selectExperiment(index: number): void {
         if (index >= 0 && index !== this.state.selectedExperimentIndex) {
@@ -406,14 +384,12 @@ export class ReactOpenTracesWidget extends React.Component<ReactOpenTracesWidget
         }
     }
 
-    protected handleShareModalClose = (): void => this.doHandleShareModalClose();
-
-    protected doHandleShareModalClose(): void {
+    protected handleShareModalClose = (): void => {
         this._showShareDialog = false;
         this._sharingLink = '';
         signalManager().emit(
             'OPENED_TRACES_UPDATED',
             new OpenedTracesUpdatedSignalPayload(this.state.openedExperiments ? this.state.openedExperiments.length : 0)
         );
-    }
+    };
 }
