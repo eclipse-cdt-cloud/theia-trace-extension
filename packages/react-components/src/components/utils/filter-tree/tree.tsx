@@ -96,7 +96,7 @@ export class FilterTree extends React.Component<FilterTreeProps, FilterTreeState
     };
 
     handleOrderChange = (nodes: TreeNode[]): void => {
-        const ids = getAllExpandedNodeIds(nodes, this.props.collapsedNodes, this.props.emptyNodes);
+        const ids = getAllExpandedNodeIds(nodes, []);
         this.props.onOrderChange(ids);
     };
 

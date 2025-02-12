@@ -101,6 +101,7 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
     private onOutputDataChanged = (outputs: OutputDescriptor[]) => this.doHandleOutputDataChangedSignal(outputs);
     private onContextMenuContributed = (payload: ContextMenuContributedSignalPayload) =>
         this.doHandleContextMenuContributed(payload);
+    private onOrderChange = (ids: number[]) => this.doHandleOrderChange(ids);
     private pendingSelection: TimeGraphEntry | undefined;
 
     private _debouncedUpdateChart = debounce(() => {
@@ -301,8 +302,10 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
                 const columns: ColumnHeader[] = [];
                 if (headers && headers.length > 0) {
                     headers.forEach(header => {
-                        columns.push({ title: header.name, sortable: false, resizable: true, tooltip: header.tooltip });
+                        columns.push({ title: header.name, sortable: true, resizable: true, tooltip: header.tooltip });
                     });
+                } else {
+                    columns.push({ title: '', sortable: true, resizable: true });
                 }
                 this.setState(
                     {
@@ -464,6 +467,11 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
         }
     }
 
+    private doHandleOrderChange(ids: number[]) {
+        const ordered = this.state.timegraphTree.slice().sort((a, b) => ids.indexOf(a.id) - ids.indexOf(b.id));
+        this.setState({ timegraphTree: ordered });
+    }
+
     /**
      * For each line in the tree (this.state.timegraphTree), parse the metadata and try to find
      * matches with the key / values pairs of the selected event.
@@ -518,6 +526,7 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
     }
 
     renderTree(): React.ReactNode {
+        this.onOrderChange = this.onOrderChange.bind(this);
         // TODO Show header, when we can have entries in-line with timeline-chart
         return (
             <>
@@ -550,6 +559,7 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
                         className="table-tree timegraph-tree"
                         emptyNodes={this.state.emptyNodes}
                         hideEmptyNodes={this.shouldHideEmptyNodes}
+                        onOrderChange={this.onOrderChange}
                         headers={this.state.columns}
                         hideFillers={true}
                     />
