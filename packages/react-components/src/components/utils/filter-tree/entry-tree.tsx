@@ -23,6 +23,7 @@ interface EntryTreeProps {
     onClose: (id: number) => void;
     onToggleCollapse: (id: number, nodes: TreeNode[]) => void;
     onOrderChange: (ids: number[]) => void;
+    onOrderReset: () => void;
     showHeader: boolean;
     headers: ColumnHeader[];
     className: string;
@@ -33,6 +34,9 @@ export class EntryTree extends React.Component<EntryTreeProps> {
     static defaultProps: Partial<EntryTreeProps> = {
         showFilter: true,
         onOrderChange: () => {
+            /* Nothing to do */
+        },
+        onOrderReset: () => {
             /* Nothing to do */
         },
         showHeader: true,

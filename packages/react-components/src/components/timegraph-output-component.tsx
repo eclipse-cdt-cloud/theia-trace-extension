@@ -55,6 +55,7 @@ type TimegraphOutputProps = AbstractOutputProps & {
 
 type TimegraphOutputState = AbstractTreeOutputState & {
     timegraphTree: TimeGraphEntry[];
+    defaultOrderedIds: number[];
     markerCategoryEntries: Entry[];
     markerLayerData:
         | { rows: TimelineChart.TimeGraphRowModel[]; range: TimelineChart.TimeGraphRange; resolution: number }
@@ -102,6 +103,7 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
     private onContextMenuContributed = (payload: ContextMenuContributedSignalPayload) =>
         this.doHandleContextMenuContributed(payload);
     private onOrderChange = (ids: number[]) => this.doHandleOrderChange(ids);
+    private onOrderReset = () => this.doHandleOrderReset();
     private pendingSelection: TimeGraphEntry | undefined;
 
     private _debouncedUpdateChart = debounce(() => {
@@ -113,6 +115,7 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
         this.state = {
             outputStatus: ResponseStatus.RUNNING,
             timegraphTree: [],
+            defaultOrderedIds: [],
             markerCategoryEntries: [],
             markerLayerData: undefined,
             collapsedNodes: validateNumArray(this.props.persistChartState?.collapsedNodes)
@@ -311,6 +314,7 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
                     {
                         outputStatus: treeResponse.status,
                         timegraphTree: treeResponse.model.entries,
+                        defaultOrderedIds: treeResponse.model.entries.map(entry => entry.id),
                         columns
                     },
                     this.updateTotalHeight
@@ -472,6 +476,10 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
         this.setState({ timegraphTree: ordered });
     }
 
+    private doHandleOrderReset() {
+        this.doHandleOrderChange(this.state.defaultOrderedIds);
+    }
+
     /**
      * For each line in the tree (this.state.timegraphTree), parse the metadata and try to find
      * matches with the key / values pairs of the selected event.
@@ -527,6 +535,7 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
 
     renderTree(): React.ReactNode {
         this.onOrderChange = this.onOrderChange.bind(this);
+        this.onOrderReset = this.onOrderReset.bind(this);
         // TODO Show header, when we can have entries in-line with timeline-chart
         return (
             <>
@@ -560,6 +569,7 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
                         emptyNodes={this.state.emptyNodes}
                         hideEmptyNodes={this.shouldHideEmptyNodes}
                         onOrderChange={this.onOrderChange}
+                        onOrderReset={this.onOrderReset}
                         headers={this.state.columns}
                         hideFillers={true}
                     />

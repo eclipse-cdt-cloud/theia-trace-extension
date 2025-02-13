@@ -30,13 +30,13 @@ export class XYOutputComponent extends AbstractXYOutputComponent<AbstractOutputP
             outputStatus: ResponseStatus.RUNNING,
             selectedSeriesId: [],
             xyTree: [],
+            defaultOrderedIds: [],
             checkedSeries: validateNumArray(this.props.persistChartState?.checkedSeries)
                 ? (this.props.persistChartState.checkedSeries as number[])
                 : [],
             collapsedNodes: validateNumArray(this.props.persistChartState?.collapsedNodes)
                 ? (this.props.persistChartState.collapsedNodes as number[])
                 : [],
-            orderedNodes: [],
             xyData: {},
             columns: [{ title: 'Name', sortable: true }],
             allMax: 0,

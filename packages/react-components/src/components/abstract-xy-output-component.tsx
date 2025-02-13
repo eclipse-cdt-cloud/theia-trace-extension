@@ -53,9 +53,9 @@ export enum MouseButton {
 export type AbstractXYOutputState = AbstractTreeOutputState & {
     selectedSeriesId: number[];
     xyTree: Entry[];
+    defaultOrderedIds: number[];
     checkedSeries: number[];
     collapsedNodes: number[];
-    orderedNodes: number[];
     // FIXME Type this properly
     xyData: any;
     columns: ColumnHeader[];
@@ -161,7 +161,7 @@ export abstract class AbstractXYOutputComponent<
      */
     protected abstract getZoomTime(): bigint;
 
-    protected onToggleCollapse(id: number, nodes: TreeNode[]): void {
+    protected onToggleCollapse(id: number): void {
         let newList = [...this.state.collapsedNodes];
 
         const exist = this.state.collapsedNodes.find(expandId => expandId === id);
@@ -171,12 +171,16 @@ export abstract class AbstractXYOutputComponent<
         } else {
             newList = newList.concat(id);
         }
-        const orderedIds = getAllExpandedNodeIds(nodes, newList);
-        this.setState({ collapsedNodes: newList, orderedNodes: orderedIds });
+        this.setState({ collapsedNodes: newList });
     }
 
     protected onOrderChange(ids: number[]): void {
-        this.setState({ orderedNodes: ids });
+        const ordered = this.state.xyTree.slice().sort((a, b) => ids.indexOf(a.id) - ids.indexOf(b.id));
+        this.setState({ xyTree: ordered });
+    }
+
+    protected onOrderReset(): void {
+        this.onOrderChange(this.state.defaultOrderedIds);
     }
 
     protected onToggleCheck(ids: number[]): void {
@@ -292,6 +296,7 @@ export abstract class AbstractXYOutputComponent<
                     {
                         outputStatus: treeResponse.status,
                         xyTree: treeResponse.model.entries,
+                        defaultOrderedIds: treeResponse.model.entries.map(entry => entry.id),
                         checkedSeries,
                         columns
                     },
@@ -328,6 +333,7 @@ export abstract class AbstractXYOutputComponent<
         this.onToggleCheck = this.onToggleCheck.bind(this);
         this.onToggleCollapse = this.onToggleCollapse.bind(this);
         this.onOrderChange = this.onOrderChange.bind(this);
+        this.onOrderReset = this.onOrderReset.bind(this);
         return this.state.xyTree.length ? (
             <div className="scrollable" style={{ height: this.props.style.height }}>
                 <EntryTree
@@ -338,6 +344,7 @@ export abstract class AbstractXYOutputComponent<
                     onToggleCheck={this.onToggleCheck}
                     onToggleCollapse={this.onToggleCollapse}
                     onOrderChange={this.onOrderChange}
+                    onOrderReset={this.onOrderReset}
                     headers={this.state.columns}
                 />
             </div>

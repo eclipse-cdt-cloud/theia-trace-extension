@@ -21,8 +21,8 @@ type DataTreeOutputProps = AbstractOutputProps & {};
 type DataTreeOuputState = AbstractOutputState & {
     selectedSeriesId: number[];
     xyTree: Entry[];
+    defaultOrderedIds: number[];
     collapsedNodes: number[];
-    orderedNodes: number[];
     columns: ColumnHeader[];
 };
 
@@ -39,8 +39,8 @@ export class DataTreeOutputComponent extends AbstractOutputComponent<AbstractOut
             outputStatus: ResponseStatus.RUNNING,
             selectedSeriesId: [],
             xyTree: [],
+            defaultOrderedIds: [],
             collapsedNodes: [],
-            orderedNodes: [],
             columns: [{ title: 'Name', sortable: true }]
         };
         this.addPinViewOptions();
@@ -76,6 +76,7 @@ export class DataTreeOutputComponent extends AbstractOutputComponent<AbstractOut
                 this.setState({
                     outputStatus: treeResponse.status,
                     xyTree: treeResponse.model.entries,
+                    defaultOrderedIds: treeResponse.model.entries.map(entry => entry.id),
                     columns
                 });
             } else {
@@ -98,6 +99,7 @@ export class DataTreeOutputComponent extends AbstractOutputComponent<AbstractOut
     renderTree(): React.ReactNode | undefined {
         this.onToggleCollapse = this.onToggleCollapse.bind(this);
         this.onOrderChange = this.onOrderChange.bind(this);
+        this.onOrderReset = this.onOrderReset.bind(this);
         return this.state.xyTree.length ? (
             <div
                 tabIndex={0}
@@ -112,6 +114,7 @@ export class DataTreeOutputComponent extends AbstractOutputComponent<AbstractOut
                     onContextMenu={this.onContextMenu}
                     onToggleCollapse={this.onToggleCollapse}
                     onOrderChange={this.onOrderChange}
+                    onOrderReset={this.onOrderReset}
                     headers={this.state.columns}
                 />
             </div>
@@ -262,7 +265,7 @@ export class DataTreeOutputComponent extends AbstractOutputComponent<AbstractOut
         };
     }
 
-    private onToggleCollapse(id: number, nodes: TreeNode[]) {
+    private onToggleCollapse(id: number) {
         let newList = [...this.state.collapsedNodes];
 
         const exist = this.state.collapsedNodes.find(expandId => expandId === id);
@@ -272,12 +275,16 @@ export class DataTreeOutputComponent extends AbstractOutputComponent<AbstractOut
         } else {
             newList = newList.concat(id);
         }
-        const orderedIds = getAllExpandedNodeIds(nodes, newList);
-        this.setState({ collapsedNodes: newList, orderedNodes: orderedIds });
+        this.setState({ collapsedNodes: newList });
     }
 
-    private onOrderChange(ids: number[]) {
-        this.setState({ orderedNodes: ids });
+    protected onOrderChange(ids: number[]): void {
+        const ordered = this.state.xyTree.slice().sort((a, b) => ids.indexOf(a.id) - ids.indexOf(b.id));
+        this.setState({ xyTree: ordered });
+    }
+
+    protected onOrderReset(): void {
+        this.onOrderChange(this.state.defaultOrderedIds);
     }
 
     protected async waitAnalysisCompletion(): Promise<void> {
