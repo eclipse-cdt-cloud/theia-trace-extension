@@ -22,6 +22,7 @@ interface TableProps {
     onToggleCheck: (id: number) => void;
     onClose: (id: number) => void;
     onSort: (sortedNodes: TreeNode[]) => void;
+    onSortReset: () => void;
     onSortConfigChange: (sortConfig: SortConfig[]) => void;
     showHeader: boolean;
     headers: ColumnHeader[];
@@ -49,17 +50,24 @@ export class Table extends React.Component<TableProps> {
     }
 
     onSortChange = (sortColumn: string): void => {
-        let newSortConfigs: SortConfig[] = [...this.props.sortConfig];
-        newSortConfigs = newSortConfigs.map((config: SortConfig) => {
-            if (config.column === sortColumn) {
-                return { ...config, sortState: nextSortState(config.sortState) };
-            } else {
-                return { ...config, sortState: sortState.default };
-            }
-        });
-        const newSortedNodes = sortNodes(this.props.nodes, newSortConfigs);
-        this.props.onSortConfigChange(newSortConfigs);
-        this.props.onSort(newSortedNodes);
+        const firstColumnConfig = this.props.sortConfig[0];
+        if (sortColumn === firstColumnConfig.column && firstColumnConfig.sortState === sortState.desc) {
+            // reset to unsorted order
+            this.props.sortConfig.forEach(config => (config.sortState = sortState.default));
+            this.props.onSortConfigChange(this.props.sortConfig);
+            this.props.onSortReset();
+        } else {
+            const newSortConfigs = this.props.sortConfig.map((config: SortConfig) => {
+                if (config.column === sortColumn) {
+                    return { ...config, sortState: nextSortState(config.sortState) };
+                } else {
+                    return { ...config, sortState: sortState.default };
+                }
+            });
+            const newSortedNodes = sortNodes(this.props.nodes, newSortConfigs);
+            this.props.onSortConfigChange(newSortConfigs);
+            this.props.onSort(newSortedNodes);
+        }
     };
 
     render(): JSX.Element {

@@ -26,6 +26,7 @@ interface FilterTreeProps {
     onContextMenu: (event: React.MouseEvent<HTMLDivElement>, id: number) => void;
     onToggleCollapse: (id: number, nodes: TreeNode[]) => void;
     onOrderChange: (ids: number[]) => void;
+    onOrderReset: () => void;
     showHeader: boolean;
     headers: ColumnHeader[];
     className: string;
@@ -45,6 +46,9 @@ export class FilterTree extends React.Component<FilterTreeProps, FilterTreeState
             /* Nothing to do */
         },
         onOrderChange: () => {
+            /* Nothing to do */
+        },
+        onOrderReset: () => {
             /* Nothing to do */
         }
     };
@@ -98,6 +102,10 @@ export class FilterTree extends React.Component<FilterTreeProps, FilterTreeState
     handleOrderChange = (nodes: TreeNode[]): void => {
         const ids = getAllExpandedNodeIds(nodes, []);
         this.props.onOrderChange(ids);
+    };
+
+    handleOrderReset = (): void => {
+        this.props.onOrderReset();
     };
 
     handleSortConfigChange = (sortConfig: SortConfig[]): void => {
@@ -289,6 +297,7 @@ export class FilterTree extends React.Component<FilterTreeProps, FilterTreeState
             onContextMenu={this.props.onContextMenu}
             onClose={this.handleClose}
             onSort={this.handleOrderChange}
+            onSortReset={this.handleOrderReset}
             onSortConfigChange={this.handleSortConfigChange}
             showHeader={this.props.showHeader}
             headers={this.props.headers}
