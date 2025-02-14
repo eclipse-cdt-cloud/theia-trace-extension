@@ -1,15 +1,15 @@
+import { faCopy, faTimes } from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import * as React from 'react';
 import { flushSync } from 'react-dom';
-import { List, ListRowProps, Index, AutoSizer } from 'react-virtualized';
-import { Experiment } from 'tsp-typescript-client/lib/models/experiment';
-import { ExperimentManager } from 'traceviewer-base/lib/experiment-manager';
-import { signalManager } from 'traceviewer-base/lib/signals/signal-manager';
 import ReactModal from 'react-modal';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faCopy } from '@fortawesome/free-solid-svg-icons';
+import { AutoSizer, Index, List, ListRowProps } from 'react-virtualized';
+import { ExperimentManager } from 'traceviewer-base/lib/experiment-manager';
 import { OpenedTracesUpdatedSignalPayload } from 'traceviewer-base/lib/signals/opened-traces-updated-signal-payload';
+import { signalManager } from 'traceviewer-base/lib/signals/signal-manager';
 import { ITspClientProvider } from 'traceviewer-base/lib/tsp-client-provider';
-import { faTimes } from '@fortawesome/free-solid-svg-icons';
+import { Experiment } from 'tsp-typescript-client/lib/models/experiment';
+import '../../style/output-components-style.css';
 
 export interface ReactOpenTracesWidgetProps {
     id: string;
