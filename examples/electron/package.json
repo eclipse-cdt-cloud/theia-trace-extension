@@ -2,7 +2,7 @@
     "private": true,
     "name": "electron-theia-trace-example-app",
     "main": "scripts/theia-trace-main.js",
-    "version": "0.7.0",
+    "version": "0.7.1",
     "author": {
         "name": "Trace Compass",
         "email": "tracecompass-dev@eclipse.org"
@@ -30,7 +30,7 @@
         "@theia/navigator": "1.55.0",
         "@theia/preferences": "1.55.0",
         "@theia/terminal": "1.55.0",
-        "theia-traceviewer": "0.7.0"
+        "theia-traceviewer": "0.7.1"
     },
     "devDependencies": {
         "@theia/cli": "1.55.0",
