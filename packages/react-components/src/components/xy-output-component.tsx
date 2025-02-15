@@ -310,11 +310,11 @@ export class XYOutputComponent extends AbstractXYOutputComponent<AbstractOutputP
         if (this.mouseIsDown && !(this.clickedMouseButton === MouseButton.RIGHT)) {
             this.updateSelection();
         }
-        this.hideTooltip();
+        this.closeTooltip();
     }
 
     private onKeyDown(key: React.KeyboardEvent): void {
-        this.hideTooltip();
+        this.closeTooltip();
         if (!this.isMouseLeave) {
             switch (key.key) {
                 case 'W':

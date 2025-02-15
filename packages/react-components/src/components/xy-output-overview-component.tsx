@@ -214,7 +214,7 @@ export class XYOutputOverviewComponent extends AbstractXYOutputComponent<XYOutpu
     }
 
     private onKeyDown(key: React.KeyboardEvent): void {
-        this.hideTooltip();
+        this.closeTooltip();
         if (!this.isMouseLeave) {
             const action = this.keyMapping.get(key.key);
             switch (action) {
@@ -297,7 +297,7 @@ export class XYOutputOverviewComponent extends AbstractXYOutputComponent<XYOutpu
         if (this.mouseIsDown && !(this.clickedMouseButton === MouseButton.RIGHT)) {
             this.updateSelection();
         }
-        this.hideTooltip();
+        this.closeTooltip();
     }
 
     private onMidButtonClick(event: React.MouseEvent) {
