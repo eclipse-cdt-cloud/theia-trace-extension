@@ -46,7 +46,6 @@ export default new ContainerModule(bind => {
     bind(TabBarToolbarContribution).toService(TraceViewerToolbarContribution);
     bind(CommandContribution).toService(TraceViewerToolbarContribution);
     bind(TraceServerConnectionStatusClient).to(TraceServerConnectionStatusClientImpl).inSingletonScope();
-
     bind(TraceViewerWidget).toSelf();
     bind<WidgetFactory>(WidgetFactory)
         .toDynamicValue(context => ({

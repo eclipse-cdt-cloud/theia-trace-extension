@@ -1,7 +1,7 @@
 import * as React from 'react';
 import '../../style/output-components-style.css';
 import { OutputAddedSignalPayload } from 'traceviewer-base/lib/signals/output-added-signal-payload';
-import { signalManager, Signals } from 'traceviewer-base/lib/signals/signal-manager';
+import { signalManager } from 'traceviewer-base/lib/signals/signal-manager';
 import { OutputDescriptor, ProviderType } from 'tsp-typescript-client/lib/models/output-descriptor';
 import { Experiment } from 'tsp-typescript-client/lib/models/experiment';
 import { ITspClientProvider } from 'traceviewer-base/lib/tsp-client-provider';
@@ -9,12 +9,15 @@ import { ExperimentManager } from 'traceviewer-base/lib/experiment-manager';
 import { FilterTree } from '../components/utils/filter-tree/tree';
 import { TreeNode } from '../components/utils/filter-tree/tree-node';
 import { getAllExpandedNodeIds } from '../components/utils/filter-tree/utils';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faPlus, faTimes } from '@fortawesome/free-solid-svg-icons';
 
 export interface ReactAvailableViewsProps {
     id: string;
     title: string;
     tspClientProvider: ITspClientProvider;
     contextMenuRenderer?: (event: React.MouseEvent<HTMLDivElement>, output: OutputDescriptor) => void;
+    onCustomizationClick?: (entry: OutputDescriptor, experiment: Experiment) => void;
 }
 
 export interface ReactAvailableViewsState {
@@ -179,8 +182,9 @@ export class ReactAvailableViewsWidget extends React.Component<ReactAvailableVie
         const idStringToNodeId: { [key: string]: number } = {};
 
         // Fill-in the lookup table
-        list.forEach(output => {
+        list.forEach((output, index) => {
             const node: TreeNode = this.entryToTreeNode(output, idStringToNodeId);
+            node.elementIndex = index;
             lookup[output.id] = node;
             this._nodeIdToOutput[node.id] = output;
         });
@@ -207,34 +211,90 @@ export class ReactAvailableViewsWidget extends React.Component<ReactAvailableVie
     }
 
     private entryToTreeNode(entry: OutputDescriptor, idStringToNodeId: { [key: string]: number }): TreeNode {
-        const labels = [entry.name];
-        let tooltips = undefined;
-        if (entry.description) {
-            tooltips = [entry.description];
-        }
-        let id = idStringToNodeId[entry.id];
-        if (id === undefined) {
-            id = this._idGenerator++;
-            idStringToNodeId[entry.id] = id;
-        }
+        const id = idStringToNodeId[entry.id] ?? (idStringToNodeId[entry.id] = this._idGenerator++);
+
         let parentId = -1;
         if (entry.parentId) {
-            const existingId = idStringToNodeId[entry.parentId];
-            if (existingId === undefined) {
-                parentId = this._idGenerator++;
-                idStringToNodeId[entry.parentId] = parentId;
-            } else {
-                parentId = existingId;
-            }
+            parentId = idStringToNodeId[entry.parentId] ?? (idStringToNodeId[entry.parentId] = this._idGenerator++);
         }
-        return {
-            labels: labels,
-            tooltips: tooltips,
+
+        const treeNode: TreeNode = {
+            labels: [entry.name],
+            tooltips: entry.description ? [entry.description] : undefined,
             showTooltip: true,
             isRoot: false,
-            id: id,
-            parentId: parentId,
-            children: []
-        } as TreeNode;
+            id,
+            parentId,
+            children: [],
+            getEnrichedContent: this.createEnrichedContent(entry)
+        };
+
+        return treeNode;
     }
+
+    private createEnrichedContent(entry: OutputDescriptor): (() => JSX.Element) | undefined {
+        const isCustomizable = entry.capabilities?.canCreate === true;
+        const isDeletable = entry.capabilities?.canDelete === true;
+
+        // Return undefined if no relevant capabilities
+        if (!isCustomizable && !isDeletable) {
+            return undefined;
+        }
+
+        const nameSpanStyle = {
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
+            whiteSpace: 'nowrap',
+            minWidth: 0,
+            flexShrink: 1
+        };
+
+        const useCustomizableUI = isCustomizable;
+
+        const EnrichedContent = (): JSX.Element => {
+            const displayName = useCustomizableUI ? entry.name : entry.configuration?.name;
+
+            const buttonTitle = useCustomizableUI ? 'Add custom view...' : `Remove "${displayName}"`;
+
+            const icon = useCustomizableUI ? faPlus : faTimes;
+
+            const handleClick = useCustomizableUI
+                ? (e: React.MouseEvent) => this.handleCustomizeClick(entry, e)
+                : (e: React.MouseEvent) => this.handleDeleteClick(entry, e);
+
+            return (
+                <>
+                    <span style={nameSpanStyle}>{displayName}</span>
+                    <div className={'enriched-output-button-container'} title={buttonTitle}>
+                        <button className={'enriched-output-button'} onClick={handleClick}>
+                            <FontAwesomeIcon icon={icon} />
+                        </button>
+                    </div>
+                </>
+            );
+        };
+
+        return EnrichedContent;
+    }
+
+    private handleCustomizeClick = async (entry: OutputDescriptor, e: React.MouseEvent) => {
+        e.stopPropagation();
+        if (this.props.onCustomizationClick && this._selectedExperiment) {
+            await this.props.onCustomizationClick(entry, this._selectedExperiment);
+            this.updateAvailableViews();
+        }
+    };
+
+    private handleDeleteClick = async (entry: OutputDescriptor, e: React.MouseEvent) => {
+        e.stopPropagation();
+        if (this._selectedExperiment?.UUID) {
+            const res = await this.props.tspClientProvider
+                .getTspClient()
+                .deleteDerivedOutput(this._selectedExperiment.UUID, entry.parentId as string, entry.id);
+            if (!res.isOk()) {
+                console.error(`${res.getStatusCode()} - ${res.getStatusMessage()}`);
+            }
+            this.updateAvailableViews();
+        }
+    };
 }
