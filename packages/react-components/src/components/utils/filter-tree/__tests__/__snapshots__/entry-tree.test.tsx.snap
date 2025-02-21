@@ -67,6 +67,7 @@ exports[`Entry with children All unchecked 1`] = `
               style={
                 Object {
                   "display": "inline-block",
+                  "flexShrink": 0,
                   "paddingRight": 5,
                   "textAlign": "right",
                   "width": 12,
@@ -141,6 +142,7 @@ exports[`Entry with children All unchecked 1`] = `
               style={
                 Object {
                   "display": "inline-block",
+                  "flexShrink": 0,
                   "paddingRight": 5,
                   "width": 24,
                 }
@@ -197,6 +199,7 @@ exports[`Entry with children All unchecked 1`] = `
               style={
                 Object {
                   "display": "inline-block",
+                  "flexShrink": 0,
                   "paddingRight": 5,
                   "textAlign": "right",
                   "width": 24,
@@ -271,6 +274,7 @@ exports[`Entry with children All unchecked 1`] = `
               style={
                 Object {
                   "display": "inline-block",
+                  "flexShrink": 0,
                   "paddingRight": 5,
                   "width": 36,
                 }
@@ -326,6 +330,7 @@ exports[`Entry with children All unchecked 1`] = `
               style={
                 Object {
                   "display": "inline-block",
+                  "flexShrink": 0,
                   "paddingRight": 5,
                   "width": 36,
                 }
@@ -440,6 +445,7 @@ exports[`Entry with children Check one grandchild 1`] = `
               style={
                 Object {
                   "display": "inline-block",
+                  "flexShrink": 0,
                   "paddingRight": 5,
                   "textAlign": "right",
                   "width": 12,
@@ -514,6 +520,7 @@ exports[`Entry with children Check one grandchild 1`] = `
               style={
                 Object {
                   "display": "inline-block",
+                  "flexShrink": 0,
                   "paddingRight": 5,
                   "width": 24,
                 }
@@ -570,6 +577,7 @@ exports[`Entry with children Check one grandchild 1`] = `
               style={
                 Object {
                   "display": "inline-block",
+                  "flexShrink": 0,
                   "paddingRight": 5,
                   "textAlign": "right",
                   "width": 24,
@@ -644,6 +652,7 @@ exports[`Entry with children Check one grandchild 1`] = `
               style={
                 Object {
                   "display": "inline-block",
+                  "flexShrink": 0,
                   "paddingRight": 5,
                   "width": 36,
                 }
@@ -699,6 +708,7 @@ exports[`Entry with children Check one grandchild 1`] = `
               style={
                 Object {
                   "display": "inline-block",
+                  "flexShrink": 0,
                   "paddingRight": 5,
                   "width": 36,
                 }
@@ -813,6 +823,7 @@ exports[`Entry with children Collapse one child 1`] = `
               style={
                 Object {
                   "display": "inline-block",
+                  "flexShrink": 0,
                   "paddingRight": 5,
                   "textAlign": "right",
                   "width": 12,
@@ -887,6 +898,7 @@ exports[`Entry with children Collapse one child 1`] = `
               style={
                 Object {
                   "display": "inline-block",
+                  "flexShrink": 0,
                   "paddingRight": 5,
                   "width": 24,
                 }
@@ -943,6 +955,7 @@ exports[`Entry with children Collapse one child 1`] = `
               style={
                 Object {
                   "display": "inline-block",
+                  "flexShrink": 0,
                   "paddingRight": 5,
                   "textAlign": "right",
                   "width": 24,
@@ -1096,6 +1109,7 @@ Array [
                 style={
                   Object {
                     "display": "inline-block",
+                    "flexShrink": 0,
                     "paddingRight": 5,
                     "textAlign": "right",
                     "width": 12,
@@ -1170,6 +1184,7 @@ Array [
                 style={
                   Object {
                     "display": "inline-block",
+                    "flexShrink": 0,
                     "paddingRight": 5,
                     "width": 24,
                   }
@@ -1226,6 +1241,7 @@ Array [
                 style={
                   Object {
                     "display": "inline-block",
+                    "flexShrink": 0,
                     "paddingRight": 5,
                     "textAlign": "right",
                     "width": 24,
@@ -1300,6 +1316,7 @@ Array [
                 style={
                   Object {
                     "display": "inline-block",
+                    "flexShrink": 0,
                     "paddingRight": 5,
                     "width": 36,
                   }
@@ -1355,6 +1372,7 @@ Array [
                 style={
                   Object {
                     "display": "inline-block",
+                    "flexShrink": 0,
                     "paddingRight": 5,
                     "width": 36,
                   }
@@ -1469,6 +1487,7 @@ exports[`one level of entries 1`] = `
               style={
                 Object {
                   "display": "inline-block",
+                  "flexShrink": 0,
                   "paddingRight": 5,
                   "width": 12,
                 }
@@ -1495,6 +1514,7 @@ exports[`one level of entries 1`] = `
               style={
                 Object {
                   "display": "inline-block",
+                  "flexShrink": 0,
                   "paddingRight": 5,
                   "width": 12,
                 }
@@ -1581,6 +1601,7 @@ exports[`one level of entries 2`] = `
               style={
                 Object {
                   "display": "inline-block",
+                  "flexShrink": 0,
                   "paddingRight": 5,
                   "width": 12,
                 }
@@ -1634,6 +1655,7 @@ exports[`one level of entries 2`] = `
               style={
                 Object {
                   "display": "inline-block",
+                  "flexShrink": 0,
                   "paddingRight": 5,
                   "width": 12,
                 }
@@ -1705,6 +1727,7 @@ exports[`one level of entries 3`] = `
               style={
                 Object {
                   "display": "inline-block",
+                  "flexShrink": 0,
                   "paddingRight": 5,
                   "width": 12,
                 }
@@ -1758,6 +1781,7 @@ exports[`one level of entries 3`] = `
               style={
                 Object {
                   "display": "inline-block",
+                  "flexShrink": 0,
                   "paddingRight": 5,
                   "width": 12,
                 }

@@ -26,6 +26,9 @@ export class TraceExplorerViewsWidget extends ReactWidget {
                     id={this.id}
                     title={this.title.label}
                     tspClientProvider={this.tspClientProvider}
+                    onCustomizationClick={() =>
+                        console.warn('Custom Views currently not supported in Theia Trace Extension')
+                    }
                 ></ReactAvailableViewsWidget>
             </div>
         );
