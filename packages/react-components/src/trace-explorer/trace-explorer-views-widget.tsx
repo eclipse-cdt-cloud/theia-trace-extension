@@ -9,12 +9,20 @@ import { ExperimentManager } from 'traceviewer-base/lib/experiment-manager';
 import { FilterTree } from '../components/utils/filter-tree/tree';
 import { TreeNode } from '../components/utils/filter-tree/tree-node';
 import { getAllExpandedNodeIds } from '../components/utils/filter-tree/utils';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faPlus, faTimes } from '@fortawesome/free-solid-svg-icons';
 
 export interface ReactAvailableViewsProps {
     id: string;
     title: string;
     tspClientProvider: ITspClientProvider;
     contextMenuRenderer?: (event: React.MouseEvent<HTMLDivElement>, output: OutputDescriptor) => void;
+    /**
+     * This is a placeholder for the customization implementation.
+     * TODO - Make sure this comment an accurate reflection before PR.
+     * @returns
+     */
+    onCustomizationClick?: (entry: OutputDescriptor, experiment: Experiment) => void;
 }
 
 export interface ReactAvailableViewsState {
@@ -179,8 +187,9 @@ export class ReactAvailableViewsWidget extends React.Component<ReactAvailableVie
         const idStringToNodeId: { [key: string]: number } = {};
 
         // Fill-in the lookup table
-        list.forEach(output => {
+        list.forEach((output, index) => {
             const node: TreeNode = this.entryToTreeNode(output, idStringToNodeId);
+            node.elementIndex = index;
             lookup[output.id] = node;
             this._nodeIdToOutput[node.id] = output;
         });
@@ -207,34 +216,90 @@ export class ReactAvailableViewsWidget extends React.Component<ReactAvailableVie
     }
 
     private entryToTreeNode(entry: OutputDescriptor, idStringToNodeId: { [key: string]: number }): TreeNode {
-        const labels = [entry.name];
-        let tooltips = undefined;
-        if (entry.description) {
-            tooltips = [entry.description];
-        }
-        let id = idStringToNodeId[entry.id];
-        if (id === undefined) {
-            id = this._idGenerator++;
-            idStringToNodeId[entry.id] = id;
-        }
+        let id = idStringToNodeId[entry.id] ?? (idStringToNodeId[entry.id] = this._idGenerator++);
+
         let parentId = -1;
         if (entry.parentId) {
-            const existingId = idStringToNodeId[entry.parentId];
-            if (existingId === undefined) {
-                parentId = this._idGenerator++;
-                idStringToNodeId[entry.parentId] = parentId;
-            } else {
-                parentId = existingId;
-            }
+            parentId = idStringToNodeId[entry.parentId] ?? (idStringToNodeId[entry.parentId] = this._idGenerator++);
         }
-        return {
-            labels: labels,
-            tooltips: tooltips,
+
+        const treeNode: TreeNode = {
+            labels: [entry.name],
+            tooltips: entry.description ? [entry.description] : undefined,
             showTooltip: true,
             isRoot: false,
-            id: id,
-            parentId: parentId,
-            children: []
-        } as TreeNode;
+            id,
+            parentId,
+            children: [],
+            getEnrichedContent: this.createEnrichedContent(entry)
+        };
+
+        return treeNode;
     }
+
+    private createEnrichedContent(entry: OutputDescriptor): (() => JSX.Element) | undefined {
+        const isCustomizable = entry.capabilities?.canCreate === true;
+        const isDeletable = entry.capabilities?.canDelete === true;
+
+        if (!isCustomizable && !isDeletable) {
+            return undefined;
+        }
+
+        const nameSpanStyle = {
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
+            whiteSpace: 'nowrap',
+            minWidth: 0,
+            flexShrink: 1
+        };
+
+        if (isCustomizable) {
+            return (): JSX.Element => (
+                <>
+                    <span style={nameSpanStyle}>{entry.name}</span>
+                    <div className="remove-output-button-container" title={`Add custom analysis to ${entry.name}`}>
+                        <button className="remove-output-button" onClick={e => this.handleCustomizeClick(entry, e)}>
+                            <FontAwesomeIcon icon={faPlus} />
+                        </button>
+                    </div>
+                </>
+            );
+        } else {
+            // Must be deletable based on our conditions
+            return (): JSX.Element => (
+                <>
+                    <span style={nameSpanStyle}>{entry.configuration?.name}</span>
+                    <div className="remove-output-button-container" title={`Remove "${entry.configuration?.name}"`}>
+                        <button className="remove-output-button" onClick={e => this.handleDeleteClick(entry, e)}>
+                            <FontAwesomeIcon icon={faTimes} />
+                        </button>
+                    </div>
+                </>
+            );
+        }
+    }
+
+    private handleCustomizeClick = async (entry: OutputDescriptor, e: React.MouseEvent) => {
+        e.stopPropagation();
+        if (this.props.onCustomizationClick && this._selectedExperiment) {
+            await this.props.onCustomizationClick(entry, this._selectedExperiment);
+            this.updateAvailableViews();
+        }
+    };
+
+    private handleDeleteClick = async (entry: OutputDescriptor, e: React.MouseEvent) => {
+        e.stopPropagation();
+        if (this._selectedExperiment?.UUID) {
+            console.dir(entry);
+            const res = await this.props.tspClientProvider
+                .getTspClient()
+                .deleteDerivedOutput(this._selectedExperiment.UUID, entry.parentId as string, entry.id);
+            if (!res.isOk()) {
+                // request is failing for some reason...
+                // But the output is removed when we update available views regardless
+                console.error(`${res.getStatusCode()} - ${res.getStatusMessage()}`);
+            }
+            this.updateAvailableViews();
+        }
+    };
 }
