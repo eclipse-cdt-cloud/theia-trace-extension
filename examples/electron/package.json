@@ -30,6 +30,7 @@
         "@theia/navigator": "1.55.0",
         "@theia/preferences": "1.55.0",
         "@theia/terminal": "1.55.0",
+        "marked": "^15.0.7",
         "theia-traceviewer": "0.7.1"
     },
     "devDependencies": {

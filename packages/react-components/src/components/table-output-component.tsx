@@ -25,6 +25,7 @@ import { OutputDescriptor, ResponseStatus } from 'tsp-typescript-client';
 import { PaginationBarComponent } from './utils/pagination-bar-component';
 import { OptionCheckBoxState, OptionState, OptionType } from './drop-down-component';
 import { ItemPropertiesSignalPayload } from 'traceviewer-base/lib/signals/item-properties-signal-payload';
+import { OllamaManager } from 'traceviewer-base/lib/ollama-manager';
 
 type TableOuputState = AbstractOutputState & {
     tableColumns: ColDef[];
@@ -76,6 +77,7 @@ export class TableOutputComponent extends AbstractOutputComponent<TableOutputPro
     private filterModel: Map<string, string> = new Map<string, string>();
     private dataSource: IDatasource;
     private onOutputDataChanged = (outputs: OutputDescriptor[]) => this.doHandleOutputDataChangedSignal(outputs);
+    private ollamaManager: OllamaManager;
 
     static defaultProps: Partial<TableOutputProps> = {
         cacheBlockSize: 200,
@@ -125,6 +127,12 @@ export class TableOutputComponent extends AbstractOutputComponent<TableOutputPro
         this.findMatchedEvent = this.findMatchedEvent.bind(this);
         this.checkFocus = this.checkFocus.bind(this);
         this.addPinViewOptions();
+
+        this.ollamaManager = new OllamaManager(
+            'http://localhost:11434',
+            'llama3.2',
+            this.props.backgroundTheme === 'dark'
+        );
     }
 
     protected addToggleColumnsOption(arg?: () => unknown): void {
@@ -189,6 +197,7 @@ export class TableOutputComponent extends AbstractOutputComponent<TableOutputPro
                     debug={this.debugMode}
                     onGridReady={this.onGridReady}
                     onCellClicked={this.onEventClick}
+                    onCellContextMenu={this.onCellContextMenu}
                     rowSelection="multiple"
                     onModelUpdated={this.onModelUpdated}
                     onCellKeyDown={this.onKeyDown}
@@ -264,6 +273,10 @@ export class TableOutputComponent extends AbstractOutputComponent<TableOutputPro
                 pagination: newPagination,
                 paginationTotalPages: Math.floor(this.state.tableSize / this.paginationPageSize)
             });
+        }
+
+        if (this.props.backgroundTheme !== prevProps.backgroundTheme) {
+            this.ollamaManager.setDarkTheme(this.props.backgroundTheme === 'dark');
         }
     }
 
@@ -460,6 +473,88 @@ export class TableOutputComponent extends AbstractOutputComponent<TableOutputPro
         this.gridApi = event.api;
         this.gridApi.setGridOption('datasource', this.dataSource);
     };
+
+    private onCellContextMenu = (event: any) => {
+        event.event.preventDefault();
+        const rowNode = event.node;
+        const mouseEvent = event.event as MouseEvent;
+
+        this.showCustomContextMenu(mouseEvent.clientX, mouseEvent.clientY, rowNode);
+    };
+
+    private async showCustomContextMenu(x: number, y: number, rowNode: IRowNode): Promise<void> {
+        if (!(await this.ollamaManager.isReady())) {
+            return;
+        }
+
+        const existingMenu = document.getElementById('custom-context-menu');
+        if (existingMenu) {
+            existingMenu.remove();
+        }
+
+        const menuDiv = document.createElement('div');
+        menuDiv.id = 'custom-context-menu';
+        menuDiv.style.position = 'fixed';
+        menuDiv.style.left = `${x}px`;
+        menuDiv.style.top = `${y}px`;
+        menuDiv.style.backgroundColor = this.props.backgroundTheme === 'light' ? '#ffffff' : '#333333';
+        menuDiv.style.border = this.props.backgroundTheme === 'light' ? '1px solid #dddddd' : '1px solid #555555';
+        menuDiv.style.borderRadius = '3px';
+        menuDiv.style.boxShadow = '0 2px 10px rgba(0, 0, 0, 0.2)';
+        menuDiv.style.padding = '5px 0';
+        menuDiv.style.zIndex = '1000';
+
+        const checkOption = document.createElement('div');
+        checkOption.textContent = 'Interpret via Ollama';
+        checkOption.style.padding = '5px 20px';
+        checkOption.style.cursor = 'pointer';
+        checkOption.style.color = this.props.backgroundTheme === 'light' ? '#333333' : '#ffffff';
+
+        checkOption.addEventListener('mouseover', () => {
+            checkOption.style.backgroundColor = this.props.backgroundTheme === 'light' ? '#f0f0f0' : '#444444';
+        });
+
+        checkOption.addEventListener('mouseout', () => {
+            checkOption.style.backgroundColor = 'transparent';
+        });
+
+        checkOption.addEventListener('click', () => {
+            this.interpretRowWithOllama(rowNode);
+            menuDiv.remove();
+        });
+
+        menuDiv.appendChild(checkOption);
+        document.body.appendChild(menuDiv);
+
+        setTimeout(() => {
+            const clickHandler = (e: MouseEvent) => {
+                if (!menuDiv.contains(e.target as Node)) {
+                    menuDiv.remove();
+                    document.removeEventListener('click', clickHandler);
+                }
+            };
+            document.addEventListener('click', clickHandler);
+        }, 0);
+    }
+
+    private interpretRowWithOllama(rowNode: IRowNode): void {
+        if (rowNode && rowNode.data) {
+            const columns = this.gridApi?.getColumns();
+            if (!columns) {
+                return;
+            }
+            const itemPropsObj = this.fetchItemProperties(columns, rowNode.data);
+
+            if (itemPropsObj) {
+                let checkedRow = '';
+                for (const [header, cell] of Object.entries(itemPropsObj)) {
+                    checkedRow += `${header}: ${cell}\n`;
+                }
+
+                this.ollamaManager.sendToOllama(checkedRow);
+            }
+        }
+    }
 
     private async init() {
         const traceUUID = this.props.traceId;
