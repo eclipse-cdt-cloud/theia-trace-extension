@@ -1,7 +1,6 @@
 import * as React from 'react';
 import { createPortal } from 'react-dom';
 import { debounce } from 'lodash';
-const { useState, useEffect, useRef, useMemo } = React;
 
 interface TooltipProps {
     content?: React.ReactNode;
@@ -13,182 +12,203 @@ interface TooltipState {
     content: React.ReactNode;
     visible: boolean;
     zIndex: number;
+    left: number;
+    top: number;
 }
 
-export const TooltipComponent: React.FC<TooltipProps> = ({ content = '⏳', visible = false, fadeTransition = 500 }) => {
-    // eslint-disable-next-line no-null/no-null
-    const tooltipRef = useRef<HTMLDivElement>(null);
-    const lastMousePosition = useRef({ x: 0, y: 0 });
-    const [state, setState] = useState<TooltipState>({
-        content,
-        visible,
-        zIndex: visible ? 99999 : -99999
-    });
-    const isMouseOverRef = useRef(false);
+export class TooltipComponent extends React.Component<TooltipProps, TooltipState> {
+    public static defaultProps = {
+        content: '⏳',
+        visible: false,
+        fadeTransition: 500
+    };
 
-    // Calculate position based on current mouse position and tooltip dimensions
-    const calculateAndSetPosition = () => {
-        if (!tooltipRef.current) {
+    private tooltipRef: React.RefObject<HTMLDivElement>;
+    private lastMousePosition: { x: number; y: number };
+    private isMouseOver: boolean;
+    private debouncedUpdate: ReturnType<typeof debounce>;
+
+    constructor(props: TooltipProps) {
+        super(props);
+
+        this.tooltipRef = React.createRef();
+        this.lastMousePosition = { x: 0, y: 0 };
+        this.isMouseOver = false;
+
+        this.state = {
+            content: props.content,
+            visible: props.visible || false,
+            zIndex: props.visible || false ? 99999 : -99999,
+            left: 0,
+            top: 0
+        };
+
+        this.debouncedUpdate = debounce(this.updateState, 500);
+    }
+
+    public componentDidMount(): void {
+        // Track mouse position and detect when mouse leaves viewport
+        document.addEventListener('mousemove', this.handleMouseMove);
+        document.addEventListener('mouseleave', this.handleMouseLeave);
+
+        // Hide tooltip when scrolling (use capture to catch all scroll events)
+        window.addEventListener('scroll', this.handleScroll, { capture: true });
+        document.addEventListener('scroll', this.handleScroll, { capture: true });
+
+        // Handle transition end for z-index updates
+        if (this.tooltipRef.current) {
+            this.tooltipRef.current.addEventListener('transitionend', this.handleTransitionEnd);
+        }
+    }
+
+    public componentDidUpdate(prevProps: TooltipProps): void {
+        // Handle content and visibility changes
+        if (
+            !this.isMouseOver &&
+            (prevProps.content !== this.props.content || prevProps.visible !== this.props.visible)
+        ) {
+            this.debouncedUpdate({
+                content: this.props.content,
+                visible: this.props.visible
+            });
+        }
+    }
+
+    public componentWillUnmount(): void {
+        // Cleanup event listeners
+        document.removeEventListener('mousemove', this.handleMouseMove);
+        document.removeEventListener('mouseleave', this.handleMouseLeave);
+        window.removeEventListener('scroll', this.handleScroll, { capture: true });
+        document.removeEventListener('scroll', this.handleScroll, { capture: true });
+
+        if (this.tooltipRef.current) {
+            this.tooltipRef.current.removeEventListener('transitionend', this.handleTransitionEnd);
+        }
+
+        // Cancel debounced function
+        this.debouncedUpdate.cancel();
+    }
+
+    public render(): React.ReactPortal {
+        const tooltipStyle: React.CSSProperties = {
+            position: 'fixed',
+            pointerEvents: 'auto',
+            opacity: this.state.visible ? 1 : 0,
+            transition: `opacity ${this.props.fadeTransition}ms ease-in-out`,
+            zIndex: this.state.zIndex,
+            backgroundColor: '#337AB7',
+            fontSize: '13px',
+            color: '#fff',
+            padding: '9px 11px',
+            border: '1px solid transparent',
+            borderRadius: '3px',
+            boxShadow: '0 2px 4px rgba(0,0,0,0.2)',
+            left: `${this.state.left}px`,
+            top: `${this.state.top}px`
+        };
+
+        return createPortal(
+            <div
+                ref={this.tooltipRef}
+                className="trace-compass-tooltip"
+                style={tooltipStyle}
+                onMouseEnter={this.handleTooltipMouseEnter}
+                onMouseLeave={this.handleTooltipMouseLeave}
+            >
+                {this.state.content}
+            </div>,
+            document.body
+        );
+    }
+
+    private calculateAndSetPosition = (): void => {
+        if (!this.tooltipRef.current) {
             return;
         }
 
         const viewportWidth = window.innerWidth;
         const viewportHeight = window.innerHeight;
-        const tooltipRect = tooltipRef.current.getBoundingClientRect();
+        const tooltipRect = this.tooltipRef.current.getBoundingClientRect();
 
-        let x = lastMousePosition.current.x + 10;
-        let y = lastMousePosition.current.y + 10;
+        let left = this.lastMousePosition.x + 10;
+        let top = this.lastMousePosition.y + 10;
 
-        if (x + tooltipRect.width > viewportWidth) {
-            x = lastMousePosition.current.x - tooltipRect.width - 10;
+        if (left + tooltipRect.width > viewportWidth) {
+            left = this.lastMousePosition.x - tooltipRect.width - 10;
         }
 
-        if (y + tooltipRect.height > viewportHeight) {
-            y = lastMousePosition.current.y - tooltipRect.height - 10;
+        if (top + tooltipRect.height > viewportHeight) {
+            top = this.lastMousePosition.y - tooltipRect.height - 10;
         }
 
-        tooltipRef.current.style.left = `${x}px`;
-        tooltipRef.current.style.top = `${y}px`;
+        this.setState({ left, top });
     };
 
-    const debouncedUpdate = useMemo(
-        () =>
-            debounce((newState: Partial<TooltipState>) => {
-                setState(prevState => {
-                    const updatedState = { ...prevState, ...newState };
+    /**
+     * Updates the tooltip state with special handling for different scenarios.
+     *
+     * This method is debounced to prevent rapid state changes and handles several edge cases:
+     * 1. If mouse is over the tooltip, cancels the update to prevent hiding while user is interacting
+     * 2. When hiding the tooltip, maintains content and z-index during fade-out animation
+     * 3. When showing the tooltip, updates position and immediately sets z-index to visible
+     *
+     * @param newState - Partial state update to be applied
+     */
+    private updateState = (newState: Partial<TooltipState>): void => {
+        this.setState(prevState => {
+            const updatedState = { ...prevState, ...newState };
 
-                    const weAreHidingTooltip = prevState.visible === true && newState.visible === false;
-                    const weAreHoveringOverTooltip = isMouseOverRef.current;
+            const weAreHidingTooltip = prevState.visible === true && newState.visible === false;
 
-                    if (weAreHoveringOverTooltip) {
-                        debouncedUpdate.cancel();
-                        return prevState;
-                    } else if (weAreHidingTooltip) {
-                        // Don't update the content
-                        updatedState.content = prevState.content;
-                        // Keep z-index high during fade out
-                        updatedState.zIndex = prevState.zIndex;
-                        return updatedState;
-                    } else {
-                        calculateAndSetPosition();
-                        // Update z-index immediately when showing
-                        if (newState.visible) {
-                            updatedState.zIndex = 99999;
-                        }
-                        return updatedState;
-                    }
-                });
-            }, 500),
-        []
-    );
-
-    // Track mouse position and detect when mouse leaves viewport
-    useEffect(() => {
-        const handleMouseMove = (e: MouseEvent) => {
-            lastMousePosition.current = { x: e.clientX, y: e.clientY };
-        };
-
-        const handleMouseLeave = (e: MouseEvent) => {
-            // Check if the mouse has actually left the viewport
-            if (e.clientY <= 0 || e.clientY >= window.innerHeight || e.clientX <= 0 || e.clientX >= window.innerWidth) {
-                setState(prev => ({ ...prev, visible: false }));
+            if (this.isMouseOver) {
+                this.debouncedUpdate.cancel();
+                return prevState;
+            } else if (weAreHidingTooltip) {
+                // Don't update the content
+                updatedState.content = prevState.content;
+                // Keep z-index high during fade out
+                updatedState.zIndex = prevState.zIndex;
+                return updatedState;
+            } else {
+                this.calculateAndSetPosition();
+                // Update z-index immediately when showing
+                if (newState.visible) {
+                    updatedState.zIndex = 99999;
+                }
+                return updatedState;
             }
-        };
-
-        document.addEventListener('mousemove', handleMouseMove);
-        document.addEventListener('mouseleave', handleMouseLeave);
-
-        return () => {
-            document.removeEventListener('mousemove', handleMouseMove);
-            document.removeEventListener('mouseleave', handleMouseLeave);
-        };
-    }, [debouncedUpdate]);
-
-    // Hide tooltip when scrolling
-    useEffect(() => {
-        const handleScroll = () => {
-            setState(prev => ({
-                ...prev,
-                visible: false
-            }));
-        };
-
-        // Use capture to catch all scroll events before they might be stopped
-        const options = { capture: true };
-
-        window.addEventListener('scroll', handleScroll, options);
-        document.addEventListener('scroll', handleScroll, options);
-
-        return () => {
-            window.removeEventListener('scroll', handleScroll, options);
-            document.removeEventListener('scroll', handleScroll, options);
-        };
-    }, []);
-
-    // Handle content and visibility changes
-    useEffect(() => {
-        if (!isMouseOverRef.current) {
-            debouncedUpdate({ content, visible });
-        }
-    }, [content, visible, debouncedUpdate]);
-
-    // Cleanup debounced function
-    useEffect(
-        () => () => {
-            debouncedUpdate.cancel();
-        },
-        [debouncedUpdate]
-    );
-
-    // Handle opacity transition end
-    useEffect(() => {
-        const tooltip = tooltipRef.current;
-        if (!tooltip) {
-            return;
-        }
-
-        const handleTransitionEnd = (e: TransitionEvent) => {
-            if (e.propertyName === 'opacity' && !state.visible) {
-                setState(prev => ({ ...prev, zIndex: -99999 }));
-            }
-        };
-
-        tooltip.addEventListener('transitionend', handleTransitionEnd);
-        return () => {
-            tooltip.removeEventListener('transitionend', handleTransitionEnd);
-        };
-    }, [state.visible]);
-
-    const tooltipStyle: React.CSSProperties = {
-        position: 'fixed',
-        pointerEvents: 'auto',
-        opacity: state.visible ? 1 : 0,
-        transition: `opacity ${fadeTransition}ms ease-in-out`,
-        zIndex: state.zIndex,
-        backgroundColor: '#337AB7',
-        fontSize: '13px',
-        color: '#fff',
-        padding: '9px 11px',
-        border: '1px solid transparent',
-        borderRadius: '3px',
-        boxShadow: '0 2px 4px rgba(0,0,0,0.2)'
+        });
     };
 
-    return createPortal(
-        <div
-            ref={tooltipRef}
-            className="trace-compass-tooltip"
-            style={tooltipStyle}
-            onMouseEnter={() => {
-                isMouseOverRef.current = true;
-            }}
-            onMouseLeave={() => {
-                isMouseOverRef.current = false;
-                setState(prev => ({ ...prev, visible: false }));
-            }}
-        >
-            {state.content}
-        </div>,
-        document.body
-    );
-};
+    private handleMouseMove = (e: MouseEvent): void => {
+        this.lastMousePosition = { x: e.clientX, y: e.clientY };
+    };
+
+    private handleMouseLeave = (e: MouseEvent): void => {
+        // Check if the mouse has actually left the viewport
+        if (e.clientY <= 0 || e.clientY >= window.innerHeight || e.clientX <= 0 || e.clientX >= window.innerWidth) {
+            this.setState({ visible: false });
+        }
+    };
+
+    private handleScroll = (): void => {
+        this.setState({
+            visible: false
+        });
+    };
+
+    private handleTransitionEnd = (e: TransitionEvent): void => {
+        if (e.propertyName === 'opacity' && !this.state.visible) {
+            this.setState({ zIndex: -99999 });
+        }
+    };
+
+    private handleTooltipMouseEnter = (): void => {
+        this.isMouseOver = true;
+    };
+
+    private handleTooltipMouseLeave = (): void => {
+        this.isMouseOver = false;
+        this.setState({ visible: false });
+    };
+}
