@@ -1,3 +1,3 @@
 const { resolve } = require('path');
 
-require('../src-gen/backend/electron-main');
+require('../lib/backend/electron-main.js');
