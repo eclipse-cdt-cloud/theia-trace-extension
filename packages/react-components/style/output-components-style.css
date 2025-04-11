@@ -575,7 +575,7 @@ input[type="reset"].input-button {
     flex-shrink: 0;
 }
 
-.remove-output-button-container {
+.enriched-output-button-container {
     margin-right: 2px;
     display: flex;
     justify-content: center;
@@ -583,7 +583,7 @@ input[type="reset"].input-button {
     margin-left: auto;
 }
 
-.remove-output-button {
+.enriched-output-button {
     background: none;
     border: none;
     visibility: visible;
@@ -592,6 +592,6 @@ input[type="reset"].input-button {
     cursor: pointer;
 }
 
-.remove-output-button :hover {
+.enriched-output-button :hover {
     background: none;
 }

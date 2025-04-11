@@ -1,7 +1,7 @@
 import * as React from 'react';
 import '../../style/output-components-style.css';
 import { OutputAddedSignalPayload } from 'traceviewer-base/lib/signals/output-added-signal-payload';
-import { signalManager, Signals } from 'traceviewer-base/lib/signals/signal-manager';
+import { signalManager } from 'traceviewer-base/lib/signals/signal-manager';
 import { OutputDescriptor, ProviderType } from 'tsp-typescript-client/lib/models/output-descriptor';
 import { Experiment } from 'tsp-typescript-client/lib/models/experiment';
 import { ITspClientProvider } from 'traceviewer-base/lib/tsp-client-provider';
@@ -216,7 +216,7 @@ export class ReactAvailableViewsWidget extends React.Component<ReactAvailableVie
     }
 
     private entryToTreeNode(entry: OutputDescriptor, idStringToNodeId: { [key: string]: number }): TreeNode {
-        let id = idStringToNodeId[entry.id] ?? (idStringToNodeId[entry.id] = this._idGenerator++);
+        const id = idStringToNodeId[entry.id] ?? (idStringToNodeId[entry.id] = this._idGenerator++);
 
         let parentId = -1;
         if (entry.parentId) {
@@ -241,6 +241,7 @@ export class ReactAvailableViewsWidget extends React.Component<ReactAvailableVie
         const isCustomizable = entry.capabilities?.canCreate === true;
         const isDeletable = entry.capabilities?.canDelete === true;
 
+        // Return undefined if no relevant capabilities
         if (!isCustomizable && !isDeletable) {
             return undefined;
         }
@@ -253,36 +254,38 @@ export class ReactAvailableViewsWidget extends React.Component<ReactAvailableVie
             flexShrink: 1
         };
 
-        if (isCustomizable) {
-            return (): JSX.Element => (
+        const useCustomizableUI = isCustomizable;
+
+        const EnrichedContent = (): JSX.Element => {
+            const displayName = useCustomizableUI ? entry.name : entry.configuration?.name;
+
+            const buttonTitle = useCustomizableUI ? `Add custom analysis to ${displayName}` : `Remove "${displayName}"`;
+
+            const icon = useCustomizableUI ? faPlus : faTimes;
+
+            const handleClick = useCustomizableUI
+                ? (e: React.MouseEvent) => this.handleCustomizeClick(entry, e)
+                : (e: React.MouseEvent) => this.handleDeleteClick(entry, e);
+
+            return (
                 <>
-                    <span style={nameSpanStyle}>{entry.name}</span>
-                    <div className="remove-output-button-container" title={`Add custom analysis to ${entry.name}`}>
-                        <button className="remove-output-button" onClick={e => this.handleCustomizeClick(entry, e)}>
-                            <FontAwesomeIcon icon={faPlus} />
+                    <span style={nameSpanStyle}>{displayName}</span>
+                    <div className={'enriched-output-button-container'} title={buttonTitle}>
+                        <button className={'enriched-output-button'} onClick={handleClick}>
+                            <FontAwesomeIcon icon={icon} />
                         </button>
                     </div>
                 </>
             );
-        } else {
-            // Must be deletable based on our conditions
-            return (): JSX.Element => (
-                <>
-                    <span style={nameSpanStyle}>{entry.configuration?.name}</span>
-                    <div className="remove-output-button-container" title={`Remove "${entry.configuration?.name}"`}>
-                        <button className="remove-output-button" onClick={e => this.handleDeleteClick(entry, e)}>
-                            <FontAwesomeIcon icon={faTimes} />
-                        </button>
-                    </div>
-                </>
-            );
-        }
+        };
+
+        return EnrichedContent;
     }
 
     private handleCustomizeClick = async (entry: OutputDescriptor, e: React.MouseEvent) => {
         e.stopPropagation();
         if (this.props.onCustomizationClick && this._selectedExperiment) {
-            await this.props.onCustomizationClick(entry, this._selectedExperiment);
+            this.props.onCustomizationClick(entry, this._selectedExperiment);
             this.updateAvailableViews();
         }
     };
