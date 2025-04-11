@@ -24,6 +24,7 @@
         "@theia/editor": "1.55.0",
         "@theia/filesystem": "1.55.0",
         "@theia/messages": "1.55.0",
+        "ajv": "^8.17.1",
         "animate.css": "^4.1.1",
         "traceviewer-base": "0.7.2",
         "traceviewer-react-components": "0.7.2",

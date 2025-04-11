@@ -26,6 +26,7 @@ export class TraceExplorerViewsWidget extends ReactWidget {
                     id={this.id}
                     title={this.title.label}
                     tspClientProvider={this.tspClientProvider}
+                    onCustomizationClick={console.log}
                 ></ReactAvailableViewsWidget>
             </div>
         );

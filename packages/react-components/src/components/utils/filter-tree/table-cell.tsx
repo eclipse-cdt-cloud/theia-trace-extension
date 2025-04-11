@@ -18,7 +18,7 @@ export class TableCell extends React.Component<TableCellProps> {
         if (node.elementIndex && node.elementIndex === index && node.getElement) {
             content = node.getElement();
         } else {
-            content = node.labels[index];
+            content = node.getEnrichedContent ? node.getEnrichedContent() : node.labels[index];
         }
 
         let title = undefined;
@@ -30,6 +30,7 @@ export class TableCell extends React.Component<TableCellProps> {
                 title = node.labels[index];
             }
         }
+
         return (
             <td key={this.props.index + '-td-' + this.props.node.id}>
                 <span title={title}>
