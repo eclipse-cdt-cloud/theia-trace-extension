@@ -14,14 +14,14 @@
         "ui-tests-report": "yarn ui-tests-report-generate && allure open allure-results/allure-report"
     },
     "dependencies": {
-        "@playwright/test": "^1.32.1",
-        "@theia/playwright": "1.47.1"
+        "@playwright/test": "^1.47.0",
+        "@theia/playwright": "1.61.0"
     },
     "devDependencies": {
         "@typescript-eslint/eslint-plugin": "^5.57.1",
         "@typescript-eslint/parser": "^5.57.1",
-        "allure-commandline": "^2.21.0",
-        "allure-playwright": "^2.1.0",
+        "allure-commandline": "^2.23.1",
+        "allure-playwright": "^2.5.0",
         "eslint": "^8.37.0",
         "eslint-config-prettier": "^8.8.0",
         "eslint-plugin-import": "^2.27.5",
