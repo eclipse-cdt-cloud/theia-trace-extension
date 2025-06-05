@@ -48,7 +48,8 @@ export class TraceExplorerOpenedTracesWidget extends ReactWidget {
         this.contextMenuRenderer.render({
             menuPath: TraceExplorerMenus.PREFERENCE_EDITOR_CONTEXT_MENU,
             anchor: { x: event.clientX, y: event.clientY },
-            args: [experiment.UUID]
+            args: [experiment.UUID],
+            context: window.document.body
         });
     }
 
