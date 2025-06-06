@@ -268,7 +268,8 @@ export class TraceViewerToolbarContribution implements TabBarToolbarContribution
                                 menuPath,
                                 args: [],
                                 anchor: { x: event.clientX, y: event.clientY },
-                                onHide: () => setTimeout(() => toDisposeOnHide.dispose())
+                                onHide: () => setTimeout(() => toDisposeOnHide.dispose()),
+                                context: window.document.body
                             });
                         }}
                     ></div>
@@ -332,7 +333,8 @@ export class TraceViewerToolbarContribution implements TabBarToolbarContribution
                                 menuPath,
                                 args: [],
                                 anchor: { x: event.clientX, y: event.clientY },
-                                onHide: () => setTimeout(() => toDisposeOnHide.dispose())
+                                onHide: () => setTimeout(() => toDisposeOnHide.dispose()),
+                                context: window.document.body
                             });
                         }}
                     ></div>
