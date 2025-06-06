@@ -26,9 +26,12 @@ export class TraceExplorerViewsWidget extends ReactWidget {
                     id={this.id}
                     title={this.title.label}
                     tspClientProvider={this.tspClientProvider}
-                    onCustomizationClick={() =>
-                        console.warn('Custom Views currently not supported in Theia Trace Extension')
-                    }
+                    // Note: not implemented in the Theia extension yet. By not providing a callback,
+                    // the customizability UIs will be disabled (creating and deleting custom analyses) but
+                    // if created through the vscode extension they will still be visible and usable.
+                    // onCustomizationClick={() =>
+                    //     console.warn('Custom Views currently not supported in Theia Trace Extension')
+                    // }
                 ></ReactAvailableViewsWidget>
             </div>
         );

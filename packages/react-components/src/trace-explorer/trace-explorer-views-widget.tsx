@@ -181,6 +181,10 @@ export class ReactAvailableViewsWidget extends React.Component<ReactAvailableVie
         const lookup: { [key: string]: TreeNode } = {};
         const idStringToNodeId: { [key: string]: number } = {};
 
+        // By default, when customization is not supported,
+        // replace useless root "configurator" nodes with their
+        // children, if any.
+        list = this.filterList(list);
         // Fill-in the lookup table
         list.forEach((output, index) => {
             const node: TreeNode = this.entryToTreeNode(output, idStringToNodeId);
@@ -210,6 +214,25 @@ export class ReactAvailableViewsWidget extends React.Component<ReactAvailableVie
         return rootNodes;
     }
 
+    private filterList(list: OutputDescriptor[]): OutputDescriptor[] {
+        return this.doFilterList(list);
+    }
+
+    /**
+     * Overridable function that permits to remove output descriptors for the list obtained from
+     * the trace server. The default implementation removes "configurator" nodes when customization
+     * is not possible. The code that processes the list afterward to create nodes from them, will
+     * promote children of removed nodes to root nodes, when the parent is not found.
+     * @param list list of output descriptors
+     * @returns filtered list
+     */
+    protected doFilterList(list: OutputDescriptor[]): OutputDescriptor[] {
+        if (!this.isCustomizationSupported()) {
+            return list.filter(output => !this.isOutputCustomizable(output));
+        }
+        return list;
+    }
+
     private entryToTreeNode(entry: OutputDescriptor, idStringToNodeId: { [key: string]: number }): TreeNode {
         const id = idStringToNodeId[entry.id] ?? (idStringToNodeId[entry.id] = this._idGenerator++);
 
@@ -233,11 +256,8 @@ export class ReactAvailableViewsWidget extends React.Component<ReactAvailableVie
     }
 
     private createEnrichedContent(entry: OutputDescriptor): (() => JSX.Element) | undefined {
-        const isCustomizable = entry.capabilities?.canCreate === true;
-        const isDeletable = entry.capabilities?.canDelete === true;
-
-        // Return undefined if no relevant capabilities
-        if (!isCustomizable && !isDeletable) {
+        // Return undefined if no relevant capabilities or if customization is not supported
+        if ((!this.isOutputCustomizable(entry) && !this.isOutputDeletable(entry)) || !this.isCustomizationSupported()) {
             return undefined;
         }
 
@@ -249,7 +269,7 @@ export class ReactAvailableViewsWidget extends React.Component<ReactAvailableVie
             flexShrink: 1
         };
 
-        const useCustomizableUI = isCustomizable;
+        const useCustomizableUI = this.isOutputCustomizable(entry);
 
         const EnrichedContent = (): JSX.Element => {
             const displayName = useCustomizableUI ? entry.name : entry.configuration?.name;
@@ -297,4 +317,18 @@ export class ReactAvailableViewsWidget extends React.Component<ReactAvailableVie
             this.updateAvailableViews();
         }
     };
+
+    private isOutputCustomizable(od: OutputDescriptor): boolean {
+        return !!od.capabilities?.canCreate;
+    }
+
+    private isOutputDeletable(od: OutputDescriptor): boolean {
+        return !!od.capabilities?.canDelete;
+    }
+
+    private isCustomizationSupported(): boolean {
+        // If the app using this library has not provided a callback to create
+        // customized views, we can consider customizing views is not supported
+        return !!this.props.onCustomizationClick;
+    }
 }
