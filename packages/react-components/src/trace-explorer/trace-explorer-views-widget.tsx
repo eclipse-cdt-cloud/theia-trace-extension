@@ -233,6 +233,12 @@ export class ReactAvailableViewsWidget extends React.Component<ReactAvailableVie
     }
 
     private createEnrichedContent(entry: OutputDescriptor): (() => JSX.Element) | undefined {
+        // The app using this library has not provided a callback to create
+        // customized views, so we can skip adding the related UI buttons
+        if (!this.props.onCustomizationClick) {
+            return undefined;
+        }
+
         const isCustomizable = entry.capabilities?.canCreate === true;
         const isDeletable = entry.capabilities?.canDelete === true;
 
