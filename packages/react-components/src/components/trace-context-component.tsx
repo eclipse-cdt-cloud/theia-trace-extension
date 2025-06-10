@@ -758,6 +758,7 @@ export class TraceContextComponent extends React.Component<TraceContextProps, Tr
                                 />
                             );
                         case ProviderType.DATA_TREE:
+                        case 'GANTT_CHART':
                             return (
                                 <DataTreeOutputComponent
                                     key={output.id}
