@@ -1,9 +1,3 @@
 {
-    "npm/npmjs/-/app-builder-lib/24.13.3": "Believed to be license-compatible but still under IP review: https://gitlab.eclipse.org/eclipsefdn/emo-team/iplab/-/issues/16244",
-    "npm/npmjs/@ag-grid-community/react/32.2.0": "Believed to be license-compatible but still under IP review: https://gitlab.eclipse.org/eclipsefdn/emo-team/iplab/-/issues/16245",
-    "npm/npmjs/-/playwright-core/1.47.2": "Believed to be license-compatible but still under IP review: https://gitlab.eclipse.org/eclipsefdn/emo-team/iplab/-/issues/16247",
-    "npm/npmjs/-/playwright/1.47.2": "Believed to be license-compatible but still under IP review: https://gitlab.eclipse.org/eclipsefdn/emo-team/iplab/-/issues/16248", 
-    "npm/npmjs/-/electron-to-chromium/1.5.26": "Believed to be license-compatible but still under IP review: https://gitlab.eclipse.org/eclipsefdn/emo-team/iplab/-/issues/16255",
-    "npm/npmjs/@ag-grid-community/core/32.2.0": "Believed to be license-compatible but still under IP review: https://gitlab.eclipse.org/eclipsefdn/emo-team/iplab/-/issues/16256",
-    "npm/npmjs/-/tsp-typescript-client/0.6.0": "Believed to be license-compatible but still under IP review: https://gitlab.eclipse.org/eclipsefdn/emo-team/iplab/-/issues/19938"
+    "npm/npmjs/-/allure-commandline/2.34.0": "Believed to be license-compatible but still under IP review: https://gitlab.eclipse.org/eclipsefdn/emo-team/iplab/-/issues/21566"
 }
