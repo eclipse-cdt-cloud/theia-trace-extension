@@ -23,7 +23,13 @@ import { TspDataProvider } from './data-providers/tsp-data-provider';
 import { ReactTimeGraphContainer } from './utils/timegraph-container-component';
 import { OutputElementStyle } from 'tsp-typescript-client/lib/models/styles';
 import { EntryTree } from './utils/filter-tree/entry-tree';
-import { listToTree, getAllExpandedNodeIds, getIndexOfNode, validateNumArray } from './utils/filter-tree/utils';
+import {
+    listToTree,
+    getAllExpandedNodeIds,
+    getIndexOfNode,
+    validateNumArray,
+    getCollapsedNodesFromAutoExpandLevel
+} from './utils/filter-tree/utils';
 import hash from 'traceviewer-base/lib/utils/value-hash';
 import ColumnHeader from './utils/filter-tree/column-header';
 import { TimeGraphAnnotationComponent } from 'timeline-chart/lib/components/time-graph-annotation';
@@ -316,11 +322,16 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
                 } else {
                     columns.push({ title: '', sortable: true, resizable: true });
                 }
+                const autoCollapsedNodes = getCollapsedNodesFromAutoExpandLevel(
+                    listToTree(treeResponse.model.entries, columns),
+                    treeResponse.model.autoExpandLevel
+                );
                 this.setState(
                     {
                         outputStatus: treeResponse.status,
                         timegraphTree: treeResponse.model.entries,
                         defaultOrderedIds: treeResponse.model.entries.map(entry => entry.id),
+                        collapsedNodes: autoCollapsedNodes,
                         columns
                     },
                     this.updateTotalHeight

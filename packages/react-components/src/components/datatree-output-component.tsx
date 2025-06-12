@@ -7,7 +7,7 @@ import { Entry } from 'tsp-typescript-client/lib/models/entry';
 import { DataType } from 'tsp-typescript-client/lib/models/data-type';
 import { ResponseStatus } from 'tsp-typescript-client/lib/models/response/responses';
 import { EntryTree } from './utils/filter-tree/entry-tree';
-import { getAllExpandedNodeIds } from './utils/filter-tree/utils';
+import { getAllExpandedNodeIds, getCollapsedNodesFromAutoExpandLevel, listToTree } from './utils/filter-tree/utils';
 import { TreeNode } from './utils/filter-tree/tree-node';
 import ColumnHeader from './utils/filter-tree/column-header';
 import debounce from 'lodash.debounce';
@@ -73,10 +73,15 @@ export class DataTreeOutputComponent extends AbstractOutputComponent<AbstractOut
                 } else {
                     columns.push({ title: 'Name', sortable: true });
                 }
+                const autoCollapsedNodes = getCollapsedNodesFromAutoExpandLevel(
+                    listToTree(treeResponse.model.entries, columns),
+                    treeResponse.model.autoExpandLevel
+                );
                 this.setState({
                     outputStatus: treeResponse.status,
                     xyTree: treeResponse.model.entries,
                     defaultOrderedIds: treeResponse.model.entries.map(entry => entry.id),
+                    collapsedNodes: autoCollapsedNodes,
                     columns
                 });
             } else {

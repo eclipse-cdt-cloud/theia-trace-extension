@@ -24,6 +24,7 @@ import { ChartOptions } from 'chart.js';
 import { Line, Scatter } from 'react-chartjs-2';
 import { debounce } from 'lodash';
 import { isEqual } from 'lodash';
+import { getCollapsedNodesFromAutoExpandLevel, listToTree } from './utils/filter-tree/utils';
 
 export const ZOOM_IN_RATE = 0.8;
 export const ZOOM_OUT_RATE = 1.25;
@@ -303,11 +304,16 @@ export abstract class AbstractXYOutputComponent<
                     columns.push({ title: 'Name', sortable: true });
                 }
                 const checkedSeries = this.getAllCheckedIds(treeResponse.model.entries);
+                const autoCollapsedNodes = getCollapsedNodesFromAutoExpandLevel(
+                    listToTree(treeResponse.model.entries, columns),
+                    treeResponse.model.autoExpandLevel
+                );
                 this.setState(
                     {
                         outputStatus: treeResponse.status,
                         xyTree: treeResponse.model.entries,
                         defaultOrderedIds: treeResponse.model.entries.map(entry => entry.id),
+                        collapsedNodes: autoCollapsedNodes,
                         checkedSeries,
                         columns
                     },
