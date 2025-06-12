@@ -47,6 +47,27 @@ export const listToTree = (list: Entry[], headers: ColumnHeader[]): TreeNode[] =
     return rootNodes;
 };
 
+/**
+ * Returns an array of node IDs that should be collapsed based on the auto-expand level.
+ * Nodes at depths greater than or equal to the autoExpandLevel will be collapsed.
+ * If autoExpandLevel is -1, no nodes are collapsed (all remain expanded).
+ */
+export const getCollapsedNodesFromAutoExpandLevel = (nodes: TreeNode[], autoExpandLevel = -1, depth = 0): number[] => {
+    if (autoExpandLevel === -1) {
+        return [];
+    }
+    const collapsedNodes: number[] = [];
+    for (const node of nodes) {
+        if (autoExpandLevel <= depth) {
+            collapsedNodes.push(node.id);
+        }
+        if (node.children && node.children.length > 0) {
+            collapsedNodes.push(...getCollapsedNodesFromAutoExpandLevel(node.children, autoExpandLevel, depth + 1));
+        }
+    }
+    return collapsedNodes;
+};
+
 export const getAllExpandedNodeIds = (nodes: TreeNode[], collapsedNodes: number[], emptyNodes?: number[]): number[] => {
     const visibleIds: number[] = [];
     nodes.forEach((node: TreeNode) => {
