@@ -27,6 +27,7 @@ import { cloneDeep } from 'lodash';
 import { UnitControllerHistoryHandler } from './utils/unit-controller-history-handler';
 import { TraceOverviewComponent } from './trace-overview-component';
 import { TimeRangeUpdatePayload } from 'traceviewer-base/lib/signals/time-range-data-signal-payloads';
+import { AggregatedgraphOutputComponent } from './aggregatedgraph-output-component';
 
 const ResponsiveGridLayout = WidthProvider(Responsive);
 
@@ -758,11 +759,20 @@ export class TraceContextComponent extends React.Component<TraceContextProps, Tr
                                 />
                             );
                         case ProviderType.DATA_TREE:
-                        case 'GANTT_CHART':
                             return (
                                 <DataTreeOutputComponent
                                     key={output.id}
                                     {...outputProps}
+                                    className={this.state.pinnedView?.id === output.id ? 'pinned-view-shadow' : ''}
+                                />
+                            );
+                        case 'GANTT_CHART':
+                            return (
+                                <AggregatedgraphOutputComponent
+                                    key={output.id}
+                                    {...outputProps}
+                                    addWidgetResizeHandler={this.addWidgetResizeHandler}
+                                    removeWidgetResizeHandler={this.removeWidgetResizeHandler}
                                     className={this.state.pinnedView?.id === output.id ? 'pinned-view-shadow' : ''}
                                 />
                             );
