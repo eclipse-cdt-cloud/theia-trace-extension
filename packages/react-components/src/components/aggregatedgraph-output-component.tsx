@@ -23,13 +23,7 @@ import { TspDataProvider } from './data-providers/tsp-data-provider';
 import { ReactTimeGraphContainer } from './utils/timegraph-container-component';
 import { OutputElementStyle } from 'tsp-typescript-client/lib/models/styles';
 import { EntryTree } from './utils/filter-tree/entry-tree';
-import {
-    listToTree,
-    getAllExpandedNodeIds,
-    getIndexOfNode,
-    validateNumArray,
-    getCollapsedNodesFromAutoExpandLevel
-} from './utils/filter-tree/utils';
+import { listToTree, getAllExpandedNodeIds, getIndexOfNode, validateNumArray } from './utils/filter-tree/utils';
 import hash from 'traceviewer-base/lib/utils/value-hash';
 import ColumnHeader from './utils/filter-tree/column-header';
 import { TimeGraphAnnotationComponent } from 'timeline-chart/lib/components/time-graph-annotation';
@@ -81,7 +75,10 @@ export type TimegraphOutputState = AbstractTreeOutputState & {
 
 const COARSE_RESOLUTION_FACTOR = 8; // resolution factor to use for first (coarse) update
 const MENU_ID = 'timegraph.menuId-';
-export class TimegraphOutputComponent extends AbstractTreeOutputComponent<TimegraphOutputProps, TimegraphOutputState> {
+export class AggregatedgraphOutputComponent extends AbstractTreeOutputComponent<
+    TimegraphOutputProps,
+    TimegraphOutputState
+> {
     private totalHeight = 0;
     private rowController: TimeGraphRowController;
     private markerRowController: TimeGraphRowController;
@@ -322,16 +319,11 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
                 } else {
                     columns.push({ title: '', sortable: true, resizable: true });
                 }
-                const autoCollapsedNodes = getCollapsedNodesFromAutoExpandLevel(
-                    listToTree(treeResponse.model.entries, columns),
-                    treeResponse.model.autoExpandLevel
-                );
                 this.setState(
                     {
                         outputStatus: treeResponse.status,
                         aggregatedGraph: treeResponse.model.entries,
                         defaultOrderedIds: treeResponse.model.entries.map(entry => entry.id),
-                        collapsedNodes: autoCollapsedNodes,
                         columns
                     },
                     this.updateTotalHeight
@@ -553,6 +545,73 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
     renderTree(): React.ReactNode {
         this.onOrderChange = this.onOrderChange.bind(this);
         this.onOrderReset = this.onOrderReset.bind(this);
+
+        // console.log(this.props.outputDescriptor.type);
+
+        if (this.props.outputDescriptor.type === 'GANTT_CHART') {
+            return (
+                <>
+                    <div
+                        ref={this.timeGraphTreeRef}
+                        className="scrollable"
+                        onScroll={() => this.synchronizeTreeScroll()}
+                        style={{
+                            height:
+                                parseInt(this.props.style.height.toString()) -
+                                this.getMarkersLayerHeight() -
+                                (document.getElementById(
+                                    this.props.traceId + this.props.outputDescriptor.id + 'searchBar'
+                                )?.offsetHeight ?? 0)
+                        }}
+                        tabIndex={0}
+                    >
+                        {this.renderContextMenu()}
+                        <EntryTree
+                            collapsedNodes={this.state.collapsedNodes}
+                            showFilter={false}
+                            entries={this.state.aggregatedGraph}
+                            showCheckboxes={false}
+                            onToggleCollapse={this.onToggleCollapse}
+                            onRowClick={this.onRowClick}
+                            onMultipleRowClick={this.onMultipleRowClick}
+                            selectedRow={this.state.selectedRow}
+                            multiSelectedRows={this.state.multiSelectedRows}
+                            showHeader={true}
+                            onContextMenu={this.onCtxMenu}
+                            className="table-tree timegraph-tree"
+                            emptyNodes={this.state.emptyNodes}
+                            hideEmptyNodes={this.shouldHideEmptyNodes}
+                            onOrderChange={this.onOrderChange}
+                            onOrderReset={this.onOrderReset}
+                            headers={this.state.columns}
+                            hideFillers={true}
+                            type={this.props.outputDescriptor.type}
+                        />
+                    </div>
+                    <div
+                        ref={this.markerTreeRef}
+                        className="scrollable"
+                        style={{ height: this.getMarkersLayerHeight() }}
+                    >
+                        <EntryTree
+                            collapsedNodes={this.state.collapsedMarkerNodes}
+                            showFilter={false}
+                            entries={this.state.markerCategoryEntries}
+                            showCheckboxes={false}
+                            showCloseIcons={true}
+                            onRowClick={this.onMarkerRowClick}
+                            selectedRow={this.state.selectedMarkerRow}
+                            onToggleCollapse={this.onToggleAnnotationCollapse}
+                            onClose={this.onMarkerCategoryRowClose}
+                            showHeader={false}
+                            className="table-tree timegraph-tree"
+                            hideFillers={true}
+                        />
+                    </div>
+                </>
+            );
+        }
+
         // TODO Show header, when we can have entries in-line with timeline-chart
         return (
             <>
@@ -998,8 +1057,7 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
                     width: this.getChartWidth(),
                     backgroundColor: this.props.style.chartBackgroundColor,
                     lineColor: this.props.style.lineColor,
-                    classNames: 'horizontal-canvas',
-                    forceCanvasRenderer: false // default, but adds clarity
+                    classNames: 'horizontal-canvas'
                 }}
                 addWidgetResizeHandler={this.props.addWidgetResizeHandler}
                 removeWidgetResizeHandler={this.props.removeWidgetResizeHandler}
@@ -1033,8 +1091,7 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
                     width: this.getChartWidth(),
                     backgroundColor: this.props.style.chartBackgroundColor,
                     lineColor: this.props.backgroundTheme === 'light' ? 0xdddddd : 0x34383c,
-                    classNames: 'horizontal-canvas',
-                    forceCanvasRenderer: false // default, but adds clarity
+                    classNames: 'horizontal-canvas'
                 }}
                 addWidgetResizeHandler={this.props.addWidgetResizeHandler}
                 removeWidgetResizeHandler={this.props.removeWidgetResizeHandler}
@@ -1068,8 +1125,7 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
                     id: 'vscroll',
                     width: 10,
                     height: parseInt(this.props.style.height.toString()),
-                    backgroundColor: this.props.style.naviBackgroundColor,
-                    forceCanvasRenderer: true
+                    backgroundColor: this.props.style.naviBackgroundColor
                 }}
                 addWidgetResizeHandler={this.props.addWidgetResizeHandler}
                 removeWidgetResizeHandler={this.props.removeWidgetResizeHandler}
@@ -1170,6 +1226,7 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
             this.pendingSelection = undefined;
             this.selectAndReveal(foundElement);
         }
+
         return {
             rows: rows,
             range: newRange,
