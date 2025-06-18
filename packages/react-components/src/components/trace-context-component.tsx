@@ -27,7 +27,7 @@ import { cloneDeep } from 'lodash';
 import { UnitControllerHistoryHandler } from './utils/unit-controller-history-handler';
 import { TraceOverviewComponent } from './trace-overview-component';
 import { TimeRangeUpdatePayload } from 'traceviewer-base/lib/signals/time-range-data-signal-payloads';
-import { AggregatedgraphOutputComponent } from './aggregatedgraph-output-component';
+import { FlamegraphOutputComponent } from './flamegraph-output-component';
 
 const ResponsiveGridLayout = WidthProvider(Responsive);
 
@@ -715,6 +715,7 @@ export class TraceContextComponent extends React.Component<TraceContextProps, Tr
                         setChartOffset: this.setChartOffset,
                         pinned: this.state.pinnedView ? this.state.pinnedView === output : undefined
                     };
+
                     switch (responseType) {
                         case 'OVERVIEW':
                             return (
@@ -766,11 +767,22 @@ export class TraceContextComponent extends React.Component<TraceContextProps, Tr
                                     className={this.state.pinnedView?.id === output.id ? 'pinned-view-shadow' : ''}
                                 />
                             );
+                        /**
+                         * @todo Implement the ProviderType enum in tsp-typescript-client
+                         */
                         case 'GANTT_CHART':
+                            const flamegraphRange = new TimeRange(
+                                BigInt(0),
+                                // Intentionally choose a very large number to query all states in the experiment
+                                this.state.currentRange.getStart() + this.state.currentRange.getEnd(),
+                                BigInt(0)
+                            );
                             return (
-                                <AggregatedgraphOutputComponent
+                                <FlamegraphOutputComponent
                                     key={output.id}
                                     {...outputProps}
+                                    range={flamegraphRange}
+                                    viewRange={flamegraphRange}
                                     addWidgetResizeHandler={this.addWidgetResizeHandler}
                                     removeWidgetResizeHandler={this.removeWidgetResizeHandler}
                                     className={this.state.pinnedView?.id === output.id ? 'pinned-view-shadow' : ''}

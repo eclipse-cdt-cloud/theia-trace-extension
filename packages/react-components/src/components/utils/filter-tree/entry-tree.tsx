@@ -28,7 +28,6 @@ interface EntryTreeProps {
     headers: ColumnHeader[];
     className: string;
     hideFillers?: boolean;
-    type: string;
 }
 
 export class EntryTree extends React.Component<EntryTreeProps> {

@@ -15,7 +15,6 @@ import { QueryHelper } from 'tsp-typescript-client/lib/models/query/query-helper
 import { ResponseStatus } from 'tsp-typescript-client/lib/models/response/responses';
 import { TimeGraphEntry } from 'tsp-typescript-client/lib/models/timegraph';
 import { signalManager } from 'traceviewer-base/lib/signals/signal-manager';
-import { AbstractOutputProps } from './abstract-output-component';
 import { AbstractTreeOutputComponent, AbstractTreeOutputState } from './abstract-tree-output-component';
 import { StyleProperties } from './data-providers/style-properties';
 import { StyleProvider } from './data-providers/style-provider';
@@ -47,14 +46,15 @@ import {
 import { ContextMenuItemClickedSignalPayload } from 'traceviewer-base/lib/signals/context-menu-item-clicked-signal-payload';
 import { RowSelectionsChangedSignalPayload } from 'traceviewer-base/lib/signals/row-selections-changed-signal-payload';
 import { ItemPropertiesSignalPayload } from 'traceviewer-base/lib/signals/item-properties-signal-payload';
+import { AbstractOutputProps } from './abstract-output-component';
 
-export type TimegraphOutputProps = AbstractOutputProps & {
+type FlamegraphOutputProps = AbstractOutputProps & {
     addWidgetResizeHandler: (handler: () => void) => void;
     removeWidgetResizeHandler: (handler: () => void) => void;
 };
 
-export type TimegraphOutputState = AbstractTreeOutputState & {
-    aggregatedGraph: TimeGraphEntry[];
+type FlamegraphOutputState = AbstractTreeOutputState & {
+    callgraph: TimeGraphEntry[];
     defaultOrderedIds: number[];
     markerCategoryEntries: Entry[];
     markerLayerData:
@@ -74,10 +74,11 @@ export type TimegraphOutputState = AbstractTreeOutputState & {
 };
 
 const COARSE_RESOLUTION_FACTOR = 8; // resolution factor to use for first (coarse) update
-const MENU_ID = 'timegraph.menuId-';
-export class AggregatedgraphOutputComponent extends AbstractTreeOutputComponent<
-    TimegraphOutputProps,
-    TimegraphOutputState
+const MENU_ID = 'callgraph.menuId-';
+
+export class FlamegraphOutputComponent extends AbstractTreeOutputComponent<
+    FlamegraphOutputProps,
+    FlamegraphOutputState
 > {
     private totalHeight = 0;
     private rowController: TimeGraphRowController;
@@ -113,11 +114,11 @@ export class AggregatedgraphOutputComponent extends AbstractTreeOutputComponent<
         this.chartLayer.updateChart(this.filterExpressionsMap());
     }, 500);
 
-    constructor(props: TimegraphOutputProps) {
+    constructor(props: FlamegraphOutputProps) {
         super(props);
         this.state = {
             outputStatus: ResponseStatus.RUNNING,
-            aggregatedGraph: [],
+            callgraph: [],
             defaultOrderedIds: [],
             markerCategoryEntries: [],
             markerLayerData: undefined,
@@ -322,7 +323,7 @@ export class AggregatedgraphOutputComponent extends AbstractTreeOutputComponent<
                 this.setState(
                     {
                         outputStatus: treeResponse.status,
-                        aggregatedGraph: treeResponse.model.entries,
+                        callgraph: treeResponse.model.entries,
                         defaultOrderedIds: treeResponse.model.entries.map(entry => entry.id),
                         columns
                     },
@@ -341,7 +342,7 @@ export class AggregatedgraphOutputComponent extends AbstractTreeOutputComponent<
         return ResponseStatus.FAILED;
     }
 
-    async componentDidUpdate(prevProps: TimegraphOutputProps, prevState: TimegraphOutputState): Promise<void> {
+    async componentDidUpdate(prevProps: FlamegraphOutputProps, prevState: FlamegraphOutputState): Promise<void> {
         if (
             !isEqual(prevProps.markerCategories, this.props.markerCategories) ||
             prevProps.markerSetId !== this.props.markerSetId
@@ -349,12 +350,12 @@ export class AggregatedgraphOutputComponent extends AbstractTreeOutputComponent<
             this.selectedMarkerCategories = this.props.markerCategories;
             this.chartLayer.updateChart(this.filterExpressionsMap());
             this.markersChartLayer.updateChart();
-            this.rangeEventsLayer.update();
+            // this.rangeEventsLayer.update();
             this.arrowLayer.update();
         } else {
             if (
                 this.state.outputStatus !== prevState.outputStatus ||
-                !isEqual(this.state.aggregatedGraph, prevState.aggregatedGraph) ||
+                !isEqual(this.state.callgraph, prevState.callgraph) ||
                 !isEqual(this.state.collapsedNodes, prevState.collapsedNodes)
             ) {
                 this.chartLayer.update();
@@ -437,7 +438,7 @@ export class AggregatedgraphOutputComponent extends AbstractTreeOutputComponent<
     }
 
     private updateTotalHeight() {
-        const visibleEntries = [...this.state.aggregatedGraph].filter(entry => this.isVisible(entry));
+        const visibleEntries = [...this.state.callgraph].filter(entry => this.isVisible(entry));
         this.totalHeight = visibleEntries.length * this.props.style.rowHeight;
         this.rowController.totalHeight = this.totalHeight;
     }
@@ -456,7 +457,7 @@ export class AggregatedgraphOutputComponent extends AbstractTreeOutputComponent<
             if (collapsedNodes.includes(parentId)) {
                 return false;
             }
-            const parent = this.state.aggregatedGraph.find(e => e.id === parentId);
+            const parent = this.state.callgraph.find(e => e.id === parentId);
             parentId = parent ? parent.parentId : undefined;
         }
         return true;
@@ -481,8 +482,8 @@ export class AggregatedgraphOutputComponent extends AbstractTreeOutputComponent<
     }
 
     private doHandleOrderChange(ids: number[]) {
-        const ordered = this.state.aggregatedGraph.slice().sort((a, b) => ids.indexOf(a.id) - ids.indexOf(b.id));
-        this.setState({ aggregatedGraph: ordered });
+        const ordered = this.state.callgraph.slice().sort((a, b) => ids.indexOf(a.id) - ids.indexOf(b.id));
+        this.setState({ callgraph: ordered });
     }
 
     private doHandleOrderReset() {
@@ -504,7 +505,7 @@ export class AggregatedgraphOutputComponent extends AbstractTreeOutputComponent<
         let element: TimeGraphEntry | undefined = undefined;
         let max = 0;
         if (payload && payload.load) {
-            this.state.aggregatedGraph.forEach(el => {
+            this.state.callgraph.forEach(el => {
                 if (el.metadata) {
                     let cnt = 0;
                     Object.entries(el.metadata).forEach(([key, values]) => {
@@ -545,73 +546,6 @@ export class AggregatedgraphOutputComponent extends AbstractTreeOutputComponent<
     renderTree(): React.ReactNode {
         this.onOrderChange = this.onOrderChange.bind(this);
         this.onOrderReset = this.onOrderReset.bind(this);
-
-        // console.log(this.props.outputDescriptor.type);
-
-        if (this.props.outputDescriptor.type === 'GANTT_CHART') {
-            return (
-                <>
-                    <div
-                        ref={this.timeGraphTreeRef}
-                        className="scrollable"
-                        onScroll={() => this.synchronizeTreeScroll()}
-                        style={{
-                            height:
-                                parseInt(this.props.style.height.toString()) -
-                                this.getMarkersLayerHeight() -
-                                (document.getElementById(
-                                    this.props.traceId + this.props.outputDescriptor.id + 'searchBar'
-                                )?.offsetHeight ?? 0)
-                        }}
-                        tabIndex={0}
-                    >
-                        {this.renderContextMenu()}
-                        <EntryTree
-                            collapsedNodes={this.state.collapsedNodes}
-                            showFilter={false}
-                            entries={this.state.aggregatedGraph}
-                            showCheckboxes={false}
-                            onToggleCollapse={this.onToggleCollapse}
-                            onRowClick={this.onRowClick}
-                            onMultipleRowClick={this.onMultipleRowClick}
-                            selectedRow={this.state.selectedRow}
-                            multiSelectedRows={this.state.multiSelectedRows}
-                            showHeader={true}
-                            onContextMenu={this.onCtxMenu}
-                            className="table-tree timegraph-tree"
-                            emptyNodes={this.state.emptyNodes}
-                            hideEmptyNodes={this.shouldHideEmptyNodes}
-                            onOrderChange={this.onOrderChange}
-                            onOrderReset={this.onOrderReset}
-                            headers={this.state.columns}
-                            hideFillers={true}
-                            type={this.props.outputDescriptor.type}
-                        />
-                    </div>
-                    <div
-                        ref={this.markerTreeRef}
-                        className="scrollable"
-                        style={{ height: this.getMarkersLayerHeight() }}
-                    >
-                        <EntryTree
-                            collapsedNodes={this.state.collapsedMarkerNodes}
-                            showFilter={false}
-                            entries={this.state.markerCategoryEntries}
-                            showCheckboxes={false}
-                            showCloseIcons={true}
-                            onRowClick={this.onMarkerRowClick}
-                            selectedRow={this.state.selectedMarkerRow}
-                            onToggleCollapse={this.onToggleAnnotationCollapse}
-                            onClose={this.onMarkerCategoryRowClose}
-                            showHeader={false}
-                            className="table-tree timegraph-tree"
-                            hideFillers={true}
-                        />
-                    </div>
-                </>
-            );
-        }
-
         // TODO Show header, when we can have entries in-line with timeline-chart
         return (
             <>
@@ -632,7 +566,7 @@ export class AggregatedgraphOutputComponent extends AbstractTreeOutputComponent<
                     <EntryTree
                         collapsedNodes={this.state.collapsedNodes}
                         showFilter={false}
-                        entries={this.state.aggregatedGraph}
+                        entries={this.state.callgraph}
                         showCheckboxes={false}
                         onToggleCollapse={this.onToggleCollapse}
                         onRowClick={this.onRowClick}
@@ -641,7 +575,7 @@ export class AggregatedgraphOutputComponent extends AbstractTreeOutputComponent<
                         multiSelectedRows={this.state.multiSelectedRows}
                         showHeader={true}
                         onContextMenu={this.onCtxMenu}
-                        className="table-tree timegraph-tree"
+                        className="table-tree callgraph-tree"
                         emptyNodes={this.state.emptyNodes}
                         hideEmptyNodes={this.shouldHideEmptyNodes}
                         onOrderChange={this.onOrderChange}
@@ -662,7 +596,7 @@ export class AggregatedgraphOutputComponent extends AbstractTreeOutputComponent<
                         onToggleCollapse={this.onToggleAnnotationCollapse}
                         onClose={this.onMarkerCategoryRowClose}
                         showHeader={false}
-                        className="table-tree timegraph-tree"
+                        className="table-tree callgraph-tree"
                         hideFillers={true}
                     />
                 </div>
@@ -727,7 +661,7 @@ export class AggregatedgraphOutputComponent extends AbstractTreeOutputComponent<
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const entryModels: { id: number; parentId?: number; metadata?: { [key: string]: any } }[] = [];
         for (const id of ids) {
-            const element = this.state.aggregatedGraph.find(el => el.id === id);
+            const element = this.state.callgraph.find(el => el.id === id);
             if (element) {
                 entryModels.push({ id: element.id, parentId: element.parentId, metadata: element.metadata });
             }
@@ -807,7 +741,7 @@ export class AggregatedgraphOutputComponent extends AbstractTreeOutputComponent<
         return (
             <React.Fragment>
                 <div
-                    id="timegraph-main"
+                    id="callgraph-main"
                     className="ps__child--consume"
                     onWheel={ev => {
                         ev.preventDefault();
@@ -830,7 +764,7 @@ export class AggregatedgraphOutputComponent extends AbstractTreeOutputComponent<
     }
 
     resultsAreEmpty(): boolean {
-        return this.state.aggregatedGraph.length === 0;
+        return this.state.callgraph.length === 0;
     }
 
     private isFilteredIn(row: TimelineChart.TimeGraphRowModel, strategy?: string): boolean {
@@ -943,7 +877,7 @@ export class AggregatedgraphOutputComponent extends AbstractTreeOutputComponent<
     private renderTimeGraphContent() {
         return (
             <div
-                id="main-timegraph-content"
+                id="main-callgraph-content"
                 ref={this.horizontalContainer}
                 style={{ height: 'auto', marginTop: this.state.marginTop }}
             >
@@ -958,7 +892,7 @@ export class AggregatedgraphOutputComponent extends AbstractTreeOutputComponent<
         return (
             <div
                 id={this.props.traceId + this.props.outputDescriptor.id + 'searchBar'}
-                className="timegraph-search-bar"
+                className="callgraph-search-bar"
             >
                 <TextField
                     InputProps={{
@@ -973,7 +907,7 @@ export class AggregatedgraphOutputComponent extends AbstractTreeOutputComponent<
                                 <i className="codicon codicon-search"></i>
                             </InputAdornment>
                         ),
-                        className: 'timegraph-search-box',
+                        className: 'callgraph-search-box',
                         endAdornment: (
                             <InputAdornment
                                 sx={{
@@ -1052,7 +986,7 @@ export class AggregatedgraphOutputComponent extends AbstractTreeOutputComponent<
         return (
             <ReactTimeGraphContainer
                 options={{
-                    id: 'timegraph-chart-1',
+                    id: 'callgraph-chart-1',
                     height: this.getMarkersLayerHeight(),
                     width: this.getChartWidth(),
                     backgroundColor: this.props.style.chartBackgroundColor,
@@ -1062,7 +996,7 @@ export class AggregatedgraphOutputComponent extends AbstractTreeOutputComponent<
                 addWidgetResizeHandler={this.props.addWidgetResizeHandler}
                 removeWidgetResizeHandler={this.props.removeWidgetResizeHandler}
                 unitController={this.props.unitController}
-                id="timegraph-chart-1"
+                id="callgraph-chart-1"
                 layers={[this.markersChartLayer, this.markerChartCursors]}
             />
         );
@@ -1077,6 +1011,7 @@ export class AggregatedgraphOutputComponent extends AbstractTreeOutputComponent<
         const selectionRange = new TimeGraphChartSelectionRange('chart-selection-range', {
             color: this.props.style.cursorColor
         });
+
         return (
             <ReactTimeGraphContainer
                 ref={this.containerRef}
@@ -1149,7 +1084,7 @@ export class AggregatedgraphOutputComponent extends AbstractTreeOutputComponent<
     }
 
     private getTimegraphRowIds() {
-        const { aggregatedGraph: timegraphTree, columns, collapsedNodes } = this.state;
+        const { callgraph: timegraphTree, columns, collapsedNodes } = this.state;
         const rowIds = getAllExpandedNodeIds(listToTree(timegraphTree, columns), collapsedNodes);
         return { rowIds };
     }
@@ -1176,7 +1111,7 @@ export class AggregatedgraphOutputComponent extends AbstractTreeOutputComponent<
         const nbTimes = Math.ceil(Number(end - start) / resolution) + 1;
         const timeGraphData: TimelineChart.TimeGraphModel = await this.tspDataProvider.getData(
             ids,
-            this.state.aggregatedGraph,
+            this.state.callgraph,
             fetchArrows,
             this.props.range,
             newRange,
@@ -1226,7 +1161,6 @@ export class AggregatedgraphOutputComponent extends AbstractTreeOutputComponent<
             this.pendingSelection = undefined;
             this.selectAndReveal(foundElement);
         }
-
         return {
             rows: rows,
             range: newRange,
@@ -1577,13 +1511,13 @@ export class AggregatedgraphOutputComponent extends AbstractTreeOutputComponent<
     }
 
     private expandParents(entry: TimeGraphEntry) {
-        let foundNode = this.state.aggregatedGraph.find(node => node.id === entry?.id);
+        let foundNode = this.state.callgraph.find(node => node.id === entry?.id);
         if (foundNode) {
             let parentId: number | undefined = foundNode.parentId;
             const ids: number[] = [];
             while (parentId && parentId >= 0) {
                 ids.push(parentId);
-                foundNode = this.state.aggregatedGraph.find(node => node.id === parentId);
+                foundNode = this.state.callgraph.find(node => node.id === parentId);
                 parentId = foundNode?.parentId;
             }
 
@@ -1608,7 +1542,7 @@ export class AggregatedgraphOutputComponent extends AbstractTreeOutputComponent<
     public onRowClick = (id: number): void => {
         const rowIndex = getIndexOfNode(
             id,
-            listToTree(this.state.aggregatedGraph, this.state.columns),
+            listToTree(this.state.callgraph, this.state.columns),
             this.state.collapsedNodes,
             this.state.emptyNodes
         );
@@ -1623,7 +1557,7 @@ export class AggregatedgraphOutputComponent extends AbstractTreeOutputComponent<
     };
 
     public onMultipleRowClick = (id: number, isShiftClicked?: boolean): void => {
-        const tree = listToTree(this.state.aggregatedGraph, this.state.columns);
+        const tree = listToTree(this.state.callgraph, this.state.columns);
         const rowIndex = getIndexOfNode(id, tree, this.state.collapsedNodes, this.state.emptyNodes);
 
         if (isShiftClicked) {
@@ -1725,7 +1659,7 @@ export class AggregatedgraphOutputComponent extends AbstractTreeOutputComponent<
     private selectAndReveal(item: TimeGraphEntry) {
         const rowIndex = getIndexOfNode(
             item.id,
-            listToTree(this.state.aggregatedGraph, this.state.columns),
+            listToTree(this.state.callgraph, this.state.columns),
             this.state.collapsedNodes,
             this.state.emptyNodes
         );
