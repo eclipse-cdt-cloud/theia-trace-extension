@@ -60,7 +60,7 @@ export type TimegraphOutputProps = AbstractOutputProps & {
 };
 
 export type TimegraphOutputState = AbstractTreeOutputState & {
-    aggregatedGraph: TimeGraphEntry[];
+    timegraph: TimeGraphEntry[];
     defaultOrderedIds: number[];
     markerCategoryEntries: Entry[];
     markerLayerData:
@@ -120,7 +120,7 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
         super(props);
         this.state = {
             outputStatus: ResponseStatus.RUNNING,
-            aggregatedGraph: [],
+            timegraph: [],
             defaultOrderedIds: [],
             markerCategoryEntries: [],
             markerLayerData: undefined,
@@ -329,7 +329,7 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
                 this.setState(
                     {
                         outputStatus: treeResponse.status,
-                        aggregatedGraph: treeResponse.model.entries,
+                        timegraph: treeResponse.model.entries,
                         defaultOrderedIds: treeResponse.model.entries.map(entry => entry.id),
                         collapsedNodes: autoCollapsedNodes,
                         columns
@@ -362,7 +362,7 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
         } else {
             if (
                 this.state.outputStatus !== prevState.outputStatus ||
-                !isEqual(this.state.aggregatedGraph, prevState.aggregatedGraph) ||
+                !isEqual(this.state.timegraph, prevState.timegraph) ||
                 !isEqual(this.state.collapsedNodes, prevState.collapsedNodes)
             ) {
                 this.chartLayer.update();
@@ -445,7 +445,7 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
     }
 
     private updateTotalHeight() {
-        const visibleEntries = [...this.state.aggregatedGraph].filter(entry => this.isVisible(entry));
+        const visibleEntries = [...this.state.timegraph].filter(entry => this.isVisible(entry));
         this.totalHeight = visibleEntries.length * this.props.style.rowHeight;
         this.rowController.totalHeight = this.totalHeight;
     }
@@ -464,7 +464,7 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
             if (collapsedNodes.includes(parentId)) {
                 return false;
             }
-            const parent = this.state.aggregatedGraph.find(e => e.id === parentId);
+            const parent = this.state.timegraph.find(e => e.id === parentId);
             parentId = parent ? parent.parentId : undefined;
         }
         return true;
@@ -489,8 +489,8 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
     }
 
     private doHandleOrderChange(ids: number[]) {
-        const ordered = this.state.aggregatedGraph.slice().sort((a, b) => ids.indexOf(a.id) - ids.indexOf(b.id));
-        this.setState({ aggregatedGraph: ordered });
+        const ordered = this.state.timegraph.slice().sort((a, b) => ids.indexOf(a.id) - ids.indexOf(b.id));
+        this.setState({ timegraph: ordered });
     }
 
     private doHandleOrderReset() {
@@ -512,7 +512,7 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
         let element: TimeGraphEntry | undefined = undefined;
         let max = 0;
         if (payload && payload.load) {
-            this.state.aggregatedGraph.forEach(el => {
+            this.state.timegraph.forEach(el => {
                 if (el.metadata) {
                     let cnt = 0;
                     Object.entries(el.metadata).forEach(([key, values]) => {
@@ -573,7 +573,7 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
                     <EntryTree
                         collapsedNodes={this.state.collapsedNodes}
                         showFilter={false}
-                        entries={this.state.aggregatedGraph}
+                        entries={this.state.timegraph}
                         showCheckboxes={false}
                         onToggleCollapse={this.onToggleCollapse}
                         onRowClick={this.onRowClick}
@@ -668,7 +668,7 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const entryModels: { id: number; parentId?: number; metadata?: { [key: string]: any } }[] = [];
         for (const id of ids) {
-            const element = this.state.aggregatedGraph.find(el => el.id === id);
+            const element = this.state.timegraph.find(el => el.id === id);
             if (element) {
                 entryModels.push({ id: element.id, parentId: element.parentId, metadata: element.metadata });
             }
@@ -771,7 +771,7 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
     }
 
     resultsAreEmpty(): boolean {
-        return this.state.aggregatedGraph.length === 0;
+        return this.state.timegraph.length === 0;
     }
 
     private isFilteredIn(row: TimelineChart.TimeGraphRowModel, strategy?: string): boolean {
@@ -1093,7 +1093,7 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
     }
 
     private getTimegraphRowIds() {
-        const { aggregatedGraph: timegraphTree, columns, collapsedNodes } = this.state;
+        const { timegraph: timegraphTree, columns, collapsedNodes } = this.state;
         const rowIds = getAllExpandedNodeIds(listToTree(timegraphTree, columns), collapsedNodes);
         return { rowIds };
     }
@@ -1120,7 +1120,7 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
         const nbTimes = Math.ceil(Number(end - start) / resolution) + 1;
         const timeGraphData: TimelineChart.TimeGraphModel = await this.tspDataProvider.getData(
             ids,
-            this.state.aggregatedGraph,
+            this.state.timegraph,
             fetchArrows,
             this.props.range,
             newRange,
@@ -1520,13 +1520,13 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
     }
 
     private expandParents(entry: TimeGraphEntry) {
-        let foundNode = this.state.aggregatedGraph.find(node => node.id === entry?.id);
+        let foundNode = this.state.timegraph.find(node => node.id === entry?.id);
         if (foundNode) {
             let parentId: number | undefined = foundNode.parentId;
             const ids: number[] = [];
             while (parentId && parentId >= 0) {
                 ids.push(parentId);
-                foundNode = this.state.aggregatedGraph.find(node => node.id === parentId);
+                foundNode = this.state.timegraph.find(node => node.id === parentId);
                 parentId = foundNode?.parentId;
             }
 
@@ -1551,7 +1551,7 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
     public onRowClick = (id: number): void => {
         const rowIndex = getIndexOfNode(
             id,
-            listToTree(this.state.aggregatedGraph, this.state.columns),
+            listToTree(this.state.timegraph, this.state.columns),
             this.state.collapsedNodes,
             this.state.emptyNodes
         );
@@ -1566,7 +1566,7 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
     };
 
     public onMultipleRowClick = (id: number, isShiftClicked?: boolean): void => {
-        const tree = listToTree(this.state.aggregatedGraph, this.state.columns);
+        const tree = listToTree(this.state.timegraph, this.state.columns);
         const rowIndex = getIndexOfNode(id, tree, this.state.collapsedNodes, this.state.emptyNodes);
 
         if (isShiftClicked) {
@@ -1668,7 +1668,7 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
     private selectAndReveal(item: TimeGraphEntry) {
         const rowIndex = getIndexOfNode(
             item.id,
-            listToTree(this.state.aggregatedGraph, this.state.columns),
+            listToTree(this.state.timegraph, this.state.columns),
             this.state.collapsedNodes,
             this.state.emptyNodes
         );
