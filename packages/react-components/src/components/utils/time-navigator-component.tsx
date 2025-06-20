@@ -26,7 +26,8 @@ export class TimeNavigatorComponent extends React.Component<TimeNavigatorProps> 
                     width: this.props.style.width,
                     height: 10,
                     backgroundColor: this.props.style.naviBackgroundColor,
-                    classNames: 'horizontal-canvas'
+                    classNames: 'horizontal-canvas',
+                    forceCanvasRenderer: true
                 }}
                 addWidgetResizeHandler={this.props.addWidgetResizeHandler}
                 removeWidgetResizeHandler={this.props.removeWidgetResizeHandler}
