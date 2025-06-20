@@ -27,6 +27,7 @@ import { cloneDeep } from 'lodash';
 import { UnitControllerHistoryHandler } from './utils/unit-controller-history-handler';
 import { TraceOverviewComponent } from './trace-overview-component';
 import { TimeRangeUpdatePayload } from 'traceviewer-base/lib/signals/time-range-data-signal-payloads';
+import { FlamegraphOutputComponent } from './flamegraph-output-component';
 
 const ResponsiveGridLayout = WidthProvider(Responsive);
 
@@ -714,6 +715,7 @@ export class TraceContextComponent extends React.Component<TraceContextProps, Tr
                         setChartOffset: this.setChartOffset,
                         pinned: this.state.pinnedView ? this.state.pinnedView === output : undefined
                     };
+
                     switch (responseType) {
                         case 'OVERVIEW':
                             return (
@@ -762,6 +764,23 @@ export class TraceContextComponent extends React.Component<TraceContextProps, Tr
                                 <DataTreeOutputComponent
                                     key={output.id}
                                     {...outputProps}
+                                    className={this.state.pinnedView?.id === output.id ? 'pinned-view-shadow' : ''}
+                                />
+                            );
+                        case 'GANTT_CHART':
+                            const flamegraphRange = new TimeRange(
+                                BigInt(0),
+                                this.state.currentRange.getEnd() + this.state.currentRange.getStart(),
+                                BigInt(0)
+                            );
+                            return (
+                                <FlamegraphOutputComponent
+                                    key={output.id}
+                                    {...outputProps}
+                                    range={flamegraphRange}
+                                    viewRange={flamegraphRange}
+                                    addWidgetResizeHandler={this.addWidgetResizeHandler}
+                                    removeWidgetResizeHandler={this.removeWidgetResizeHandler}
                                     className={this.state.pinnedView?.id === output.id ? 'pinned-view-shadow' : ''}
                                 />
                             );
