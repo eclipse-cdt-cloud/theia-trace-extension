@@ -987,7 +987,8 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
                     width: this.getChartWidth(),
                     backgroundColor: this.props.style.chartBackgroundColor,
                     lineColor: this.props.style.lineColor,
-                    classNames: 'horizontal-canvas'
+                    classNames: 'horizontal-canvas',
+                    forceCanvasRenderer: false // default, but adds clarity
                 }}
                 addWidgetResizeHandler={this.props.addWidgetResizeHandler}
                 removeWidgetResizeHandler={this.props.removeWidgetResizeHandler}
@@ -1021,7 +1022,8 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
                     width: this.getChartWidth(),
                     backgroundColor: this.props.style.chartBackgroundColor,
                     lineColor: this.props.backgroundTheme === 'light' ? 0xdddddd : 0x34383c,
-                    classNames: 'horizontal-canvas'
+                    classNames: 'horizontal-canvas',
+                    forceCanvasRenderer: false // default, but adds clarity
                 }}
                 addWidgetResizeHandler={this.props.addWidgetResizeHandler}
                 removeWidgetResizeHandler={this.props.removeWidgetResizeHandler}
@@ -1055,7 +1057,8 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
                     id: 'vscroll',
                     width: 10,
                     height: parseInt(this.props.style.height.toString()),
-                    backgroundColor: this.props.style.naviBackgroundColor
+                    backgroundColor: this.props.style.naviBackgroundColor,
+                    forceCanvasRenderer: true
                 }}
                 addWidgetResizeHandler={this.props.addWidgetResizeHandler}
                 removeWidgetResizeHandler={this.props.removeWidgetResizeHandler}

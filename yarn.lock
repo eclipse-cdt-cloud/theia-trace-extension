@@ -11533,9 +11533,9 @@ parse-path@^7.0.0:
     protocols "^2.0.0"
 
 parse-uri@^1.0.0:
-  version "1.0.9"
-  resolved "https://registry.yarnpkg.com/parse-uri/-/parse-uri-1.0.9.tgz#813c2a1107f9e833a12490cb1cb0408a67294b8f"
-  integrity sha512-YZfRHHkEZa6qTfPF/xgZ1ErQYCABfud/Vcqp1Q1GNa7RKwv6Oe0YaxXfQQMnQsGdNTo3fwaT0GbVEX7dMAr7tw==
+  version "1.0.11"
+  resolved "https://registry.yarnpkg.com/parse-uri/-/parse-uri-1.0.11.tgz#3ce39a3102dfe548cc693a914a01a36135063490"
+  integrity sha512-nQQNb6GJinexGecJEbfKJdoQ9mbwAHDbYUIDTB0y+DTQaxdZwERtx7LJ631QEBFDXkcxD5+ixBYmt0n2LkWcwQ==
 
 parse-url@^8.1.0:
   version "8.1.0"
@@ -13763,10 +13763,10 @@ through@2, "through@>=2.2.7 <3", through@^2.3.4, through@^2.3.6, through@^2.3.8:
   resolved "https://registry.yarnpkg.com/through/-/through-2.3.8.tgz#0dd4c9ffaabc357960b1b724115d7e0e86a2e1f5"
   integrity sha512-w89qg7PI8wAdvX60bMDP+bFoD5Dvhm9oLheFp5O4a2QF0cSBGsBX4qZmadPMvVqlLJBBci+WqGGOAPvcDeNSVg==
 
-timeline-chart@^0.4.1:
-  version "0.4.1"
-  resolved "https://registry.yarnpkg.com/timeline-chart/-/timeline-chart-0.4.1.tgz#57cefac6cfa928cd84842cfb5031a157d8bb716e"
-  integrity sha512-f5lNTaY4438ml6x4bHdh29/FTXZgMOvunM5FDA1fWocxlq5PCBWvndwSh/HiqOHT0HLuom7jz9juxFtjyFCZmg==
+timeline-chart@^0.4.2:
+  version "0.4.2"
+  resolved "https://registry.yarnpkg.com/timeline-chart/-/timeline-chart-0.4.2.tgz#7163a911b0d3a9aa398872952aa0c1f40b3abda9"
+  integrity sha512-jzI6aDORoA0dTB7SbAJpLFvDwuXD6sy+uVB3BLW4dOwyH2uehDOSJ+uxF1XjBAd7sn2Xxq9oA+aAjiWa2pEc2A==
   dependencies:
     "@types/lodash.throttle" "^4.1.4"
     glob "^7.1.6"

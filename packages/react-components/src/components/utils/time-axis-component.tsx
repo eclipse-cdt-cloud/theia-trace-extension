@@ -28,7 +28,8 @@ export class TimeAxisComponent extends React.Component<TimeAxisProps> {
                     height: 30,
                     backgroundColor: this.props.style.chartBackgroundColor,
                     lineColor: this.props.style.lineColor,
-                    classNames: 'horizontal-canvas'
+                    classNames: 'horizontal-canvas',
+                    forceCanvasRenderer: true
                 }}
                 addWidgetResizeHandler={this.props.addWidgetResizeHandler}
                 removeWidgetResizeHandler={this.props.removeWidgetResizeHandler}
