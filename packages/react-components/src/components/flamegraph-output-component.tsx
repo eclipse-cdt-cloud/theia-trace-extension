@@ -15,7 +15,7 @@ import { QueryHelper } from 'tsp-typescript-client/lib/models/query/query-helper
 import { ResponseStatus } from 'tsp-typescript-client/lib/models/response/responses';
 import { TimeGraphEntry } from 'tsp-typescript-client/lib/models/timegraph';
 import { signalManager } from 'traceviewer-base/lib/signals/signal-manager';
-import { AbstractTreeOutputComponent } from './abstract-tree-output-component';
+import { AbstractTreeOutputComponent, AbstractTreeOutputState } from './abstract-tree-output-component';
 import { StyleProperties } from './data-providers/style-properties';
 import { StyleProvider } from './data-providers/style-provider';
 import { TspDataProvider } from './data-providers/tsp-data-provider';
@@ -46,12 +46,39 @@ import {
 import { ContextMenuItemClickedSignalPayload } from 'traceviewer-base/lib/signals/context-menu-item-clicked-signal-payload';
 import { RowSelectionsChangedSignalPayload } from 'traceviewer-base/lib/signals/row-selections-changed-signal-payload';
 import { ItemPropertiesSignalPayload } from 'traceviewer-base/lib/signals/item-properties-signal-payload';
-import { TimegraphOutputProps, TimegraphOutputState } from './timegraph-output-component';
-import { TimeGraphUnitController } from 'timeline-chart/lib/time-graph-unit-controller';
+import { AbstractOutputProps } from './abstract-output-component';
+
+type FlamegraphOutputProps = AbstractOutputProps & {
+    addWidgetResizeHandler: (handler: () => void) => void;
+    removeWidgetResizeHandler: (handler: () => void) => void;
+};
+
+type FlamegraphOutputState = AbstractTreeOutputState & {
+    callgraph: TimeGraphEntry[];
+    defaultOrderedIds: number[];
+    markerCategoryEntries: Entry[];
+    markerLayerData:
+        | { rows: TimelineChart.TimeGraphRowModel[]; range: TimelineChart.TimeGraphRange; resolution: number }
+        | undefined;
+    selectedRow?: number;
+    multiSelectedRows?: number[];
+    selectedMarkerRow?: number;
+    collapsedNodes: number[];
+    collapsedMarkerNodes: number[];
+    columns: ColumnHeader[];
+    searchString: string;
+    filters: string[];
+    menuItems?: ContextMenuItems;
+    emptyNodes: number[];
+    marginTop: number;
+};
 
 const COARSE_RESOLUTION_FACTOR = 8; // resolution factor to use for first (coarse) update
-const MENU_ID = 'timegraph.menuId-';
-export class FlamegraphOutputComponent extends AbstractTreeOutputComponent<TimegraphOutputProps, TimegraphOutputState> {
+const MENU_ID = 'callgraph.menuId-';
+export class FlamegraphOutputComponent extends AbstractTreeOutputComponent<
+    FlamegraphOutputProps,
+    FlamegraphOutputState
+> {
     private totalHeight = 0;
     private rowController: TimeGraphRowController;
     private markerRowController: TimeGraphRowController;
@@ -88,11 +115,11 @@ export class FlamegraphOutputComponent extends AbstractTreeOutputComponent<Timeg
 
     // private ignorantUnitController = new TimeGraphUnitController(BigInt(Number.POSITIVE_INFINITY));
 
-    constructor(props: TimegraphOutputProps) {
+    constructor(props: FlamegraphOutputProps) {
         super(props);
         this.state = {
             outputStatus: ResponseStatus.RUNNING,
-            timegraph: [],
+            callgraph: [],
             defaultOrderedIds: [],
             markerCategoryEntries: [],
             markerLayerData: undefined,
@@ -297,7 +324,7 @@ export class FlamegraphOutputComponent extends AbstractTreeOutputComponent<Timeg
                 this.setState(
                     {
                         outputStatus: treeResponse.status,
-                        timegraph: treeResponse.model.entries,
+                        callgraph: treeResponse.model.entries,
                         defaultOrderedIds: treeResponse.model.entries.map(entry => entry.id),
                         columns
                     },
@@ -316,7 +343,7 @@ export class FlamegraphOutputComponent extends AbstractTreeOutputComponent<Timeg
         return ResponseStatus.FAILED;
     }
 
-    async componentDidUpdate(prevProps: TimegraphOutputProps, prevState: TimegraphOutputState): Promise<void> {
+    async componentDidUpdate(prevProps: FlamegraphOutputProps, prevState: FlamegraphOutputState): Promise<void> {
         if (
             !isEqual(prevProps.markerCategories, this.props.markerCategories) ||
             prevProps.markerSetId !== this.props.markerSetId
@@ -329,7 +356,7 @@ export class FlamegraphOutputComponent extends AbstractTreeOutputComponent<Timeg
         } else {
             if (
                 this.state.outputStatus !== prevState.outputStatus ||
-                !isEqual(this.state.timegraph, prevState.timegraph) ||
+                !isEqual(this.state.callgraph, prevState.callgraph) ||
                 !isEqual(this.state.collapsedNodes, prevState.collapsedNodes)
             ) {
                 this.chartLayer.update();
@@ -412,7 +439,7 @@ export class FlamegraphOutputComponent extends AbstractTreeOutputComponent<Timeg
     }
 
     private updateTotalHeight() {
-        const visibleEntries = [...this.state.timegraph].filter(entry => this.isVisible(entry));
+        const visibleEntries = [...this.state.callgraph].filter(entry => this.isVisible(entry));
         this.totalHeight = visibleEntries.length * this.props.style.rowHeight;
         this.rowController.totalHeight = this.totalHeight;
     }
@@ -431,7 +458,7 @@ export class FlamegraphOutputComponent extends AbstractTreeOutputComponent<Timeg
             if (collapsedNodes.includes(parentId)) {
                 return false;
             }
-            const parent = this.state.timegraph.find(e => e.id === parentId);
+            const parent = this.state.callgraph.find(e => e.id === parentId);
             parentId = parent ? parent.parentId : undefined;
         }
         return true;
@@ -456,8 +483,8 @@ export class FlamegraphOutputComponent extends AbstractTreeOutputComponent<Timeg
     }
 
     private doHandleOrderChange(ids: number[]) {
-        const ordered = this.state.timegraph.slice().sort((a, b) => ids.indexOf(a.id) - ids.indexOf(b.id));
-        this.setState({ timegraph: ordered });
+        const ordered = this.state.callgraph.slice().sort((a, b) => ids.indexOf(a.id) - ids.indexOf(b.id));
+        this.setState({ callgraph: ordered });
     }
 
     private doHandleOrderReset() {
@@ -479,7 +506,7 @@ export class FlamegraphOutputComponent extends AbstractTreeOutputComponent<Timeg
         let element: TimeGraphEntry | undefined = undefined;
         let max = 0;
         if (payload && payload.load) {
-            this.state.timegraph.forEach(el => {
+            this.state.callgraph.forEach(el => {
                 if (el.metadata) {
                     let cnt = 0;
                     Object.entries(el.metadata).forEach(([key, values]) => {
@@ -540,7 +567,7 @@ export class FlamegraphOutputComponent extends AbstractTreeOutputComponent<Timeg
                     <EntryTree
                         collapsedNodes={this.state.collapsedNodes}
                         showFilter={false}
-                        entries={this.state.timegraph}
+                        entries={this.state.callgraph}
                         showCheckboxes={false}
                         onToggleCollapse={this.onToggleCollapse}
                         onRowClick={this.onRowClick}
@@ -549,7 +576,7 @@ export class FlamegraphOutputComponent extends AbstractTreeOutputComponent<Timeg
                         multiSelectedRows={this.state.multiSelectedRows}
                         showHeader={true}
                         onContextMenu={this.onCtxMenu}
-                        className="table-tree timegraph-tree"
+                        className="table-tree callgraph-tree"
                         emptyNodes={this.state.emptyNodes}
                         hideEmptyNodes={this.shouldHideEmptyNodes}
                         onOrderChange={this.onOrderChange}
@@ -570,7 +597,7 @@ export class FlamegraphOutputComponent extends AbstractTreeOutputComponent<Timeg
                         onToggleCollapse={this.onToggleAnnotationCollapse}
                         onClose={this.onMarkerCategoryRowClose}
                         showHeader={false}
-                        className="table-tree timegraph-tree"
+                        className="table-tree callgraph-tree"
                         hideFillers={true}
                     />
                 </div>
@@ -635,7 +662,7 @@ export class FlamegraphOutputComponent extends AbstractTreeOutputComponent<Timeg
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const entryModels: { id: number; parentId?: number; metadata?: { [key: string]: any } }[] = [];
         for (const id of ids) {
-            const element = this.state.timegraph.find(el => el.id === id);
+            const element = this.state.callgraph.find(el => el.id === id);
             if (element) {
                 entryModels.push({ id: element.id, parentId: element.parentId, metadata: element.metadata });
             }
@@ -715,7 +742,7 @@ export class FlamegraphOutputComponent extends AbstractTreeOutputComponent<Timeg
         return (
             <React.Fragment>
                 <div
-                    id="timegraph-main"
+                    id="callgraph-main"
                     className="ps__child--consume"
                     onWheel={ev => {
                         ev.preventDefault();
@@ -738,7 +765,7 @@ export class FlamegraphOutputComponent extends AbstractTreeOutputComponent<Timeg
     }
 
     resultsAreEmpty(): boolean {
-        return this.state.timegraph.length === 0;
+        return this.state.callgraph.length === 0;
     }
 
     private isFilteredIn(row: TimelineChart.TimeGraphRowModel, strategy?: string): boolean {
@@ -851,7 +878,7 @@ export class FlamegraphOutputComponent extends AbstractTreeOutputComponent<Timeg
     private renderTimeGraphContent() {
         return (
             <div
-                id="main-timegraph-content"
+                id="main-callgraph-content"
                 ref={this.horizontalContainer}
                 style={{ height: 'auto', marginTop: this.state.marginTop }}
             >
@@ -866,7 +893,7 @@ export class FlamegraphOutputComponent extends AbstractTreeOutputComponent<Timeg
         return (
             <div
                 id={this.props.traceId + this.props.outputDescriptor.id + 'searchBar'}
-                className="timegraph-search-bar"
+                className="callgraph-search-bar"
             >
                 <TextField
                     InputProps={{
@@ -881,7 +908,7 @@ export class FlamegraphOutputComponent extends AbstractTreeOutputComponent<Timeg
                                 <i className="codicon codicon-search"></i>
                             </InputAdornment>
                         ),
-                        className: 'timegraph-search-box',
+                        className: 'callgraph-search-box',
                         endAdornment: (
                             <InputAdornment
                                 sx={{
@@ -960,7 +987,7 @@ export class FlamegraphOutputComponent extends AbstractTreeOutputComponent<Timeg
         return (
             <ReactTimeGraphContainer
                 options={{
-                    id: 'timegraph-chart-1',
+                    id: 'callgraph-chart-1',
                     height: this.getMarkersLayerHeight(),
                     width: this.getChartWidth(),
                     backgroundColor: this.props.style.chartBackgroundColor,
@@ -970,7 +997,7 @@ export class FlamegraphOutputComponent extends AbstractTreeOutputComponent<Timeg
                 addWidgetResizeHandler={this.props.addWidgetResizeHandler}
                 removeWidgetResizeHandler={this.props.removeWidgetResizeHandler}
                 unitController={this.props.unitController}
-                id="timegraph-chart-1"
+                id="callgraph-chart-1"
                 layers={[this.markersChartLayer, this.markerChartCursors]}
             />
         );
@@ -1058,7 +1085,7 @@ export class FlamegraphOutputComponent extends AbstractTreeOutputComponent<Timeg
     }
 
     private getTimegraphRowIds() {
-        const { timegraph: timegraphTree, columns, collapsedNodes } = this.state;
+        const { callgraph: timegraphTree, columns, collapsedNodes } = this.state;
         const rowIds = getAllExpandedNodeIds(listToTree(timegraphTree, columns), collapsedNodes);
         return { rowIds };
     }
@@ -1085,7 +1112,7 @@ export class FlamegraphOutputComponent extends AbstractTreeOutputComponent<Timeg
         const nbTimes = Math.ceil(Number(end - start) / resolution) + 1;
         const timeGraphData: TimelineChart.TimeGraphModel = await this.tspDataProvider.getData(
             ids,
-            this.state.timegraph,
+            this.state.callgraph,
             fetchArrows,
             this.props.range,
             newRange,
@@ -1485,13 +1512,13 @@ export class FlamegraphOutputComponent extends AbstractTreeOutputComponent<Timeg
     }
 
     private expandParents(entry: TimeGraphEntry) {
-        let foundNode = this.state.timegraph.find(node => node.id === entry?.id);
+        let foundNode = this.state.callgraph.find(node => node.id === entry?.id);
         if (foundNode) {
             let parentId: number | undefined = foundNode.parentId;
             const ids: number[] = [];
             while (parentId && parentId >= 0) {
                 ids.push(parentId);
-                foundNode = this.state.timegraph.find(node => node.id === parentId);
+                foundNode = this.state.callgraph.find(node => node.id === parentId);
                 parentId = foundNode?.parentId;
             }
 
@@ -1516,7 +1543,7 @@ export class FlamegraphOutputComponent extends AbstractTreeOutputComponent<Timeg
     public onRowClick = (id: number): void => {
         const rowIndex = getIndexOfNode(
             id,
-            listToTree(this.state.timegraph, this.state.columns),
+            listToTree(this.state.callgraph, this.state.columns),
             this.state.collapsedNodes,
             this.state.emptyNodes
         );
@@ -1531,7 +1558,7 @@ export class FlamegraphOutputComponent extends AbstractTreeOutputComponent<Timeg
     };
 
     public onMultipleRowClick = (id: number, isShiftClicked?: boolean): void => {
-        const tree = listToTree(this.state.timegraph, this.state.columns);
+        const tree = listToTree(this.state.callgraph, this.state.columns);
         const rowIndex = getIndexOfNode(id, tree, this.state.collapsedNodes, this.state.emptyNodes);
 
         if (isShiftClicked) {
@@ -1633,7 +1660,7 @@ export class FlamegraphOutputComponent extends AbstractTreeOutputComponent<Timeg
     private selectAndReveal(item: TimeGraphEntry) {
         const rowIndex = getIndexOfNode(
             item.id,
-            listToTree(this.state.timegraph, this.state.columns),
+            listToTree(this.state.callgraph, this.state.columns),
             this.state.collapsedNodes,
             this.state.emptyNodes
         );
