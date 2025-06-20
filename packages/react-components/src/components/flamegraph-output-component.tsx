@@ -86,7 +86,7 @@ export class FlamegraphOutputComponent extends AbstractTreeOutputComponent<Timeg
         this.chartLayer.updateChart(this.filterExpressionsMap());
     }, 500);
 
-    private ignorantUnitController = new TimeGraphUnitController(BigInt(12));
+    // private ignorantUnitController = new TimeGraphUnitController(BigInt(Number.POSITIVE_INFINITY));
 
     constructor(props: TimegraphOutputProps) {
         super(props);
@@ -985,6 +985,7 @@ export class FlamegraphOutputComponent extends AbstractTreeOutputComponent<Timeg
         const selectionRange = new TimeGraphChartSelectionRange('chart-selection-range', {
             color: this.props.style.cursorColor
         });
+
         return (
             <ReactTimeGraphContainer
                 ref={this.containerRef}
@@ -1003,7 +1004,7 @@ export class FlamegraphOutputComponent extends AbstractTreeOutputComponent<Timeg
                 }}
                 addWidgetResizeHandler={this.props.addWidgetResizeHandler}
                 removeWidgetResizeHandler={this.props.removeWidgetResizeHandler}
-                unitController={this.ignorantUnitController}
+                unitController={this.props.unitController}
                 id={this.props.traceId + this.props.outputDescriptor.id + 'focusContainer'}
                 layers={[
                     grid,
