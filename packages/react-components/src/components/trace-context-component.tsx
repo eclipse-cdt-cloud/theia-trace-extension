@@ -716,12 +716,6 @@ export class TraceContextComponent extends React.Component<TraceContextProps, Tr
                         pinned: this.state.pinnedView ? this.state.pinnedView === output : undefined
                     };
 
-                    const flamegraphRange = new TimeRange(
-                        BigInt(0),
-                        this.state.currentRange.getEnd() + this.state.currentRange.getStart(),
-                        BigInt(0)
-                    );
-
                     switch (responseType) {
                         case 'OVERVIEW':
                             return (
@@ -774,6 +768,11 @@ export class TraceContextComponent extends React.Component<TraceContextProps, Tr
                                 />
                             );
                         case 'GANTT_CHART':
+                            const flamegraphRange = new TimeRange(
+                                BigInt(0),
+                                this.state.currentRange.getEnd() + this.state.currentRange.getStart(),
+                                BigInt(0)
+                            );
                             return (
                                 <FlamegraphOutputComponent
                                     key={output.id}
