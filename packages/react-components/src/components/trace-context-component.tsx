@@ -767,10 +767,14 @@ export class TraceContextComponent extends React.Component<TraceContextProps, Tr
                                     className={this.state.pinnedView?.id === output.id ? 'pinned-view-shadow' : ''}
                                 />
                             );
+                        /**
+                         * @todo Implement the ProviderType enum in tsp-typescript-client
+                         */
                         case 'GANTT_CHART':
                             const flamegraphRange = new TimeRange(
                                 BigInt(0),
-                                this.state.currentRange.getEnd() + this.state.currentRange.getStart(),
+                                // Intentionally choose a very large number to query all states in the experiment
+                                this.state.currentRange.getStart() + this.state.currentRange.getEnd(),
                                 BigInt(0)
                             );
                             return (
