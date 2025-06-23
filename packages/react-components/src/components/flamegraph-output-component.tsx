@@ -75,6 +75,7 @@ type FlamegraphOutputState = AbstractTreeOutputState & {
 
 const COARSE_RESOLUTION_FACTOR = 8; // resolution factor to use for first (coarse) update
 const MENU_ID = 'callgraph.menuId-';
+
 export class FlamegraphOutputComponent extends AbstractTreeOutputComponent<
     FlamegraphOutputProps,
     FlamegraphOutputState
@@ -112,8 +113,6 @@ export class FlamegraphOutputComponent extends AbstractTreeOutputComponent<
     private _debouncedUpdateChart = debounce(() => {
         this.chartLayer.updateChart(this.filterExpressionsMap());
     }, 500);
-
-    // private ignorantUnitController = new TimeGraphUnitController(BigInt(Number.POSITIVE_INFINITY));
 
     constructor(props: FlamegraphOutputProps) {
         super(props);
@@ -236,19 +235,19 @@ export class FlamegraphOutputComponent extends AbstractTreeOutputComponent<
             },
             mouseout: () => {
                 this.closeTooltip();
+            },
+            click: (el, ev, clickCount) => {
+                if (clickCount === 2) {
+                    const start = el.model.range.start;
+                    const end = el.model.range.end;
+                    if (start !== end) {
+                        this.props.unitController.viewRange = {
+                            start,
+                            end
+                        };
+                    }
+                }
             }
-            // click: (el, ev, clickCount) => {
-            //     if (clickCount === 2) {
-            //         const start = el.model.range.start;
-            //         const end = el.model.range.end;
-            //         if (start !== end) {
-            //             this.props.unitController.viewRange = {
-            //                 start,
-            //                 end
-            //             };
-            //         }
-            //     }
-            // }
         });
         this.markersChartLayer.registerMouseInteractions({
             click: el => {
