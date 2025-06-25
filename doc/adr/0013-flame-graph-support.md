@@ -8,7 +8,7 @@ Accepted
 
 ## Context
 
-This ADR outlines the design of flame graph support in the TSP and the implementation client and sever side. Flame graphs exist in classic Trace Compass in Eclipse. Any call stack analysis provides a flame graph. The following image shows the view to be supported in the TSP.
+This ADR outlines the design of flame graph support in the TSP and the implementation client and server side. Flame graphs exist in classic Trace Compass in Eclipse. Any call stack analysis provides a flame graph. The following image shows the view to be supported in the TSP.
 
 ![current](0013/flame-graph-0.0.1.png)
 
@@ -20,7 +20,7 @@ There are 2 possibilites to support the flame graph in the TSP.
 
 ### Solution 1: New flame graph data provider type
 
-The view it's self is very similar to data providers of type `TIME_GRAPH`. The main difference is that the x-axis is the duration and not time. The Trace Compass back-end currently has such an data provider available with the same API than `TIME_GRAPH` data providers. However, this data provider is not exposed to the server through the `getDescriptor()` method of the corresponing data provider factory. It will need a new type to be added to the `ProviderType` enum.
+The view itself is very similar to data providers of type `TIME_GRAPH`. The main difference is that the x-axis is the duration and not time. The Trace Compass back-end currently has such a data provider available with the same API than `TIME_GRAPH` data providers. However, this data provider is not exposed to the server through the `getDescriptor()` method of the corresponing data provider factory. It will need a new type to be added to the `ProviderType` enum.
 
 With this solution similar endpoints can be defined which have the advantage that the endpoints and data structures are known. Back-end filtering and highlighting would be supported out of the box. Assuming the new `Provider Type` is called `gantt` the following endpoints will be defined:
 
@@ -48,7 +48,7 @@ With this solution similar endpoints can be defined which have the advantage tha
 
 - This solution will allow us to fetch data depending on the zoom level. Since the flame graph data is limited in size (in comparison to regular time graphs), all the data can fetched once and all the zooming is done in FE only.
 - The annotation endpoints and styles endpoint are independent of the chart type (`TIME_GRAPH`) and can be provided for any chart type. 
-- The endpoints and data structures for the time based gantt chart (providerType `TIME_GRAPH`) are designed around timestamps. For example, states have a start and end, or annotations have a `start` and `duration`, or query parameter `requested_time_range` is meant for time stamps. Those names should be more generic, i.e. instead of `duration` it should be `delta`, instead of `requested_time_range` it should be `requested_range` and so on. Having generic names it won't be necessary to duplicate endpoints, data structes etc. for different x-axis.  
+- The endpoints and data structures for the time based gantt chart (providerType `TIME_GRAPH`) are designed around timestamps. For example, states have a start and end, or annotations have a `start` and `duration`, or query parameter `requested_time_range` is meant for time stamps. Those names should be more generic, i.e. instead of `duration` it should be `delta`, instead of `requested_time_range` it should be `requested_range` and so on. Having generic names it won't be necessary to duplicate endpoints, data structures etc. for different x-axis.  
 - To be able to get a flame graph for a given time range of the trace the `requested_time_range` should be used for that and a new query parameter `requested_range` for the view range (see bullet above).
 - Arrows for flame chart won't make make sense and don't need to be supported.
 
@@ -98,14 +98,14 @@ The existing data tree endpoints are not sufficient. New endpoints need to be ad
 
 #### Visualization
 
-To visualize the data weighted `DATA_TREE` data as flame graph in the theia-trace-extesion, a new react commponent should be implemented either using timeline-chart library (similar to the `TimegraphOutputComponent`). Alternatively, the new react component can implement or use an existing flame graph library, for example [d3-flame-graph](https://www.npmjs.com/package/d3-flame-graph/.
+To visualize the data weighted `DATA_TREE` data as flame graph in the theia-trace-extension, a new react commponent should be implemented either using timeline-chart library (similar to the `TimegraphOutputComponent`). Alternatively, the new react component can implement or use an existing flame graph library, for example [d3-flame-graph](https://www.npmjs.com/package/d3-flame-graph/.
 
 ### Other considerations
 
 #### Custom Aggregation
 Flame graphs can have different schemes for aggregation of layers, e.g. per process ID, threads or full aggregation, which will change the tree and duration values of each segment. Changing the aggregation scheme needs to be part of the TSP protocol, i.e. the flame graph data provider needs to provide the available aggregation schemes and there needs to be a query parameter or path parameter to specify which one to apply in the back-end.
 
-The data provider descripter capabilities can be augmented to indicate if a data tree can change the aggregation schem. With this in place we can define how the possible groupings are provide by the server to the client, and how the client provides the aggregation scheme. 
+The data provider descriptor capabilities can be augmented to indicate if a data tree can change the aggregation scheme. With this in place we can define how the possible groupings are provided by the server to the client, and how the client provides the aggregation scheme. 
 
 Aggregation will have to be supported in either of the solutions above.
 
@@ -115,9 +115,9 @@ Please note that the weight metric of the flame graph and weighted tree in the d
 
 #### Actions
 
-The Flame Graph in Trace Comapass has built in statisics, that allows to navigate to the time range of the minimum or maximum duration in the trace. For solution one, the statistics are shown as part of the segment tooltip which is queried on demand. The min/max time range has to be encoded in the tooltip and the UI needs to be able to understand that this is an action. For that we need to define a action indicator (e.g. prefix #ACTION or similar). 
+The Flame Graph in Trace Compass has built in statistics, that allows to navigate to the time range of the minimum or maximum duration in the trace. For solution one, the statistics are shown as part of the segment tooltip which is queried on demand. The min/max time range has to be encoded in the tooltip and the UI needs to be able to understand that this is an action. For that we need to define a action indicator (e.g. prefix #ACTION or similar). 
 
-For the data tree solution, the statistics could be provided as tooltip on the row as well. For that a new tooltip endpoint endpoint for data trees is required. The action design would be the same as in solution 1.
+For the data tree solution, the statistics could be provided as tooltip on the row as well. For that a new tooltip endpoint for data trees is required. The action design would be the same as in solution 1.
 
 ## Decision
 
