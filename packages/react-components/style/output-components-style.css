@@ -312,7 +312,6 @@ canvas {
 }
 
 .timegraph-tree tr {
-    /* TODO: Fix row alignment, this number is arbitrary, it works [on my machine], but it should match line height in timeline-chart */
     line-height: 18px;
 }
 
@@ -323,6 +322,7 @@ canvas {
 }
 
 .timegraph-tree td {
+    height: 18px;
     padding: 1px;
     border-left: 1px solid var(--trace-viewer-tree-inactiveIndentGuidesStroke);
     border-right: none;
