@@ -15,7 +15,7 @@ import { QueryHelper } from 'tsp-typescript-client/lib/models/query/query-helper
 import { ResponseStatus } from 'tsp-typescript-client/lib/models/response/responses';
 import { TimeGraphEntry } from 'tsp-typescript-client/lib/models/timegraph';
 import { signalManager } from 'traceviewer-base/lib/signals/signal-manager';
-import { AbstractTreeOutputComponent, AbstractTreeOutputState } from './abstract-tree-output-component';
+import { AbstractTreeOutputComponent } from './abstract-tree-output-component';
 import { StyleProperties } from './data-providers/style-properties';
 import { StyleProvider } from './data-providers/style-provider';
 import { TspDataProvider } from './data-providers/tsp-data-provider';
@@ -46,31 +46,18 @@ import {
 import { ContextMenuItemClickedSignalPayload } from 'traceviewer-base/lib/signals/context-menu-item-clicked-signal-payload';
 import { RowSelectionsChangedSignalPayload } from 'traceviewer-base/lib/signals/row-selections-changed-signal-payload';
 import { ItemPropertiesSignalPayload } from 'traceviewer-base/lib/signals/item-properties-signal-payload';
-import { AbstractOutputProps } from './abstract-output-component';
 
-type FlamegraphOutputProps = AbstractOutputProps & {
-    addWidgetResizeHandler: (handler: () => void) => void;
-    removeWidgetResizeHandler: (handler: () => void) => void;
+import { TimegraphOutputProps, TimegraphOutputState } from './timegraph-output-component';
+
+/**
+ * Flame graph type definitions with omitted and overriden properties
+ */
+type FlamegraphOutputProps = TimegraphOutputProps & {
+    initialViewRange?: TimelineChart.TimeGraphRange;
 };
-
-type FlamegraphOutputState = AbstractTreeOutputState & {
+type FlamegraphOutputState = Omit<TimegraphOutputState, 'timegraphTree'> & {
     callgraph: TimeGraphEntry[];
-    defaultOrderedIds: number[];
-    markerCategoryEntries: Entry[];
-    markerLayerData:
-        | { rows: TimelineChart.TimeGraphRowModel[]; range: TimelineChart.TimeGraphRange; resolution: number }
-        | undefined;
-    selectedRow?: number;
-    multiSelectedRows?: number[];
-    selectedMarkerRow?: number;
-    collapsedNodes: number[];
-    collapsedMarkerNodes: number[];
-    columns: ColumnHeader[];
-    searchString: string;
-    filters: string[];
-    menuItems?: ContextMenuItems;
-    emptyNodes: number[];
-    marginTop: number;
+    zoomResetCounter?: number;
 };
 
 const COARSE_RESOLUTION_FACTOR = 8; // resolution factor to use for first (coarse) update
@@ -114,6 +101,8 @@ export class FlamegraphOutputComponent extends AbstractTreeOutputComponent<
         this.chartLayer.updateChart(this.filterExpressionsMap());
     }, 500);
 
+    private initialViewRangeSnapshot?: TimelineChart.TimeGraphRange;
+
     constructor(props: FlamegraphOutputProps) {
         super(props);
         this.state = {
@@ -136,7 +125,8 @@ export class FlamegraphOutputComponent extends AbstractTreeOutputComponent<
             searchString: '',
             filters: [],
             emptyNodes: [],
-            marginTop: 0
+            marginTop: 0,
+            zoomResetCounter: 0
         };
         this.selectedMarkerCategories = this.props.markerCategories;
         this.onToggleCollapse = this.onToggleCollapse.bind(this);
@@ -265,6 +255,11 @@ export class FlamegraphOutputComponent extends AbstractTreeOutputComponent<
             collapsedNodes: this.state.collapsedNodes,
             collapsedMarkerNodes: this.state.collapsedMarkerNodes
         }));
+
+        // Store a snapshot of the initial view range
+        if (props.initialViewRange) {
+            this.initialViewRangeSnapshot = { start: props.initialViewRange.start, end: props.initialViewRange.end };
+        }
     }
 
     synchronizeTreeScroll(): void {
@@ -350,7 +345,7 @@ export class FlamegraphOutputComponent extends AbstractTreeOutputComponent<
             this.selectedMarkerCategories = this.props.markerCategories;
             this.chartLayer.updateChart(this.filterExpressionsMap());
             this.markersChartLayer.updateChart();
-            // this.rangeEventsLayer.update();
+            this.rangeEventsLayer.update();
             this.arrowLayer.update();
         } else {
             if (
@@ -740,6 +735,11 @@ export class FlamegraphOutputComponent extends AbstractTreeOutputComponent<
     renderChart(): React.ReactNode {
         return (
             <React.Fragment>
+                <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 4 }}>
+                    <button onClick={this.handleResetZoom} style={{ padding: '2px 8px', fontSize: '0.9em' }}>
+                        Reset Zoom
+                    </button>
+                </div>
                 <div
                     id="callgraph-main"
                     className="ps__child--consume"
@@ -1014,6 +1014,7 @@ export class FlamegraphOutputComponent extends AbstractTreeOutputComponent<
 
         return (
             <ReactTimeGraphContainer
+                key={this.state.zoomResetCounter}
                 ref={this.containerRef}
                 options={{
                     id: this.props.traceId + this.props.outputDescriptor.id + 'focusContainer',
@@ -1665,4 +1666,18 @@ export class FlamegraphOutputComponent extends AbstractTreeOutputComponent<
         );
         this.chartLayer.selectAndReveal(rowIndex);
     }
+
+    private handleResetZoom = () => {
+        // Reset the view range to the initial global view range snapshot
+        const initial = this.initialViewRangeSnapshot || this.props.unitController.viewRange;
+        console.log('Reset Zoom clicked. Resetting to:', initial);
+        this.props.unitController.viewRange = {
+            start: initial.start,
+            end: initial.end
+        };
+        if (this.chartLayer) {
+            this.chartLayer.update();
+        }
+        this.setState(prev => ({ zoomResetCounter: (prev.zoomResetCounter ?? 0) + 1 }));
+    };
 }

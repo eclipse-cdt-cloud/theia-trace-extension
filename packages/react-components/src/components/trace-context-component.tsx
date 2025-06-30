@@ -58,6 +58,7 @@ export interface TraceContextState {
     style: OutputComponentStyle;
     backgroundTheme: string;
     pinnedView: OutputDescriptor | undefined;
+    flamegraphViewRanges?: Record<string, { start: bigint; end: bigint }>;
 }
 
 export interface PersistedState {
@@ -181,7 +182,8 @@ export class TraceContextComponent extends React.Component<TraceContextProps, Tr
                 cursorColor: 0x259fd8,
                 lineColor: this.props.backgroundTheme === 'light' ? 0x757575 : 0xbbbbbb
             },
-            backgroundTheme: this.props.backgroundTheme
+            backgroundTheme: this.props.backgroundTheme,
+            flamegraphViewRanges: {}
         };
         const absoluteRange = traceRange.getDuration();
         const offset = viewRange.getOffset();
@@ -770,24 +772,60 @@ export class TraceContextComponent extends React.Component<TraceContextProps, Tr
                         /**
                          * @todo Implement the ProviderType enum in tsp-typescript-client
                          */
-                        case 'GANTT_CHART':
+                        case 'GANTT_CHART': {
+                            // Use experiment's real range for the flamegraph
+                            const experimentStart = this.state.experiment.start;
+                            const experimentEnd = this.state.experiment.end;
                             const flamegraphRange = new TimeRange(
                                 BigInt(0),
-                                // Intentionally choose a very large number to query all states in the experiment
-                                this.state.currentRange.getStart() + this.state.currentRange.getEnd(),
+                                experimentEnd - experimentStart,
                                 BigInt(0)
                             );
+                            // Create a separate unit controller for the flamegraph
+                            const flamegraphUnitController = new TimeGraphUnitController(
+                                flamegraphRange.getDuration(),
+                                { start: flamegraphRange.getStart(), end: flamegraphRange.getEnd() }
+                            );
+                            flamegraphUnitController.numberTranslator = (theNumber: bigint) => {
+                                const zeroPad = (num: bigint) => String(num).padStart(3, '0');
+                                const seconds = theNumber / BigInt(1000000000);
+                                const millis = zeroPad((theNumber / BigInt(1000000)) % BigInt(1000));
+                                const micros = zeroPad((theNumber / BigInt(1000)) % BigInt(1000));
+                                const nanos = zeroPad(theNumber % BigInt(1000));
+                                return seconds + '.' + millis + ' ' + micros + ' ' + nanos;
+                            };
+                            // Restore view range if available, otherwise set to global view range
+                            const fgViewRange = this.state.flamegraphViewRanges?.[output.id];
+                            if (fgViewRange) {
+                                flamegraphUnitController.viewRange = fgViewRange;
+                            } else {
+                                // Use the global view range from the main unit controller
+                                const globalViewRange = this.unitController.viewRange;
+                                flamegraphUnitController.viewRange = {
+                                    start: globalViewRange.start,
+                                    end: globalViewRange.end
+                                };
+                            }
+                            // Listen for view range changes
+                            flamegraphUnitController.onViewRangeChanged((_old, newRange) => {
+                                this.handleFlamegraphViewRangeChange(output.id, newRange);
+                            });
                             return (
                                 <FlamegraphOutputComponent
                                     key={output.id}
                                     {...outputProps}
                                     range={flamegraphRange}
-                                    viewRange={flamegraphRange}
+                                    unitController={flamegraphUnitController}
+                                    initialViewRange={{
+                                        start: this.unitController.viewRange.start,
+                                        end: this.unitController.viewRange.end
+                                    }}
                                     addWidgetResizeHandler={this.addWidgetResizeHandler}
                                     removeWidgetResizeHandler={this.removeWidgetResizeHandler}
                                     className={this.state.pinnedView?.id === output.id ? 'pinned-view-shadow' : ''}
                                 />
                             );
+                        }
                         default:
                             return (
                                 <NullOutputComponent
@@ -966,4 +1004,13 @@ export class TraceContextComponent extends React.Component<TraceContextProps, Tr
             };
         }
     }
+
+    private handleFlamegraphViewRangeChange = (outputId: string, newRange: { start: bigint; end: bigint }) => {
+        this.setState(prevState => ({
+            flamegraphViewRanges: {
+                ...prevState.flamegraphViewRanges,
+                [outputId]: newRange
+            }
+        }));
+    };
 }
