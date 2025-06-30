@@ -54,12 +54,12 @@ import { ContextMenuItemClickedSignalPayload } from 'traceviewer-base/lib/signal
 import { RowSelectionsChangedSignalPayload } from 'traceviewer-base/lib/signals/row-selections-changed-signal-payload';
 import { ItemPropertiesSignalPayload } from 'traceviewer-base/lib/signals/item-properties-signal-payload';
 
-type TimegraphOutputProps = AbstractOutputProps & {
+export type TimegraphOutputProps = AbstractOutputProps & {
     addWidgetResizeHandler: (handler: () => void) => void;
     removeWidgetResizeHandler: (handler: () => void) => void;
 };
 
-type TimegraphOutputState = AbstractTreeOutputState & {
+export type TimegraphOutputState = AbstractTreeOutputState & {
     timegraphTree: TimeGraphEntry[];
     defaultOrderedIds: number[];
     markerCategoryEntries: Entry[];
