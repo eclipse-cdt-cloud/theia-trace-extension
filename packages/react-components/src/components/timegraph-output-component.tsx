@@ -390,8 +390,8 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
             );
             signalManager().emit('ROW_SELECTIONS_CHANGED', signalPayload);
         }
-        if (!isEqual(this.state.columns, prevState.columns)) {
-            if (this.state.columns) {
+        if (this.state.timegraphTree.length > 0 && prevState.timegraphTree.length === 0) {
+            if (this.state.columns && this.state.columns.length > 0) {
                 const header = this.treeRef.current?.querySelector('th');
                 if (header) {
                     new ResizeObserver(target => {
