@@ -313,20 +313,20 @@ canvas {
     border: none;
 }
 
-.timegraph-tree,
+.timegraph-tree tr,
 .callgraph-tree tr {
     /* TODO: Fix row alignment, this number is arbitrary, it works [on my machine], but it should match line height in timeline-chart */
     line-height: 18px;
 }
 
-.timegraph-tree,
+.timegraph-tree th,
 .callgraph-tree th {
     line-height: 14px;
     position: sticky;
     top: 0px;
 }
 
-.timegraph-tree,
+.timegraph-tree td,
 .callgraph-tree td {
     padding: 1px;
     border-left: 1px solid var(--trace-viewer-tree-inactiveIndentGuidesStroke);
