@@ -59,6 +59,7 @@ export interface TraceContextState {
     backgroundTheme: string;
     pinnedView: OutputDescriptor | undefined;
     flamegraphViewRanges?: Record<string, { start: bigint; end: bigint }>;
+    flamegraphResetZoomKey?: number;
 }
 
 export interface PersistedState {
@@ -183,7 +184,8 @@ export class TraceContextComponent extends React.Component<TraceContextProps, Tr
                 lineColor: this.props.backgroundTheme === 'light' ? 0x757575 : 0xbbbbbb
             },
             backgroundTheme: this.props.backgroundTheme,
-            flamegraphViewRanges: {}
+            flamegraphViewRanges: {},
+            flamegraphResetZoomKey: 0
         };
         const absoluteRange = traceRange.getDuration();
         const offset = viewRange.getOffset();
@@ -578,7 +580,7 @@ export class TraceContextComponent extends React.Component<TraceContextProps, Tr
         for (const output of this.props.outputs) {
             if (this.state.pinnedView?.id === output.id) {
                 continue;
-            } else if (output.type === 'TIME_GRAPH' || output.type === 'TREE_TIME_XY') {
+            } else if (['TIME_GRAPH', 'TREE_TIME_XY'].includes(output.type)) {
                 timeScaleCharts.push(output);
             } else {
                 nonTimeScaleCharts.push(output);
@@ -586,7 +588,7 @@ export class TraceContextComponent extends React.Component<TraceContextProps, Tr
         }
 
         const pinnedViewTimeScale =
-            this.state.pinnedView?.type === 'TIME_GRAPH' || this.state.pinnedView?.type === 'TREE_TIME_XY';
+            this.state.pinnedView?.type && ['TIME_GRAPH', 'TREE_TIME_XY'].includes(this.state.pinnedView?.type);
         const timeScaleChartExists = timeScaleCharts.length > 0 || pinnedViewTimeScale;
 
         return (
@@ -773,6 +775,10 @@ export class TraceContextComponent extends React.Component<TraceContextProps, Tr
                          * @todo Implement the ProviderType enum in tsp-typescript-client
                          */
                         case 'GANTT_CHART': {
+                            if (this.chartPersistedState && this.chartPersistedState.output.id === output.id) {
+                                outputProps.persistChartState = this.chartPersistedState.payload;
+                                this.chartPersistedState = undefined;
+                            }
                             // Use experiment's real range for the flamegraph
                             const experimentStart = this.state.experiment.start;
                             const experimentEnd = this.state.experiment.end;
@@ -799,7 +805,7 @@ export class TraceContextComponent extends React.Component<TraceContextProps, Tr
                             if (fgViewRange) {
                                 flamegraphUnitController.viewRange = fgViewRange;
                             } else {
-                                // Use the global view range from the main unit controller
+                                // Use the global view range from the parent unit controller
                                 const globalViewRange = this.unitController.viewRange;
                                 flamegraphUnitController.viewRange = {
                                     start: globalViewRange.start,
@@ -810,6 +816,8 @@ export class TraceContextComponent extends React.Component<TraceContextProps, Tr
                             flamegraphUnitController.onViewRangeChanged((_old, newRange) => {
                                 this.handleFlamegraphViewRangeChange(output.id, newRange);
                             });
+                            const chartWidth = Math.max(0, this.state.style.width - this.state.style.chartOffset);
+
                             return (
                                 <FlamegraphOutputComponent
                                     key={output.id}
@@ -823,7 +831,25 @@ export class TraceContextComponent extends React.Component<TraceContextProps, Tr
                                     addWidgetResizeHandler={this.addWidgetResizeHandler}
                                     removeWidgetResizeHandler={this.removeWidgetResizeHandler}
                                     className={this.state.pinnedView?.id === output.id ? 'pinned-view-shadow' : ''}
-                                />
+                                    onResetZoom={this.handleFlamegraphResetZoom}
+                                >
+                                    <div
+                                        style={{
+                                            position: 'absolute',
+                                            zIndex: -1,
+                                            marginLeft: this.state.style.chartOffset,
+                                            marginRight: this.SCROLLBAR_PADDING
+                                        }}
+                                    >
+                                        <TimeAxisComponent
+                                            key={this.state.flamegraphResetZoomKey}
+                                            unitController={flamegraphUnitController}
+                                            style={{ ...this.state.style, width: chartWidth, verticalAlign: 'bottom' }}
+                                            addWidgetResizeHandler={this.addWidgetResizeHandler}
+                                            removeWidgetResizeHandler={this.removeWidgetResizeHandler}
+                                        />
+                                    </div>
+                                </FlamegraphOutputComponent>
                             );
                         }
                         default:
@@ -931,7 +957,7 @@ export class TraceContextComponent extends React.Component<TraceContextProps, Tr
                 existingPinnedLayout = this._storedPinnedViewLayout;
             } else if (this.state.pinnedView?.id === output.id) {
                 let prevLayout: Layout | undefined = undefined;
-                if (output.type === 'TIME_GRAPH' || output.type === 'TREE_TIME_XY') {
+                if (['TIME_GRAPH', 'TREE_TIME_XY'].includes(output.type)) {
                     prevLayout = this._storedTimescaleLayout.find(layout => layout.i === output.id);
                 } else {
                     prevLayout = this._storedNonTimescaleLayout.find(layout => layout.i === output.id);
@@ -949,7 +975,7 @@ export class TraceContextComponent extends React.Component<TraceContextProps, Tr
                 existingTimeScaleLayouts.push(curChartTimeLine);
             } else if (curChartNonTimeLine) {
                 existingNonTimeScaleLayouts.push(curChartNonTimeLine);
-            } else if (output.type === 'TIME_GRAPH' || output.type === 'TREE_TIME_XY') {
+            } else if (['TIME_GRAPH', 'TREE_TIME_XY'].includes(output.type)) {
                 const prevLayout =
                     this._storedPinnedViewLayout?.i === output.id ? this._storedPinnedViewLayout : undefined;
                 newTimeScaleLayouts.push({
@@ -1012,5 +1038,9 @@ export class TraceContextComponent extends React.Component<TraceContextProps, Tr
                 [outputId]: newRange
             }
         }));
+    };
+
+    private handleFlamegraphResetZoom = () => {
+        this.setState(prev => ({ flamegraphResetZoomKey: (prev.flamegraphResetZoomKey ?? 0) + 1 }));
     };
 }

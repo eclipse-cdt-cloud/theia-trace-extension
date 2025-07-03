@@ -22,7 +22,13 @@ import { TspDataProvider } from './data-providers/tsp-data-provider';
 import { ReactTimeGraphContainer } from './utils/timegraph-container-component';
 import { OutputElementStyle } from 'tsp-typescript-client/lib/models/styles';
 import { EntryTree } from './utils/filter-tree/entry-tree';
-import { listToTree, getAllExpandedNodeIds, getIndexOfNode, validateNumArray } from './utils/filter-tree/utils';
+import {
+    listToTree,
+    getAllExpandedNodeIds,
+    getIndexOfNode,
+    validateNumArray,
+    getCollapsedNodesFromAutoExpandLevel
+} from './utils/filter-tree/utils';
 import hash from 'traceviewer-base/lib/utils/value-hash';
 import ColumnHeader from './utils/filter-tree/column-header';
 import { TimeGraphAnnotationComponent } from 'timeline-chart/lib/components/time-graph-annotation';
@@ -54,9 +60,11 @@ import { TimegraphOutputProps, TimegraphOutputState } from './timegraph-output-c
  */
 type FlamegraphOutputProps = TimegraphOutputProps & {
     initialViewRange?: TimelineChart.TimeGraphRange;
+    children?: React.ReactNode;
+    onResetZoom?: () => void;
 };
 type FlamegraphOutputState = Omit<TimegraphOutputState, 'timegraphTree'> & {
-    callgraph: TimeGraphEntry[];
+    callgraphTree: TimeGraphEntry[];
     zoomResetCounter?: number;
 };
 
@@ -79,7 +87,7 @@ export class FlamegraphOutputComponent extends AbstractTreeOutputComponent<
     private rangeEventsLayer: TimeGraphRangeEventsLayer;
 
     private horizontalContainer: React.RefObject<HTMLDivElement>;
-    private timeGraphTreeRef: React.RefObject<HTMLDivElement>;
+    private callGraphTreeRef: React.RefObject<HTMLDivElement>;
     private markerTreeRef: React.RefObject<HTMLDivElement>;
     private containerRef: React.RefObject<ReactTimeGraphContainer>;
 
@@ -107,7 +115,7 @@ export class FlamegraphOutputComponent extends AbstractTreeOutputComponent<
         super(props);
         this.state = {
             outputStatus: ResponseStatus.RUNNING,
-            callgraph: [],
+            callgraphTree: [],
             defaultOrderedIds: [],
             markerCategoryEntries: [],
             markerLayerData: undefined,
@@ -145,7 +153,7 @@ export class FlamegraphOutputComponent extends AbstractTreeOutputComponent<
         this.rowController = new TimeGraphRowController(this.props.style.rowHeight, this.totalHeight);
         this.markerRowController = new TimeGraphRowController(this.props.style.rowHeight, this.totalHeight);
         this.horizontalContainer = React.createRef();
-        this.timeGraphTreeRef = React.createRef();
+        this.callGraphTreeRef = React.createRef();
         this.markerTreeRef = React.createRef();
         this.containerRef = React.createRef();
         this.handleSearchChange = this.handleSearchChange.bind(this);
@@ -192,8 +200,8 @@ export class FlamegraphOutputComponent extends AbstractTreeOutputComponent<
         this.rowController.onSelectedRowChangedHandler(this.onSelectionChange);
         this.markerRowController.onSelectedRowChangedHandler(this.onMarkerSelectionChange);
         this.rowController.onVerticalOffsetChangedHandler(() => {
-            if (this.timeGraphTreeRef.current) {
-                this.timeGraphTreeRef.current.scrollTop = this.rowController.verticalOffset;
+            if (this.callGraphTreeRef.current) {
+                this.callGraphTreeRef.current.scrollTop = this.rowController.verticalOffset;
             }
         });
 
@@ -263,8 +271,8 @@ export class FlamegraphOutputComponent extends AbstractTreeOutputComponent<
     }
 
     synchronizeTreeScroll(): void {
-        if (this.timeGraphTreeRef.current) {
-            this.rowController.verticalOffset = this.timeGraphTreeRef.current.scrollTop;
+        if (this.callGraphTreeRef.current) {
+            this.rowController.verticalOffset = this.callGraphTreeRef.current.scrollTop;
         }
     }
 
@@ -315,11 +323,16 @@ export class FlamegraphOutputComponent extends AbstractTreeOutputComponent<
                 } else {
                     columns.push({ title: '', sortable: true, resizable: true });
                 }
+                const autoCollapsedNodes = getCollapsedNodesFromAutoExpandLevel(
+                    listToTree(treeResponse.model.entries, columns),
+                    treeResponse.model.autoExpandLevel
+                );
                 this.setState(
                     {
                         outputStatus: treeResponse.status,
-                        callgraph: treeResponse.model.entries,
+                        callgraphTree: treeResponse.model.entries,
                         defaultOrderedIds: treeResponse.model.entries.map(entry => entry.id),
+                        collapsedNodes: autoCollapsedNodes,
                         columns
                     },
                     this.updateTotalHeight
@@ -350,7 +363,7 @@ export class FlamegraphOutputComponent extends AbstractTreeOutputComponent<
         } else {
             if (
                 this.state.outputStatus !== prevState.outputStatus ||
-                !isEqual(this.state.callgraph, prevState.callgraph) ||
+                !isEqual(this.state.callgraphTree, prevState.callgraphTree) ||
                 !isEqual(this.state.collapsedNodes, prevState.collapsedNodes)
             ) {
                 this.chartLayer.update();
@@ -433,7 +446,7 @@ export class FlamegraphOutputComponent extends AbstractTreeOutputComponent<
     }
 
     private updateTotalHeight() {
-        const visibleEntries = [...this.state.callgraph].filter(entry => this.isVisible(entry));
+        const visibleEntries = [...this.state.callgraphTree].filter(entry => this.isVisible(entry));
         this.totalHeight = visibleEntries.length * this.props.style.rowHeight;
         this.rowController.totalHeight = this.totalHeight;
     }
@@ -452,7 +465,7 @@ export class FlamegraphOutputComponent extends AbstractTreeOutputComponent<
             if (collapsedNodes.includes(parentId)) {
                 return false;
             }
-            const parent = this.state.callgraph.find(e => e.id === parentId);
+            const parent = this.state.callgraphTree.find(e => e.id === parentId);
             parentId = parent ? parent.parentId : undefined;
         }
         return true;
@@ -477,8 +490,8 @@ export class FlamegraphOutputComponent extends AbstractTreeOutputComponent<
     }
 
     private doHandleOrderChange(ids: number[]) {
-        const ordered = this.state.callgraph.slice().sort((a, b) => ids.indexOf(a.id) - ids.indexOf(b.id));
-        this.setState({ callgraph: ordered });
+        const ordered = this.state.callgraphTree.slice().sort((a, b) => ids.indexOf(a.id) - ids.indexOf(b.id));
+        this.setState({ callgraphTree: ordered });
     }
 
     private doHandleOrderReset() {
@@ -500,7 +513,7 @@ export class FlamegraphOutputComponent extends AbstractTreeOutputComponent<
         let element: TimeGraphEntry | undefined = undefined;
         let max = 0;
         if (payload && payload.load) {
-            this.state.callgraph.forEach(el => {
+            this.state.callgraphTree.forEach(el => {
                 if (el.metadata) {
                     let cnt = 0;
                     Object.entries(el.metadata).forEach(([key, values]) => {
@@ -545,7 +558,19 @@ export class FlamegraphOutputComponent extends AbstractTreeOutputComponent<
         return (
             <>
                 <div
-                    ref={this.timeGraphTreeRef}
+                    style={{
+                        display: 'flex',
+                        justifyContent: 'flex-end',
+                        marginBottom: 4,
+                        flexDirection: 'column'
+                    }}
+                >
+                    <button onClick={this.handleResetZoom} style={{ padding: '2px 8px', fontSize: '0.9em', zIndex: 1 }}>
+                        Reset Zoom
+                    </button>
+                </div>
+                <div
+                    ref={this.callGraphTreeRef}
                     className="scrollable"
                     onScroll={() => this.synchronizeTreeScroll()}
                     style={{
@@ -561,7 +586,7 @@ export class FlamegraphOutputComponent extends AbstractTreeOutputComponent<
                     <EntryTree
                         collapsedNodes={this.state.collapsedNodes}
                         showFilter={false}
-                        entries={this.state.callgraph}
+                        entries={this.state.callgraphTree}
                         showCheckboxes={false}
                         onToggleCollapse={this.onToggleCollapse}
                         onRowClick={this.onRowClick}
@@ -656,7 +681,7 @@ export class FlamegraphOutputComponent extends AbstractTreeOutputComponent<
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const entryModels: { id: number; parentId?: number; metadata?: { [key: string]: any } }[] = [];
         for (const id of ids) {
-            const element = this.state.callgraph.find(el => el.id === id);
+            const element = this.state.callgraphTree.find(el => el.id === id);
             if (element) {
                 entryModels.push({ id: element.id, parentId: element.parentId, metadata: element.metadata });
             }
@@ -735,11 +760,7 @@ export class FlamegraphOutputComponent extends AbstractTreeOutputComponent<
     renderChart(): React.ReactNode {
         return (
             <React.Fragment>
-                <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 4 }}>
-                    <button onClick={this.handleResetZoom} style={{ padding: '2px 8px', fontSize: '0.9em' }}>
-                        Reset Zoom
-                    </button>
-                </div>
+                {this.props.children}
                 <div
                     id="callgraph-main"
                     className="ps__child--consume"
@@ -764,7 +785,7 @@ export class FlamegraphOutputComponent extends AbstractTreeOutputComponent<
     }
 
     resultsAreEmpty(): boolean {
-        return this.state.callgraph.length === 0;
+        return this.state.callgraphTree.length === 0;
     }
 
     private isFilteredIn(row: TimelineChart.TimeGraphRowModel, strategy?: string): boolean {
@@ -1004,7 +1025,7 @@ export class FlamegraphOutputComponent extends AbstractTreeOutputComponent<
 
     private getChartContainer() {
         const grid = new TimeGraphChartGrid(
-            'timeGraphGrid',
+            'callGraphGrid',
             this.props.style.rowHeight,
             this.props.backgroundTheme === 'light' ? 0xdddddd : 0x34383c
         );
@@ -1085,7 +1106,7 @@ export class FlamegraphOutputComponent extends AbstractTreeOutputComponent<
     }
 
     private getTimegraphRowIds() {
-        const { callgraph: timegraphTree, columns, collapsedNodes } = this.state;
+        const { callgraphTree: timegraphTree, columns, collapsedNodes } = this.state;
         const rowIds = getAllExpandedNodeIds(listToTree(timegraphTree, columns), collapsedNodes);
         return { rowIds };
     }
@@ -1112,7 +1133,7 @@ export class FlamegraphOutputComponent extends AbstractTreeOutputComponent<
         const nbTimes = Math.ceil(Number(end - start) / resolution) + 1;
         const timeGraphData: TimelineChart.TimeGraphModel = await this.tspDataProvider.getData(
             ids,
-            this.state.callgraph,
+            this.state.callgraphTree,
             fetchArrows,
             this.props.range,
             newRange,
@@ -1512,13 +1533,13 @@ export class FlamegraphOutputComponent extends AbstractTreeOutputComponent<
     }
 
     private expandParents(entry: TimeGraphEntry) {
-        let foundNode = this.state.callgraph.find(node => node.id === entry?.id);
+        let foundNode = this.state.callgraphTree.find(node => node.id === entry?.id);
         if (foundNode) {
             let parentId: number | undefined = foundNode.parentId;
             const ids: number[] = [];
             while (parentId && parentId >= 0) {
                 ids.push(parentId);
-                foundNode = this.state.callgraph.find(node => node.id === parentId);
+                foundNode = this.state.callgraphTree.find(node => node.id === parentId);
                 parentId = foundNode?.parentId;
             }
 
@@ -1543,7 +1564,7 @@ export class FlamegraphOutputComponent extends AbstractTreeOutputComponent<
     public onRowClick = (id: number): void => {
         const rowIndex = getIndexOfNode(
             id,
-            listToTree(this.state.callgraph, this.state.columns),
+            listToTree(this.state.callgraphTree, this.state.columns),
             this.state.collapsedNodes,
             this.state.emptyNodes
         );
@@ -1558,7 +1579,7 @@ export class FlamegraphOutputComponent extends AbstractTreeOutputComponent<
     };
 
     public onMultipleRowClick = (id: number, isShiftClicked?: boolean): void => {
-        const tree = listToTree(this.state.callgraph, this.state.columns);
+        const tree = listToTree(this.state.callgraphTree, this.state.columns);
         const rowIndex = getIndexOfNode(id, tree, this.state.collapsedNodes, this.state.emptyNodes);
 
         if (isShiftClicked) {
@@ -1660,7 +1681,7 @@ export class FlamegraphOutputComponent extends AbstractTreeOutputComponent<
     private selectAndReveal(item: TimeGraphEntry) {
         const rowIndex = getIndexOfNode(
             item.id,
-            listToTree(this.state.callgraph, this.state.columns),
+            listToTree(this.state.callgraphTree, this.state.columns),
             this.state.collapsedNodes,
             this.state.emptyNodes
         );
@@ -1670,7 +1691,6 @@ export class FlamegraphOutputComponent extends AbstractTreeOutputComponent<
     private handleResetZoom = () => {
         // Reset the view range to the initial global view range snapshot
         const initial = this.initialViewRangeSnapshot || this.props.unitController.viewRange;
-        console.log('Reset Zoom clicked. Resetting to:', initial);
         this.props.unitController.viewRange = {
             start: initial.start,
             end: initial.end
@@ -1679,5 +1699,8 @@ export class FlamegraphOutputComponent extends AbstractTreeOutputComponent<
             this.chartLayer.update();
         }
         this.setState(prev => ({ zoomResetCounter: (prev.zoomResetCounter ?? 0) + 1 }));
+        if (this.props.onResetZoom) {
+            this.props.onResetZoom();
+        }
     };
 }
