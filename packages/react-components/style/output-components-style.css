@@ -316,7 +316,7 @@ canvas {
 .timegraph-tree,
 .callgraph-tree tr {
     /* TODO: Fix row alignment, this number is arbitrary, it works [on my machine], but it should match line height in timeline-chart */
-    line-height: 1.5rem;
+    line-height: 18px;
 }
 
 .timegraph-tree,

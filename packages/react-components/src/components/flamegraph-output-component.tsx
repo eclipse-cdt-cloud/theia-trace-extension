@@ -562,11 +562,18 @@ export class FlamegraphOutputComponent extends AbstractTreeOutputComponent<
                         display: 'flex',
                         justifyContent: 'flex-end',
                         marginBottom: 4,
-                        flexDirection: 'column'
+                        flexDirection: 'column',
+                        position: 'absolute',
+                        zIndex: 10
                     }}
                 >
-                    <button onClick={this.handleResetZoom} style={{ padding: '2px 8px', fontSize: '0.9em', zIndex: 1 }}>
-                        Reset Zoom
+                    <button
+                        onClick={this.handleResetZoom}
+                        style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}
+                        className="item"
+                        aria-label="reset zoom"
+                    >
+                        <i className="codicon codicon-arrow-both" /> Reset Zoom
                     </button>
                 </div>
                 <div
