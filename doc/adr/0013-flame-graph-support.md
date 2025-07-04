@@ -22,7 +22,8 @@ There are 2 possibilites to support the flame graph in the TSP.
 
 The view itself is very similar to data providers of type `TIME_GRAPH`. The main difference is that the x-axis is the duration and not time. The Trace Compass back-end currently has such a data provider available with the same API than `TIME_GRAPH` data providers. However, this data provider is not exposed to the server through the `getDescriptor()` method of the corresponing data provider factory. It will need a new type to be added to the `ProviderType` enum.
 
-With this solution similar endpoints can be defined which have the advantage that the endpoints and data structures are known. Back-end filtering and highlighting would be supported out of the box. Assuming the new `Provider Type` is called `gantt` the following endpoints will be defined:
+With this solution the existing endpoint `TIME_GRAPH` endpoint and be agumented or similar endpoints can be defined which have the advantage that the endpoints and data structures are known. Back-end filtering and highlighting would be supported out of the box. 
+Assuming the `Provider Type` re-uses `timegraph` the endpoints for the flame graph will be as below:
 
 ```
     POST /experiments/{expUUID}/outputs/{outputId}/styles
@@ -34,14 +35,14 @@ With this solution similar endpoints can be defined which have the advantage tha
     POST /experiments/{expUUID}/outputs/{outputId}/annotations
     Get list of annotation for a given annotation categories for this view
 
-    POST /experiments/{expUUID}/outputs/gantt/{outputId}/tree
+    POST /experiments/{expUUID}/outputs/timegraph/{outputId}/tree
     Returns the gantt chart entry model
 
-    POST /experiments/{expUUID}/outputs/gantt/{outputId}/states
+    POST /experiments/{expUUID}/outputs/timegraph/{outputId}/states
     Returns the states from the for given entries
 
-    POST /experiments/{expUUID}/outputs/gantt/{outputId}/tooltip
-    Get detailed information of a state, annotation or arrow
+    POST /experiments/{expUUID}/outputs/timegraph/{outputId}/tooltip
+    Get detailed information of a state or annotation
 ```
 
 **Note**:
