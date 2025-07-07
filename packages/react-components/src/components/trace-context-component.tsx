@@ -823,6 +823,7 @@ export class TraceContextComponent extends React.Component<TraceContextProps, Tr
                                     key={output.id}
                                     {...outputProps}
                                     range={flamegraphRange}
+                                    viewRange={flamegraphRange}
                                     unitController={flamegraphUnitController}
                                     initialViewRange={{
                                         start: this.unitController.viewRange.start,
