@@ -580,7 +580,7 @@ export class TraceContextComponent extends React.Component<TraceContextProps, Tr
         for (const output of this.props.outputs) {
             if (this.state.pinnedView?.id === output.id) {
                 continue;
-            } else if (['TIME_GRAPH', 'TREE_TIME_XY'].includes(output.type)) {
+            } else if (output.type === 'TIME_GRAPH' || output.type === 'TREE_TIME_XY') {
                 timeScaleCharts.push(output);
             } else {
                 nonTimeScaleCharts.push(output);
@@ -588,7 +588,7 @@ export class TraceContextComponent extends React.Component<TraceContextProps, Tr
         }
 
         const pinnedViewTimeScale =
-            this.state.pinnedView?.type && ['TIME_GRAPH', 'TREE_TIME_XY'].includes(this.state.pinnedView?.type);
+            this.state.pinnedView?.type === 'TIME_GRAPH' || this.state.pinnedView?.type === 'TREE_TIME_XY';
         const timeScaleChartExists = timeScaleCharts.length > 0 || pinnedViewTimeScale;
 
         return (
