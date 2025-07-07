@@ -719,7 +719,6 @@ export class TraceContextComponent extends React.Component<TraceContextProps, Tr
                         setChartOffset: this.setChartOffset,
                         pinned: this.state.pinnedView ? this.state.pinnedView === output : undefined
                     };
-
                     switch (responseType) {
                         case 'OVERVIEW':
                             return (
@@ -958,7 +957,7 @@ export class TraceContextComponent extends React.Component<TraceContextProps, Tr
                 existingPinnedLayout = this._storedPinnedViewLayout;
             } else if (this.state.pinnedView?.id === output.id) {
                 let prevLayout: Layout | undefined = undefined;
-                if (['TIME_GRAPH', 'TREE_TIME_XY'].includes(output.type)) {
+                if (output.type === 'TIME_GRAPH' || output.type === 'TREE_TIME_XY') {
                     prevLayout = this._storedTimescaleLayout.find(layout => layout.i === output.id);
                 } else {
                     prevLayout = this._storedNonTimescaleLayout.find(layout => layout.i === output.id);
@@ -976,7 +975,7 @@ export class TraceContextComponent extends React.Component<TraceContextProps, Tr
                 existingTimeScaleLayouts.push(curChartTimeLine);
             } else if (curChartNonTimeLine) {
                 existingNonTimeScaleLayouts.push(curChartNonTimeLine);
-            } else if (['TIME_GRAPH', 'TREE_TIME_XY'].includes(output.type)) {
+            } else if (output.type === 'TIME_GRAPH' || output.type === 'TREE_TIME_XY') {
                 const prevLayout =
                     this._storedPinnedViewLayout?.i === output.id ? this._storedPinnedViewLayout : undefined;
                 newTimeScaleLayouts.push({
