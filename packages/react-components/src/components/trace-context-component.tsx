@@ -27,7 +27,7 @@ import { cloneDeep } from 'lodash';
 import { UnitControllerHistoryHandler } from './utils/unit-controller-history-handler';
 import { TraceOverviewComponent } from './trace-overview-component';
 import { TimeRangeUpdatePayload } from 'traceviewer-base/lib/signals/time-range-data-signal-payloads';
-import { FlamegraphOutputComponent } from './flamegraph-output-component';
+import { GanttChartOutputComponent } from './gantt-chart-output-component';
 
 const ResponsiveGridLayout = WidthProvider(Responsive);
 
@@ -58,8 +58,8 @@ export interface TraceContextState {
     style: OutputComponentStyle;
     backgroundTheme: string;
     pinnedView: OutputDescriptor | undefined;
-    flamegraphViewRanges?: Record<string, { start: bigint; end: bigint }>;
-    flamegraphResetZoomKey?: number;
+    ganttChartRanges?: Record<string, { start: bigint; end: bigint }>;
+    ganttChartResetZoomKey?: number;
 }
 
 export interface PersistedState {
@@ -184,8 +184,8 @@ export class TraceContextComponent extends React.Component<TraceContextProps, Tr
                 lineColor: this.props.backgroundTheme === 'light' ? 0x757575 : 0xbbbbbb
             },
             backgroundTheme: this.props.backgroundTheme,
-            flamegraphViewRanges: {},
-            flamegraphResetZoomKey: 0
+            ganttChartRanges: {},
+            ganttChartResetZoomKey: 0
         };
         const absoluteRange = traceRange.getDuration();
         const offset = viewRange.getOffset();
@@ -778,20 +778,20 @@ export class TraceContextComponent extends React.Component<TraceContextProps, Tr
                                 outputProps.persistChartState = this.chartPersistedState.payload;
                                 this.chartPersistedState = undefined;
                             }
-                            // Use experiment's real range for the flamegraph
+                            // Use experiment's real range for the Gantt chart
                             const experimentStart = this.state.experiment.start;
                             const experimentEnd = this.state.experiment.end;
-                            const flamegraphRange = new TimeRange(
+                            const ganttChartRange = new TimeRange(
                                 BigInt(0),
                                 experimentEnd - experimentStart,
                                 BigInt(0)
                             );
-                            // Create a separate unit controller for the flamegraph
-                            const flamegraphUnitController = new TimeGraphUnitController(
-                                flamegraphRange.getDuration(),
-                                { start: flamegraphRange.getStart(), end: flamegraphRange.getEnd() }
+                            // Create a separate unit controller for the Gantt chart
+                            const ganttChartUnitController = new TimeGraphUnitController(
+                                ganttChartRange.getDuration(),
+                                { start: ganttChartRange.getStart(), end: ganttChartRange.getEnd() }
                             );
-                            flamegraphUnitController.numberTranslator = (theNumber: bigint) => {
+                            ganttChartUnitController.numberTranslator = (theNumber: bigint) => {
                                 const zeroPad = (num: bigint) => String(num).padStart(3, '0');
                                 const seconds = theNumber / BigInt(1000000000);
                                 const millis = zeroPad((theNumber / BigInt(1000000)) % BigInt(1000));
@@ -800,30 +800,30 @@ export class TraceContextComponent extends React.Component<TraceContextProps, Tr
                                 return seconds + '.' + millis + ' ' + micros + ' ' + nanos;
                             };
                             // Restore view range if available, otherwise set to global view range
-                            const fgViewRange = this.state.flamegraphViewRanges?.[output.id];
+                            const fgViewRange = this.state.ganttChartRanges?.[output.id];
                             if (fgViewRange) {
-                                flamegraphUnitController.viewRange = fgViewRange;
+                                ganttChartUnitController.viewRange = fgViewRange;
                             } else {
                                 // Use the global view range from the parent unit controller
                                 const globalViewRange = this.unitController.viewRange;
-                                flamegraphUnitController.viewRange = {
+                                ganttChartUnitController.viewRange = {
                                     start: globalViewRange.start,
                                     end: globalViewRange.end
                                 };
                             }
                             // Listen for view range changes
-                            flamegraphUnitController.onViewRangeChanged((_old, newRange) => {
-                                this.handleFlamegraphViewRangeChange(output.id, newRange);
+                            ganttChartUnitController.onViewRangeChanged((_old, newRange) => {
+                                this.handleGanttChartViewRangeChange(output.id, newRange);
                             });
                             const chartWidth = Math.max(0, this.state.style.width - this.state.style.chartOffset);
 
                             return (
-                                <FlamegraphOutputComponent
+                                <GanttChartOutputComponent
                                     key={output.id}
                                     {...outputProps}
-                                    range={flamegraphRange}
-                                    viewRange={flamegraphRange}
-                                    unitController={flamegraphUnitController}
+                                    range={ganttChartRange}
+                                    viewRange={ganttChartRange}
+                                    unitController={ganttChartUnitController}
                                     initialViewRange={{
                                         start: this.unitController.viewRange.start,
                                         end: this.unitController.viewRange.end
@@ -831,7 +831,7 @@ export class TraceContextComponent extends React.Component<TraceContextProps, Tr
                                     addWidgetResizeHandler={this.addWidgetResizeHandler}
                                     removeWidgetResizeHandler={this.removeWidgetResizeHandler}
                                     className={this.state.pinnedView?.id === output.id ? 'pinned-view-shadow' : ''}
-                                    onResetZoom={this.handleFlamegraphResetZoom}
+                                    onResetZoom={this.handleGanttChartResetZoom}
                                 >
                                     <div
                                         style={{
@@ -842,14 +842,14 @@ export class TraceContextComponent extends React.Component<TraceContextProps, Tr
                                         }}
                                     >
                                         <TimeAxisComponent
-                                            key={this.state.flamegraphResetZoomKey}
-                                            unitController={flamegraphUnitController}
+                                            key={this.state.ganttChartResetZoomKey}
+                                            unitController={ganttChartUnitController}
                                             style={{ ...this.state.style, width: chartWidth, verticalAlign: 'bottom' }}
                                             addWidgetResizeHandler={this.addWidgetResizeHandler}
                                             removeWidgetResizeHandler={this.removeWidgetResizeHandler}
                                         />
                                     </div>
-                                </FlamegraphOutputComponent>
+                                </GanttChartOutputComponent>
                             );
                         }
                         default:
@@ -1031,16 +1031,16 @@ export class TraceContextComponent extends React.Component<TraceContextProps, Tr
         }
     }
 
-    private handleFlamegraphViewRangeChange = (outputId: string, newRange: { start: bigint; end: bigint }) => {
+    private handleGanttChartViewRangeChange = (outputId: string, newRange: { start: bigint; end: bigint }) => {
         this.setState(prevState => ({
-            flamegraphViewRanges: {
-                ...prevState.flamegraphViewRanges,
+            ganttChartRanges: {
+                ...prevState.ganttChartRanges,
                 [outputId]: newRange
             }
         }));
     };
 
-    private handleFlamegraphResetZoom = () => {
-        this.setState(prev => ({ flamegraphResetZoomKey: (prev.flamegraphResetZoomKey ?? 0) + 1 }));
+    private handleGanttChartResetZoom = () => {
+        this.setState(prev => ({ ganttChartResetZoomKey: (prev.ganttChartResetZoomKey ?? 0) + 1 }));
     };
 }

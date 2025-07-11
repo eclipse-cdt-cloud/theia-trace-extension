@@ -133,7 +133,7 @@
 }
 
 #timegraph-main,
-#callgraph-main {
+#ganttchart-main {
     width: 100%;
     display: flex;
 }
@@ -308,26 +308,26 @@ canvas {
 }
 
 .timegraph-tree,
-.callgraph-tree {
+.ganttchart-tree {
     border-collapse: collapse;
     border: none;
 }
 
 .timegraph-tree tr,
-.callgraph-tree tr {
+.ganttchart-tree tr {
     /* TODO: Fix row alignment, this number is arbitrary, it works [on my machine], but it should match line height in timeline-chart */
     line-height: 18px;
 }
 
 .timegraph-tree th,
-.callgraph-tree th {
+.ganttchart-tree th {
     line-height: 14px;
     position: sticky;
     top: 0px;
 }
 
 .timegraph-tree td,
-.callgraph-tree td {
+.ganttchart-tree td {
     padding: 1px;
     border-left: 1px solid var(--trace-viewer-tree-inactiveIndentGuidesStroke);
     border-right: none;
@@ -473,7 +473,7 @@ canvas {
 }
 
 .timegraph-search-bar,
-.callgraph-search-bar {
+.ganttchart-search-bar {
     background: var(--trace-viewer-editor-background);
     padding-top: 5px;
     padding-bottom: 15px;
@@ -485,7 +485,7 @@ canvas {
 }
 
 .timegraph-search-box,
-.callgraph-search-box {
+.ganttchart-search-box {
     height: 30px;
     margin-left: 2.5px;
     margin-right: 2.5px;
@@ -500,7 +500,7 @@ canvas {
 }
 
 .timegraph-search-box,
-.callgraph-search-box fieldset {
+.ganttchart-search-box fieldset {
     border-color: var(--trace-viewer-tree-inactiveIndentGuidesStroke);
 }
 
@@ -601,4 +601,31 @@ input[type='reset'].input-button {
 
 .enriched-output-button :hover {
     background: none;
+}
+
+.zoom-reset-button-container {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 4;
+    flex-direction: column;
+    position: absolute;
+    z-index: 10;
+}
+
+.zoom-reset-button {
+    all: unset;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 2.5px 8px;
+    background: var(--theia-button-secondaryBackground);
+    color: var(--theia-editor-foreground);
+    border-radius: 4;
+    cursor: pointer;
+    font-size: 0.75rem;
+    font-weight: bold;
+
+    &:hover {
+        background: var(--theia-button-secondaryHoverBackground);
+    }
 }
