@@ -1,0 +1,16 @@
+/* textarea {
+    background-color: black;
+    color: var(--theia-ui-font-color0);
+    font-family: var(--theia-ui-font-family);
+}
+
+div {
+    color: var(--theia-ui-font-color0);
+    font-family: var(--theia-ui-font-family);
+} */
+
+/* Main container */
+.trace-viewer-container {
+    margin: 0px 5px 0px 5px;
+    height: 100%;
+}

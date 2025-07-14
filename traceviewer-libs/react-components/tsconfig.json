@@ -1,0 +1,33 @@
+{
+    "compilerOptions": {
+        "experimentalDecorators": true,
+        "composite": true,
+        "strict": true,
+        "sourceMap": true,
+        "esModuleInterop": true,
+        "allowSyntheticDefaultImports": true,
+        "module": "commonjs",
+        "target": "ES2017",
+        "downlevelIteration": true,
+        "rootDir": "src",
+        "outDir": "lib",
+        "jsx": "react",
+        "declaration": true,
+        "declarationMap": true,
+        "resolveJsonModule": true,
+        "skipLibCheck": true
+    },
+    "include": [
+        "src"
+    ],
+    "exclude": [
+        "**/__tests__",
+        "**/*.spec.ts",
+        "**/*.test.ts"
+    ],
+    "references": [
+        {
+            "path": "../base"
+        }
+    ]
+}
