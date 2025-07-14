@@ -148,6 +148,12 @@ Or, run
 yarn start:electron
 ```
 
+Or, with auto-reloading when code changes are detected
+
+```bash
+yarn start:electronmon
+```
+
 and use the Electron application.
 
 If there are errors that occurred while starting the app, see [Troubleshooting](#troubleshooting) for known issues.
@@ -201,10 +207,10 @@ If the **Trace Viewer** icon is not in the left sidebar, select menu **View** fr
 There are a few ways to open traces. The main ones are using the **Open Trace Dialog** or the **File Explorer**. There are still some inconsistencies between them.
 
 | Desired action                                 | via Open Trace Dialog | via File Explorer |
-|------------------------------------------------|-----------------------|-------------------|
-| Open single CTF trace (folder)                 | ✓                     | ✓                |
-| Open folder of CTF traces (create trace group) | ✓                     | ✓                |
-| Open single file trace (ex. JSON Chrome trace) |                       | ✓                |
+| ---------------------------------------------- | --------------------- | ----------------- |
+| Open single CTF trace (folder)                 | ✓                     | ✓                 |
+| Open folder of CTF traces (create trace group) | ✓                     | ✓                 |
+| Open single file trace (ex. JSON Chrome trace) |                       | ✓                 |
 
 Regardless of the opening method used, if the selection is a folder, the tool will look for traces in **Common Trace Format (CTF)** format, such as **Linux Tracing Toolkit traces (LTTng)** Kernel and UST (Userspace) traces, and open all found CTF traces together under the same timeline. The trace events of each CTF trace will be analyzed in chronological order. With this, several traces can be opened as a group (e.g. LTTng Kernel and UST Traces).
 
@@ -271,14 +277,14 @@ This section shows detailed information about a selected:
 
 This trace viewer depends on code from several other repos. Sometimes resolving issues in the trace viewer repo requires making changes in these code bases:
 
-| Project | Description | Related issues | Links |
-|---------------|----|--------------------------|---|
-| [Theia][theia-webpage] | Theia is a framework for making custom IDEs. It provides reusable components (e.g. text editor, terminal) and is extensible. For example, this trace viewer is an extension for Theia-based IDEs. | | [Code][theia-code], [Ecosystem][theia-ecosystem] |
-| [Trace Compass][tc-project] | Trace analysis tool and precursor to this trace viewer. | [label:"Trace Compass"][tc-gh-label] | [Dev info][tc-dev-info], [Dev setup][tc-dev-setup] |
-| [Trace Compass Server][tc-server] | A reference implementation of a Trace Server. Manages and analyzes trace files and provides this data to the trace viewer over the [Trace Server Protocol (TSP)][tsp]. This Trace Server implementation was originally part of Trace Compass, so it requires the same dev setup. Because a protocol is used for communication (TSP), it is possible to develop alternative Trace Servers that are independent of Trace Compass. | [label:"Trace Server"][tc-server-gh-label] | [Dev setup][tc-dev-setup] (same as Trace Compass), [Code][tci-code] (same repo as Trace Compass incubator) |
-| [Trace Server Protocol (TSP)][tsp] | Protocol used by the trace viewer to communicate with the trace server. | [label:"trace server protocol"][tsp-gh-label] | |
-| [Client-side Trace Server Protocol implementation][tspc] | A client-side implementation of the Trace Server Protocol. Allows the trace viewer to communicate with the server. | | |
-| [Timeline Chart][timeline-chart] | Implements the Gantt charts used in this trace viewer. | [label:timeline-chart][timeline-chart-gh-label] | |
+| Project                                                  | Description                                                                                                                                                                                                                                                                                                                                                                                                                     | Related issues                                  | Links                                                                                                      |
+| -------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------- | ---------------------------------------------------------------------------------------------------------- |
+| [Theia][theia-webpage]                                   | Theia is a framework for making custom IDEs. It provides reusable components (e.g. text editor, terminal) and is extensible. For example, this trace viewer is an extension for Theia-based IDEs.                                                                                                                                                                                                                               |                                                 | [Code][theia-code], [Ecosystem][theia-ecosystem]                                                           |
+| [Trace Compass][tc-project]                              | Trace analysis tool and precursor to this trace viewer.                                                                                                                                                                                                                                                                                                                                                                         | [label:"Trace Compass"][tc-gh-label]            | [Dev info][tc-dev-info], [Dev setup][tc-dev-setup]                                                         |
+| [Trace Compass Server][tc-server]                        | A reference implementation of a Trace Server. Manages and analyzes trace files and provides this data to the trace viewer over the [Trace Server Protocol (TSP)][tsp]. This Trace Server implementation was originally part of Trace Compass, so it requires the same dev setup. Because a protocol is used for communication (TSP), it is possible to develop alternative Trace Servers that are independent of Trace Compass. | [label:"Trace Server"][tc-server-gh-label]      | [Dev setup][tc-dev-setup] (same as Trace Compass), [Code][tci-code] (same repo as Trace Compass incubator) |
+| [Trace Server Protocol (TSP)][tsp]                       | Protocol used by the trace viewer to communicate with the trace server.                                                                                                                                                                                                                                                                                                                                                         | [label:"trace server protocol"][tsp-gh-label]   |                                                                                                            |
+| [Client-side Trace Server Protocol implementation][tspc] | A client-side implementation of the Trace Server Protocol. Allows the trace viewer to communicate with the server.                                                                                                                                                                                                                                                                                                              |                                                 |                                                                                                            |
+| [Timeline Chart][timeline-chart]                         | Implements the Gantt charts used in this trace viewer.                                                                                                                                                                                                                                                                                                                                                                          | [label:timeline-chart][timeline-chart-gh-label] |                                                                                                            |
 
 ## Troubleshooting
 
