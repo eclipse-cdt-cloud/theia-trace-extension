@@ -1,0 +1,41 @@
+{
+    "name": "traceviewer-base",
+    "version": "0.9.1",
+    "description": "Trace Viewer base package, contains trace management utilities",
+    "license": "MIT",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/eclipse-cdt-cloud/theia-trace-extension"
+    },
+    "bugs": {
+        "url": "https://github.com/eclipse-cdt-cloud/theia-trace-extension/issues"
+    },
+    "homepage": "https://github.com/eclipse-cdt-cloud/theia-trace-extension",
+    "files": [
+        "lib",
+        "src"
+    ],
+    "dependencies": {
+        "tsp-typescript-client": "^0.7.0"
+    },
+    "devDependencies": {
+        "@typescript-eslint/eslint-plugin": "^3.4.0",
+        "@typescript-eslint/parser": "^3.4.0",
+        "eslint": "^7.3.0",
+        "eslint-plugin-import": "^2.21.2",
+        "eslint-plugin-no-null": "^1.0.2",
+        "eslint-plugin-react": "^7.20.0",
+        "rimraf": "^5.0.0",
+        "typescript": "4.9.5"
+    },
+    "scripts": {
+        "build": "tsc -b",
+        "clean": "rimraf lib *.tsbuildinfo",
+        "lint": "eslint .",
+        "lint:fix": "eslint . --fix",
+        "test": "echo 'test'",
+        "watch": "tsc -w",
+        "format:write": "prettier --write ./src",
+        "format:check": "prettier --check ./src"
+    }
+}

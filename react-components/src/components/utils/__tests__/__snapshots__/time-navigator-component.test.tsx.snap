@@ -1,0 +1,16 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Time axis component creates canvas 1`] = `
+<div>
+  <div>
+    <canvas
+      class="time-graph-canvas horizontal-canvas"
+      height="10"
+      id="time-navigator"
+      style="width: 600px; height: 10px;"
+      tabindex="0"
+      width="600"
+    />
+  </div>
+</div>
+`;
