@@ -32,12 +32,12 @@
             "url": "http://localhost:3000",
             "pathMappings": [
                 {
-                    "url": "webpack:///packages/react-components/src",
-                    "path": "${workspaceFolder}/packages/react-components/src"
+                    "url": "webpack:///traceviewer-libs/react-components/src",
+                    "path": "${workspaceFolder}/traceviewer-libs/react-components/src"
                 },
                 {
-                    "url": "webpack:///packages/base",
-                    "path": "${workspaceFolder}/packages/base"
+                    "url": "webpack:///traceviewer-libs/base",
+                    "path": "${workspaceFolder}/traceviewer-libs/base"
                 },
                 {
                     "url": "webpack:///theia-extensions",
@@ -62,7 +62,7 @@
             "sourceMaps": true,
             "outFiles": [
                 "${workspaceRoot}/node_modules/@theia/*/lib/**/*.js",
-                "${workspaceRoot}/packages/*/lib/**/*.js",
+                "${workspaceRoot}/traceviewer-libs/*/lib/**/*.js",
                 "${workspaceRoot}/theia-extensions/*/lib/**/*.js",
                 "${workspaceRoot}/examples/browser/lib/**/*.js",
                 "${workspaceRoot}/examples/browser/src-gen/**/*.js"
@@ -93,7 +93,7 @@
             "sourceMaps": true,
             "outFiles": [
                 "${workspaceRoot}/node_modules/@theia/*/lib/**/*.js",
-                "${workspaceRoot}/packages/*/lib/**/*.js",
+                "${workspaceRoot}/traceviewer-libs/*/lib/**/*.js",
                 "${workspaceRoot}/theia-extensions/*/lib/**/*.js",
                 "${workspaceRoot}/examples/electron/lib/**/*.js",
                 "${workspaceRoot}/examples/electron/src-gen/**/*.js"
@@ -107,7 +107,7 @@
             "request": "launch",
             "name": "Jest Current File",
             "program": "${workspaceFolder}/node_modules/.bin/jest",
-            "cwd": "${workspaceFolder}/packages/react-components",
+            "cwd": "${workspaceFolder}/traceviewer-libs/react-components",
             "args": [
                 "${fileBasenameNoExtension}",
                 "--config",

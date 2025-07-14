@@ -115,12 +115,12 @@ more may be necessary depending on the case. Here is an example used to uplift f
    * `./examples/electron/package.json`
    * `./package.json`
    * `./theia-extensions/viewer-prototype/package.json`
-1. Align these React dependency versions in `./package.json` with Theia's `packages/core/package.json`, when applicable:
+1. Align these React dependency versions in `./package.json` with Theia's `traceviewer-libs/base/package.json`, when applicable:
    * `"react"`
    * `"react-dom"`
    * `"@types/react"`
    * `"@types/react-dom"`
-1. Do the same also for `react-test-renderer` in `packages/react-components/package.json`, and potentially elsewhere in the extension.
+1. Do the same also for `react-test-renderer` in `traceviewer-libs/react-components/package.json`, and potentially elsewhere in the extension.
 1. Align `node-version` in `.github/workflows` yaml files with Theia's.
    * Referring also to Theia's `"node"` and `@types/node` versions in its root `package.json` file.
 

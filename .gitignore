@@ -3,9 +3,9 @@
 *.tsbuildinfo
 .browser_modules/
 /.venv/
-/packages/base/lib/
-/packages/react-components/coverage/
-/packages/react-components/lib/
+/traceviewer-libs/base/lib/
+/traceviewer-libs/react-components/coverage/
+/traceviewer-libs/react-components/lib/
 TraceCompassTutorialTraces
 TraceCompassTutorialTraces.tgz
 examples/*/gen-webpack.*

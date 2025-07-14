@@ -63,7 +63,7 @@
     "workspaces": [
         "examples/browser",
         "examples/electron",
-        "packages/*",
+        "traceviewer-libs/*",
         "theia-extensions/*",
         "playwright-tests"
     ],

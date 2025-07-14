@@ -351,7 +351,7 @@ yarn test --verbose --watch
 
 #### Test coverage
 
-The following command computes the test coverage for the unit tests and prints a coverage report to the terminal. To access a more detailed coverage report, open this file in a browser after running the command below: `./packages/react-components/coverage/lcov-report/index.html` As of now, the reported coverage covers all typescript files of the project, including those that are not supposed to have tests.
+The following command computes the test coverage for the unit tests and prints a coverage report to the terminal. To access a more detailed coverage report, open this file in a browser after running the command below: `./traceviewer-libs/react-components/coverage/lcov-report/index.html` As of now, the reported coverage covers all typescript files of the project, including those that are not supposed to have tests.
 
 ```bash
 yarn test --coverage
