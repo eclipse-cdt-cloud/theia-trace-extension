@@ -41,7 +41,7 @@ export interface AbstractOutputProps {
     pinned?: boolean;
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     persistChartState?: any;
-    children?: string;
+    children?: React.ReactNode;
 }
 
 export interface AbstractOutputState {

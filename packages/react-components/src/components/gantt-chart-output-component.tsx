@@ -1,13 +1,26 @@
 import * as React from 'react';
-import { ResponseStatus } from 'tsp-typescript-client/lib/models/response/responses';
+import { TimelineChart } from 'timeline-chart/lib/time-graph-model';
+import '../../style/react-contextify.css';
+import { BaseGanttOutputComponent, BaseGanttOutputProps, BaseGanttOutputState } from './base-gantt-output-component';
 import { EntryTree } from './utils/filter-tree/entry-tree';
 import { validateNumArray } from './utils/filter-tree/utils';
-import '../../style/react-contextify.css';
-import { BaseGanttOutputComponent, BaseGanttOutputProps } from './base-gantt-output-component';
+import { ResponseStatus } from 'tsp-typescript-client';
 
-export class TimegraphOutputComponent extends BaseGanttOutputComponent {
-    constructor(props: BaseGanttOutputProps) {
+type GanttChartOutputProps = BaseGanttOutputProps & {
+    initialViewRange?: TimelineChart.TimeGraphRange;
+    children?: React.ReactNode;
+    onResetZoom?: () => void;
+};
+type GanttChartOutputState = BaseGanttOutputState & {
+    zoomResetCounter?: number;
+};
+
+export class GanttChartOutputComponent extends BaseGanttOutputComponent<GanttChartOutputProps, GanttChartOutputState> {
+    private initialViewRangeSnapshot?: TimelineChart.TimeGraphRange;
+
+    constructor(props: GanttChartOutputProps) {
         super(props);
+
         this.state = {
             outputStatus: ResponseStatus.RUNNING,
             chartTree: [],
@@ -30,6 +43,11 @@ export class TimegraphOutputComponent extends BaseGanttOutputComponent {
             emptyNodes: [],
             marginTop: 0
         };
+
+        // Store a snapshot of the initial view range
+        if (props.initialViewRange) {
+            this.initialViewRangeSnapshot = { start: props.initialViewRange.start, end: props.initialViewRange.end };
+        }
     }
 
     renderTree(): React.ReactNode {
@@ -38,6 +56,11 @@ export class TimegraphOutputComponent extends BaseGanttOutputComponent {
         // TODO Show header, when we can have entries in-line with timeline-chart
         return (
             <>
+                <div className="zoom-reset-button-container">
+                    <button className="item zoom-reset-button" onClick={this.handleResetZoom} aria-label="reset zoom">
+                        <i className="codicon codicon-arrow-both" /> Reset Zoom
+                    </button>
+                </div>
                 <div
                     ref={this.treeRef}
                     className="scrollable"
@@ -64,7 +87,7 @@ export class TimegraphOutputComponent extends BaseGanttOutputComponent {
                         multiSelectedRows={this.state.multiSelectedRows}
                         showHeader={true}
                         onContextMenu={this.onCtxMenu}
-                        className="table-tree timegraph-tree"
+                        className="table-tree ganttchart-tree"
                         emptyNodes={this.state.emptyNodes}
                         hideEmptyNodes={this.shouldHideEmptyNodes}
                         onOrderChange={this.onOrderChange}
@@ -85,11 +108,27 @@ export class TimegraphOutputComponent extends BaseGanttOutputComponent {
                         onToggleCollapse={this.onToggleAnnotationCollapse}
                         onClose={this.onMarkerCategoryRowClose}
                         showHeader={false}
-                        className="table-tree timegraph-tree"
+                        className="table-tree ganttchart-tree"
                         hideFillers={true}
                     />
                 </div>
             </>
         );
     }
+
+    private handleResetZoom = () => {
+        // Reset the view range to the initial global view range snapshot
+        const initial = this.initialViewRangeSnapshot || this.props.unitController.viewRange;
+        this.props.unitController.viewRange = {
+            start: initial.start,
+            end: initial.end
+        };
+        if (this.chartLayer) {
+            this.chartLayer.update();
+        }
+        this.setState(prev => ({ zoomResetCounter: (prev.zoomResetCounter ?? 0) + 1 }));
+        if (this.props.onResetZoom) {
+            this.props.onResetZoom();
+        }
+    };
 }
