@@ -3,7 +3,7 @@
 .output-container {
     display: flex;
     position: relative;
-    color: var(--trace-viewer-ui-font-color0)
+    color: var(--trace-viewer-ui-font-color0);
 }
 
 .output-container:focus {
@@ -65,7 +65,7 @@
     padding: 2px 8px;
     align-self: center;
     justify-self: center;
-    color: var(--trace-viewer-ui-font-color0)
+    color: var(--trace-viewer-ui-font-color0);
 }
 
 .title-bar-label:hover {
@@ -87,7 +87,7 @@
 .options-menu-button {
     background: none;
     border: none;
-    color: var(--trace-viewer-ui-font-color0)
+    color: var(--trace-viewer-ui-font-color0);
 }
 
 .options-menu-button:hover {
@@ -132,7 +132,8 @@
     overflow: auto;
 }
 
-#timegraph-main {
+#timegraph-main,
+#ganttchart-main {
     width: 100%;
     display: flex;
 }
@@ -306,23 +307,27 @@ canvas {
     border-right: 1px solid var(--trace-viewer-tree-inactiveIndentGuidesStroke);
 }
 
-.timegraph-tree {
+.timegraph-tree,
+.ganttchart-tree {
     border-collapse: collapse;
     border: none;
 }
 
-.timegraph-tree tr {
+.timegraph-tree tr,
+.ganttchart-tree tr {
+    /* TODO: Fix row alignment, this number is arbitrary, it works [on my machine], but it should match line height in timeline-chart */
     line-height: 18px;
 }
 
-.timegraph-tree th {
+.timegraph-tree th,
+.ganttchart-tree th {
     line-height: 14px;
     position: sticky;
     top: 0px;
 }
 
-.timegraph-tree td {
-    height: 18px;
+.timegraph-tree td,
+.ganttchart-tree td {
     padding: 1px;
     border-left: 1px solid var(--trace-viewer-tree-inactiveIndentGuidesStroke);
     border-right: none;
@@ -365,7 +370,7 @@ canvas {
     background-color: var(--trace-viewer-selection-background) !important;
 }
 
-.ag-header-row:nth-child(2)>.ag-header-cell {
+.ag-header-row:nth-child(2) > .ag-header-cell {
     padding-left: 0px !important;
     padding-right: 0px !important;
 }
@@ -395,7 +400,7 @@ canvas {
     user-select: none;
 }
 
-.options-menu-drop-down>ul {
+.options-menu-drop-down > ul {
     list-style-type: none;
     margin: 0;
     padding: 0;
@@ -467,7 +472,8 @@ canvas {
     color: var(--trace-viewer-foreground);
 }
 
-.timegraph-search-bar {
+.timegraph-search-bar,
+.ganttchart-search-bar {
     background: var(--trace-viewer-editor-background);
     padding-top: 5px;
     padding-bottom: 15px;
@@ -478,7 +484,8 @@ canvas {
     gap: 10px;
 }
 
-.timegraph-search-box {
+.timegraph-search-box,
+.ganttchart-search-box {
     height: 30px;
     margin-left: 2.5px;
     margin-right: 2.5px;
@@ -492,7 +499,8 @@ canvas {
     border-width: 1px !important;
 }
 
-.timegraph-search-box fieldset {
+.timegraph-search-box,
+.ganttchart-search-box fieldset {
     border-color: var(--trace-viewer-tree-inactiveIndentGuidesStroke);
 }
 
@@ -524,7 +532,6 @@ canvas {
     display: flex;
     align-items: center;
 }
-
 
 .input-container input {
     flex: 1;
@@ -559,9 +566,9 @@ canvas {
     cursor: pointer;
 }
 
-input[type="button"].input-button,
-input[type="submit"].input-button,
-input[type="reset"].input-button {
+input[type='button'].input-button,
+input[type='submit'].input-button,
+input[type='reset'].input-button {
     border: none;
     color: var(--trace-viewer-button-foreground);
     background-color: var(--trace-viewer-button-background);
@@ -594,4 +601,31 @@ input[type="reset"].input-button {
 
 .enriched-output-button :hover {
     background: none;
+}
+
+.zoom-reset-button-container {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 4;
+    flex-direction: column;
+    position: absolute;
+    z-index: 10;
+}
+
+.zoom-reset-button {
+    all: unset;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 2.5px 8px;
+    background: var(--theia-button-secondaryBackground);
+    color: var(--theia-editor-foreground);
+    border-radius: 4;
+    cursor: pointer;
+    font-size: 0.75rem;
+    font-weight: bold;
+
+    &:hover {
+        background: var(--theia-button-secondaryHoverBackground);
+    }
 }

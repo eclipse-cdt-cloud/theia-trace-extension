@@ -15,8 +15,7 @@ import { QueryHelper } from 'tsp-typescript-client/lib/models/query/query-helper
 import { ResponseStatus } from 'tsp-typescript-client/lib/models/response/responses';
 import { TimeGraphEntry } from 'tsp-typescript-client/lib/models/timegraph';
 import { signalManager } from 'traceviewer-base/lib/signals/signal-manager';
-import { AbstractOutputProps } from './abstract-output-component';
-import { AbstractTreeOutputComponent, AbstractTreeOutputState } from './abstract-tree-output-component';
+import { AbstractTreeOutputComponent } from './abstract-tree-output-component';
 import { StyleProperties } from './data-providers/style-properties';
 import { StyleProvider } from './data-providers/style-provider';
 import { TspDataProvider } from './data-providers/tsp-data-provider';
@@ -54,34 +53,27 @@ import { ContextMenuItemClickedSignalPayload } from 'traceviewer-base/lib/signal
 import { RowSelectionsChangedSignalPayload } from 'traceviewer-base/lib/signals/row-selections-changed-signal-payload';
 import { ItemPropertiesSignalPayload } from 'traceviewer-base/lib/signals/item-properties-signal-payload';
 
-export type TimegraphOutputProps = AbstractOutputProps & {
-    addWidgetResizeHandler: (handler: () => void) => void;
-    removeWidgetResizeHandler: (handler: () => void) => void;
+import { TimegraphOutputProps, TimegraphOutputState } from './timegraph-output-component';
+
+/**
+ * Gantt chart type definitions with omitted and overriden properties
+ */
+type GanttChartOutputProps = TimegraphOutputProps & {
+    initialViewRange?: TimelineChart.TimeGraphRange;
+    children?: React.ReactNode;
+    onResetZoom?: () => void;
+};
+type GanttChartOutputState = Omit<TimegraphOutputState, 'timegraphTree'> & {
+    ganttChartTree: TimeGraphEntry[];
+    zoomResetCounter?: number;
 };
 
-export type TimegraphOutputState = AbstractTreeOutputState & {
-    timegraphTree: TimeGraphEntry[];
-    defaultOrderedIds: number[];
-    markerCategoryEntries: Entry[];
-    markerLayerData:
-        | { rows: TimelineChart.TimeGraphRowModel[]; range: TimelineChart.TimeGraphRange; resolution: number }
-        | undefined;
-    selectedRow?: number;
-    multiSelectedRows?: number[];
-    selectedMarkerRow?: number;
-    collapsedNodes: number[];
-    collapsedMarkerNodes: number[];
-    columns: ColumnHeader[];
-    searchString: string;
-    filters: string[];
-    menuItems?: ContextMenuItems;
-    emptyNodes: number[];
-    marginTop: number;
-};
+const MENU_ID = 'ganttchart.menuId-';
 
-const COARSE_RESOLUTION_FACTOR = 8; // resolution factor to use for first (coarse) update
-const MENU_ID = 'timegraph.menuId-';
-export class TimegraphOutputComponent extends AbstractTreeOutputComponent<TimegraphOutputProps, TimegraphOutputState> {
+export class GanttChartOutputComponent extends AbstractTreeOutputComponent<
+    GanttChartOutputProps,
+    GanttChartOutputState
+> {
     private totalHeight = 0;
     private rowController: TimeGraphRowController;
     private markerRowController: TimeGraphRowController;
@@ -94,7 +86,7 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
     private rangeEventsLayer: TimeGraphRangeEventsLayer;
 
     private horizontalContainer: React.RefObject<HTMLDivElement>;
-    private timeGraphTreeRef: React.RefObject<HTMLDivElement>;
+    private ganttChartTreeRef: React.RefObject<HTMLDivElement>;
     private markerTreeRef: React.RefObject<HTMLDivElement>;
     private containerRef: React.RefObject<ReactTimeGraphContainer>;
 
@@ -116,11 +108,13 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
         this.chartLayer.updateChart(this.filterExpressionsMap());
     }, 500);
 
-    constructor(props: TimegraphOutputProps) {
+    private initialViewRangeSnapshot?: TimelineChart.TimeGraphRange;
+
+    constructor(props: GanttChartOutputProps) {
         super(props);
         this.state = {
             outputStatus: ResponseStatus.RUNNING,
-            timegraphTree: [],
+            ganttChartTree: [],
             defaultOrderedIds: [],
             markerCategoryEntries: [],
             markerLayerData: undefined,
@@ -138,7 +132,8 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
             searchString: '',
             filters: [],
             emptyNodes: [],
-            marginTop: 0
+            marginTop: 0,
+            zoomResetCounter: 0
         };
         this.selectedMarkerCategories = this.props.markerCategories;
         this.onToggleCollapse = this.onToggleCollapse.bind(this);
@@ -157,7 +152,7 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
         this.rowController = new TimeGraphRowController(this.props.style.rowHeight, this.totalHeight);
         this.markerRowController = new TimeGraphRowController(this.props.style.rowHeight, this.totalHeight);
         this.horizontalContainer = React.createRef();
-        this.timeGraphTreeRef = React.createRef();
+        this.ganttChartTreeRef = React.createRef();
         this.markerTreeRef = React.createRef();
         this.containerRef = React.createRef();
         this.handleSearchChange = this.handleSearchChange.bind(this);
@@ -179,7 +174,7 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
                 rowIds?: number[],
                 // eslint-disable-next-line @typescript-eslint/no-explicit-any
                 additionalProperties?: { [key: string]: any }
-            ) => this.fetchTimegraphData(range, resolution, fetchArrows, rowIds, additionalProperties),
+            ) => this.fetchGanttChartData(range, resolution, fetchArrows, rowIds, additionalProperties),
             stateStyleProvider: (state: TimelineChart.TimeGraphState) => this.getStateStyle(state),
             rowAnnotationStyleProvider: (annotation: TimelineChart.TimeGraphAnnotation) =>
                 this.getAnnotationStyle(annotation),
@@ -195,7 +190,7 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
         };
 
         this.rangeEventsLayer = new TimeGraphRangeEventsLayer('timeGraphRangeEvents', providers);
-        this.chartLayer = new TimeGraphChart('timeGraphChart', providers, this.rowController, COARSE_RESOLUTION_FACTOR);
+        this.chartLayer = new TimeGraphChart('timeGraphChart', providers, this.rowController, 1);
         this.arrowLayer = new TimeGraphChartArrows('timeGraphChartArrows', this.rowController);
         this.vscrollLayer = new TimeGraphVerticalScrollbar('timeGraphVerticalScrollbar', this.rowController);
         this.chartCursors = new TimeGraphChartCursors('chart-cursors', this.chartLayer, this.rowController, {
@@ -204,8 +199,8 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
         this.rowController.onSelectedRowChangedHandler(this.onSelectionChange);
         this.markerRowController.onSelectedRowChangedHandler(this.onMarkerSelectionChange);
         this.rowController.onVerticalOffsetChangedHandler(() => {
-            if (this.timeGraphTreeRef.current) {
-                this.timeGraphTreeRef.current.scrollTop = this.rowController.verticalOffset;
+            if (this.ganttChartTreeRef.current) {
+                this.ganttChartTreeRef.current.scrollTop = this.rowController.verticalOffset;
             }
         });
 
@@ -267,11 +262,16 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
             collapsedNodes: this.state.collapsedNodes,
             collapsedMarkerNodes: this.state.collapsedMarkerNodes
         }));
+
+        // Store a snapshot of the initial view range
+        if (props.initialViewRange) {
+            this.initialViewRangeSnapshot = { start: props.initialViewRange.start, end: props.initialViewRange.end };
+        }
     }
 
     synchronizeTreeScroll(): void {
-        if (this.timeGraphTreeRef.current) {
-            this.rowController.verticalOffset = this.timeGraphTreeRef.current.scrollTop;
+        if (this.ganttChartTreeRef.current) {
+            this.rowController.verticalOffset = this.ganttChartTreeRef.current.scrollTop;
         }
     }
 
@@ -329,7 +329,7 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
                 this.setState(
                     {
                         outputStatus: treeResponse.status,
-                        timegraphTree: treeResponse.model.entries,
+                        ganttChartTree: treeResponse.model.entries,
                         defaultOrderedIds: treeResponse.model.entries.map(entry => entry.id),
                         collapsedNodes: autoCollapsedNodes,
                         columns
@@ -349,7 +349,7 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
         return ResponseStatus.FAILED;
     }
 
-    async componentDidUpdate(prevProps: TimegraphOutputProps, prevState: TimegraphOutputState): Promise<void> {
+    async componentDidUpdate(prevProps: GanttChartOutputProps, prevState: GanttChartOutputState): Promise<void> {
         if (
             !isEqual(prevProps.markerCategories, this.props.markerCategories) ||
             prevProps.markerSetId !== this.props.markerSetId
@@ -362,7 +362,7 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
         } else {
             if (
                 this.state.outputStatus !== prevState.outputStatus ||
-                !isEqual(this.state.timegraphTree, prevState.timegraphTree) ||
+                !isEqual(this.state.ganttChartTree, prevState.ganttChartTree) ||
                 !isEqual(this.state.collapsedNodes, prevState.collapsedNodes)
             ) {
                 this.chartLayer.update();
@@ -390,8 +390,8 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
             );
             signalManager().emit('ROW_SELECTIONS_CHANGED', signalPayload);
         }
-        if (this.state.timegraphTree.length > 0 && prevState.timegraphTree.length === 0) {
-            if (this.state.columns && this.state.columns.length > 0) {
+        if (!isEqual(this.state.columns, prevState.columns)) {
+            if (this.state.columns) {
                 const header = this.treeRef.current?.querySelector('th');
                 if (header) {
                     new ResizeObserver(target => {
@@ -445,7 +445,7 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
     }
 
     private updateTotalHeight() {
-        const visibleEntries = [...this.state.timegraphTree].filter(entry => this.isVisible(entry));
+        const visibleEntries = [...this.state.ganttChartTree].filter(entry => this.isVisible(entry));
         this.totalHeight = visibleEntries.length * this.props.style.rowHeight;
         this.rowController.totalHeight = this.totalHeight;
     }
@@ -464,7 +464,7 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
             if (collapsedNodes.includes(parentId)) {
                 return false;
             }
-            const parent = this.state.timegraphTree.find(e => e.id === parentId);
+            const parent = this.state.ganttChartTree.find(e => e.id === parentId);
             parentId = parent ? parent.parentId : undefined;
         }
         return true;
@@ -489,8 +489,8 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
     }
 
     private doHandleOrderChange(ids: number[]) {
-        const ordered = this.state.timegraphTree.slice().sort((a, b) => ids.indexOf(a.id) - ids.indexOf(b.id));
-        this.setState({ timegraphTree: ordered });
+        const ordered = this.state.ganttChartTree.slice().sort((a, b) => ids.indexOf(a.id) - ids.indexOf(b.id));
+        this.setState({ ganttChartTree: ordered });
     }
 
     private doHandleOrderReset() {
@@ -512,7 +512,7 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
         let element: TimeGraphEntry | undefined = undefined;
         let max = 0;
         if (payload && payload.load) {
-            this.state.timegraphTree.forEach(el => {
+            this.state.ganttChartTree.forEach(el => {
                 if (el.metadata) {
                     let cnt = 0;
                     Object.entries(el.metadata).forEach(([key, values]) => {
@@ -556,8 +556,13 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
         // TODO Show header, when we can have entries in-line with timeline-chart
         return (
             <>
+                <div className="zoom-reset-button-container">
+                    <button className="item zoom-reset-button" onClick={this.handleResetZoom} aria-label="reset zoom">
+                        <i className="codicon codicon-arrow-both" /> Reset Zoom
+                    </button>
+                </div>
                 <div
-                    ref={this.timeGraphTreeRef}
+                    ref={this.ganttChartTreeRef}
                     className="scrollable"
                     onScroll={() => this.synchronizeTreeScroll()}
                     style={{
@@ -573,7 +578,7 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
                     <EntryTree
                         collapsedNodes={this.state.collapsedNodes}
                         showFilter={false}
-                        entries={this.state.timegraphTree}
+                        entries={this.state.ganttChartTree}
                         showCheckboxes={false}
                         onToggleCollapse={this.onToggleCollapse}
                         onRowClick={this.onRowClick}
@@ -582,7 +587,7 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
                         multiSelectedRows={this.state.multiSelectedRows}
                         showHeader={true}
                         onContextMenu={this.onCtxMenu}
-                        className="table-tree timegraph-tree"
+                        className="table-tree ganttchart-tree"
                         emptyNodes={this.state.emptyNodes}
                         hideEmptyNodes={this.shouldHideEmptyNodes}
                         onOrderChange={this.onOrderChange}
@@ -603,7 +608,7 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
                         onToggleCollapse={this.onToggleAnnotationCollapse}
                         onClose={this.onMarkerCategoryRowClose}
                         showHeader={false}
-                        className="table-tree timegraph-tree"
+                        className="table-tree ganttchart-tree"
                         hideFillers={true}
                     />
                 </div>
@@ -668,7 +673,7 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const entryModels: { id: number; parentId?: number; metadata?: { [key: string]: any } }[] = [];
         for (const id of ids) {
-            const element = this.state.timegraphTree.find(el => el.id === id);
+            const element = this.state.ganttChartTree.find(el => el.id === id);
             if (element) {
                 entryModels.push({ id: element.id, parentId: element.parentId, metadata: element.metadata });
             }
@@ -747,8 +752,9 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
     renderChart(): React.ReactNode {
         return (
             <React.Fragment>
+                {this.props.children}
                 <div
-                    id="timegraph-main"
+                    id="ganttchart-main"
                     className="ps__child--consume"
                     onWheel={ev => {
                         ev.preventDefault();
@@ -756,7 +762,7 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
                     }}
                     style={{ height: 'auto' }}
                 >
-                    {this.renderTimeGraphContent()}
+                    {this.renderGanttChartContent()}
                 </div>
                 {this.state.outputStatus === ResponseStatus.RUNNING && (
                     <div className="analysis-running-overflow" style={{ width: this.getChartWidth() }}>
@@ -771,7 +777,7 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
     }
 
     resultsAreEmpty(): boolean {
-        return this.state.timegraphTree.length === 0;
+        return this.state.ganttChartTree.length === 0;
     }
 
     private isFilteredIn(row: TimelineChart.TimeGraphRowModel, strategy?: string): boolean {
@@ -881,10 +887,10 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
         );
     }
 
-    private renderTimeGraphContent() {
+    private renderGanttChartContent() {
         return (
             <div
-                id="main-timegraph-content"
+                id="main-ganttchart-content"
                 ref={this.horizontalContainer}
                 style={{ height: 'auto', marginTop: this.state.marginTop }}
             >
@@ -899,7 +905,7 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
         return (
             <div
                 id={this.props.traceId + this.props.outputDescriptor.id + 'searchBar'}
-                className="timegraph-search-bar"
+                className="ganttchart-search-bar"
             >
                 <TextField
                     InputProps={{
@@ -914,7 +920,7 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
                                 <i className="codicon codicon-search"></i>
                             </InputAdornment>
                         ),
-                        className: 'timegraph-search-box',
+                        className: 'ganttchart-search-box',
                         endAdornment: (
                             <InputAdornment
                                 sx={{
@@ -993,18 +999,17 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
         return (
             <ReactTimeGraphContainer
                 options={{
-                    id: 'timegraph-chart-1',
+                    id: 'ganttchart-1',
                     height: this.getMarkersLayerHeight(),
                     width: this.getChartWidth(),
                     backgroundColor: this.props.style.chartBackgroundColor,
                     lineColor: this.props.style.lineColor,
-                    classNames: 'horizontal-canvas',
-                    forceCanvasRenderer: false // default, but adds clarity
+                    classNames: 'horizontal-canvas'
                 }}
                 addWidgetResizeHandler={this.props.addWidgetResizeHandler}
                 removeWidgetResizeHandler={this.props.removeWidgetResizeHandler}
                 unitController={this.props.unitController}
-                id="timegraph-chart-1"
+                id="ganttchart-1"
                 layers={[this.markersChartLayer, this.markerChartCursors]}
             />
         );
@@ -1012,15 +1017,17 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
 
     private getChartContainer() {
         const grid = new TimeGraphChartGrid(
-            'timeGraphGrid',
+            'ganttChartGrid',
             this.props.style.rowHeight,
             this.props.backgroundTheme === 'light' ? 0xdddddd : 0x34383c
         );
         const selectionRange = new TimeGraphChartSelectionRange('chart-selection-range', {
             color: this.props.style.cursorColor
         });
+
         return (
             <ReactTimeGraphContainer
+                key={this.state.zoomResetCounter}
                 ref={this.containerRef}
                 options={{
                     id: this.props.traceId + this.props.outputDescriptor.id + 'focusContainer',
@@ -1033,8 +1040,7 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
                     width: this.getChartWidth(),
                     backgroundColor: this.props.style.chartBackgroundColor,
                     lineColor: this.props.backgroundTheme === 'light' ? 0xdddddd : 0x34383c,
-                    classNames: 'horizontal-canvas',
-                    forceCanvasRenderer: false // default, but adds clarity
+                    classNames: 'horizontal-canvas'
                 }}
                 addWidgetResizeHandler={this.props.addWidgetResizeHandler}
                 removeWidgetResizeHandler={this.props.removeWidgetResizeHandler}
@@ -1068,8 +1074,7 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
                     id: 'vscroll',
                     width: 10,
                     height: parseInt(this.props.style.height.toString()),
-                    backgroundColor: this.props.style.naviBackgroundColor,
-                    forceCanvasRenderer: true
+                    backgroundColor: this.props.style.naviBackgroundColor
                 }}
                 addWidgetResizeHandler={this.props.addWidgetResizeHandler}
                 removeWidgetResizeHandler={this.props.removeWidgetResizeHandler}
@@ -1093,12 +1098,12 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
     }
 
     private getTimegraphRowIds() {
-        const { timegraphTree, columns, collapsedNodes } = this.state;
+        const { ganttChartTree: timegraphTree, columns, collapsedNodes } = this.state;
         const rowIds = getAllExpandedNodeIds(listToTree(timegraphTree, columns), collapsedNodes);
         return { rowIds };
     }
 
-    private async fetchTimegraphData(
+    private async fetchGanttChartData(
         range: TimelineChart.TimeGraphRange,
         resolution: number,
         fetchArrows: boolean,
@@ -1118,9 +1123,9 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
         const { start, end } = range;
         const newRange: TimelineChart.TimeGraphRange = range;
         const nbTimes = Math.ceil(Number(end - start) / resolution) + 1;
-        const timeGraphData: TimelineChart.TimeGraphModel = await this.tspDataProvider.getData(
+        const ganttChartData: TimelineChart.TimeGraphModel = await this.tspDataProvider.getData(
             ids,
-            this.state.timegraphTree,
+            this.state.ganttChartTree,
             fetchArrows,
             this.props.range,
             newRange,
@@ -1129,8 +1134,8 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
             this.props.markerSetId,
             additionalProperties
         );
-        this.updateMarkersData(timeGraphData.rangeEvents, newRange, nbTimes);
-        this.rangeEventsLayer.addRangeEvents(timeGraphData.rangeEvents);
+        this.updateMarkersData(ganttChartData.rangeEvents, newRange, nbTimes);
+        this.rangeEventsLayer.addRangeEvents(ganttChartData.rangeEvents);
 
         if (document.getElementById(this.props.traceId + this.props.outputDescriptor.id + 'handleSpinner')) {
             // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
@@ -1139,7 +1144,7 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
             )!.style.visibility = 'hidden';
         }
 
-        let rows = timeGraphData ? timeGraphData.rows : [];
+        let rows = ganttChartData ? ganttChartData.rows : [];
         let emptyNodes: number[] = [...this.state.emptyNodes];
         if (this.shouldHideEmptyNodes) {
             rows = rows.filter(row => {
@@ -1158,7 +1163,7 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
 
         if (fetchArrows) {
             this.arrowLayer.addArrows(
-                timeGraphData.arrows,
+                ganttChartData.arrows,
                 this.getTimegraphRowIds().rowIds.filter(rowId => !emptyNodes.includes(rowId))
             );
         }
@@ -1520,13 +1525,13 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
     }
 
     private expandParents(entry: TimeGraphEntry) {
-        let foundNode = this.state.timegraphTree.find(node => node.id === entry?.id);
+        let foundNode = this.state.ganttChartTree.find(node => node.id === entry?.id);
         if (foundNode) {
             let parentId: number | undefined = foundNode.parentId;
             const ids: number[] = [];
             while (parentId && parentId >= 0) {
                 ids.push(parentId);
-                foundNode = this.state.timegraphTree.find(node => node.id === parentId);
+                foundNode = this.state.ganttChartTree.find(node => node.id === parentId);
                 parentId = foundNode?.parentId;
             }
 
@@ -1551,7 +1556,7 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
     public onRowClick = (id: number): void => {
         const rowIndex = getIndexOfNode(
             id,
-            listToTree(this.state.timegraphTree, this.state.columns),
+            listToTree(this.state.ganttChartTree, this.state.columns),
             this.state.collapsedNodes,
             this.state.emptyNodes
         );
@@ -1566,7 +1571,7 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
     };
 
     public onMultipleRowClick = (id: number, isShiftClicked?: boolean): void => {
-        const tree = listToTree(this.state.timegraphTree, this.state.columns);
+        const tree = listToTree(this.state.ganttChartTree, this.state.columns);
         const rowIndex = getIndexOfNode(id, tree, this.state.collapsedNodes, this.state.emptyNodes);
 
         if (isShiftClicked) {
@@ -1668,10 +1673,26 @@ export class TimegraphOutputComponent extends AbstractTreeOutputComponent<Timegr
     private selectAndReveal(item: TimeGraphEntry) {
         const rowIndex = getIndexOfNode(
             item.id,
-            listToTree(this.state.timegraphTree, this.state.columns),
+            listToTree(this.state.ganttChartTree, this.state.columns),
             this.state.collapsedNodes,
             this.state.emptyNodes
         );
         this.chartLayer.selectAndReveal(rowIndex);
     }
+
+    private handleResetZoom = () => {
+        // Reset the view range to the initial global view range snapshot
+        const initial = this.initialViewRangeSnapshot || this.props.unitController.viewRange;
+        this.props.unitController.viewRange = {
+            start: initial.start,
+            end: initial.end
+        };
+        if (this.chartLayer) {
+            this.chartLayer.update();
+        }
+        this.setState(prev => ({ zoomResetCounter: (prev.zoomResetCounter ?? 0) + 1 }));
+        if (this.props.onResetZoom) {
+            this.props.onResetZoom();
+        }
+    };
 }
