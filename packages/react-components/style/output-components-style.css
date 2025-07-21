@@ -308,26 +308,26 @@ canvas {
 }
 
 .timegraph-tree,
-.ganttchart-tree {
+.gantt-tree {
     border-collapse: collapse;
     border: none;
 }
 
 .timegraph-tree tr,
-.ganttchart-tree tr {
+.gantt-tree tr {
     /* TODO: Fix row alignment, this number is arbitrary, it works [on my machine], but it should match line height in timeline-chart */
     line-height: 18px;
 }
 
 .timegraph-tree th,
-.ganttchart-tree th {
+.gantt-tree th {
     line-height: 14px;
     position: sticky;
     top: 0px;
 }
 
 .timegraph-tree td,
-.ganttchart-tree td {
+.gantt-tree td {
     padding: 1px;
     border-left: 1px solid var(--trace-viewer-tree-inactiveIndentGuidesStroke);
     border-right: none;
@@ -472,8 +472,7 @@ canvas {
     color: var(--trace-viewer-foreground);
 }
 
-.timegraph-search-bar,
-.ganttchart-search-bar {
+.gantt-search-bar {
     background: var(--trace-viewer-editor-background);
     padding-top: 5px;
     padding-bottom: 15px;
@@ -484,8 +483,7 @@ canvas {
     gap: 10px;
 }
 
-.timegraph-search-box,
-.ganttchart-search-box {
+.gantt-search-box {
     height: 30px;
     margin-left: 2.5px;
     margin-right: 2.5px;
@@ -499,8 +497,7 @@ canvas {
     border-width: 1px !important;
 }
 
-.timegraph-search-box,
-.ganttchart-search-box fieldset {
+.gantt-search-box fieldset {
     border-color: var(--trace-viewer-tree-inactiveIndentGuidesStroke);
 }
 

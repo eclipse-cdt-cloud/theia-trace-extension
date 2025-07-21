@@ -735,6 +735,9 @@ export class TraceContextComponent extends React.Component<TraceContextProps, Tr
                             }
                             return (
                                 <TimegraphOutputComponent
+                                    menu_id="timegraph.menuId"
+                                    chartGridName="timegraph-grid"
+                                    chartId="timegraph-main"
                                     key={output.id}
                                     {...outputProps}
                                     addWidgetResizeHandler={this.addWidgetResizeHandler}
@@ -821,6 +824,9 @@ export class TraceContextComponent extends React.Component<TraceContextProps, Tr
                                 <GanttChartOutputComponent
                                     key={output.id}
                                     {...outputProps}
+                                    menu_id="ganttchart.menuId"
+                                    chartGridName="ganttchart-grid"
+                                    chartId="ganttchart-main"
                                     range={ganttChartRange}
                                     viewRange={ganttChartRange}
                                     unitController={ganttChartUnitController}
