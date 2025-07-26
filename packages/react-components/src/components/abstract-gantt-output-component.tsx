@@ -100,7 +100,7 @@ export abstract class AbstractGanttOutputComponent<
     private rangeEventsLayer: TimeGraphRangeEventsLayer;
 
     private horizontalContainer: React.RefObject<HTMLDivElement>;
-    private chartTreeRef: React.RefObject<HTMLDivElement>;
+    protected chartTreeRef: React.RefObject<HTMLDivElement>;
     protected markerTreeRef: React.RefObject<HTMLDivElement>;
     private containerRef: React.RefObject<ReactTimeGraphContainer>;
 
