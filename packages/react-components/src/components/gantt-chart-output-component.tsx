@@ -69,7 +69,7 @@ export class GanttChartOutputComponent extends AbstractGanttOutputComponent<
                     </button>
                 </div>
                 <div
-                    ref={this.treeRef}
+                    ref={this.chartTreeRef}
                     className="scrollable"
                     onScroll={() => this.synchronizeTreeScroll()}
                     style={{

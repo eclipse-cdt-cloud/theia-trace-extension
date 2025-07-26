@@ -39,7 +39,7 @@ export class TimegraphOutputComponent extends AbstractGanttOutputComponent {
         return (
             <>
                 <div
-                    ref={this.treeRef}
+                    ref={this.chartTreeRef}
                     className="scrollable"
                     onScroll={() => this.synchronizeTreeScroll()}
                     style={{
