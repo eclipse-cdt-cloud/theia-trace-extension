@@ -59,7 +59,6 @@ export interface TraceContextState {
     backgroundTheme: string;
     pinnedView: OutputDescriptor | undefined;
     ganttChartRanges?: Record<string, { start: bigint; end: bigint }>;
-    ganttChartResetZoomKey?: number;
 }
 
 export interface PersistedState {
@@ -184,8 +183,7 @@ export class TraceContextComponent extends React.Component<TraceContextProps, Tr
                 lineColor: this.props.backgroundTheme === 'light' ? 0x757575 : 0xbbbbbb
             },
             backgroundTheme: this.props.backgroundTheme,
-            ganttChartRanges: {},
-            ganttChartResetZoomKey: 0
+            ganttChartRanges: {}
         };
         const absoluteRange = traceRange.getDuration();
         const offset = viewRange.getOffset();
@@ -837,7 +835,6 @@ export class TraceContextComponent extends React.Component<TraceContextProps, Tr
                                     addWidgetResizeHandler={this.addWidgetResizeHandler}
                                     removeWidgetResizeHandler={this.removeWidgetResizeHandler}
                                     className={this.state.pinnedView?.id === output.id ? 'pinned-view-shadow' : ''}
-                                    onResetZoom={this.handleGanttChartResetZoom}
                                 >
                                     <div
                                         style={{
@@ -848,7 +845,6 @@ export class TraceContextComponent extends React.Component<TraceContextProps, Tr
                                         }}
                                     >
                                         <TimeAxisComponent
-                                            key={this.state.ganttChartResetZoomKey}
                                             unitController={ganttChartUnitController}
                                             style={{ ...this.state.style, width: chartWidth, verticalAlign: 'bottom' }}
                                             addWidgetResizeHandler={this.addWidgetResizeHandler}
@@ -1044,9 +1040,5 @@ export class TraceContextComponent extends React.Component<TraceContextProps, Tr
                 [outputId]: newRange
             }
         }));
-    };
-
-    private handleGanttChartResetZoom = () => {
-        this.setState(prev => ({ ganttChartResetZoomKey: (prev.ganttChartResetZoomKey ?? 0) + 1 }));
     };
 }
