@@ -63,11 +63,6 @@ export class GanttChartOutputComponent extends AbstractGanttOutputComponent<
         // TODO Show header, when we can have entries in-line with timeline-chart
         return (
             <>
-                <div className="zoom-reset-button-container">
-                    <button className="item zoom-reset-button" onClick={this.handleResetZoom} aria-label="reset zoom">
-                        <i className="codicon codicon-arrow-both" /> Reset Zoom
-                    </button>
-                </div>
                 <div
                     ref={this.chartTreeRef}
                     className="scrollable"
@@ -122,20 +117,4 @@ export class GanttChartOutputComponent extends AbstractGanttOutputComponent<
             </>
         );
     }
-
-    private handleResetZoom = () => {
-        // Reset the view range to the initial global view range snapshot
-        const initial = this.initialViewRangeSnapshot || this.props.unitController.viewRange;
-        this.props.unitController.viewRange = {
-            start: initial.start,
-            end: initial.end
-        };
-        if (this.chartLayer) {
-            this.chartLayer.update();
-        }
-        this.setState(prev => ({ zoomResetCounter: (prev.zoomResetCounter ?? 0) + 1 }));
-        if (this.props.onResetZoom) {
-            this.props.onResetZoom();
-        }
-    };
 }
