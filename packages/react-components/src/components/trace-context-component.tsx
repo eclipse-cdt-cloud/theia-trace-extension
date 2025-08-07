@@ -28,6 +28,7 @@ import { UnitControllerHistoryHandler } from './utils/unit-controller-history-ha
 import { TraceOverviewComponent } from './trace-overview-component';
 import { TimeRangeUpdatePayload } from 'traceviewer-base/lib/signals/time-range-data-signal-payloads';
 import { GanttChartOutputComponent } from './gantt-chart-output-component';
+import createNumberTranslator from './utils/number-translator';
 
 const ResponsiveGridLayout = WidthProvider(Responsive);
 
@@ -800,18 +801,6 @@ export class TraceContextComponent extends React.Component<TraceContextProps, Tr
                                 const nanos = zeroPad(theNumber % BigInt(1000));
                                 return seconds + '.' + millis + ' ' + micros + ' ' + nanos;
                             };
-                            // Restore view range if available, otherwise set to global view range
-                            const fgViewRange = this.state.ganttChartRanges?.[output.id];
-                            if (fgViewRange) {
-                                ganttChartUnitController.viewRange = fgViewRange;
-                            } else {
-                                // Use the global view range from the parent unit controller
-                                const globalViewRange = this.unitController.viewRange;
-                                ganttChartUnitController.viewRange = {
-                                    start: globalViewRange.start,
-                                    end: globalViewRange.end
-                                };
-                            }
                             // Listen for view range changes
                             ganttChartUnitController.onViewRangeChanged((_old, newRange) => {
                                 this.handleGanttChartViewRangeChange(output.id, newRange);
@@ -827,6 +816,11 @@ export class TraceContextComponent extends React.Component<TraceContextProps, Tr
                                     chartId="ganttchart-main"
                                     range={ganttChartRange}
                                     viewRange={ganttChartRange}
+                                    syncedRange={{
+                                        start: this.unitController.selectionRange?.start ?? BigInt(0),
+                                        end: this.unitController.selectionRange?.end ?? BigInt(0),
+                                        offset: this.unitController.offset
+                                    }}
                                     unitController={ganttChartUnitController}
                                     initialViewRange={{
                                         start: this.unitController.viewRange.start,
@@ -845,6 +839,7 @@ export class TraceContextComponent extends React.Component<TraceContextProps, Tr
                                         }}
                                     >
                                         <TimeAxisComponent
+                                            key={`${ganttChartUnitController.viewRange.start}-${ganttChartUnitController.viewRange.end}`}
                                             unitController={ganttChartUnitController}
                                             style={{ ...this.state.style, width: chartWidth, verticalAlign: 'bottom' }}
                                             addWidgetResizeHandler={this.addWidgetResizeHandler}
