@@ -1,0 +1,44 @@
+.no-output-placeholder {
+    color: var(--trace-viewer-ui-font-color3);
+    font-size: 24px;
+    text-align: center;
+    position: relative;
+    transform: translate(0, -50%);
+    top: 50%;
+    width: 90%;
+    align-self: center;
+}
+
+.react-grid-item.react-grid-placeholder {
+    background: var(--trace-viewer-badge-background) !important;
+}
+
+.trace-context-container {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.outputs-grid-layout {
+    overflow-y: scroll;
+    overflow-x: hidden;
+    position: relative;
+    flex-grow: 1;
+}
+
+.react-grid-item > .react-resizable-handle {
+    width: 10px !important;
+    height: 10px !important;
+}
+
+.react-grid-item > .react-resizable-handle::after {
+    border-right-color: var(--trace-viewer-ui-font-color0) !important;
+    border-bottom-color: var(--trace-viewer-ui-font-color0) !important;
+}
+
+.sticky-div {
+    position: sticky;
+    bottom: 0;
+}
+
