@@ -1,0 +1,704 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`<TableOutputComponent /> Cell renderer 1`] = `"test cell"`;
+
+exports[`<TableOutputComponent /> Cell renderer with search selection 1`] = `
+Array [
+  <span>
+    <span
+      style={
+        Object {
+          "backgroundColor": "#FFFF00",
+        }
+      }
+    >
+      test
+    </span>
+  </span>,
+  <span>
+     cell
+  </span>,
+]
+`;
+
+exports[`<TableOutputComponent /> Empty search filter renderer 1`] = `
+<div
+  data-testid="search-filter-element-parent"
+  onClick={[Function]}
+  onMouseEnter={[Function]}
+  onMouseLeave={[Function]}
+>
+  <svg
+    aria-hidden="true"
+    className="svg-inline--fa fa-search fa-w-16 "
+    data-icon="search"
+    data-prefix="fas"
+    focusable="false"
+    role="img"
+    style={
+      Object {
+        "marginLeft": "10px",
+      }
+    }
+    viewBox="0 0 512 512"
+    xmlns="http://www.w3.org/2000/svg"
+  >
+    <path
+      d="M505 442.7L405.3 343c-4.5-4.5-10.6-7-17-7H372c27.6-35.3 44-79.7 44-128C416 93.1 322.9 0 208 0S0 93.1 0 208s93.1 208 208 208c48.3 0 92.7-16.4 128-44v16.3c0 6.4 2.5 12.5 7 17l99.7 99.7c9.4 9.4 24.6 9.4 33.9 0l28.3-28.3c9.4-9.4 9.4-24.6.1-34zM208 336c-70.7 0-128-57.2-128-128 0-70.7 57.2-128 128-128 70.7 0 128 57.2 128 128 0 70.7-57.2 128-128 128z"
+      fill="currentColor"
+      style={Object {}}
+    />
+  </svg>
+</div>
+`;
+
+exports[`<TableOutputComponent /> Loading renderer in loading 1`] = `
+<svg
+  aria-hidden="true"
+  className="svg-inline--fa fa-spinner fa-w-16 "
+  data-icon="spinner"
+  data-prefix="fas"
+  focusable="false"
+  role="img"
+  style={Object {}}
+  viewBox="0 0 512 512"
+  xmlns="http://www.w3.org/2000/svg"
+>
+  <path
+    d="M304 48c0 26.51-21.49 48-48 48s-48-21.49-48-48 21.49-48 48-48 48 21.49 48 48zm-48 368c-26.51 0-48 21.49-48 48s21.49 48 48 48 48-21.49 48-48-21.49-48-48-48zm208-208c-26.51 0-48 21.49-48 48s21.49 48 48 48 48-21.49 48-48-21.49-48-48-48zM96 256c0-26.51-21.49-48-48-48S0 229.49 0 256s21.49 48 48 48 48-21.49 48-48zm12.922 99.078c-26.51 0-48 21.49-48 48s21.49 48 48 48 48-21.49 48-48c0-26.509-21.491-48-48-48zm294.156 0c-26.51 0-48 21.49-48 48s21.49 48 48 48 48-21.49 48-48c0-26.509-21.49-48-48-48zM108.922 60.922c-26.51 0-48 21.49-48 48s21.49 48 48 48 48-21.49 48-48-21.491-48-48-48z"
+    fill="currentColor"
+    style={Object {}}
+  />
+</svg>
+`;
+
+exports[`<TableOutputComponent /> Loading renderer not loading 1`] = `"test cell"`;
+
+exports[`<TableOutputComponent /> Renders AG-Grid table with provided props & state 1`] = `
+<div>
+  <div
+    class="output-container undefined"
+    id="00"
+    style="width: 0px; height: 0px;"
+    tabindex="-1"
+  >
+    <div
+      class="widget-handle-with-options"
+      id="00handle"
+      style="width: 30px; height: 0px;"
+    >
+      <button
+        class="remove-component-button"
+      >
+        <svg
+          aria-hidden="true"
+          class="svg-inline--fa fa-times fa-w-11 "
+          data-icon="times"
+          data-prefix="fas"
+          focusable="false"
+          role="img"
+          viewBox="0 0 352 512"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            d="M242.72 256l100.07-100.07c12.28-12.28 12.28-32.19 0-44.48l-22.24-22.24c-12.28-12.28-32.19-12.28-44.48 0L176 189.28 75.93 89.21c-12.28-12.28-32.19-12.28-44.48 0L9.21 111.45c-12.28 12.28-12.28 32.19 0 44.48L109.28 256 9.21 356.07c-12.28 12.28-12.28 32.19 0 44.48l22.24 22.24c12.28 12.28 32.2 12.28 44.48 0L176 322.72l100.07 100.07c12.28 12.28 32.2 12.28 44.48 0l22.24-22.24c12.28-12.28 12.28-32.19 0-44.48L242.72 256z"
+            fill="currentColor"
+          />
+        </svg>
+      </button>
+      <div
+        class="options-menu-container"
+      >
+        <button
+          class="options-menu-button"
+          title="Show View Options"
+        >
+          <svg
+            aria-hidden="true"
+            class="svg-inline--fa fa-bars fa-w-14 "
+            data-icon="bars"
+            data-prefix="fas"
+            focusable="false"
+            role="img"
+            viewBox="0 0 448 512"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              d="M16 132h416c8.837 0 16-7.163 16-16V76c0-8.837-7.163-16-16-16H16C7.163 60 0 67.163 0 76v40c0 8.837 7.163 16 16 16zm0 160h416c8.837 0 16-7.163 16-16v-40c0-8.837-7.163-16-16-16H16c-8.837 0-16 7.163-16 16v40c0 8.837 7.163 16 16 16zm0 160h416c8.837 0 16-7.163 16-16v-40c0-8.837-7.163-16-16-16H16c-8.837 0-16 7.163-16 16v40c0 8.837 7.163 16 16 16z"
+              fill="currentColor"
+            />
+          </svg>
+        </button>
+      </div>
+      <div
+        class="title-bar-label"
+        title=""
+      >
+        <span />
+        <span
+          class="hidden-ellipsis"
+        >
+          ...
+        </span>
+        <svg
+          aria-hidden="true"
+          class="svg-inline--fa fa-spinner fa-w-16 fa-spin "
+          data-icon="spinner"
+          data-prefix="fas"
+          focusable="false"
+          id="00handleSpinner"
+          role="img"
+          style="margin-top: 5px; visibility: hidden;"
+          viewBox="0 0 512 512"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            d="M304 48c0 26.51-21.49 48-48 48s-48-21.49-48-48 21.49-48 48-48 48 21.49 48 48zm-48 368c-26.51 0-48 21.49-48 48s21.49 48 48 48 48-21.49 48-48-21.49-48-48-48zm208-208c-26.51 0-48 21.49-48 48s21.49 48 48 48 48-21.49 48-48-21.49-48-48-48zM96 256c0-26.51-21.49-48-48-48S0 229.49 0 256s21.49 48 48 48 48-21.49 48-48zm12.922 99.078c-26.51 0-48 21.49-48 48s21.49 48 48 48 48-21.49 48-48c0-26.509-21.491-48-48-48zm294.156 0c-26.51 0-48 21.49-48 48s21.49 48 48 48 48-21.49 48-48c0-26.509-21.49-48-48-48zM108.922 60.922c-26.51 0-48 21.49-48 48s21.49 48 48 48 48-21.49 48-48-21.491-48-48-48z"
+            fill="currentColor"
+          />
+        </svg>
+      </div>
+    </div>
+    <div
+      class="main-output-container"
+      style="width: -30px; height: 0px;"
+    >
+      <div
+        class="ag-theme-balham"
+        id="00focusContainer"
+        style="height: 0px; width: 0px; display: flex; flex-direction: column;"
+        tabindex="-1"
+      >
+        <div
+          style="height: 100%;"
+        >
+          <div
+            class="ag-measurement-container"
+          >
+            <div />
+            <div />
+            <div />
+          </div>
+          <div
+            aria-atomic="true"
+            aria-live="polite"
+            aria-relevant="additions text"
+            class="ag-aria-description-container"
+          />
+          <!-- AG Grid -->
+          <div
+            class="ag-root-wrapper ag-ltr ag-layout-normal"
+            grid-id="1"
+            role="presentation"
+          >
+            <div
+              class="ag-root-wrapper-body ag-focus-managed ag-layout-normal"
+              role="presentation"
+            >
+              <div
+                class="ag-tab-guard ag-tab-guard-top"
+                role="presentation"
+                tabindex="0"
+              />
+              <!-- AG Grid Body -->
+              <div
+                aria-colcount="0"
+                aria-rowcount="-1"
+                class="ag-root ag-unselectable ag-layout-normal ag-body-vertical-content-no-gap ag-body-horizontal-content-no-gap"
+                role="treegrid"
+              >
+                <div
+                  class="ag-header ag-pivot-off"
+                  role="presentation"
+                  style="height: 49px; min-height: 49px;"
+                >
+                  <div
+                    aria-hidden="true"
+                    class="ag-pinned-left-header ag-hidden"
+                    role="rowgroup"
+                    style="width: 0px; min-width: 0px; max-width: 0px;"
+                  />
+                  <div
+                    class="ag-header-viewport "
+                    role="presentation"
+                  >
+                    <div
+                      class="ag-header-container"
+                      role="rowgroup"
+                      style="width: 0px;"
+                    >
+                      <div
+                        aria-rowindex="1"
+                        class="ag-header-row ag-header-row-column"
+                        role="row"
+                        style="height: 48px; top: 0px; width: 0px;"
+                      />
+                    </div>
+                  </div>
+                  <div
+                    aria-hidden="true"
+                    class="ag-pinned-right-header ag-hidden"
+                    role="rowgroup"
+                    style="width: 0px; min-width: 0px; max-width: 0px;"
+                  />
+                </div>
+                <!-- AG Pinned Top -->
+                <div
+                  class="ag-floating-top"
+                  role="presentation"
+                  style="height: 0px; min-height: 0; display: none; overflow-y: hidden;"
+                >
+                  <!-- AG Row Container topLeft -->
+                  <div
+                    aria-hidden="true"
+                    class="ag-pinned-left-floating-top ag-hidden"
+                    role="rowgroup"
+                    style="width: 0px; max-width: 0px; min-width: 0px;"
+                  />
+                  <!-- AG Row Container topCenter -->
+                  <div
+                    class="ag-floating-top-viewport"
+                    role="presentation"
+                  >
+                    <div
+                      class="ag-floating-top-container"
+                      role="rowgroup"
+                      style="width: 0px;"
+                    />
+                  </div>
+                  <!-- AG Row Container topRight -->
+                  <div
+                    aria-hidden="true"
+                    class="ag-pinned-right-floating-top ag-hidden"
+                    role="rowgroup"
+                    style="width: 0px; max-width: 0px; min-width: 0px;"
+                  />
+                  <!-- AG Row Container topFullWidth -->
+                  <div
+                    class="ag-floating-top-full-width-container"
+                    role="rowgroup"
+                  />
+                </div>
+                <div
+                  class="ag-body ag-layout-normal"
+                  role="presentation"
+                >
+                  <!-- AG Middle -->
+                  <div
+                    class="ag-body-viewport ag-row-no-animation ag-layout-normal"
+                    role="presentation"
+                  >
+                    <!-- AG Row Container left -->
+                    <div
+                      aria-hidden="true"
+                      class="ag-pinned-left-cols-container ag-hidden"
+                      role="rowgroup"
+                      style="width: 0px; max-width: 0px; min-width: 0px;"
+                    />
+                    <!-- AG Row Container center -->
+                    <div
+                      class="ag-center-cols-viewport"
+                      role="presentation"
+                    >
+                      <div
+                        class="ag-center-cols-container"
+                        role="rowgroup"
+                        style="width: 0px;"
+                      />
+                    </div>
+                    <!-- AG Row Container right -->
+                    <div
+                      aria-hidden="true"
+                      class="ag-pinned-right-cols-container ag-hidden"
+                      role="rowgroup"
+                      style="width: 0px; max-width: 0px; min-width: 0px;"
+                    />
+                    <!-- AG Row Container fullWidth -->
+                    <div
+                      class="ag-full-width-container"
+                      role="rowgroup"
+                    />
+                  </div>
+                  <!-- AG Fake Vertical Scroll -->
+                  <div
+                    aria-hidden="true"
+                    class="ag-body-vertical-scroll"
+                  >
+                    
+            
+                    <div
+                      class="ag-body-vertical-scroll-viewport"
+                      data-ref="eViewport"
+                    >
+                      
+                
+                      <div
+                        class="ag-body-vertical-scroll-container"
+                        data-ref="eContainer"
+                      />
+                      
+            
+                    </div>
+                    
+        
+                  </div>
+                </div>
+                <!-- AG Sticky Top -->
+                <div
+                  class="ag-sticky-top"
+                  role="presentation"
+                  style="height: 0px; top: 49px; width: 100%;"
+                >
+                  <!-- AG Row Container stickyTopLeft -->
+                  <div
+                    aria-hidden="true"
+                    class="ag-pinned-left-sticky-top ag-hidden"
+                    role="rowgroup"
+                    style="width: 0px; max-width: 0px; min-width: 0px;"
+                  />
+                  <!-- AG Row Container stickyTopCenter -->
+                  <div
+                    class="ag-sticky-top-viewport"
+                    role="presentation"
+                  >
+                    <div
+                      class="ag-sticky-top-container"
+                      role="rowgroup"
+                      style="width: 0px;"
+                    />
+                  </div>
+                  <!-- AG Row Container stickyTopRight -->
+                  <div
+                    aria-hidden="true"
+                    class="ag-pinned-right-sticky-top ag-hidden"
+                    role="rowgroup"
+                    style="width: 0px; max-width: 0px; min-width: 0px;"
+                  />
+                  <!-- AG Row Container stickyTopFullWidth -->
+                  <div
+                    class="ag-sticky-top-full-width-container"
+                    role="rowgroup"
+                  />
+                </div>
+                <div
+                  class="ag-sticky-bottom ag-hidden"
+                  role="presentation"
+                  style="height: 0px; bottom: 0px; width: 100%;"
+                >
+                  <!-- AG Row Container stickyBottomLeft -->
+                  <div
+                    aria-hidden="true"
+                    class="ag-pinned-left-sticky-bottom ag-hidden"
+                    role="rowgroup"
+                    style="width: 0px; max-width: 0px; min-width: 0px;"
+                  />
+                  <!-- AG Row Container stickyBottomCenter -->
+                  <div
+                    class="ag-sticky-bottom-viewport"
+                    role="presentation"
+                  >
+                    <div
+                      class="ag-sticky-bottom-container"
+                      role="rowgroup"
+                      style="width: 0px;"
+                    />
+                  </div>
+                  <!-- AG Row Container stickyBottomRight -->
+                  <div
+                    aria-hidden="true"
+                    class="ag-pinned-right-sticky-bottom ag-hidden"
+                    role="rowgroup"
+                    style="width: 0px; max-width: 0px; min-width: 0px;"
+                  />
+                  <!-- AG Row Container stickyBottomFullWidth -->
+                  <div
+                    class="ag-sticky-bottom-full-width-container"
+                    role="rowgroup"
+                  />
+                </div>
+                <!-- AG Pinned Bottom -->
+                <div
+                  class="ag-floating-bottom"
+                  role="presentation"
+                  style="height: 0px; min-height: 0; display: none; overflow-y: hidden;"
+                >
+                  <!-- AG Row Container bottomLeft -->
+                  <div
+                    aria-hidden="true"
+                    class="ag-pinned-left-floating-bottom ag-hidden"
+                    role="rowgroup"
+                    style="width: 0px; max-width: 0px; min-width: 0px;"
+                  />
+                  <!-- AG Row Container bottomCenter -->
+                  <div
+                    class="ag-floating-bottom-viewport"
+                    role="presentation"
+                  >
+                    <div
+                      class="ag-floating-bottom-container"
+                      role="rowgroup"
+                      style="width: 0px;"
+                    />
+                  </div>
+                  <!-- AG Row Container bottomRight -->
+                  <div
+                    aria-hidden="true"
+                    class="ag-pinned-right-floating-bottom ag-hidden"
+                    role="rowgroup"
+                    style="width: 0px; max-width: 0px; min-width: 0px;"
+                  />
+                  <!-- AG Row Container bottomFullWidth -->
+                  <div
+                    class="ag-floating-bottom-full-width-container"
+                    role="rowgroup"
+                  />
+                </div>
+                <!-- AG Fake Horizontal Scroll -->
+                <div
+                  aria-hidden="true"
+                  class="ag-body-horizontal-scroll"
+                >
+                  
+            
+                  <div
+                    class="ag-horizontal-left-spacer"
+                    data-ref="eLeftSpacer"
+                    style="width: 0px; max-width: 0px; min-width: 0px;"
+                  />
+                  
+            
+                  <div
+                    class="ag-body-horizontal-scroll-viewport"
+                    data-ref="eViewport"
+                  >
+                    
+                
+                    <div
+                      class="ag-body-horizontal-scroll-container"
+                      data-ref="eContainer"
+                      style="width: 0px;"
+                    />
+                    
+            
+                  </div>
+                  
+            
+                  <div
+                    class="ag-horizontal-right-spacer"
+                    data-ref="eRightSpacer"
+                    style="width: 0px; max-width: 0px; min-width: 0px;"
+                  />
+                  
+        
+                </div>
+                <!-- AG Overlay Wrapper -->
+                <div
+                  class="ag-overlay ag-hidden"
+                  role="presentation"
+                >
+                  
+                
+                  <div
+                    class="ag-overlay-panel"
+                    role="presentation"
+                  >
+                    
+                    
+                    <div
+                      class="ag-overlay-wrapper ag-layout-normal ag-overlay-loading-wrapper"
+                      data-ref="eOverlayWrapper"
+                      role="presentation"
+                    />
+                    
+                
+                  </div>
+                  
+            
+                </div>
+              </div>
+              <div
+                class="ag-tab-guard ag-tab-guard-bottom"
+                role="presentation"
+                tabindex="0"
+              />
+            </div>
+            <div
+              aria-hidden="true"
+              class="ag-paging-panel ag-unselectable ag-focus-managed ag-hidden"
+              id="ag-4"
+            >
+              <div
+                class="ag-tab-guard ag-tab-guard-top"
+                role="presentation"
+                tabindex="0"
+              />
+              
+                
+              <!--AG-PAGE-SIZE-SELECTOR-->
+              <span
+                class="ag-paging-page-size"
+                data-ref="pageSizeComp"
+              />
+              
+                
+              <span
+                class="ag-paging-row-summary-panel"
+              >
+                
+                    
+                <span
+                  class="ag-paging-row-summary-panel-number"
+                  data-ref="lbFirstRowOnPage"
+                  id="ag-4-first-row"
+                />
+                
+                    
+                <span
+                  id="ag-4-to"
+                >
+                  to
+                </span>
+                
+                    
+                <span
+                  class="ag-paging-row-summary-panel-number"
+                  data-ref="lbLastRowOnPage"
+                  id="ag-4-last-row"
+                />
+                
+                    
+                <span
+                  id="ag-4-of"
+                >
+                  of
+                </span>
+                
+                    
+                <span
+                  class="ag-paging-row-summary-panel-number"
+                  data-ref="lbRecordCount"
+                  id="ag-4-row-count"
+                />
+                
+                
+              </span>
+              
+                
+              <span
+                class="ag-paging-page-summary-panel"
+                role="presentation"
+              >
+                
+                    
+                <div
+                  aria-label="First Page"
+                  class="ag-button ag-paging-button"
+                  data-ref="btFirst"
+                  role="button"
+                  tabindex="0"
+                >
+                  <span
+                    class="ag-icon ag-icon-first"
+                    role="presentation"
+                    unselectable="on"
+                  />
+                </div>
+                
+                    
+                <div
+                  aria-label="Previous Page"
+                  class="ag-button ag-paging-button"
+                  data-ref="btPrevious"
+                  role="button"
+                  tabindex="0"
+                >
+                  <span
+                    class="ag-icon ag-icon-previous"
+                    role="presentation"
+                    unselectable="on"
+                  />
+                </div>
+                
+                    
+                <span
+                  class="ag-paging-description"
+                >
+                  
+                        
+                  <span
+                    id="ag-4-start-page"
+                  >
+                    Page
+                  </span>
+                  
+                        
+                  <span
+                    class="ag-paging-number"
+                    data-ref="lbCurrent"
+                    id="ag-4-start-page-number"
+                  />
+                  
+                        
+                  <span
+                    id="ag-4-of-page"
+                  >
+                    of
+                  </span>
+                  
+                        
+                  <span
+                    class="ag-paging-number"
+                    data-ref="lbTotal"
+                    id="ag-4-of-page-number"
+                  />
+                  
+                    
+                </span>
+                
+                    
+                <div
+                  aria-label="Next Page"
+                  class="ag-button ag-paging-button"
+                  data-ref="btNext"
+                  role="button"
+                  tabindex="0"
+                >
+                  <span
+                    class="ag-icon ag-icon-next"
+                    role="presentation"
+                    unselectable="on"
+                  />
+                </div>
+                
+                    
+                <div
+                  aria-label="Last Page"
+                  class="ag-button ag-paging-button"
+                  data-ref="btLast"
+                  role="button"
+                  tabindex="0"
+                >
+                  <span
+                    class="ag-icon ag-icon-last"
+                    role="presentation"
+                    unselectable="on"
+                  />
+                </div>
+                
+                
+              </span>
+              
+            
+              <div
+                class="ag-tab-guard ag-tab-guard-bottom"
+                role="presentation"
+                tabindex="0"
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+`;

@@ -1,0 +1,26 @@
+{
+    "globals": {
+        "ts-jest": {
+            "tsconfig": "tsconfig.json"
+        }
+    },
+    "transform": {
+        "^.+\\.tsx?$": "ts-jest"
+    },
+    "testEnvironment": "jsdom",
+    "testRegex": "(/__tests__/.*|(\\.|/)(test|spec))\\.(jsx?|tsx?)$",
+    "moduleFileExtensions": [
+        "ts",
+        "tsx",
+        "js",
+        "jsx",
+        "json",
+        "node"
+    ],
+    "setupFiles": [
+        "./jest-shim.ts"
+    ],
+    "setupFilesAfterEnv": [
+        "jest-canvas-mock"
+    ]
+}
