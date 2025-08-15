@@ -96,6 +96,12 @@ you'll learn high-level context about the project's different components without
   the code as well as learning the submission and review process (which is a significant learning step if you've
   never submitted a PR before).
 
+## Uplifting the traceviewer libraries
+
+The traceviewer libraries (base and react-components) were developed in this repo at first, but have since been migrated to their own repository, and then re-added as a git subtree, under "local-libs/traceviewer-libs/". This permits treating them as local code during development, while keeping the possibility to share local changes with the upstream, and update the local git subtree from the upstream.
+
+For more details, see the `traceviewer-libs` [README][traceviewer-libs-readme] 
+
 ## Uplifting the Theia dependencies version
 
 Should one be willing to contribute such an uplift, these are the steps to consider, while
@@ -179,3 +185,4 @@ For issues concerning `eclipse-cdt-cloud`, please refer to the contact options l
 [tracing-summit]: https://tracingsummit.org/ts/2019/
 [tracompa-cloud-video]: https://www.youtube.com/watch?v=DFxWXE4A-uQ
 [tracompa-cloud-slides]: https://www.eclipsecon.org/sites/default/files/slides/EclipseCon2021-TraceCompassCloud.pdf
+[traceviewer-libs-readme]: https://github.com/eclipse-cdt-cloud/traceviewer-libs/blob/master/README.md#pulling-latest-changes-from-the-subtree-repo-into-the-local-subtree
