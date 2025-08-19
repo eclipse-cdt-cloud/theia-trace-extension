@@ -1,0 +1,36 @@
+name: CI/CD
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  build-test:
+    name: Build & run unit Tests (${{ matrix.os }}, node-${{ matrix.node-version }})
+    timeout-minutes: 60
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest]
+        node-version: [22]
+
+    steps:
+    - uses: actions/checkout@v4
+    - uses: actions/setup-node@v4
+      with:
+        node-version: ${{ matrix.node-version }}
+    - name: Install npm dependencies and build "traceviewer-base"
+      working-directory: base
+      run: yarn --frozen-lockfile
+    - name: Install npm dependencies and build "traceviewer-react-components"
+      working-directory: react-components
+      run: yarn --frozen-lockfile
+    - name: Run unit tests for "traceviewer-react-components"
+      working-directory: react-components
+      # admitedly a hack - these dependencies would be defined one level up, 
+      # which does not exist here
+      run: |
+        yarn add react@18.3.1 react-dom@18.3.1 @types/react@18.3.8 lodash.debounce@4.0.8 @types/lodash.debounce@4.0.3
+        yarn test

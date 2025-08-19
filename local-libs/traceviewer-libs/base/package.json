@@ -34,7 +34,6 @@
         "lint": "eslint .",
         "lint:fix": "eslint . --fix",
         "test": "echo 'test'",
-        "watch": "tsc -w",
         "format:write": "prettier --write ./src",
         "format:check": "prettier --check ./src"
     }

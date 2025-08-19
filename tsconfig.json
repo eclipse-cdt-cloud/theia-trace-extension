@@ -11,10 +11,10 @@
             "path": "theia-extensions/viewer-prototype"
         },
         {
-            "path": "packages/base"
+            "path": "local-libs/traceviewer-libs/base"
         },
         {
-            "path": "packages/react-components"
+            "path": "local-libs/traceviewer-libs/react-components"
         }
     ]
 }
