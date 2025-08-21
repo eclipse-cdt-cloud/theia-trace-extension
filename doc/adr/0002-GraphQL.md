@@ -317,6 +317,8 @@ graph TD
 * The steps below that exercise this prototype depend on a locally running, default `trace-server`.
 
 ```bash
+cd ./0002/
+tar xvzf graphql-server-prototype.tar.gz
 cd ./0002/graphql-server-prototype
 yarn
 node index.js
