@@ -28,6 +28,7 @@ import { UnitControllerHistoryHandler } from './utils/unit-controller-history-ha
 import { TraceOverviewComponent } from './trace-overview-component';
 import { TimeRangeUpdatePayload } from 'traceviewer-base/lib/signals/time-range-data-signal-payloads';
 import { GanttChartOutputComponent } from './gantt-chart-output-component';
+import createNumberTranslator from './utils/number-translator';
 
 const ResponsiveGridLayout = WidthProvider(Responsive);
 
@@ -190,16 +191,8 @@ export class TraceContextComponent extends React.Component<TraceContextProps, Tr
         const viewRangeStart = viewRange.getStart() - (offset ? offset : BigInt(0));
         const viewRangeEnd = viewRange.getEnd() - (offset ? offset : BigInt(0));
         this.unitController = new TimeGraphUnitController(absoluteRange, { start: viewRangeStart, end: viewRangeEnd });
-        this.unitController.numberTranslator = (theNumber: bigint) => {
-            const originalStart = this.state.currentRange.getStart();
-            theNumber += originalStart;
-            const zeroPad = (num: bigint) => String(num).padStart(3, '0');
-            const seconds = theNumber / BigInt(1000000000);
-            const millis = zeroPad((theNumber / BigInt(1000000)) % BigInt(1000));
-            const micros = zeroPad((theNumber / BigInt(1000)) % BigInt(1000));
-            const nanos = zeroPad(theNumber % BigInt(1000));
-            return seconds + '.' + millis + ' ' + micros + ' ' + nanos;
-        };
+        this.unitController.numberTranslator = createNumberTranslator(true, this.state.currentRange.getStart());
+
         this.unitController.worldRenderFactor = 0.25;
         this.historyHandler = new UnitControllerHistoryHandler(this.unitController);
         if (this.props.persistedState?.currentTimeSelection) {
@@ -792,14 +785,8 @@ export class TraceContextComponent extends React.Component<TraceContextProps, Tr
                                 ganttChartRange.getDuration(),
                                 { start: ganttChartRange.getStart(), end: ganttChartRange.getEnd() }
                             );
-                            ganttChartUnitController.numberTranslator = (theNumber: bigint) => {
-                                const zeroPad = (num: bigint) => String(num).padStart(3, '0');
-                                const seconds = theNumber / BigInt(1000000000);
-                                const millis = zeroPad((theNumber / BigInt(1000000)) % BigInt(1000));
-                                const micros = zeroPad((theNumber / BigInt(1000)) % BigInt(1000));
-                                const nanos = zeroPad(theNumber % BigInt(1000));
-                                return seconds + '.' + millis + ' ' + micros + ' ' + nanos;
-                            };
+                            ganttChartUnitController.numberTranslator = createNumberTranslator(false);
+
                             // Restore view range if available, otherwise set to global view range
                             const fgViewRange = this.state.ganttChartRanges?.[output.id];
                             if (fgViewRange) {
