@@ -681,13 +681,13 @@ export class TraceContextComponent extends React.Component<TraceContextProps, Tr
             >
                 {outputs.map(output => {
                     let onOutputRemove;
-                    let responseType;
+                    let providerType;
                     if (isOverview) {
                         onOutputRemove = this.props.onOverviewRemove;
-                        responseType = 'OVERVIEW';
+                        providerType = 'OVERVIEW';
                     } else {
                         onOutputRemove = this.props.onOutputRemove;
-                        responseType = output.type;
+                        providerType = output.type;
                     }
 
                     const outputProps: AbstractOutputProps = {
@@ -709,7 +709,7 @@ export class TraceContextComponent extends React.Component<TraceContextProps, Tr
                         setChartOffset: this.setChartOffset,
                         pinned: this.state.pinnedView ? this.state.pinnedView === output : undefined
                     };
-                    switch (responseType) {
+                    switch (providerType) {
                         case 'OVERVIEW':
                             return (
                                 <TraceOverviewComponent
