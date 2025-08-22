@@ -96,15 +96,15 @@ export abstract class AbstractGanttOutputComponent<
     private vscrollLayer: TimeGraphVerticalScrollbar;
     private chartCursors: TimeGraphChartCursors;
     private markerChartCursors: TimeGraphChartCursors;
-    private arrowLayer: TimeGraphChartArrows;
-    private rangeEventsLayer: TimeGraphRangeEventsLayer;
+    protected arrowLayer: TimeGraphChartArrows;
+    protected rangeEventsLayer: TimeGraphRangeEventsLayer;
 
     private horizontalContainer: React.RefObject<HTMLDivElement>;
     protected chartTreeRef: React.RefObject<HTMLDivElement>;
     protected markerTreeRef: React.RefObject<HTMLDivElement>;
     private containerRef: React.RefObject<ReactTimeGraphContainer>;
 
-    private tspDataProvider: TspDataProvider;
+    protected tspDataProvider: TspDataProvider;
     private styleProvider: StyleProvider;
     private styleMap = new Map<string, TimeGraphStateStyle>();
 
@@ -116,7 +116,7 @@ export abstract class AbstractGanttOutputComponent<
         this.doHandleContextMenuContributed(payload);
     protected onOrderChange = (ids: number[]) => this.doHandleOrderChange(ids);
     protected onOrderReset = () => this.doHandleOrderReset();
-    private pendingSelection: TimeGraphEntry | undefined;
+    protected pendingSelection: TimeGraphEntry | undefined;
 
     private _debouncedUpdateChart = debounce(() => {
         this.chartLayer.updateChart(this.filterExpressionsMap());
@@ -435,7 +435,7 @@ export abstract class AbstractGanttOutputComponent<
         }
     }
 
-    private updateTotalHeight() {
+    protected updateTotalHeight() {
         const visibleEntries = [...this.state.chartTree].filter(entry => this.isVisible(entry));
         this.totalHeight = visibleEntries.length * this.props.style.rowHeight;
         this.rowController.totalHeight = this.totalHeight;
@@ -679,15 +679,7 @@ export abstract class AbstractGanttOutputComponent<
     renderChart(): React.ReactNode {
         return (
             <React.Fragment>
-                <div
-                    id={this.props.chartId}
-                    className="ps__child--consume"
-                    onWheel={ev => {
-                        ev.preventDefault();
-                        ev.stopPropagation();
-                    }}
-                    style={{ height: 'auto' }}
-                >
+                <div id={this.props.chartId} className="ps__child--consume" style={{ height: 'auto' }}>
                     {this.renderAbstractGanttContent(`${this.props.chartId}-content`)}
                 </div>
                 {this.state.outputStatus === ResponseStatus.RUNNING && (
@@ -706,7 +698,7 @@ export abstract class AbstractGanttOutputComponent<
         return this.state.chartTree.length === 0;
     }
 
-    private isFilteredIn(row: TimelineChart.TimeGraphRowModel, strategy?: string): boolean {
+    protected isFilteredIn(row: TimelineChart.TimeGraphRowModel, strategy?: string): boolean {
         if (row.states.length === 1 && row.states[0].range.start === row.states[0].range.end) {
             // intentionally empty row should be visible
             return true;
@@ -1016,13 +1008,13 @@ export abstract class AbstractGanttOutputComponent<
         }
     }
 
-    private getTimegraphRowIds() {
+    protected getTimegraphRowIds() {
         const { chartTree, columns, collapsedNodes } = this.state;
         const rowIds = getAllExpandedNodeIds(listToTree(chartTree, columns), collapsedNodes);
         return { rowIds };
     }
 
-    private async fetchChartData(
+    protected async fetchChartData(
         range: TimelineChart.TimeGraphRange,
         resolution: number,
         fetchArrows: boolean,
@@ -1101,7 +1093,7 @@ export abstract class AbstractGanttOutputComponent<
         };
     }
 
-    private updateMarkersData(
+    protected updateMarkersData(
         rangeEvents: TimelineChart.TimeGraphAnnotation[],
         newRange: TimelineChart.TimeGraphRange,
         newResolution: number
@@ -1589,7 +1581,7 @@ export abstract class AbstractGanttOutputComponent<
         this.setState({ multiSelectedRows: shiftClickedRows });
     };
 
-    private selectAndReveal(item: TimeGraphEntry) {
+    protected selectAndReveal(item: TimeGraphEntry) {
         const rowIndex = getIndexOfNode(
             item.id,
             listToTree(this.state.chartTree, this.state.columns),
