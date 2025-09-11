@@ -383,12 +383,12 @@ export abstract class AbstractXYOutputComponent<
             d >= 1000000000000
                 ? Math.round(d / 100000000000) / 10 + 'G'
                 : d >= 1000000000
-                ? Math.round(d / 100000000) / 10 + 'B'
-                : d >= 1000000
-                ? Math.round(d / 100000) / 10 + 'M'
-                : d >= 1000
-                ? Math.round(d / 100) / 10 + 'K'
-                : Math.round(d * 10) / 10;
+                  ? Math.round(d / 100000000) / 10 + 'B'
+                  : d >= 1000000
+                    ? Math.round(d / 100000) / 10 + 'M'
+                    : d >= 1000
+                      ? Math.round(d / 100) / 10 + 'K'
+                      : Math.round(d * 10) / 10;
 
         if (this.state.allMax > 0) {
             select(this.yAxisRef.current)

@@ -130,9 +130,9 @@ export function drawSelection(params: DrawSelectionParams): void {
     const { startPixel, endPixel, isBarPlot, chartArea, props, ctx, invertSelection } = params;
     const minPixel = Math.min(startPixel, endPixel);
     const maxPixel = Math.max(startPixel, endPixel);
-    const initialPoint = isBarPlot ? 0 : chartArea?.left ?? 0;
+    const initialPoint = isBarPlot ? 0 : (chartArea?.left ?? 0);
     const chartHeight = parseInt(props.style.height.toString());
-    const finalPoint = isBarPlot ? chartHeight : chartArea?.bottom ?? 0;
+    const finalPoint = isBarPlot ? chartHeight : (chartArea?.bottom ?? 0);
 
     if (ctx) {
         ctx.save();

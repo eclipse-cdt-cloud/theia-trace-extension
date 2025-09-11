@@ -537,8 +537,8 @@ export abstract class AbstractGanttOutputComponent<
         return this.state.markerCategoryEntries.length <= 1
             ? 0
             : this.state.collapsedMarkerNodes.length
-            ? rowHeight
-            : this.state.markerCategoryEntries.length * rowHeight + scrollbarHeight;
+              ? rowHeight
+              : this.state.markerCategoryEntries.length * rowHeight + scrollbarHeight;
     }
 
     abstract renderTree(): React.ReactNode;
