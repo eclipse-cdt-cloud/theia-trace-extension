@@ -185,9 +185,9 @@ export class XYOutputComponent extends AbstractXYOutputComponent<AbstractOutputP
     ) {
         const minPixel = Math.min(startPixel, endPixel);
         const maxPixel = Math.max(startPixel, endPixel);
-        const initialPoint = this.isBarPlot ? 0 : chartArea?.left ?? 0;
+        const initialPoint = this.isBarPlot ? 0 : (chartArea?.left ?? 0);
         const chartHeight = parseInt(this.props.style.height.toString());
-        const finalPoint = this.isBarPlot ? chartHeight : chartArea?.bottom ?? 0;
+        const finalPoint = this.isBarPlot ? chartHeight : (chartArea?.bottom ?? 0);
         if (ctx) {
             ctx.save();
 
