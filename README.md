@@ -84,9 +84,9 @@ git remote add traceviewer-libs git@github.com:eclipse-cdt-cloud/traceviewer-lib
 # assumption: remote for official repo is named "origin"
 git checkout master && git pull origin master
 # push the latest local library changes to the git subtree upstream:
-git subtree push -p <subtree folder> <subtree remote repo> <remote review branch>
+git subtree push --prefix <subtree folder> <subtree remote repo> <remote review branch>
 # more concrete example: 
-git subtree push -p local-libs/traceviewer-libs traceviewer-libs update-from-vscode-trace-extension
+git subtree push --prefix local-libs/traceviewer-libs traceviewer-libs update-from-vscode-trace-extension
 
 # Then create a PR from the freshly pushed branch "update-from-vscode-trace-extension".
 # If tweaks are necessary, e.g. to remove some changes that are only relevant to 

@@ -197,7 +197,7 @@ export class TspDataProvider {
                         start: arrow.start - offset,
                         end: arrow.end - offset
                     } as TimelineChart.TimeGraphRange
-                } as TimelineChart.TimeGraphArrow)
+                }) as TimelineChart.TimeGraphArrow
         );
         return arrows;
     }

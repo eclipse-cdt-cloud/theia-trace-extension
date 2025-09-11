@@ -17,9 +17,10 @@ module.exports = {
     extends: [
         'plugin:react/recommended',
         'plugin:@typescript-eslint/recommended',
-        '../../configs/base.eslintrc.json',
-        '../../configs/warnings.eslintrc.json',
-        '../../configs/errors.eslintrc.json'
+        '../../../configs/base.eslintrc.json',
+        '../../../configs/warnings.eslintrc.json',
+        '../../../configs/errors.eslintrc.json',
+        "prettier"
     ],
     ignorePatterns: [
         'node_modules',
