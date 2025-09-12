@@ -84,7 +84,7 @@ export class UnitControllerHistoryHandler {
         let oneIsDifferent = false;
         const { selectionRange: itemSR, viewRange: itemVR } = item;
         const { selectionRange: prevSR, viewRange: prevVR } = this.history[this.index];
-        const check = (value1: BigInt | undefined, value2: BigInt | undefined) => {
+        const check = (value1: bigint | undefined, value2: bigint | undefined) => {
             if (oneIsDifferent) {
                 return;
             }

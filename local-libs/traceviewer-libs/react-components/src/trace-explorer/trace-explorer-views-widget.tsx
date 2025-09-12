@@ -300,7 +300,7 @@ export class ReactAvailableViewsWidget extends React.Component<ReactAvailableVie
     private handleCustomizeClick = async (entry: OutputDescriptor, e: React.MouseEvent) => {
         e.stopPropagation();
         if (this.props.onCustomizationClick && this._selectedExperiment) {
-            await this.props.onCustomizationClick(entry, this._selectedExperiment);
+            this.props.onCustomizationClick(entry, this._selectedExperiment);
             this.updateAvailableViews();
         }
     };
