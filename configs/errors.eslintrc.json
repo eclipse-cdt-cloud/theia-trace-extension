@@ -1,5 +1,6 @@
 {
   "rules": {
+    "@typescript-eslint/no-unsafe-declaration-merging": "off",
     "@typescript-eslint/consistent-type-definitions": "error",
     "@typescript-eslint/indent": "off",
     "@typescript-eslint/no-explicit-any": "error",
@@ -15,6 +16,7 @@
       "always"
     ],
     "@typescript-eslint/type-annotation-spacing": "error",
+    "@typescript-eslint/no-shadow": ["error"],
     "arrow-body-style": [
       "error",
       "as-needed"
@@ -51,12 +53,7 @@
     ],
     "no-new-wrappers": "error",
     "no-null/no-null": "error",
-    "no-shadow": [
-      "error",
-      {
-        "hoist": "all"
-      }
-    ],
+    "no-shadow": "off",
     "no-throw-literal": "error",
     "no-trailing-spaces": "error",
     "no-underscore-dangle": "off",
@@ -93,6 +90,11 @@
           "/"
         ]
       }
+    ],
+    "indent": [
+      "error",
+      4,
+      { "SwitchCase": 1 }
     ]
   }
 }
