@@ -296,7 +296,7 @@ export class TspDataProvider {
                 start: annotation.time - chartStart,
                 end: annotation.time + annotation.duration - chartStart
             },
-            label: annotation.label,
+            label: annotation.label ?? '',
             data: {
                 style: annotation.style
             }
