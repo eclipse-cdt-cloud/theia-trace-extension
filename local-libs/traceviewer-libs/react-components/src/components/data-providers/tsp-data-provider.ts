@@ -175,6 +175,290 @@ export class TspDataProvider {
         };
     }
 
+    /**
+     * Get data for sync analysis mode - fetches full range but normalizes time coordinates
+     * to map selection range to 0 to delta_t
+     */
+    // async getDataForSyncAnalysis(
+    //     ids: number[],
+    //     entries: TimeGraphEntry[],
+    //     fetchArrows: boolean,
+    //     totalTimeRange: TimeRange,
+    //     worldRange?: TimelineChart.TimeGraphRange,
+    //     nbTimes?: number,
+    //     annotationMarkers?: string[],
+    //     markerSetId?: string,
+    //     additionalProperties?: { [key: string]: any }
+    // ): Promise<TimelineChart.TimeGraphModel> {
+    //     this.timeGraphEntries = [...entries];
+    //     if (!this.timeGraphEntries.length || !worldRange || !nbTimes) {
+    //         return {
+    //             id: 'model',
+    //             totalLength: this.totalRange,
+    //             rows: [],
+    //             rangeEvents: [],
+    //             arrows: [],
+    //             data: {}
+    //         };
+    //     }
+
+    //     // Fire all TSP requests
+    //     this.totalRange = totalTimeRange.getEnd() - totalTimeRange.getStart();
+    //     const start = totalTimeRange.getStart() + worldRange.start;
+    //     const end = totalTimeRange.getStart() + worldRange.end;
+    //     const timeGraphStateParams = QueryHelper.selectionTimeRangeQuery(
+    //         start,
+    //         end,
+    //         nbTimes,
+    //         ids,
+    //         additionalProperties ? additionalProperties : {}
+    //     );
+    //     const statesPromise = this.client.fetchTimeGraphStates(this.traceUUID, this.outputId, timeGraphStateParams);
+
+    //     const additionalProps: { [key: string]: any } = {};
+    //     if (annotationMarkers) {
+    //         additionalProps['requested_marker_categories'] = annotationMarkers;
+    //     }
+    //     if (markerSetId) {
+    //         additionalProps['requested_marker_set'] = markerSetId;
+    //     }
+    //     const annotationParams = QueryHelper.selectionTimeRangeQuery(start, end, nbTimes, ids, additionalProps);
+    //     const annotations: Map<number, TimelineChart.TimeGraphAnnotation[]> = new Map();
+    //     const annotationsPromise = this.client.fetchAnnotations(this.traceUUID, this.outputId, annotationParams);
+
+    //     const arrowStart = worldRange.start + this.timeGraphEntries[0].start;
+    //     const arrowEnd = worldRange.end + this.timeGraphEntries[0].start;
+    //     const fetchParameters = QueryHelper.timeRangeQuery(arrowStart, arrowEnd, nbTimes);
+
+    //     // Wait for responses
+    //     const [tspClientAnnotationsResponse, tspClientStatesResponse] = await Promise.all([
+    //         annotationsPromise,
+    //         statesPromise
+    //     ]);
+
+    //     // the start time which is normalized to logical 0 in timeline chart.
+    //     const chartStart = totalTimeRange.getStart();
+
+    //     const annotationsResponse = tspClientAnnotationsResponse.getModel();
+    //     const rangeEvents: TimelineChart.TimeGraphAnnotation[] = [];
+    //     if (tspClientAnnotationsResponse.isOk() && annotationsResponse) {
+    //         Object.entries(annotationsResponse.model.annotations).forEach(([category, categoryArray]) => {
+    //             categoryArray.forEach(annotation => {
+    //                 if (annotation.type === Type.CHART) {
+    //                     if (annotation.entryId === -1) {
+    //                         rangeEvents.push(this.getAnnotation(category, annotation, rangeEvents.length, chartStart));
+    //                     } else {
+    //                         let entryArray = annotations.get(annotation.entryId);
+    //                         if (entryArray === undefined) {
+    //                             entryArray = [];
+    //                             annotations.set(annotation.entryId, entryArray);
+    //                         }
+    //                         entryArray.push(this.getAnnotation(category, annotation, entryArray.length, chartStart));
+    //                     }
+    //                 }
+    //             });
+    //         });
+    //     }
+
+    //     const stateResponse = tspClientStatesResponse.getModel();
+
+    //     if (tspClientStatesResponse.isOk() && stateResponse) {
+    //         this.timeGraphRows = stateResponse.model.rows;
+    //         this.timeGraphRowsOrdering(ids);
+    //     } else {
+    //         this.timeGraphRows = [];
+    //     }
+
+    //     const rows: TimelineChart.TimeGraphRowModel[] = [];
+    //     this.timeGraphRows.forEach((row: TimeGraphRow) => {
+    //         const rowId: number = row.entryId;
+    //         const entry = this.timeGraphEntries.find(tgEntry => tgEntry.id === rowId);
+    //         if (entry) {
+    //             rows.push(this.getRowModel(row, chartStart, rowId, entry));
+    //         }
+    //     });
+
+    //     for (const [entryId, entryArray] of annotations.entries()) {
+    //         const row = rows.find(tgEntry => tgEntry.id === entryId);
+    //         if (row) {
+    //             row.annotations = entryArray;
+    //         }
+    //     }
+
+    //     let arrows: TimelineChart.TimeGraphArrow[] = [];
+    //     if (fetchArrows) {
+    //         const tspClientArrowsResponse = await this.client.fetchTimeGraphArrows(
+    //             this.traceUUID,
+    //             this.outputId,
+    //             fetchParameters
+    //         );
+    //         arrows = this.getArrows(tspClientArrowsResponse, worldRange, nbTimes);
+    //     }
+
+    //     return {
+    //         id: 'model',
+    //         totalLength: this.totalRange,
+    //         rows,
+    //         arrows,
+    //         rangeEvents,
+    //         data: {
+    //             originalStart: chartStart
+    //         }
+    //     };
+    // }
+    async getDataForSyncAnalysis(
+        ids: number[],
+        entries: TimeGraphEntry[],
+        fetchArrows: boolean,
+        totalTimeRange: TimeRange,
+        selectionRange: TimelineChart.TimeGraphRange,
+        nbTimes?: number,
+        annotationMarkers?: string[],
+        markerSetId?: string,
+        additionalProperties?: { [key: string]: any }
+    ): Promise<TimelineChart.TimeGraphModel> {
+        this.timeGraphEntries = [...entries];
+        if (!this.timeGraphEntries.length || !nbTimes) {
+            return {
+                id: 'model',
+                totalLength: this.totalRange,
+                rows: [],
+                rangeEvents: [],
+                arrows: [],
+                data: {}
+            };
+        }
+
+        // Fire all TSP requests for the full range
+        this.totalRange = totalTimeRange.getEnd() - totalTimeRange.getStart();
+        const start = totalTimeRange.getStart();
+        const end = totalTimeRange.getEnd();
+        const timeGraphStateParams = QueryHelper.selectionTimeRangeQuery(
+            start,
+            end,
+            nbTimes,
+            ids,
+            additionalProperties ? additionalProperties : {}
+        );
+        const statesPromise = this.client.fetchTimeGraphStates(this.traceUUID, this.outputId, timeGraphStateParams);
+
+        const additionalProps: { [key: string]: any } = {};
+        if (annotationMarkers) {
+            additionalProps['requested_marker_categories'] = annotationMarkers;
+        }
+        if (markerSetId) {
+            additionalProps['requested_marker_set'] = markerSetId;
+        }
+        const annotationParams = QueryHelper.selectionTimeRangeQuery(start, end, nbTimes, ids, additionalProps);
+        const annotations: Map<number, TimelineChart.TimeGraphAnnotation[]> = new Map();
+        const annotationsPromise = this.client.fetchAnnotations(this.traceUUID, this.outputId, annotationParams);
+
+        const fetchParameters = QueryHelper.timeRangeQuery(start, end, nbTimes);
+
+        // Wait for responses
+        const [tspClientAnnotationsResponse, tspClientStatesResponse] = await Promise.all([
+            annotationsPromise,
+            statesPromise
+        ]);
+
+        // Calculate normalization parameters
+        const selectionDuration = selectionRange.end - selectionRange.start;
+        const selectionStart = totalTimeRange.getStart() + selectionRange.start;
+        const selectionEnd = totalTimeRange.getStart() + selectionRange.end;
+
+        // the start time which is normalized to logical 0 in timeline chart.
+        const chartStart = totalTimeRange.getStart();
+
+        const annotationsResponse = tspClientAnnotationsResponse.getModel();
+        const rangeEvents: TimelineChart.TimeGraphAnnotation[] = [];
+        if (tspClientAnnotationsResponse.isOk() && annotationsResponse) {
+            Object.entries(annotationsResponse.model.annotations).forEach(([category, categoryArray]) => {
+                categoryArray.forEach(annotation => {
+                    if (annotation.type === Type.CHART) {
+                        if (annotation.entryId === -1) {
+                            rangeEvents.push(
+                                this.getAnnotationForSyncAnalysis(
+                                    category,
+                                    annotation,
+                                    rangeEvents.length,
+                                    chartStart,
+                                    selectionStart,
+                                    selectionDuration
+                                )
+                            );
+                        } else {
+                            let entryArray = annotations.get(annotation.entryId);
+                            if (entryArray === undefined) {
+                                entryArray = [];
+                                annotations.set(annotation.entryId, entryArray);
+                            }
+                            entryArray.push(
+                                this.getAnnotationForSyncAnalysis(
+                                    category,
+                                    annotation,
+                                    entryArray.length,
+                                    chartStart,
+                                    selectionStart,
+                                    selectionDuration
+                                )
+                            );
+                        }
+                    }
+                });
+            });
+        }
+
+        const stateResponse = tspClientStatesResponse.getModel();
+
+        if (tspClientStatesResponse.isOk() && stateResponse) {
+            this.timeGraphRows = stateResponse.model.rows;
+            this.timeGraphRowsOrdering(ids);
+        } else {
+            this.timeGraphRows = [];
+        }
+
+        const rows: TimelineChart.TimeGraphRowModel[] = [];
+        this.timeGraphRows.forEach((row: TimeGraphRow) => {
+            const rowId: number = row.entryId;
+            const entry = this.timeGraphEntries.find(tgEntry => tgEntry.id === rowId);
+            if (entry) {
+                rows.push(
+                    this.getRowModelForSyncAnalysis(row, chartStart, rowId, entry, selectionStart, selectionDuration)
+                );
+            }
+        });
+
+        for (const [entryId, entryArray] of annotations.entries()) {
+            const row = rows.find(tgEntry => tgEntry.id === entryId);
+            if (row) {
+                row.annotations = entryArray;
+            }
+        }
+
+        let arrows: TimelineChart.TimeGraphArrow[] = [];
+        if (fetchArrows) {
+            const tspClientArrowsResponse = await this.client.fetchTimeGraphArrows(
+                this.traceUUID,
+                this.outputId,
+                fetchParameters
+            );
+            arrows = this.getArrowsForSyncAnalysis(tspClientArrowsResponse, selectionStart, selectionDuration);
+        }
+
+        return {
+            id: 'model',
+            totalLength: this.totalRange, // Use the full range for proper scaling
+            rows,
+            arrows,
+            rangeEvents,
+            data: {
+                originalStart: chartStart,
+                syncAnalysisMode: true,
+                selectionRange: selectionRange
+            }
+        };
+    }
+
     private getArrows(
         tspClientArrowsResponse: TspClientResponse<GenericResponse<TimeGraphArrow[]>>,
         viewRange?: TimelineChart.TimeGraphRange,
@@ -301,6 +585,161 @@ export class TspDataProvider {
                 style: annotation.style
             }
         };
+    }
+
+    private getAnnotationForSyncAnalysis(
+        category: string,
+        annotation: Annotation,
+        idx: number,
+        chartStart: bigint,
+        selectionStart: bigint,
+        selectionDuration: bigint
+    ) {
+        // Normalize time coordinates to map selection range to 0 to selectionDuration
+        const normalizedStart = this.normalizeTimeForSyncAnalysis(annotation.time, selectionStart, selectionDuration);
+        const normalizedEnd = this.normalizeTimeForSyncAnalysis(
+            annotation.time + annotation.duration,
+            selectionStart,
+            selectionDuration
+        );
+
+        return {
+            id: annotation.entryId + '-' + idx,
+            category: category,
+            range: {
+                start: normalizedStart,
+                end: normalizedEnd
+            },
+            label: annotation.label,
+            data: {
+                style: annotation.style
+            }
+        };
+    }
+
+    private getRowModelForSyncAnalysis(
+        row: TimeGraphRow,
+        chartStart: bigint,
+        rowId: number,
+        entry: TimeGraphEntry,
+        selectionStart: bigint,
+        selectionDuration: bigint
+    ) {
+        let dimGapStates = false;
+        const states: TimelineChart.TimeGraphState[] = [];
+        let prevPossibleState = entry.start;
+        let nextPossibleState = entry.end;
+        row.states.forEach((state: TimeGraphState, idx: number) => {
+            if (!dimGapStates && state.tags && state.tags === 1) {
+                dimGapStates = true;
+            }
+            // Normalize time coordinates for sync analysis mode
+            const normalizedStart = this.normalizeTimeForSyncAnalysis(state.start, selectionStart, selectionDuration);
+            const normalizedEnd = this.normalizeTimeForSyncAnalysis(state.end, selectionStart, selectionDuration);
+
+            states.push({
+                id: row.entryId + '-' + idx,
+                label: state.label,
+                range: {
+                    start: normalizedStart,
+                    end: normalizedEnd
+                },
+                data: {
+                    style: state.style,
+                    tags: state.tags
+                }
+            });
+
+            if (idx === 0) {
+                prevPossibleState = normalizedStart;
+            }
+            if (idx === row.states.length - 1) {
+                nextPossibleState = normalizedEnd;
+            }
+        });
+        let gapStyle: OutputElementStyle;
+        if (!entry.style) {
+            gapStyle = this.getDefaultForGapStyle();
+        } else {
+            gapStyle = entry.style;
+        }
+        if (dimGapStates) {
+            gapStyle.values.opacity = 0.3;
+        } else if (gapStyle.values.opacity) {
+            delete gapStyle.values.opacity;
+        }
+
+        // Normalize entry range
+        const normalizedEntryStart = this.normalizeTimeForSyncAnalysis(entry.start, selectionStart, selectionDuration);
+        const normalizedEntryEnd = this.normalizeTimeForSyncAnalysis(entry.end, selectionStart, selectionDuration);
+
+        return {
+            id: rowId,
+            name: entry.labels[0],
+            range: {
+                start: normalizedEntryStart,
+                end: normalizedEntryEnd
+            },
+            states,
+            annotations: [],
+            prevPossibleState,
+            nextPossibleState,
+            gapStyle
+        };
+    }
+
+    private getArrowsForSyncAnalysis(
+        tspClientArrowsResponse: TspClientResponse<GenericResponse<TimeGraphArrow[]>>,
+        selectionStart: bigint,
+        selectionDuration: bigint
+    ): TimelineChart.TimeGraphArrow[] {
+        let timeGraphArrows: TimeGraphArrow[] = [];
+        const stateResponseArrows = tspClientArrowsResponse.getModel();
+        if (tspClientArrowsResponse.isOk() && stateResponseArrows && stateResponseArrows.model) {
+            timeGraphArrows = stateResponseArrows.model;
+        }
+
+        const arrows = timeGraphArrows.map(arrow => {
+            // Normalize arrow time coordinates
+            const normalizedStart = this.normalizeTimeForSyncAnalysis(arrow.start, selectionStart, selectionDuration);
+            const normalizedEnd = this.normalizeTimeForSyncAnalysis(arrow.end, selectionStart, selectionDuration);
+
+            return {
+                sourceId: arrow.sourceId,
+                destinationId: arrow.targetId,
+                range: {
+                    start: normalizedStart,
+                    end: normalizedEnd
+                } as TimelineChart.TimeGraphRange
+            } as TimelineChart.TimeGraphArrow;
+        });
+        return arrows;
+    }
+
+    private normalizeTimeForSyncAnalysis(time: bigint, selectionStart: bigint, selectionDuration: bigint): bigint {
+        // Map time from absolute coordinates to normalized coordinates
+        // The selection range should span the full width of the chart
+        const relativeTime = time - selectionStart;
+
+        // Scale the coordinates so that the selection range spans the full width
+        // We want the selected range to map to the full chart width, not just its own duration
+        const totalRange = this.totalRange;
+        if (totalRange === BigInt(0)) {
+            return BigInt(0);
+        }
+
+        // Scale the relative time to span the full chart width
+        const scaledTime = (relativeTime * totalRange) / selectionDuration;
+
+        // Ensure the time is within the chart bounds
+        if (scaledTime < BigInt(0)) {
+            return BigInt(0);
+        }
+        if (scaledTime > totalRange) {
+            return totalRange;
+        }
+
+        return scaledTime;
     }
 
     async fetchStateTooltip(
