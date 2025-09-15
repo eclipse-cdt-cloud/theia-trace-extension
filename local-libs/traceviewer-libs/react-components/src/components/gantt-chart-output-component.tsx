@@ -114,6 +114,72 @@ export class GanttChartOutputComponent extends AbstractGanttOutputComponent<
         await super.componentDidMount();
     }
 
+    async fetchTreeForSyncAnalysis(): Promise<ResponseStatus> {
+        if (!this.isSyncedRangeValid(this.props.syncedRange)) {
+            return ResponseStatus.FAILED;
+        }
+
+        const resolution = Math.ceil(
+            Number(this.props.range.getEnd() - this.props.range.getStart()) / this.COARSE_RESOLUTION_FACTOR
+        );
+
+        const parameters = QueryHelper.timeRangeQuery(
+            this.props.range.getStart(),
+            this.props.range.getEnd(),
+            resolution,
+            {
+                selection_range: [
+                    this.props.selectionRange?.getStart() ??
+                        BigInt(0) + (this.props.selectionRange?.getOffset() ?? BigInt(0)),
+                    this.props.selectionRange?.getEnd() ??
+                        BigInt(0) + (this.props.selectionRange?.getOffset() ?? BigInt(0))
+                ]
+            }
+        );
+        const tspClientResponse = await this.props.tspClient.fetchTimeGraphTree(
+            this.props.traceId,
+            this.props.outputDescriptor.id,
+            parameters
+        );
+        const treeResponse = tspClientResponse.getModel();
+        if (tspClientResponse.isOk() && treeResponse) {
+            if (treeResponse.model) {
+                const headers = treeResponse.model.headers;
+                const columns: ColumnHeader[] = [];
+                if (headers && headers.length > 0) {
+                    headers.forEach(header => {
+                        columns.push({ title: header.name, sortable: true, resizable: true, tooltip: header.tooltip });
+                    });
+                } else {
+                    columns.push({ title: '', sortable: true, resizable: true });
+                }
+                const autoCollapsedNodes = getCollapsedNodesFromAutoExpandLevel(
+                    listToTree(treeResponse.model.entries, columns),
+                    treeResponse.model.autoExpandLevel
+                );
+                this.setState(
+                    {
+                        outputStatus: treeResponse.status,
+                        chartTree: treeResponse.model.entries,
+                        defaultOrderedIds: treeResponse.model.entries.map(entry => entry.id),
+                        collapsedNodes: autoCollapsedNodes,
+                        columns
+                    },
+                    this.updateTotalHeight
+                );
+            } else {
+                this.setState({
+                    outputStatus: treeResponse.status
+                });
+            }
+            return treeResponse.status;
+        }
+        this.setState({
+            outputStatus: ResponseStatus.FAILED
+        });
+        return ResponseStatus.FAILED;
+    }
+
     async fetchTree(): Promise<ResponseStatus> {
         const parameters = QueryHelper.timeRangeQuery(this.props.range.getStart(), this.props.range.getEnd());
         const tspClientResponse = await this.props.tspClient.fetchTimeGraphTree(
@@ -275,11 +341,6 @@ export class GanttChartOutputComponent extends AbstractGanttOutputComponent<
                 end: BIMath.max(relativeStart, relativeEnd)
             };
 
-            // fetch the full range but we'll normalize the time coordinates
-            newRange = {
-                start: BigInt(0),
-                end: this.props.range.getEnd() - this.props.range.getStart()
-            };
             syncAnalysisMode = true;
         } else {
             newRange = range;
@@ -288,6 +349,18 @@ export class GanttChartOutputComponent extends AbstractGanttOutputComponent<
 
         let timeGraphData: TimelineChart.TimeGraphModel;
         if (syncAnalysisMode && selectionRange) {
+            console.log(this.props.selectionRange?.getStart(), this.props.selectionRange?.getEnd());
+
+            const _additionalProperties = {
+                ...additionalProperties,
+                selection_range: [
+                    this.props.selectionRange?.getStart() ??
+                        BigInt(0) + (this.props.selectionRange?.getOffset() ?? BigInt(0)),
+                    this.props.selectionRange?.getEnd() ??
+                        BigInt(0) + (this.props.selectionRange?.getOffset() ?? BigInt(0))
+                ]
+            };
+
             // Full range with normalized time coordinates in sync mode
             timeGraphData = await this.tspDataProvider.getDataForSyncAnalysis(
                 ids,
@@ -298,7 +371,7 @@ export class GanttChartOutputComponent extends AbstractGanttOutputComponent<
                 nbTimes,
                 this.props.markerCategories,
                 this.props.markerSetId,
-                additionalProperties
+                _additionalProperties
             );
         } else {
             // Use normal mode
@@ -415,13 +488,13 @@ export class GanttChartOutputComponent extends AbstractGanttOutputComponent<
         const syncedRangeChanged = !isEqual(prevProps.syncedRange, this.props.syncedRange);
 
         if (syncModeChanged || syncedRangeChanged) {
-            this.fetchTree();
             if (this.chartLayer) {
                 this.chartLayer.updateChart();
             }
 
             if (this.state.isSyncRange && this.isSyncedRangeValid(this.props.syncedRange)) {
                 // In sync mode, set the view range to start from 0 with the selection duration
+                this.fetchTreeForSyncAnalysis();
                 const fullRangeWidth = this.props.range.getEnd() - this.props.range.getStart();
                 this.props.unitController.absoluteRange = fullRangeWidth;
                 const normalized = this.normalizeRange(this.props.syncedRange.start, this.props.syncedRange.end);

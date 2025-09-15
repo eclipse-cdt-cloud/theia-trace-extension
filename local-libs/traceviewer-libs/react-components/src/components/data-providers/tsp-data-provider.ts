@@ -179,6 +179,133 @@ export class TspDataProvider {
      * Get data for sync analysis mode - fetches full range but normalizes time coordinates
      * to map selection range to 0 to delta_t
      */
+    // async getDataForSyncAnalysis(
+    //     ids: number[],
+    //     entries: TimeGraphEntry[],
+    //     fetchArrows: boolean,
+    //     totalTimeRange: TimeRange,
+    //     worldRange?: TimelineChart.TimeGraphRange,
+    //     nbTimes?: number,
+    //     annotationMarkers?: string[],
+    //     markerSetId?: string,
+    //     additionalProperties?: { [key: string]: any }
+    // ): Promise<TimelineChart.TimeGraphModel> {
+    //     this.timeGraphEntries = [...entries];
+    //     if (!this.timeGraphEntries.length || !worldRange || !nbTimes) {
+    //         return {
+    //             id: 'model',
+    //             totalLength: this.totalRange,
+    //             rows: [],
+    //             rangeEvents: [],
+    //             arrows: [],
+    //             data: {}
+    //         };
+    //     }
+
+    //     // Fire all TSP requests
+    //     this.totalRange = totalTimeRange.getEnd() - totalTimeRange.getStart();
+    //     const start = totalTimeRange.getStart() + worldRange.start;
+    //     const end = totalTimeRange.getStart() + worldRange.end;
+    //     const timeGraphStateParams = QueryHelper.selectionTimeRangeQuery(
+    //         start,
+    //         end,
+    //         nbTimes,
+    //         ids,
+    //         additionalProperties ? additionalProperties : {}
+    //     );
+    //     const statesPromise = this.client.fetchTimeGraphStates(this.traceUUID, this.outputId, timeGraphStateParams);
+
+    //     const additionalProps: { [key: string]: any } = {};
+    //     if (annotationMarkers) {
+    //         additionalProps['requested_marker_categories'] = annotationMarkers;
+    //     }
+    //     if (markerSetId) {
+    //         additionalProps['requested_marker_set'] = markerSetId;
+    //     }
+    //     const annotationParams = QueryHelper.selectionTimeRangeQuery(start, end, nbTimes, ids, additionalProps);
+    //     const annotations: Map<number, TimelineChart.TimeGraphAnnotation[]> = new Map();
+    //     const annotationsPromise = this.client.fetchAnnotations(this.traceUUID, this.outputId, annotationParams);
+
+    //     const arrowStart = worldRange.start + this.timeGraphEntries[0].start;
+    //     const arrowEnd = worldRange.end + this.timeGraphEntries[0].start;
+    //     const fetchParameters = QueryHelper.timeRangeQuery(arrowStart, arrowEnd, nbTimes);
+
+    //     // Wait for responses
+    //     const [tspClientAnnotationsResponse, tspClientStatesResponse] = await Promise.all([
+    //         annotationsPromise,
+    //         statesPromise
+    //     ]);
+
+    //     // the start time which is normalized to logical 0 in timeline chart.
+    //     const chartStart = totalTimeRange.getStart();
+
+    //     const annotationsResponse = tspClientAnnotationsResponse.getModel();
+    //     const rangeEvents: TimelineChart.TimeGraphAnnotation[] = [];
+    //     if (tspClientAnnotationsResponse.isOk() && annotationsResponse) {
+    //         Object.entries(annotationsResponse.model.annotations).forEach(([category, categoryArray]) => {
+    //             categoryArray.forEach(annotation => {
+    //                 if (annotation.type === Type.CHART) {
+    //                     if (annotation.entryId === -1) {
+    //                         rangeEvents.push(this.getAnnotation(category, annotation, rangeEvents.length, chartStart));
+    //                     } else {
+    //                         let entryArray = annotations.get(annotation.entryId);
+    //                         if (entryArray === undefined) {
+    //                             entryArray = [];
+    //                             annotations.set(annotation.entryId, entryArray);
+    //                         }
+    //                         entryArray.push(this.getAnnotation(category, annotation, entryArray.length, chartStart));
+    //                     }
+    //                 }
+    //             });
+    //         });
+    //     }
+
+    //     const stateResponse = tspClientStatesResponse.getModel();
+
+    //     if (tspClientStatesResponse.isOk() && stateResponse) {
+    //         this.timeGraphRows = stateResponse.model.rows;
+    //         this.timeGraphRowsOrdering(ids);
+    //     } else {
+    //         this.timeGraphRows = [];
+    //     }
+
+    //     const rows: TimelineChart.TimeGraphRowModel[] = [];
+    //     this.timeGraphRows.forEach((row: TimeGraphRow) => {
+    //         const rowId: number = row.entryId;
+    //         const entry = this.timeGraphEntries.find(tgEntry => tgEntry.id === rowId);
+    //         if (entry) {
+    //             rows.push(this.getRowModel(row, chartStart, rowId, entry));
+    //         }
+    //     });
+
+    //     for (const [entryId, entryArray] of annotations.entries()) {
+    //         const row = rows.find(tgEntry => tgEntry.id === entryId);
+    //         if (row) {
+    //             row.annotations = entryArray;
+    //         }
+    //     }
+
+    //     let arrows: TimelineChart.TimeGraphArrow[] = [];
+    //     if (fetchArrows) {
+    //         const tspClientArrowsResponse = await this.client.fetchTimeGraphArrows(
+    //             this.traceUUID,
+    //             this.outputId,
+    //             fetchParameters
+    //         );
+    //         arrows = this.getArrows(tspClientArrowsResponse, worldRange, nbTimes);
+    //     }
+
+    //     return {
+    //         id: 'model',
+    //         totalLength: this.totalRange,
+    //         rows,
+    //         arrows,
+    //         rangeEvents,
+    //         data: {
+    //             originalStart: chartStart
+    //         }
+    //     };
+    // }
     async getDataForSyncAnalysis(
         ids: number[],
         entries: TimeGraphEntry[],
