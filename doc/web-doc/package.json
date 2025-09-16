@@ -1,0 +1,53 @@
+{
+  "name": "gatsby-starter-default",
+  "private": true,
+  "description": "A simple starter to get up and developing quickly with Gatsby",
+  "version": "0.1.0",
+  "author": "Kyle Mathews <mathews.kyle@gmail.com>",
+  "dependencies": {
+    "gatsby": "^4.16.0",
+    "gatsby-link": "^4.17.0",
+    "gatsby-plugin-image": "^2.16.1",
+    "gatsby-plugin-manifest": "^4.17.0",
+    "gatsby-plugin-react-helmet": "^5.16.0",
+    "gatsby-plugin-sharp": "^4.16.1",
+    "gatsby-remark-copy-linked-files": "^5.16.0",
+    "gatsby-remark-images": "^6.16.0",
+    "gatsby-remark-mermaid": "^2.1.0",
+    "gatsby-remark-prismjs": "^6.16.0",
+    "gatsby-source-filesystem": "^4.16.0",
+    "gatsby-transformer-remark": "^5.16.0",
+    "gatsby-transformer-sharp": "^4.16.0",
+    "path-browserify": "^1.0.1",
+    "prop-types": "^15.8.1",
+    "puppeteer": "^14.4.0",
+    "react": "^18.1.0",
+    "react-dom": "^18.1.0",
+    "react-helmet": "^6.1.0",
+    "react-router-dom": "^6.3.0",
+    "styled-components": "^5.3.5"
+  },
+  "devDependencies": {
+    "prettier": "^2.6.2"
+  },
+  "keywords": [
+    "gatsby"
+  ],
+  "license": "0BSD",
+  "scripts": {
+    "build": "gatsby build",
+    "develop": "gatsby develop",
+    "format": "prettier --write \"**/*.{js,jsx,ts,tsx,json,md,css}\"",
+    "start": "gatsby develop",
+    "serve": "gatsby serve",
+    "clean": "gatsby clean",
+    "test": "echo \"Write tests! -> https://gatsby.dev/unit-testing\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/gatsbyjs/gatsby-starter-default"
+  },
+  "bugs": {
+    "url": "https://github.com/gatsbyjs/gatsby/issues"
+  }
+}

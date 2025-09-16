@@ -1,0 +1,51 @@
+.navItem {
+  padding: 0.8rem 1.25rem;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+}
+
+.navItem:hover {
+  background-color: #1e3a8a;
+}
+
+.activeNavItem {
+  color: #dbeafe;
+  background-color: #1e3a8a;
+}
+
+.navIcon {
+  color: #d1d5db;
+  width: 1.5rem;
+  height: 1.5rem;
+  margin-right: 1rem;
+}
+
+.navLabel {
+  color: #d1d5db;
+  font-size: 1rem;
+}
+
+.navItemHeaderButton {
+  width: 100%;
+  outline: none;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+}
+
+.navItemHeaderChevron {
+  color: #d1d5db;
+  width: 1.5rem;
+  height: 1.5rem;
+  margin-left: auto;
+  transition: all 0.25s;
+}
+
+.chevronExpanded {
+  transform: rotate(180deg);
+}
+
+.navChildrenBlock {
+  background-color: hsl(226, 71%, 36%);
+}
