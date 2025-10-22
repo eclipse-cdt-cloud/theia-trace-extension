@@ -437,6 +437,8 @@ Modify the _version tag_ in file `./RELEASE`, to match the new release. Then ame
 git add RELEASE && git commit --amend
 ```
 
+If commit message shows `%s` as version string, then replace it by the version of the vscode-trace-extension release.
+
 Finally, push the branch and use it to create a PR. When the PR is merged, a GitHub release should be created with auto-generated release notes, as well as a git tag. Then the `publish-latest` CI job should trigger and if everything goes well, publish the new version of the repo's packages to `npm`.
 
 ## License
