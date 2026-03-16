@@ -18,9 +18,19 @@ interface TimeAxisProps {
 }
 
 export class TimeAxisComponent extends React.Component<TimeAxisProps> {
+    private containerRef = React.createRef<ReactTimeGraphContainer>();
+
+    componentDidUpdate(prevProps: TimeAxisProps): void {
+        // Force update when unit controller changes
+        if (prevProps.unitController !== this.props.unitController) {
+            // The key prop approach in trace-context-component.tsx will handle re-rendering
+        }
+    }
+
     render(): JSX.Element {
         return (
             <ReactTimeGraphContainer
+                ref={this.containerRef}
                 id="timegraph-axis"
                 options={{
                     id: 'timegraph-axis',

@@ -600,29 +600,45 @@ input[type='reset'].input-button {
     background: none;
 }
 
-.zoom-reset-button-container {
+.gantt-actions-container {
     display: flex;
     justify-content: flex-end;
     margin-bottom: 4;
-    flex-direction: column;
+    flex-direction: row;
     position: absolute;
+    gap: 2pt;
     z-index: 10;
 }
 
-.zoom-reset-button {
+.gantt-action-button {
     all: unset;
     display: flex;
     justify-content: center;
     align-items: center;
-    padding: 2.5px 8px;
+    padding: 2.5px 4px;
     background: var(--theia-button-secondaryBackground);
     color: var(--theia-editor-foreground);
     border-radius: 4;
     cursor: pointer;
     font-size: 0.75rem;
     font-weight: bold;
+    height: fit-content;
+    width: fit-content;
+    gap: 4pt;
 
     &:hover {
         background: var(--theia-button-secondaryHoverBackground);
     }
+}
+
+.sync-analysis-info {
+    display: flex;
+    align-items: center;
+    margin: 2px;
+    padding: 4px 8px;
+    background: var(--theia-notificationsInfoBackground);
+    color: var(--theia-notificationsInfoForeground);
+    border-radius: 4px;
+    font-size: 0.75rem;
+    border: 1px solid var(--theia-notificationsInfoBorder);
 }
