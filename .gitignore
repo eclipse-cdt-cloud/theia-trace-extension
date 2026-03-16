@@ -1,6 +1,7 @@
 # LC_COLLATE=C sort .gitignore
 *.log
 *.tsbuildinfo
+.DS_Store
 .browser_modules/
 /.venv/
 /local-libs/traceviewer-libs/base/lib/

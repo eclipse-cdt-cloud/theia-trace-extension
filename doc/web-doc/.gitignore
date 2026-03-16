@@ -1,0 +1,11 @@
+# LC_COLLATE=C sort .gitignore
+.DS_Store
+.env
+.env.*
+/.svelte-kit
+/build
+/package
+doc-sources
+node_modules
+vite.config.js.timestamp-*
+vite.config.ts.timestamp-*
