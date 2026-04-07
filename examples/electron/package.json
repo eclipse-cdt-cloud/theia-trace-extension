@@ -34,7 +34,7 @@
     },
     "devDependencies": {
         "@theia/cli": "~1.61.1",
-        "electron": "^30.3.1",
+        "electron": "^39.8.5",
         "electron-builder": "~24.13.0"
     },
     "scripts": {
