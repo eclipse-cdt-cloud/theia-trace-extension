@@ -19,6 +19,7 @@ import { validateNumArray } from './utils/filter-tree/utils';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSpinner } from '@fortawesome/free-solid-svg-icons';
 import { signalManager } from 'traceviewer-base/lib/signals/signal-manager';
+import { csvCell } from './utils/xy-output-component-utils';
 
 export class XYOutputComponent extends AbstractXYOutputComponent<AbstractOutputProps, AbstractXYOutputState> {
     private mousePanningStart = BigInt(0);
@@ -403,7 +404,8 @@ export class XYOutputComponent extends AbstractXYOutputComponent<AbstractOutputP
     private exportOutput() {
         const columnLabels = this.state.columns.map(col => col.title);
         const tableContent = this.state.xyTree.map(rowData => rowData.labels);
-        const tableString = columnLabels.join(',') + '\n' + tableContent.map(row => row.join(',')).join('\n');
+        const tableString =
+            columnLabels.map(csvCell).join(',') + '\n' + tableContent.map(row => row.map(csvCell).join(',')).join('\n');
         signalManager().emit('SAVE_AS_CSV', this.props.traceId, tableString);
         this.setState({
             dropDownOpen: false
