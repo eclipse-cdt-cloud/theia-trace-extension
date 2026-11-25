@@ -1,3 +1,7 @@
+# Archived ⚠️ 
+
+The Trace Viewer extension for Theia is archived in favour of the [Trace Viewer extension for VS Code](https://github.com/eclipse-cdt-cloud/vscode-trace-extension), which can be installed in Theia too.
+
 # Trace Viewer extension for Theia applications
 
 Theia trace viewer extension using the [tsp-typescript-client][tspc] and [Trace Server Protocol][tsp].
