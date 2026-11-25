@@ -15,6 +15,7 @@ import { signalManager } from 'traceviewer-base/lib/signals/signal-manager';
 import '../../style/react-contextify.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSpinner } from '@fortawesome/free-solid-svg-icons';
+import { csvCell } from './utils/xy-output-component-utils';
 
 type DataTreeOutputProps = AbstractOutputProps & {};
 
@@ -364,7 +365,7 @@ export class DataTreeOutputComponent extends AbstractOutputComponent<AbstractOut
                         } else {
                             data = content;
                         }
-                        row.push(data);
+                        row.push(csvCell(data));
                     }
                     csvArray.push(row.join(','));
                 }

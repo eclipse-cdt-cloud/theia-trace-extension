@@ -201,3 +201,16 @@ export function getClosestPointForScatterPlot(params: GetClosestPointParam): XYP
 export function numberFormat(rawNumber: number): string {
     return new Intl.NumberFormat().format(rawNumber);
 }
+
+export function csvCell(v: string | null | undefined): string {
+    let s = v ?? '';
+    // Neutralise spreadsheet formula triggers (OWASP CSV-injection guidance)
+    if (/^[=+\-@\t\r]/.test(s)) {
+        s = "'" + s;
+    }
+    // RFC-4180 quoting for structural characters
+    if (/[",\n\r]/.test(s)) {
+        s = '"' + s.replace(/"/g, '""') + '"';
+    }
+    return s;
+}
